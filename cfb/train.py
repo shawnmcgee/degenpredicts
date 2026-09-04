@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 from datetime import datetime
 
 import numpy as np
@@ -42,6 +43,11 @@ DEFAULTS = dict(n_estimators=500, max_depth=4, learning_rate=0.03, subsample=0.8
                 colsample_bytree=0.8, min_child_weight=8, reg_lambda=3.0, random_state=42)
 
 TARGETS = {"total": "total_points", "margin": "home_margin"}
+
+# Hard ceiling on how far we'll move off the closing line, no matter what the fit says.
+# The market is the single best predictor available; fully overriding it is almost always
+# overfitting, not insight.
+SHRINK_CAP = float(os.environ.get("DEGEN_SHRINK_CAP", "0.6"))
 
 
 def make_model(params=None):
@@ -105,54 +111,104 @@ def assemble(fetch: bool = True) -> pd.DataFrame:
     return train_rows
 
 
-def evaluate(df: pd.DataFrame, kind: str, market: bool, params=None) -> dict:
+def complete_seasons(df: pd.DataFrame) -> list[int]:
+    """Seasons that have finished. The in-progress season must never be the holdout: it is a
+    handful of unrepresentative early games and calibrating on it produces garbage."""
+    today = config.today_et()
+    return sorted(int(s) for s in df["season"].unique() if config.season_end(int(s)) < today)
+
+
+def walk_forward(df: pd.DataFrame, kind: str, market: bool, params=None,
+                 n_seasons: int = 4) -> dict:
+    """Train on everything before season S, predict S, for each of the last n_seasons
+    complete seasons; pool the out-of-sample predictions.
+
+    One season is not enough to calibrate on - a good or bad year swings MAE and, worse, the
+    shrink weight. Pooling several thousand out-of-sample games makes both stable.
+    """
     target = TARGETS[kind]
     feats = BASE_FEATURES + (MARKET_FEATURES if market else [])
+    line_col = "total_line" if kind == "total" else "spread_home"
+    rating_col = "exp_total" if kind == "total" else "exp_margin"
+
     d = df.dropna(subset=[target])
     if market:
-        col = "total_line" if kind == "total" else "spread_home"
-        d = d[d[col].notna()]
-    seasons = sorted(d["season"].unique())
-    if len(seasons) < 2 or len(d) < 200:
-        return {"skipped": True, "n": int(len(d))}
-    test = seasons[-1]
-    tr, te = d[d.season < test], d[d.season == test]
-    if len(tr) < 100 or len(te) < 50:
-        return {"skipped": True, "n": int(len(d))}
+        d = d[d[line_col].notna()]
+    comp = complete_seasons(d)
+    if len(comp) < 2:
+        return {"skipped": True, "reason": "need >=2 complete seasons", "n": int(len(d))}
 
-    model, _ = _fit(tr, feats, target, params)
-    pred = model.predict(te[feats])
-    resid = te[target].values - pred
-    rating_col = "exp_total" if kind == "total" else "exp_margin"
+    tests = [s for s in comp[-n_seasons:] if s > comp[0]]
+    chunks, per_season = [], []
+    for s in tests:
+        tr, te = d[d["season"] < s], d[d["season"] == s]
+        if len(tr) < 500 or len(te) < 100:
+            continue
+        model, _ = _fit(tr, feats, target, params)
+        pred = model.predict(te[feats])
+        line = (te[line_col] if kind == "total" else -te[line_col]).values if market else np.full(len(te), np.nan)
+        chunk = pd.DataFrame({"season": s, "pred": pred, "actual": te[target].values,
+                              "rating": te[rating_col].values, "line": line})
+        chunks.append(chunk)
+        per_season.append({"season": int(s), "n": int(len(te)),
+                           "mae_model": round(float(mean_absolute_error(chunk.actual, chunk.pred)), 2),
+                           "ats_rate": _ats(chunk)[0] if market else None})
+    if not chunks:
+        return {"skipped": True, "reason": "no season had enough data", "n": int(len(d))}
+
+    pool = pd.concat(chunks, ignore_index=True)
+    resid = pool["actual"] - pool["pred"]
     out = {
-        "test_season": int(test), "n_train": int(len(tr)), "n_test": int(len(te)),
-        "mae_model": round(float(mean_absolute_error(te[target], pred)), 2),
-        "mae_rating_baseline": round(float(mean_absolute_error(te[target], te[rating_col])), 2),
-        "sigma": round(float(np.std(resid)), 2),
-        "bias": round(float(np.mean(resid)), 2),
+        "test_seasons": [int(s) for s in pool["season"].unique()],
+        "n_test_total": int(len(pool)),
+        "mae_model": round(float(mean_absolute_error(pool.actual, pool.pred)), 2),
+        "mae_rating_baseline": round(float(mean_absolute_error(pool.actual, pool.rating)), 2),
+        "sigma": round(float(resid.std()), 2),
+        "bias": round(float(resid.mean()), 2),
+        "per_season": per_season,
     }
     if market:
-        line = te["total_line"] if kind == "total" else -te["spread_home"]
-        out["mae_market_baseline"] = round(float(mean_absolute_error(te[target], line)), 2)
-        # how often would we have been right picking the model's side?
-        edge = pred - line.values
-        side_right = np.where(edge > 0, te[target].values > line.values, te[target].values < line.values)
-        decided = te[target].values != line.values
-        out["ats_rate"] = round(float(100 * side_right[decided].mean()), 1) if decided.any() else None
-        out["ats_n"] = int(decided.sum())
-        out["shrink"] = round(float(_best_shrink(pred, line.values, te[target].values)), 2)
+        out["mae_market_baseline"] = round(float(mean_absolute_error(pool.actual, pool.line)), 2)
+        rate, n_dec = _ats(pool)
+        out["ats_rate"] = rate
+        out["ats_n"] = n_dec
+        # 1 s.e. on a coin flip, so you can see whether ats_rate means anything
+        out["ats_stderr"] = round(float(100 * (0.25 / max(n_dec, 1)) ** 0.5), 2)
+        out["beats_market"] = bool(out["mae_model"] < out["mae_market_baseline"])
+        shrink = _best_shrink(pool.pred.values, pool.line.values, pool.actual.values)
+        # Never let a thin sample talk us into abandoning the line.
+        if n_dec < 500:
+            log.warning("%s/%s: only %d decided games - clamping shrink to the default",
+                        kind, "mkt", n_dec)
+            shrink = min(shrink, config.DEFAULT_SHRINK)
+        out["shrink"] = round(float(min(shrink, SHRINK_CAP)), 2)
+        out["shrink_raw"] = round(float(_best_shrink(pool.pred.values, pool.line.values,
+                                                     pool.actual.values)), 2)
     return out
 
 
 def _best_shrink(pred, line, actual) -> float:
-    """How far toward the model should we move from the line? Minimises MAE on the holdout."""
+    """How far from the closing line toward the model should we move? Minimises pooled MAE."""
     best, best_mae = 0.0, np.inf
     for w in np.arange(0, 1.01, 0.05):
-        blend = line + w * (pred - line)
-        mae = mean_absolute_error(actual, blend)
+        mae = mean_absolute_error(actual, line + w * (pred - line))
         if mae < best_mae:
-            best, best_mae = w, mae
+            best, best_mae = float(w), mae
     return best
+
+
+def _ats(chunk: pd.DataFrame) -> tuple[float | None, int]:
+    decided = chunk["actual"] != chunk["line"]
+    if not decided.any():
+        return None, 0
+    c = chunk[decided]
+    right = np.where(c["pred"] > c["line"], c["actual"] > c["line"], c["actual"] < c["line"])
+    return round(float(100 * right.mean()), 1), int(len(c))
+
+
+# Backwards-compatible alias; the search routine scores with the same walk-forward.
+def evaluate(df, kind, market, params=None):
+    return walk_forward(df, kind, market, params)
 
 
 def search(df, kind, market, n_iter=15):
@@ -188,7 +244,7 @@ def main(argv=None):
         for market in (False, True):
             name = f"{kind}_{'market' if market else 'nomarket'}"
             params = search(df, kind, market) if args.search else None
-            res = evaluate(df, kind, market, params)
+            res = walk_forward(df, kind, market, params)
             meta["eval"][name] = res
             if res.get("skipped"):
                 log.warning("%s: not enough data yet (%s rows) - skipping", name, res.get("n"))
@@ -203,6 +259,10 @@ def main(argv=None):
             meta["models"].append(name)
             meta["sigma"][name] = res["sigma"]
             meta["shrink"][name] = res.get("shrink", config.DEFAULT_SHRINK)
+            if market and not res.get("beats_market", False):
+                log.warning("%s does NOT beat the closing line (%.2f vs %.2f) - "
+                            "treat its picks as unproven", name,
+                            res["mae_model"], res["mae_market_baseline"])
             if hasattr(model, "feature_importances_"):
                 meta.setdefault("top_features", {})[name] = dict(
                     sorted(zip(feats, map(float, model.feature_importances_)),
