@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} — College Football</title>
+<style>
+  :root{--bg:#0e0f12;--card:#181a1f;--card2:#20232a;--fg:#e8e8ea;--dim:#9aa0a8;
+        --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:60px}
+  header{padding:20px 16px 8px;max-width:900px;margin:0 auto}
+  h1{font-size:22px} .sub{color:var(--dim);font-size:13px;margin-top:4px}
+  main{max-width:900px;margin:0 auto;padding:0 16px}
+  section{margin-top:24px}
+  h2{font-size:16px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-bottom:10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .stat{background:var(--card);border-radius:10px;padding:14px;text-align:center}
+  .stat .v{font-size:24px;font-weight:700;margin:4px 0}
+  .stat .l{font-size:11px;color:var(--dim);text-transform:uppercase}
+  .up{color:var(--good)} .down{color:var(--bad)}
+  .game{background:var(--card);border-radius:10px;margin-bottom:12px;overflow:hidden}
+  .game.bold{outline:2px solid var(--accent)}
+  .ghead{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--card2);font-size:13px;color:var(--dim)}
+  .teams{padding:12px 14px;font-weight:600}
+  .teams .at{color:var(--dim);font-weight:400;font-size:13px;margin:0 6px}
+  .bets{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#2a2d34}
+  .bet{background:var(--card);padding:12px 14px}
+  .bet .l{font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:4px}
+  .bet .p{font-size:16px;font-weight:700}
+  .bet .d{font-size:12px;color:var(--dim);margin-top:4px}
+  .tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em}
+  .tag.bold{background:var(--accent);color:#06121f}
+  .tag.play{background:#2f4858;color:var(--fg)}
+  .tag.thin{background:var(--warn);color:#2a1c00}
+  .tag.pass{background:#2a2d34;color:var(--dim)}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:10px;overflow:hidden}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid #24262c}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--dim);font-weight:500;font-size:11px;text-transform:uppercase}
+  .note{background:var(--card);border-left:3px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
+  footer{max-width:900px;margin:40px auto 0;padding:0 16px;color:var(--dim);font-size:12px}
+  @media(max-width:520px){.bets{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>{{ title }} — College Football</h1>
+  <div class="sub">Spread and total predictions for every FBS game{% if week %}, Week {{ week }}{% endif %}. Updated {{ updated or "—" }}.</div>
+</header>
+
+<main>
+
+{% macro record(r, label) %}
+  <div class="stat">
+    <div class="l">{{ label }}</div>
+    <div class="v {% if r.units > 0 %}up{% elif r.units < 0 %}down{% endif %}">{{ r.units|money }}u</div>
+    <div class="l">{{ r.wins }}-{{ r.losses }}{% if r.pushes %}-{{ r.pushes }}{% endif %}
+      · {{ r.win_pct }}% · ROI {{ r.roi }}%{% if r.clv is not none %} · CLV {{ r.clv }}{% endif %}</div>
+  </div>
+{% endmacro %}
+
+{% if m.totals and m.totals.season and m.totals.season.n %}
+<section>
+  <h2>Season performance</h2>
+  <div class="grid">
+    {{ record(m.totals.season, "Totals") }}
+    {{ record(m.spreads.season, "Spreads") }}
+    {{ record(m.totals.last2weeks, "Totals · 2wk") }}
+    {{ record(m.spreads.last2weeks, "Spreads · 2wk") }}
+  </div>
+  <p class="sub" style="margin-top:8px">Break-even at −110 is {{ m.break_even }}%. Model error:
+    totals {{ m.totals.mae }} pts, margin {{ m.spreads.mae }} pts. CLV is the average line move
+    in our favour after the pick — the fastest honest read on whether there's an edge.</p>
+</section>
+{% endif %}
+
+<section>
+  <h2>{% if week %}Week {{ week }}{% else %}This week{% endif %} board</h2>
+  {% if not picks %}
+    <div class="note">No games on the board yet. The pipeline runs every morning during the season and posts the week's slate as soon as lines are up.</div>
+  {% endif %}
+  {% for g in picks %}
+  <div class="game {% if g.total_strength == 'bold' or g.spread_strength == 'bold' %}bold{% endif %}">
+    <div class="ghead">
+      <span>{{ g.tip_et }} ET</span>
+      <span>{{ g.total_book or g.provider or "" }}{% if g.neutral_site %} · neutral{% endif %}{% if g.thin_data %} · early season{% endif %}</span>
+    </div>
+    <div class="teams">{{ g.away_team }}<span class="at">{% if g.neutral_site %}vs{% else %}at{% endif %}</span>{{ g.home_team }}</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag {{ g.total_strength }}">{{ g.total_strength }}</span></div>
+        <div class="p">{{ g.total_pick }} {{ g.total_line }}</div>
+        <div class="d">Model {{ g.total_pred }} · edge {{ '%+.1f'|format(g.total_edge or 0) }}
+          · win prob {{ '%.0f'|format((g.total_p_win or 0)*100) }}%
+          {% if g.total_strength not in ('pass','thin') %} · stake {{ g.total_stake }}u{% endif %}</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag {{ g.spread_strength }}">{{ g.spread_strength }}</span></div>
+        <div class="p">{{ g.spread_pick }}</div>
+        <div class="d">Model margin {{ g.margin_pred }} · edge {{ '%+.1f'|format(g.margin_edge or 0) }}
+          · win prob {{ '%.0f'|format((g.spread_p_win or 0)*100) }}%
+          {% if g.spread_strength not in ('pass','thin') %} · stake {{ g.spread_stake }}u{% endif %}</div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</section>
+
+{% if m.totals and m.totals.by_edge %}
+<section>
+  <h2>Accuracy by edge size</h2>
+  <table>
+    <tr><th>Edge</th><th>Totals W-L</th><th>Win%</th><th>Units</th><th>Spreads W-L</th><th>Win%</th><th>Units</th></tr>
+    {% for row in m.totals.by_edge %}
+    {% set sp = (m.spreads.by_edge | selectattr('bucket','equalto',row.bucket) | list | first) %}
+    <tr>
+      <td>{{ row.bucket }}</td>
+      <td>{{ row.wins }}-{{ row.losses }}</td><td>{{ row.win_pct }}%</td>
+      <td class="{% if row.units>0 %}up{% elif row.units<0 %}down{% endif %}">{{ row.units|money }}</td>
+      <td>{% if sp %}{{ sp.wins }}-{{ sp.losses }}{% endif %}</td>
+      <td>{% if sp %}{{ sp.win_pct }}%{% endif %}</td>
+      <td class="{% if sp and sp.units>0 %}up{% elif sp and sp.units<0 %}down{% endif %}">{% if sp %}{{ sp.units|money }}{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="sub" style="margin-top:8px">Use this to set the edge thresholds. Current minimums:
+    totals {{ total_min }} pts, spreads {{ spread_min }} pts.</p>
+</section>
+{% endif %}
+
+<section>
+  <div class="note">
+    Model output, not advice. Sports betting has a negative expected return for almost everyone,
+    and college football markets are efficient enough that any real edge here is small and slow
+    to prove out — weeks 1–4 especially, when almost nothing is known about this year's teams.
+    Bet only what you can afford to lose, and treat the units column as bookkeeping rather than
+    a recommendation.
+  </div>
+</section>
+
+</main>
+<footer>
+  Data: CollegeFootballData.com (games, lines, SP+, returning production) · live prices via The Odds API.
+  Raw files: <a href="picks.csv" style="color:var(--accent)">picks.csv</a>,
+  <a href="results.csv" style="color:var(--accent)">results.csv</a>,
+  <a href="metrics.json" style="color:var(--accent)">metrics.json</a>.
+</footer>
+</body>
+</html>
