@@ -113,6 +113,19 @@ BREAK_EVEN = float(os.environ.get("DEGEN_BREAK_EVEN", "0")) or break_even_pct()
 BANKROLL_UNITS = 100.0
 DEFAULT_SHRINK = float(os.environ.get("DEGEN_SHRINK", "0.4"))
 
+# --- Kalshi ladder guards -------------------------------------------------------------
+# Picking the best-EV rung out of ~20 per game is a maximum over noisy estimates: it returns a
+# positive number almost every time even when the model has no edge (winner's curse). These
+# guards exist to stop that, and they are deliberately strict.
+KALSHI_MIN_EV = float(os.environ.get("DEGEN_KALSHI_MIN_EV", "0.05"))   # 5c after fees
+# Only price rungs where the model is not extrapolating into the tail. A normal approximation
+# is poor out there - football margins cluster on 3/7/10/14 and have thinner tails than a
+# Gaussian - so tail probabilities are overstated and cheap longshots look mispriced.
+KALSHI_PROB_MIN = float(os.environ.get("DEGEN_KALSHI_PROB_MIN", "0.20"))
+KALSHI_PROB_MAX = float(os.environ.get("DEGEN_KALSHI_PROB_MAX", "0.80"))
+# Ignore rungs far from the sportsbook number; those are the tails by another name.
+KALSHI_MAX_BOOK_GAP = float(os.environ.get("DEGEN_KALSHI_MAX_GAP", "7.0"))
+
 SITE_TITLE = os.environ.get("DEGEN_SITE_TITLE", "DegenPredicts")
 
 

@@ -207,7 +207,24 @@ distribution and the best tradeable positive-EV rung is kept. Quarter and half s
 (`KXNCAAF1HSPREAD` etc.) exist and are likely softer, but the models predict full-game results,
 so those would need their own training target.
 
-Two guards worth knowing about:
+**Why the guards are strict.** Picking the best-EV rung from a ~20-rung ladder is a *maximum
+over noisy estimates*: it returns a positive number almost every time, even from a model with
+no edge. The first live run produced 40 total and 34 spread "picks" out of 106 games, which is
+not plausible and was the winner's curse plus a normal approximation overstating tail
+probabilities. Four guards now apply, all tunable:
+
+| Guard | Default | Why |
+|---|---|---|
+| `DEGEN_KALSHI_MIN_EV` | 0.05 | 5c after fees, so marginal noise doesn't clear the bar |
+| `DEGEN_KALSHI_PROB_MIN/MAX` | 0.20 / 0.80 | football margins cluster on 3/7/10/14 and have thinner tails than a Gaussian, so tail probabilities are unreliable |
+| `DEGEN_KALSHI_MAX_GAP` | 7.0 | ignore rungs far from the sportsbook number — the tails by another name |
+| thin-data flag | — | no exchange pick on a game the model itself passes on |
+
+`kt_rungs` / `ks_rungs` record how many rungs survived the guards, so you can see the breadth of
+the search that produced a pick. A pick chosen from 15 candidates deserves more scepticism than
+one chosen from 2.
+
+Two more guards worth knowing about:
 
 * **Liquidity.** EV is computed against the **ask**, never the mid, and a pick only surfaces if
   the quote passes width/size/volume gates. A live sample quoted 0.07 x 0.90 with zero volume;

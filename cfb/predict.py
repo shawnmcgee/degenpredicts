@@ -175,6 +175,11 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     # A margin prediction plus its fitted residual sigma is a full distribution, so
     # P(home wins) = P(margin > 0). Kalshi's binary contract prices exactly that event, which
     # makes it directly comparable in a way the spread and total series are not.
+    # The thin-data flag must exist BEFORE the exchange pricing runs: _price_ladders refuses to
+    # publish a pick on a game the model itself considers unplayable.
+    thin = (out["h_games"] < config.MIN_GAMES) | (out["a_games"] < config.MIN_GAMES)
+    out["thin_data"] = thin
+
     if "margin_pred" in out:
         sig = out["margin_sigma"].replace(0, np.nan)
         out["p_home_win"] = np.round(norm.cdf(out["margin_pred"] / sig), 4)
@@ -182,8 +187,6 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         out = _attach_kalshi(out, games)
         out = _price_ladders(out, games)
 
-    thin = (out["h_games"] < config.MIN_GAMES) | (out["a_games"] < config.MIN_GAMES)
-    out["thin_data"] = thin
     out["total_strength"] = [_strength(d, config.TOTAL_EDGE_MIN, t)
                              for d, t in zip(out["total_disagree"], thin)]
     out["spread_strength"] = [_strength(d, config.SPREAD_EDGE_MIN, t)
@@ -277,7 +280,9 @@ def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
             # site, because an edge against an untraded 81c ask is not an edge.
             ev, roi = kalshi.contract_ev(
                 g.get("p_home_win") if side == "home" else g.get("p_away_win"), rec.yes_ask)
-            if rec.tradeable and ev == ev and ev > 0:
+            if (rec.tradeable and ev == ev and ev >= config.KALSHI_MIN_EV
+                    and not bool(g.get("thin_data", False))
+                    and config.KALSHI_PROB_MIN <= (prob or 0) <= config.KALSHI_PROB_MAX):
                 cost = rec.yes_ask + kalshi.fee(rec.yes_ask)
                 payout = (1 - cost) / cost if 0 < cost < 1 else 0.0
                 prob = g.get("p_home_win") if side == "home" else g.get("p_away_win")
@@ -288,6 +293,14 @@ def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
                 out.at[i, "ml_stake"] = round(kelly(prob, payout) * config.BANKROLL_UNITS, 2)
                 out.at[i, "ml_model_cents"] = int(round(prob * 100))
     log.info("kalshi: matched %d/%d board games", hits, len(out))
+    if hits < len(out):
+        missed = out.loc[~out["kalshi_side"].notna(), ["home_team", "away_team"]]
+        names = sorted({n for pair in missed.itertuples() for n in (pair.home_team, pair.away_team)})
+        kal = sorted({t for t in board["team"].dropna().unique()})
+        unmapped = [n for n in names if n not in kal]
+        if unmapped:
+            log.warning("kalshi name mismatch candidates (%d): %s",
+                        len(unmapped), unmapped[:40])
     return out
 
 
@@ -305,8 +318,8 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
     rather than assuming a single line.
     """
     text_cols = ["kt_pick", "kt_ticker", "ks_pick", "ks_ticker"]
-    num_cols = ["kt_strike", "kt_ask", "kt_prob", "kt_ev", "kt_book_gap",
-                "ks_strike", "ks_ask", "ks_prob", "ks_ev", "ks_book_gap"]
+    num_cols = ["kt_strike", "kt_ask", "kt_prob", "kt_ev", "kt_book_gap", "kt_rungs",
+                "ks_strike", "ks_ask", "ks_prob", "ks_ev", "ks_book_gap", "ks_rungs"]
     for c in text_cols:
         out[c] = pd.Series([None] * len(out), index=out.index, dtype="object")
     for c in num_cols:
@@ -328,21 +341,34 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
 
     for i, g in out.iterrows():
         key = (g["date"], g["home_team"], g["away_team"])
+        # Never publish an exchange pick on a game the model itself flags as thin. In week 1 no
+        # team has played a snap; the model correctly says "pass", and the Kalshi path must not
+        # contradict it.
+        thin_row = bool(g.get("thin_data", False))
+        book_total = g.get("total_line", np.nan)
 
         # ---- totals ladder -------------------------------------------------------
-        if len(tot) and g.get("total_pred") == g.get("total_pred"):
+        if not thin_row and len(tot) and g.get("total_pred") == g.get("total_pred"):
             rungs = tot[(tot["date"] == key[0]) & (tot["home_team"] == key[1])
                         & (tot["away_team"] == key[2])]
-            best = None
+            best, considered = None, 0
             for r in rungs.itertuples():
+                if not r.tradeable:
+                    continue
+                if book_total == book_total and abs(r.strike - book_total) > config.KALSHI_MAX_BOOK_GAP:
+                    continue
                 p_over = float(norm.sf(r.strike, loc=g["total_pred"], scale=g["total_sigma"]))
                 for prob, ask, label in ((p_over, r.yes_ask, f"Over {r.strike}"),
                                          (1 - p_over, 1 - r.yes_bid if r.yes_bid == r.yes_bid
                                           else np.nan, f"Under {r.strike}")):
+                    if not (config.KALSHI_PROB_MIN <= prob <= config.KALSHI_PROB_MAX):
+                        continue
+                    considered += 1
                     ev, _ = kalshi.contract_ev(prob, ask)
-                    if ev == ev and r.tradeable and (best is None or ev > best[0]):
+                    if ev == ev and (best is None or ev > best[0]):
                         best = (ev, r, prob, ask, label)
-            if best and best[0] > 0:
+            out.at[i, "kt_rungs"] = considered
+            if best and best[0] >= config.KALSHI_MIN_EV:
                 ev, r, prob, ask, label = best
                 out.at[i, "kt_pick"] = label
                 out.at[i, "kt_strike"] = r.strike
@@ -355,21 +381,31 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
                     out.at[i, "kalshi_incoherent"] = True
 
         # ---- spread ladder -------------------------------------------------------
-        if len(spr) and g.get("margin_pred") == g.get("margin_pred"):
+        if not thin_row and len(spr) and g.get("margin_pred") == g.get("margin_pred"):
             rungs = spr[(spr["date"] == key[0]) & (spr["home_team"] == key[1])
                         & (spr["away_team"] == key[2])]
-            best = None
+            best, considered = None, 0
             for r in rungs.itertuples():
+                if not r.tradeable:
+                    continue
                 if r.team == g["home_team"]:
                     prob = float(norm.sf(r.strike, loc=g["margin_pred"], scale=g["margin_sigma"]))
+                    book_fav = -g["spread_home"] if g.get("spread_home") == g.get("spread_home") else np.nan
                 elif r.team == g["away_team"]:
                     prob = float(norm.cdf(-r.strike, loc=g["margin_pred"], scale=g["margin_sigma"]))
+                    book_fav = g["spread_home"] if g.get("spread_home") == g.get("spread_home") else np.nan
                 else:
                     continue
+                if book_fav == book_fav and abs(r.strike - book_fav) > config.KALSHI_MAX_BOOK_GAP:
+                    continue
+                if not (config.KALSHI_PROB_MIN <= prob <= config.KALSHI_PROB_MAX):
+                    continue
+                considered += 1
                 ev, _ = kalshi.contract_ev(prob, r.yes_ask)
-                if ev == ev and r.tradeable and (best is None or ev > best[0]):
+                if ev == ev and (best is None or ev > best[0]):
                     best = (ev, r, prob)
-            if best and best[0] > 0:
+            out.at[i, "ks_rungs"] = considered
+            if best and best[0] >= config.KALSHI_MIN_EV:
                 ev, r, prob = best
                 out.at[i, "ks_pick"] = f"{r.team} by over {r.strike}"
                 out.at[i, "ks_strike"] = r.strike
@@ -385,8 +421,12 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
                 if r.event_ticker in breaks:
                     out.at[i, "kalshi_incoherent"] = True
 
-    log.info("kalshi ladders: %d total picks, %d spread picks",
-             int(out["kt_pick"].notna().sum()), int(out["ks_pick"].notna().sum()))
+    log.info("kalshi ladders: %d total picks, %d spread picks "
+             "(from %d/%d eligible rungs after guards; min EV %.0fc, prob band %.2f-%.2f)",
+             int(out["kt_pick"].notna().sum()), int(out["ks_pick"].notna().sum()),
+             int(out["kt_rungs"].fillna(0).sum() + out["ks_rungs"].fillna(0).sum()),
+             len(tot) + len(spr), config.KALSHI_MIN_EV * 100,
+             config.KALSHI_PROB_MIN, config.KALSHI_PROB_MAX)
     return out
 
 

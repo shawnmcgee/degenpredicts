@@ -356,3 +356,54 @@ def test_ladder_probabilities_are_ordered(env):
     p_away_by_7 = float(norm.cdf(-7.0, loc=3.0, scale=15.0))
     assert 0 < p_home_by_7 < 1 and 0 < p_away_by_7 < 1
     assert p_home_by_7 > p_away_by_7          # home is favoured by 3
+
+
+def test_ladder_guards_reject_thin_and_tails(env, monkeypatch):
+    """Week 1 (no games played) must produce zero exchange picks, and tail rungs are refused."""
+    import numpy as np
+    import pandas as pd
+    from datetime import date as _date
+    from cfb import config as C, predict
+    from cfb.sources import kalshi, odds
+
+    day = _date(2026, 9, 5)
+    out = pd.DataFrame([{
+        "date": day, "home_team": "Monmouth", "away_team": "Sacred Heart",
+        "total_pred": 72.0, "total_sigma": 16.0, "total_line": 72.0,
+        "margin_pred": 3.0, "margin_sigma": 15.0, "spread_home": -3.0,
+        "p_home_win": 0.58, "p_away_win": 0.42,
+        "thin_data": True,          # <- week 1
+    }])
+    ladder = pd.DataFrame([{
+        "kind": "total", "ticker": "T-79", "event_ticker": "E", "strike": 78.5,
+        "team": None, "home_team": "Monmouth", "away_team": "Sacred Heart", "date": day,
+        "yes_bid": 0.09, "yes_ask": 0.17, "quote_spread": 0.02, "ask_size": 500.0,
+        "volume": 900.0, "tradeable": True,
+    }])
+    monkeypatch.setattr(kalshi, "ladder_board",
+                        lambda kind, matcher=None: ladder if kind == "total" else ladder.iloc[0:0])
+    monkeypatch.setattr(odds, "build_matcher", lambda teams: (lambda n: n))
+    monkeypatch.setattr(predict, "fbs_teams", lambda g, s: {"Monmouth", "Sacred Heart"})
+
+    res = predict._price_ladders(out.copy(), pd.DataFrame())
+    assert res["kt_pick"].isna().all(), "thin-data games must never produce an exchange pick"
+
+    # Not thin any more, but 78.5 is 6.5 above the book total and deep in the tail:
+    # P(total > 78.5) with mu=72, sigma=16 is ~0.34, inside the band, so it survives the band
+    # check -- what must stop it is the minimum-EV bar once the fee is paid.
+    out2 = out.copy()
+    out2.loc[0, "thin_data"] = False
+    res2 = predict._price_ladders(out2, pd.DataFrame())
+    if res2["kt_pick"].notna().any():
+        assert res2["kt_ev"].iloc[0] >= C.KALSHI_MIN_EV
+        assert C.KALSHI_PROB_MIN <= res2["kt_prob"].iloc[0] <= C.KALSHI_PROB_MAX
+        assert abs(res2["kt_strike"].iloc[0] - 72.0) <= C.KALSHI_MAX_BOOK_GAP
+
+    # A rung far from the book number must be refused outright.
+    far = ladder.copy()
+    far.loc[0, "strike"] = 95.0
+    monkeypatch.setattr(kalshi, "ladder_board",
+                        lambda kind, matcher=None: far if kind == "total" else far.iloc[0:0])
+    res3 = predict._price_ladders(out2.copy(), pd.DataFrame())
+    assert res3["kt_pick"].isna().all()
+    assert res3["kt_rungs"].fillna(0).iloc[0] == 0
