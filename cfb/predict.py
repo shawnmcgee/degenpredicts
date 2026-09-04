@@ -235,8 +235,10 @@ def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
     out["kalshi_tradeable"] = False
     # fields the site template renders
     out["ml_pick"] = pd.Series([None] * len(out), index=out.index, dtype="object")
-    for c in ("ml_ask", "ml_p_home", "ml_ev", "ml_roi", "ml_stake", "ml_model_cents"):
+    for c in ("ml_ask", "ml_p_home", "ml_ev", "ml_roi", "ml_stake", "ml_model_cents",
+              "ml_ref_ask", "ml_ref_prob", "ml_ref_ev"):
         out[c] = np.nan
+    out["ml_ref_side"] = pd.Series([None] * len(out), index=out.index, dtype="object")
     try:
         matcher = odds.build_matcher(sorted(fbs_teams(games, config.season_of(config.today_et()))))
         board = kalshi.moneyline_board(matcher)
@@ -275,6 +277,10 @@ def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
             if rec.quote_spread == rec.quote_spread:
                 out.at[i, "kalshi_spread_c"] = round(rec.quote_spread * 100, 1)
             out.at[i, "ml_p_home"] = g.get("p_home_win")
+            out.at[i, "ml_ref_ask"] = rec.yes_ask
+            out.at[i, "ml_ref_prob"] = round(prob, 4) if prob == prob else np.nan
+            out.at[i, "ml_ref_ev"] = round(ev, 4) if ev == ev else np.nan
+            out.at[i, "ml_ref_side"] = team
             # Only surface a playable moneyline where the book is genuinely tradeable and the
             # edge survives the fee. Everything else stays visible in the raw CSV but off the
             # site, because an edge against an untraded 81c ask is not an edge.
@@ -321,9 +327,16 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
     """
     text_cols = ["kt_pick", "kt_ticker", "ks_pick", "ks_ticker"]
     num_cols = ["kt_strike", "kt_ask", "kt_prob", "kt_ev", "kt_book_gap", "kt_rungs",
-                "ks_strike", "ks_ask", "ks_prob", "ks_ev", "ks_book_gap", "ks_rungs"]
+                "ks_strike", "ks_ask", "ks_prob", "ks_ev", "ks_book_gap", "ks_rungs",
+                # reference quote: the rung nearest the book number, recorded for EVERY game
+                # whether or not it is playable, so the exchange price is always visible
+                "kt_ref_strike", "kt_ref_ask", "kt_ref_prob", "kt_ref_ev", "kt_ref_spread_c",
+                "ks_ref_strike", "ks_ref_ask", "ks_ref_prob", "ks_ref_ev", "ks_ref_spread_c"]
+    text_cols = text_cols + ["ks_ref_side"]
     for c in text_cols:
         out[c] = pd.Series([None] * len(out), index=out.index, dtype="object")
+    out["kt_ref_tradeable"] = False
+    out["ks_ref_tradeable"] = False
     for c in num_cols:
         out[c] = np.nan
     out["kalshi_incoherent"] = False
@@ -350,12 +363,25 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
         book_total = g.get("total_line", np.nan)
 
         # ---- totals ladder -------------------------------------------------------
-        if not thin_row and len(tot) and g.get("total_pred") == g.get("total_pred"):
+        if len(tot) and g.get("total_pred") == g.get("total_pred"):
             rungs = tot[(tot["date"] == key[0]) & (tot["home_team"] == key[1])
                         & (tot["away_team"] == key[2])]
+            # Reference quote: the rung closest to the sportsbook total. Always recorded, even
+            # when nothing is playable, so the page can show what Kalshi is actually charging.
+            if len(rungs) and book_total == book_total:
+                ref = rungs.iloc[(rungs["strike"] - book_total).abs().argsort().iloc[0]]
+                p_ref = float(norm.sf(ref["strike"], loc=g["total_pred"], scale=g["total_sigma"]))
+                ev_ref, _ = kalshi.contract_ev(p_ref, ref["yes_ask"])
+                out.at[i, "kt_ref_strike"] = ref["strike"]
+                out.at[i, "kt_ref_ask"] = ref["yes_ask"]
+                out.at[i, "kt_ref_prob"] = round(p_ref, 4)
+                out.at[i, "kt_ref_ev"] = round(ev_ref, 4) if ev_ref == ev_ref else np.nan
+                out.at[i, "kt_ref_tradeable"] = bool(ref["tradeable"])
+                if ref["quote_spread"] == ref["quote_spread"]:
+                    out.at[i, "kt_ref_spread_c"] = round(ref["quote_spread"] * 100, 1)
             best, considered = None, 0
             for r in rungs.itertuples():
-                if not r.tradeable:
+                if thin_row or not r.tradeable:
                     continue
                 if book_total == book_total and abs(r.strike - book_total) > config.KALSHI_MAX_BOOK_GAP:
                     continue
@@ -383,12 +409,28 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
                     out.at[i, "kalshi_incoherent"] = True
 
         # ---- spread ladder -------------------------------------------------------
-        if not thin_row and len(spr) and g.get("margin_pred") == g.get("margin_pred"):
+        if len(spr) and g.get("margin_pred") == g.get("margin_pred"):
             rungs = spr[(spr["date"] == key[0]) & (spr["home_team"] == key[1])
                         & (spr["away_team"] == key[2])]
+            if len(rungs) and g.get("spread_home") == g.get("spread_home"):
+                fav_margin = abs(g["spread_home"])
+                ref = rungs.iloc[(rungs["strike"] - fav_margin).abs().argsort().iloc[0]]
+                if ref["team"] == g["home_team"]:
+                    p_ref = float(norm.sf(ref["strike"], loc=g["margin_pred"], scale=g["margin_sigma"]))
+                else:
+                    p_ref = float(norm.cdf(-ref["strike"], loc=g["margin_pred"], scale=g["margin_sigma"]))
+                ev_ref, _ = kalshi.contract_ev(p_ref, ref["yes_ask"])
+                out.at[i, "ks_ref_side"] = ref["team"]
+                out.at[i, "ks_ref_strike"] = ref["strike"]
+                out.at[i, "ks_ref_ask"] = ref["yes_ask"]
+                out.at[i, "ks_ref_prob"] = round(p_ref, 4)
+                out.at[i, "ks_ref_ev"] = round(ev_ref, 4) if ev_ref == ev_ref else np.nan
+                out.at[i, "ks_ref_tradeable"] = bool(ref["tradeable"])
+                if ref["quote_spread"] == ref["quote_spread"]:
+                    out.at[i, "ks_ref_spread_c"] = round(ref["quote_spread"] * 100, 1)
             best, considered = None, 0
             for r in rungs.itertuples():
-                if not r.tradeable:
+                if thin_row or not r.tradeable:
                     continue
                 if r.team == g["home_team"]:
                     prob = float(norm.sf(r.strike, loc=g["margin_pred"], scale=g["margin_sigma"]))
@@ -423,6 +465,9 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
                 if r.event_ticker in breaks:
                     out.at[i, "kalshi_incoherent"] = True
 
+    log.info("kalshi quotes recorded: %d totals, %d spreads (reference rung nearest the book "
+             "number, shown regardless of playability)",
+             int(out["kt_ref_ask"].notna().sum()), int(out["ks_ref_ask"].notna().sum()))
     log.info("kalshi ladders: %d total picks, %d spread picks "
              "(from %d/%d eligible rungs after guards; min EV %.0fc, prob band %.2f-%.2f)",
              int(out["kt_pick"].notna().sum()), int(out["ks_pick"].notna().sum()),

@@ -41,6 +41,7 @@
   .tag.bold{background:var(--accent);color:#06121f}
   .tag.play{background:#2f4858;color:var(--fg)}
   .tag.thin{background:var(--warn);color:#2a1c00}
+  .tag.early{background:var(--warn);color:#2a1c00}
   .tag.pass{background:var(--card2);color:var(--dim)}
   .tag.win{background:var(--good);color:#052e16}
   .tag.loss{background:var(--bad);color:#3f0a0a}
@@ -129,49 +130,75 @@
     <div class="teams">{{ g.away_team }}<span class="at">{% if g.neutral_site %}vs{% else %}at{% endif %}</span>{{ g.home_team }}</div>
     <div class="bets">
       <div class="bet">
-        <div class="l">Total <span class="tag {{ g.total_strength }}">{{ g.total_strength }}</span></div>
+        <div class="l">Total <span class="tag {{ 'early' if g.total_strength == 'thin' else g.total_strength }}">{{ 'no play (early)' if g.total_strength == 'thin' else g.total_strength }}</span></div>
         <div class="p">{{ g.total_pick }} {{ g.total_line }}</div>
         <div class="d">Model {{ g.total_raw }} ({{ '%+.1f'|format(g.total_disagree or 0) }} vs line)</div>
         <div class="px">
-          <span>Model <b>{{ g.total_cents or '—' }}&cent;</b></span>
-          <span class="{% if (g.total_ev or 0) > 0 %}up{% endif %}">EV <b>{{ '%+.1f'|format((g.total_ev or 0)*100) }}%</b></span>
+          <span>Win prob <b>{{ (g.total_p_win * 100)|round|int if g.total_p_win else '—' }}%</b></span>
+          <span class="{% if (g.total_ev or 0) > 0 %}up{% endif %}">EV at &minus;110 <b>{{ '%+.1f'|format((g.total_ev or 0)*100) }}%</b></span>
           {% if g.total_strength in ('play','bold') %}<span>Stake <b>{{ g.total_stake }}u</b></span>{% endif %}
         </div>
       </div>
       <div class="bet">
-        <div class="l">Spread <span class="tag {{ g.spread_strength }}">{{ g.spread_strength }}</span></div>
+        <div class="l">Spread <span class="tag {{ 'early' if g.spread_strength == 'thin' else g.spread_strength }}">{{ 'no play (early)' if g.spread_strength == 'thin' else g.spread_strength }}</span></div>
         <div class="p">{{ g.spread_pick }}</div>
         <div class="d">Model margin {{ g.margin_raw }} ({{ '%+.1f'|format(g.margin_disagree or 0) }} vs line)</div>
         <div class="px">
-          <span>Model <b>{{ g.spread_cents or '—' }}&cent;</b></span>
-          <span class="{% if (g.spread_ev or 0) > 0 %}up{% endif %}">EV <b>{{ '%+.1f'|format((g.spread_ev or 0)*100) }}%</b></span>
+          <span>Win prob <b>{{ (g.spread_p_win * 100)|round|int if g.spread_p_win else '—' }}%</b></span>
+          <span class="{% if (g.spread_ev or 0) > 0 %}up{% endif %}">EV at &minus;110 <b>{{ '%+.1f'|format((g.spread_ev or 0)*100) }}%</b></span>
           {% if g.spread_strength in ('play','bold') %}<span>Stake <b>{{ g.spread_stake }}u</b></span>{% endif %}
         </div>
       </div>
     </div>
-    {% if g.kt_pick or g.ks_pick %}
+    {% if g.kt_ref_ask or g.ks_ref_ask or g.ml_ref_ask %}
     <div class="bets" style="border-top:1px solid var(--line)">
-      {% if g.kt_pick %}
+      {% if g.kt_ref_ask %}
       <div class="bet">
-        <div class="l">Kalshi total <span class="tag bold">exchange</span></div>
-        <div class="p">{{ g.kt_pick }}</div>
+        <div class="l">Kalshi total
+          {% if g.kt_pick %}<span class="tag bold">play</span>
+          {% elif not g.kt_ref_tradeable %}<span class="tag thin">illiquid</span>
+          {% else %}<span class="tag pass">no play</span>{% endif %}
+        </div>
+        <div class="p">{{ g.kt_pick or ('Over ' ~ g.kt_ref_strike) }}</div>
         <div class="px">
-          <span>Model <b>{{ (g.kt_prob * 100)|round|int }}&cent;</b></span>
-          <span>Ask <b>{{ (g.kt_ask * 100)|round|int }}&cent;</b></span>
-          <span class="{% if (g.kt_ev or 0) > 0 %}up{% else %}down{% endif %}">EV <b>{{ '%+.1f'|format((g.kt_ev or 0)*100) }}&cent;</b></span>
-          {% if g.kt_book_gap %}<span>vs book {{ '%+.1f'|format(g.kt_book_gap) }}</span>{% endif %}
+          <span>Model <b>{{ ((g.kt_pick and g.kt_prob or g.kt_ref_prob) * 100)|round|int }}&cent;</b></span>
+          <span>Ask <b>{{ ((g.kt_pick and g.kt_ask or g.kt_ref_ask) * 100)|round|int }}&cent;</b></span>
+          {% set e = g.kt_pick and g.kt_ev or g.kt_ref_ev %}
+          <span class="{% if (e or 0) > 0 %}up{% else %}down{% endif %}">EV <b>{{ '%+.1f'|format((e or 0)*100) }}&cent;</b></span>
+          {% if g.kt_ref_spread_c %}<span>spread {{ g.kt_ref_spread_c }}&cent;</span>{% endif %}
         </div>
       </div>
       {% endif %}
-      {% if g.ks_pick %}
+      {% if g.ks_ref_ask %}
       <div class="bet">
-        <div class="l">Kalshi spread <span class="tag bold">exchange</span></div>
-        <div class="p">{{ g.ks_pick }}</div>
+        <div class="l">Kalshi spread
+          {% if g.ks_pick %}<span class="tag bold">play</span>
+          {% elif not g.ks_ref_tradeable %}<span class="tag thin">illiquid</span>
+          {% else %}<span class="tag pass">no play</span>{% endif %}
+        </div>
+        <div class="p">{{ g.ks_pick or (g.ks_ref_side ~ ' by over ' ~ g.ks_ref_strike) }}</div>
         <div class="px">
-          <span>Model <b>{{ (g.ks_prob * 100)|round|int }}&cent;</b></span>
-          <span>Ask <b>{{ (g.ks_ask * 100)|round|int }}&cent;</b></span>
-          <span class="{% if (g.ks_ev or 0) > 0 %}up{% else %}down{% endif %}">EV <b>{{ '%+.1f'|format((g.ks_ev or 0)*100) }}&cent;</b></span>
-          {% if g.ks_book_gap %}<span>vs book {{ '%+.1f'|format(g.ks_book_gap) }}</span>{% endif %}
+          <span>Model <b>{{ ((g.ks_pick and g.ks_prob or g.ks_ref_prob) * 100)|round|int }}&cent;</b></span>
+          <span>Ask <b>{{ ((g.ks_pick and g.ks_ask or g.ks_ref_ask) * 100)|round|int }}&cent;</b></span>
+          {% set e = g.ks_pick and g.ks_ev or g.ks_ref_ev %}
+          <span class="{% if (e or 0) > 0 %}up{% else %}down{% endif %}">EV <b>{{ '%+.1f'|format((e or 0)*100) }}&cent;</b></span>
+          {% if g.ks_ref_spread_c %}<span>spread {{ g.ks_ref_spread_c }}&cent;</span>{% endif %}
+        </div>
+      </div>
+      {% endif %}
+      {% if g.ml_ref_ask %}
+      <div class="bet">
+        <div class="l">Kalshi moneyline
+          {% if g.ml_pick %}<span class="tag bold">play</span>
+          {% elif not g.kalshi_tradeable %}<span class="tag thin">illiquid</span>
+          {% else %}<span class="tag pass">no play</span>{% endif %}
+        </div>
+        <div class="p">{{ g.ml_pick or ((g.ml_ref_side or '') ~ ' to win') }}</div>
+        <div class="px">
+          <span>Model <b>{{ ((g.ml_ref_prob or 0) * 100)|round|int }}&cent;</b></span>
+          <span>Ask <b>{{ ((g.ml_ask or g.ml_ref_ask) * 100)|round|int }}&cent;</b></span>
+          <span class="{% if (g.ml_ref_ev or 0) > 0 %}up{% else %}down{% endif %}">EV <b>{{ '%+.1f'|format((g.ml_ref_ev or 0)*100) }}&cent;</b></span>
+          {% if g.ml_stake %}<span>Stake <b>{{ g.ml_stake }}u</b></span>{% endif %}
         </div>
       </div>
       {% endif %}
