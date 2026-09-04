@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-09-04T16:12:47",
+  "trained_at": "2026-09-04T16:22:21",
   "base_features": [
     "neutral_site",
     "conference_game",
@@ -63,48 +63,174 @@
   ],
   "eval": {
     "total_nomarket": {
-      "test_season": 2026,
-      "n_train": 25927,
-      "n_test": 172,
-      "mae_model": 13.74,
-      "mae_rating_baseline": 14.18,
-      "sigma": 17.12,
-      "bias": 3.29
+      "test_seasons": [
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n_test_total": 15063,
+      "mae_model": 13.15,
+      "mae_rating_baseline": 13.46,
+      "sigma": 16.58,
+      "bias": -0.36,
+      "per_season": [
+        {
+          "season": 2022,
+          "n": 3705,
+          "mae_model": 13.41,
+          "ats_rate": null
+        },
+        {
+          "season": 2023,
+          "n": 3730,
+          "mae_model": 13.24,
+          "ats_rate": null
+        },
+        {
+          "season": 2024,
+          "n": 3799,
+          "mae_model": 13.02,
+          "ats_rate": null
+        },
+        {
+          "season": 2025,
+          "n": 3829,
+          "mae_model": 12.95,
+          "ats_rate": null
+        }
+      ]
     },
     "total_market": {
-      "test_season": 2026,
-      "n_train": 9997,
-      "n_test": 66,
-      "mae_model": 11.55,
-      "mae_rating_baseline": 12.77,
-      "sigma": 13.69,
-      "bias": 3.0,
-      "mae_market_baseline": 11.64,
-      "ats_rate": 51.5,
-      "ats_n": 66,
-      "shrink": 0.9
+      "test_seasons": [
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n_test_total": 6010,
+      "mae_model": 12.79,
+      "mae_rating_baseline": 13.28,
+      "sigma": 16.12,
+      "bias": 0.34,
+      "per_season": [
+        {
+          "season": 2022,
+          "n": 1458,
+          "mae_model": 13.08,
+          "ats_rate": 50.0
+        },
+        {
+          "season": 2023,
+          "n": 1411,
+          "mae_model": 12.76,
+          "ats_rate": 51.1
+        },
+        {
+          "season": 2024,
+          "n": 1547,
+          "mae_model": 12.94,
+          "ats_rate": 53.5
+        },
+        {
+          "season": 2025,
+          "n": 1594,
+          "mae_model": 12.39,
+          "ats_rate": 51.9
+        }
+      ],
+      "mae_market_baseline": 12.63,
+      "ats_rate": 51.7,
+      "ats_n": 5949,
+      "ats_stderr": 0.65,
+      "beats_market": false,
+      "shrink": 0.25,
+      "shrink_raw": 0.25
     },
     "margin_nomarket": {
-      "test_season": 2026,
-      "n_train": 25927,
-      "n_test": 172,
-      "mae_model": 17.03,
-      "mae_rating_baseline": 17.81,
-      "sigma": 21.49,
-      "bias": 1.28
+      "test_seasons": [
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n_test_total": 15063,
+      "mae_model": 13.73,
+      "mae_rating_baseline": 13.94,
+      "sigma": 17.53,
+      "bias": -0.61,
+      "per_season": [
+        {
+          "season": 2022,
+          "n": 3705,
+          "mae_model": 14.72,
+          "ats_rate": null
+        },
+        {
+          "season": 2023,
+          "n": 3730,
+          "mae_model": 13.66,
+          "ats_rate": null
+        },
+        {
+          "season": 2024,
+          "n": 3799,
+          "mae_model": 13.16,
+          "ats_rate": null
+        },
+        {
+          "season": 2025,
+          "n": 3829,
+          "mae_model": 13.39,
+          "ats_rate": null
+        }
+      ]
     },
     "margin_market": {
-      "test_season": 2026,
-      "n_train": 11784,
-      "n_test": 66,
-      "mae_model": 11.76,
-      "mae_rating_baseline": 14.27,
-      "sigma": 14.49,
-      "bias": -0.91,
-      "mae_market_baseline": 12.17,
-      "ats_rate": 63.1,
-      "ats_n": 65,
-      "shrink": 1.0
+      "test_seasons": [
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n_test_total": 6018,
+      "mae_model": 12.15,
+      "mae_rating_baseline": 13.59,
+      "sigma": 15.38,
+      "bias": 0.32,
+      "per_season": [
+        {
+          "season": 2022,
+          "n": 1459,
+          "mae_model": 12.33,
+          "ats_rate": 51.8
+        },
+        {
+          "season": 2023,
+          "n": 1411,
+          "mae_model": 12.11,
+          "ats_rate": 53.3
+        },
+        {
+          "season": 2024,
+          "n": 1551,
+          "mae_model": 12.11,
+          "ats_rate": 51.8
+        },
+        {
+          "season": 2025,
+          "n": 1597,
+          "mae_model": 12.07,
+          "ats_rate": 50.6
+        }
+      ],
+      "mae_market_baseline": 11.99,
+      "ats_rate": 51.9,
+      "ats_n": 5917,
+      "ats_stderr": 0.65,
+      "beats_market": false,
+      "shrink": 0.15,
+      "shrink_raw": 0.15
     }
   },
   "models": [
@@ -114,16 +240,16 @@
     "margin_market"
   ],
   "sigma": {
-    "total_nomarket": 17.12,
-    "total_market": 13.69,
-    "margin_nomarket": 21.49,
-    "margin_market": 14.49
+    "total_nomarket": 16.58,
+    "total_market": 16.12,
+    "margin_nomarket": 17.53,
+    "margin_market": 15.38
   },
   "shrink": {
     "total_nomarket": 0.4,
-    "total_market": 0.9,
+    "total_market": 0.25,
     "margin_nomarket": 0.4,
-    "margin_market": 1.0
+    "margin_market": 0.15
   },
   "top_features": {
     "total_nomarket": {
