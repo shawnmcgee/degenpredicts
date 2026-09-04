@@ -294,13 +294,15 @@ def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
                 out.at[i, "ml_model_cents"] = int(round(prob * 100))
     log.info("kalshi: matched %d/%d board games", hits, len(out))
     if hits < len(out):
-        missed = out.loc[~out["kalshi_side"].notna(), ["home_team", "away_team"]]
-        names = sorted({n for pair in missed.itertuples() for n in (pair.home_team, pair.away_team)})
-        kal = sorted({t for t in board["team"].dropna().unique()})
-        unmapped = [n for n in names if n not in kal]
-        if unmapped:
-            log.warning("kalshi name mismatch candidates (%d): %s",
-                        len(unmapped), unmapped[:40])
+        # Report the names the matcher could not resolve, i.e. the raw feed spellings - those
+        # are what need a mapping rule, not our own canonical names.
+        stuck = sorted(getattr(matcher, "unmatched", set()))
+        if stuck:
+            log.warning("kalshi names the matcher could not resolve (%d): %s",
+                        len(stuck), stuck[:40])
+        else:
+            log.info("kalshi: %d board games had no listed market (likely FCS or not yet posted)",
+                     len(out) - hits)
     return out
 
 

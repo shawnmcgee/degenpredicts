@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import difflib
 import logging
+import re
+import unicodedata
 import statistics
 from datetime import datetime
 
@@ -37,9 +39,53 @@ MANUAL = {
 }
 
 
+def _norm(name: str) -> str:
+    """Lower-case, strip accents and punctuation, collapse whitespace."""
+    n = unicodedata.normalize("NFKD", str(name)).encode("ascii", "ignore").decode()
+    n = n.replace("&", " and ")
+    n = re.sub(r"[^a-z0-9 ]+", " ", n.lower())
+    return re.sub(r"\s+", " ", n).strip()
+
+
+def _variants(name: str) -> set[str]:
+    """Every spelling of a school we might see.
+
+    The live Kalshi board abbreviates "State" to "St" - all 46 unmatched names in the first
+    run contained "State" - so each canonical name generates both forms, plus a few other
+    abbreviations different feeds disagree on.
+    """
+    base = _norm(name)
+    out = {base}
+    subs = [
+        (r"\bstate\b", "st"), (r"\bst\b", "state"),
+        (r"\buniversity\b", ""), (r"\bsoutheastern\b", "se"), (r"\bse\b", "southeastern"),
+        (r"\bnorthwestern\b", "nw"), (r"\bsouthern\b", "so"),
+        (r"\bmiddle\b", "mid"), (r"\bflorida international\b", "fiu"),
+        (r"\blong island university\b", "liu"), (r"\bappalachian\b", "app"),
+        (r"\bapp\b", "appalachian"), (r"\bconnecticut\b", "uconn"),
+        (r"\bmississippi\b", "ole miss"),
+    ]
+    for pat, rep in subs:
+        for v in list(out):
+            alt = re.sub(pat, rep, v)
+            alt = re.sub(r"\s+", " ", alt).strip()
+            if alt and alt != v:
+                out.add(alt)
+    # drop parenthetical qualifiers: "St. Thomas (MN)" -> "st thomas mn" -> "st thomas"
+    out |= {re.sub(r"\b(mn|fl|oh|sc|nj|pa|ca|tx)\b", "", v).strip() for v in list(out)}
+    return {v for v in out if v}
+
+
 def build_matcher(cfbd_teams: list[str]):
-    """Return a function mapping an Odds-API display name to a CFBD team name."""
-    canon = {t.lower(): t for t in cfbd_teams}
+    """Map a display name from Kalshi or The Odds API onto a CFBD team name.
+
+    Handles three things the feeds disagree on: trailing mascots ("Ohio State Buckeyes"),
+    "State" vs "St", and punctuation/accents ("San Jose St" vs "San José State").
+    """
+    alias: dict[str, str] = {}
+    for team in cfbd_teams:
+        for v in _variants(team):
+            alias.setdefault(v, team)
     unmatched: set[str] = set()
 
     def match(name: str) -> str:
@@ -47,17 +93,17 @@ def build_matcher(cfbd_teams: list[str]):
             return name
         if name in MANUAL:
             return MANUAL[name]
-        low = name.lower()
-        if low in canon:
-            return canon[low]
-        # longest CFBD name that prefixes the Odds name (mascot is the trailing words)
-        best = max((t for t in cfbd_teams if low.startswith(t.lower() + " ")),
-                   key=len, default=None)
-        if best:
-            return best
-        close = difflib.get_close_matches(low, list(canon), n=1, cutoff=0.86)
+        n = _norm(name)
+        if n in alias:
+            return alias[n]
+        # strip a trailing mascot: try progressively shorter prefixes of the words
+        words = n.split()
+        for cut in range(len(words) - 1, 0, -1):
+            if " ".join(words[:cut]) in alias:
+                return alias[" ".join(words[:cut])]
+        close = difflib.get_close_matches(n, list(alias), n=1, cutoff=0.80)
         if close:
-            return canon[close[0]]
+            return alias[close[0]]
         unmatched.add(name)
         return name
 

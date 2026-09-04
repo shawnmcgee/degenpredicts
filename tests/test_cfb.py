@@ -193,6 +193,30 @@ def test_odds_matcher():
     assert m("Texas A&M Aggies") == "Texas A&M"
 
 
+def test_matcher_handles_state_abbreviation():
+    """The live Kalshi board abbreviates State -> St; all 46 first-run misses contained
+    'State'. Every spelling must resolve to the CFBD name."""
+    from cfb.sources.odds import build_matcher
+    cfbd = ["Ohio State", "Penn State", "San José State", "Appalachian State",
+            "Long Island University", "Southeastern Louisiana", "Florida International",
+            "North Dakota State", "Tarleton State", "Kent State"]
+    m = build_matcher(cfbd)
+    cases = {
+        "Ohio St": "Ohio State", "Ohio St Buckeyes": "Ohio State",
+        "Penn St Nittany Lions": "Penn State",
+        "San Jose St": "San José State",                 # accent + abbreviation
+        "Appalachian St": "Appalachian State", "App State Mountaineers": "Appalachian State",
+        "LIU Sharks": "Long Island University",
+        "SE Louisiana": "Southeastern Louisiana",
+        "FIU Panthers": "Florida International",
+        "North Dakota St Bison": "North Dakota State",
+        "Tarleton St": "Tarleton State", "Kent St Golden Flashes": "Kent State",
+    }
+    for raw, want in cases.items():
+        assert m(raw) == want, f"{raw} -> {m(raw)}, expected {want}"
+    assert not m.unmatched
+
+
 def test_kelly():
     from cfb.predict import american_payout, kelly
     assert abs(american_payout(-110) - 0.909) < 0.01
