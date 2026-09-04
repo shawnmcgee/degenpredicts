@@ -1,0 +1,179 @@
+{
+  "trained_at": "2026-09-04T16:12:47",
+  "base_features": [
+    "neutral_site",
+    "conference_game",
+    "week",
+    "is_early_season",
+    "exp_margin",
+    "exp_total",
+    "exp_home_points",
+    "exp_away_points",
+    "h_margin",
+    "a_margin",
+    "h_off",
+    "a_off",
+    "h_def",
+    "a_def",
+    "h_games",
+    "a_games",
+    "h_rest",
+    "a_rest",
+    "h_bye",
+    "a_bye",
+    "h_form_margin",
+    "a_form_margin",
+    "h_form_total",
+    "a_form_total",
+    "h_prev_sp",
+    "a_prev_sp",
+    "h_prev_sp_off",
+    "a_prev_sp_off",
+    "h_prev_sp_def",
+    "a_prev_sp_def",
+    "sp_margin_est",
+    "sp_total_est",
+    "h_ret_ppa",
+    "a_ret_ppa",
+    "h_ret_pass",
+    "a_ret_pass"
+  ],
+  "market_features": [
+    "total_line",
+    "spread_home",
+    "total_vs_model",
+    "spread_vs_model",
+    "total_move",
+    "spread_move"
+  ],
+  "n_rows": 26099,
+  "seasons": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "eval": {
+    "total_nomarket": {
+      "test_season": 2026,
+      "n_train": 25927,
+      "n_test": 172,
+      "mae_model": 13.74,
+      "mae_rating_baseline": 14.18,
+      "sigma": 17.12,
+      "bias": 3.29
+    },
+    "total_market": {
+      "test_season": 2026,
+      "n_train": 9997,
+      "n_test": 66,
+      "mae_model": 11.55,
+      "mae_rating_baseline": 12.77,
+      "sigma": 13.69,
+      "bias": 3.0,
+      "mae_market_baseline": 11.64,
+      "ats_rate": 51.5,
+      "ats_n": 66,
+      "shrink": 0.9
+    },
+    "margin_nomarket": {
+      "test_season": 2026,
+      "n_train": 25927,
+      "n_test": 172,
+      "mae_model": 17.03,
+      "mae_rating_baseline": 17.81,
+      "sigma": 21.49,
+      "bias": 1.28
+    },
+    "margin_market": {
+      "test_season": 2026,
+      "n_train": 11784,
+      "n_test": 66,
+      "mae_model": 11.76,
+      "mae_rating_baseline": 14.27,
+      "sigma": 14.49,
+      "bias": -0.91,
+      "mae_market_baseline": 12.17,
+      "ats_rate": 63.1,
+      "ats_n": 65,
+      "shrink": 1.0
+    }
+  },
+  "models": [
+    "total_nomarket",
+    "total_market",
+    "margin_nomarket",
+    "margin_market"
+  ],
+  "sigma": {
+    "total_nomarket": 17.12,
+    "total_market": 13.69,
+    "margin_nomarket": 21.49,
+    "margin_market": 14.49
+  },
+  "shrink": {
+    "total_nomarket": 0.4,
+    "total_market": 0.9,
+    "margin_nomarket": 0.4,
+    "margin_market": 1.0
+  },
+  "top_features": {
+    "total_nomarket": {
+      "exp_total": 0.2356816679239273,
+      "exp_home_points": 0.07299138605594635,
+      "exp_away_points": 0.056148629635572433,
+      "is_early_season": 0.03581160679459572,
+      "exp_margin": 0.03165088966488838,
+      "h_prev_sp_def": 0.024745898321270943,
+      "h_off": 0.023832987993955612,
+      "a_bye": 0.023213455453515053,
+      "sp_total_est": 0.022443028166890144,
+      "h_ret_ppa": 0.021543003618717194
+    },
+    "total_market": {
+      "total_line": 0.17452043294906616,
+      "exp_total": 0.06708348542451859,
+      "total_vs_model": 0.029400303959846497,
+      "exp_home_points": 0.02299392968416214,
+      "is_early_season": 0.0222441628575325,
+      "a_rest": 0.021930711343884468,
+      "exp_away_points": 0.02188662812113762,
+      "a_games": 0.021687554195523262,
+      "spread_home": 0.021004293113946915,
+      "total_move": 0.020769797265529633
+    },
+    "margin_nomarket": {
+      "exp_margin": 0.4443281888961792,
+      "exp_home_points": 0.092903271317482,
+      "exp_away_points": 0.05540582910180092,
+      "conference_game": 0.054844241589307785,
+      "sp_margin_est": 0.029928049072623253,
+      "a_games": 0.02301710844039917,
+      "a_ret_ppa": 0.019094649702310562,
+      "a_rest": 0.014216662384569645,
+      "h_ret_ppa": 0.013467298820614815,
+      "h_prev_sp": 0.012683795765042305
+    },
+    "margin_market": {
+      "spread_home": 0.2875029146671295,
+      "exp_margin": 0.21039478480815887,
+      "conference_game": 0.07411985844373703,
+      "spread_vs_model": 0.046225860714912415,
+      "exp_home_points": 0.04045267030596733,
+      "sp_margin_est": 0.020587943494319916,
+      "neutral_site": 0.010727638378739357,
+      "h_def": 0.010284985415637493,
+      "exp_away_points": 0.010188816115260124,
+      "exp_total": 0.010012133978307247
+    }
+  },
+  "backend": "xgboost"
+}
