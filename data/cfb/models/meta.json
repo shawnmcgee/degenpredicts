@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-09-04T16:28:43",
+  "trained_at": "2026-09-04T17:10:55",
   "base_features": [
     "neutral_site",
     "conference_game",
@@ -151,51 +151,226 @@
           "n": 1525,
           "cover_pct": 50.4,
           "stderr": 1.28,
-          "roi_at_110": -3.86
+          "roi_pct": -2.68,
+          "vs_break_even_se": -1.09
         },
         {
           "disagreement": "1-2",
           "n": 1342,
           "cover_pct": 51.7,
           "stderr": 1.36,
-          "roi_at_110": -1.27
+          "roi_pct": -0.07,
+          "vs_break_even_se": -0.03
         },
         {
           "disagreement": "2-3",
           "n": 1015,
           "cover_pct": 50.9,
           "stderr": 1.57,
-          "roi_at_110": -2.76
+          "roi_pct": -1.57,
+          "vs_break_even_se": -0.52
         },
         {
           "disagreement": "3-5",
           "n": 1271,
           "cover_pct": 51.8,
           "stderr": 1.4,
-          "roi_at_110": -1.02
+          "roi_pct": 0.19,
+          "vs_break_even_se": 0.07
         },
         {
           "disagreement": "5-7",
           "n": 503,
           "cover_pct": 55.9,
           "stderr": 2.21,
-          "roi_at_110": 6.65
+          "roi_pct": 7.95,
+          "vs_break_even_se": 1.86
         },
         {
           "disagreement": "7-10",
           "n": 219,
           "cover_pct": 51.6,
           "stderr": 3.38,
-          "roi_at_110": -1.49
+          "roi_pct": -0.29,
+          "vs_break_even_se": -0.04
         },
         {
           "disagreement": "10-+",
           "n": 74,
           "cover_pct": 56.8,
           "stderr": 5.76,
-          "roi_at_110": 8.35
+          "roi_pct": 9.67,
+          "vs_break_even_se": 0.87
         }
       ],
+      "break_even_pct": 51.75,
+      "venue": "kalshi_taker",
+      "market_softness": {
+        "by_book_count": [
+          {
+            "segment": "1-2 books",
+            "n": 2860,
+            "cover_pct": 51.2,
+            "stderr": 0.93,
+            "vs_break_even_se": -0.56,
+            "roi_pct": -1.02
+          },
+          {
+            "segment": "3 books",
+            "n": 2275,
+            "cover_pct": 52.9,
+            "stderr": 1.05,
+            "vs_break_even_se": 1.12,
+            "roi_pct": 2.27
+          },
+          {
+            "segment": "4+ books",
+            "n": 814,
+            "cover_pct": 49.8,
+            "stderr": 1.75,
+            "vs_break_even_se": -1.14,
+            "roi_pct": -3.86
+          }
+        ],
+        "by_conference_tier": [
+          {
+            "segment": "P4 vs P4",
+            "n": 1206,
+            "cover_pct": 52.2,
+            "stderr": 1.44,
+            "vs_break_even_se": 0.28,
+            "roi_pct": 0.78
+          },
+          {
+            "segment": "P4 vs G5",
+            "n": 650,
+            "cover_pct": 55.4,
+            "stderr": 1.95,
+            "vs_break_even_se": 1.86,
+            "roi_pct": 7.02
+          },
+          {
+            "segment": "G5 vs G5",
+            "n": 4093,
+            "cover_pct": 50.9,
+            "stderr": 0.78,
+            "vs_break_even_se": -1.04,
+            "roi_pct": -1.56
+          }
+        ],
+        "by_week": [
+          {
+            "segment": "weeks 1-2",
+            "n": 1068,
+            "cover_pct": 52.2,
+            "stderr": 1.53,
+            "vs_break_even_se": 0.26,
+            "roi_pct": 0.78
+          },
+          {
+            "segment": "weeks 3-6",
+            "n": 1633,
+            "cover_pct": 53.3,
+            "stderr": 1.23,
+            "vs_break_even_se": 1.29,
+            "roi_pct": 3.07
+          },
+          {
+            "segment": "weeks 7-11",
+            "n": 2159,
+            "cover_pct": 50.4,
+            "stderr": 1.08,
+            "vs_break_even_se": -1.22,
+            "roi_pct": -2.53
+          },
+          {
+            "segment": "weeks 12+",
+            "n": 1089,
+            "cover_pct": 51.1,
+            "stderr": 1.51,
+            "vs_break_even_se": -0.4,
+            "roi_pct": -1.16
+          }
+        ],
+        "by_line_movement": [
+          {
+            "segment": "line barely moved",
+            "n": 3024,
+            "cover_pct": 51.7,
+            "stderr": 0.91,
+            "vs_break_even_se": -0.11,
+            "roi_pct": -0.19
+          },
+          {
+            "segment": "moved 0.5-2",
+            "n": 1863,
+            "cover_pct": 51.7,
+            "stderr": 1.16,
+            "vs_break_even_se": -0.0,
+            "roi_pct": -0.01
+          },
+          {
+            "segment": "moved 2+",
+            "n": 1062,
+            "cover_pct": 51.6,
+            "stderr": 1.53,
+            "vs_break_even_se": -0.1,
+            "roi_pct": -0.29
+          }
+        ],
+        "by_spread_size": [
+          {
+            "segment": "pick'em (<=3)",
+            "n": 1088,
+            "cover_pct": 50.4,
+            "stderr": 1.52,
+            "vs_break_even_se": -0.91,
+            "roi_pct": -2.67
+          },
+          {
+            "segment": "3.5-10",
+            "n": 2088,
+            "cover_pct": 50.9,
+            "stderr": 1.09,
+            "vs_break_even_se": -0.77,
+            "roi_pct": -1.62
+          },
+          {
+            "segment": "10.5-21",
+            "n": 1725,
+            "cover_pct": 51.5,
+            "stderr": 1.2,
+            "vs_break_even_se": -0.18,
+            "roi_pct": -0.41
+          },
+          {
+            "segment": "21+",
+            "n": 1046,
+            "cover_pct": 54.9,
+            "stderr": 1.54,
+            "vs_break_even_se": 2.03,
+            "roi_pct": 6.04
+          }
+        ],
+        "soft_and_loud": [
+          {
+            "segment": "soft game & disagree 3+",
+            "n": 1900,
+            "cover_pct": 52.8,
+            "stderr": 1.15,
+            "vs_break_even_se": 0.95,
+            "roi_pct": 2.11
+          },
+          {
+            "segment": "sharp game & disagree 3+",
+            "n": 167,
+            "cover_pct": 54.5,
+            "stderr": 3.85,
+            "vs_break_even_se": 0.71,
+            "roi_pct": 5.3
+          }
+        ]
+      },
       "shrink_raw": 0.25
     },
     "margin_nomarket": {
@@ -287,44 +462,218 @@
           "n": 1762,
           "cover_pct": 52.7,
           "stderr": 1.19,
-          "roi_at_110": 0.55
+          "roi_pct": 1.77,
+          "vs_break_even_se": 0.77
         },
         {
           "disagreement": "1-2",
           "n": 1491,
           "cover_pct": 50.9,
           "stderr": 1.29,
-          "roi_at_110": -2.82
+          "roi_pct": -1.63,
+          "vs_break_even_se": -0.65
         },
         {
           "disagreement": "2-3",
           "n": 1064,
           "cover_pct": 50.2,
           "stderr": 1.53,
-          "roi_at_110": -4.19
+          "roi_pct": -3.02,
+          "vs_break_even_se": -1.02
         },
         {
           "disagreement": "3-5",
           "n": 1126,
           "cover_pct": 52.6,
           "stderr": 1.49,
-          "roi_at_110": 0.37
+          "roi_pct": 1.6,
+          "vs_break_even_se": 0.55
         },
         {
           "disagreement": "5-7",
           "n": 356,
           "cover_pct": 53.9,
           "stderr": 2.64,
-          "roi_at_110": 2.96
+          "roi_pct": 4.22,
+          "vs_break_even_se": 0.83
         },
         {
           "disagreement": "7-10",
           "n": 109,
           "cover_pct": 56.0,
           "stderr": 4.75,
-          "roi_at_110": 6.84
+          "roi_pct": 8.14,
+          "vs_break_even_se": 0.89
         }
       ],
+      "break_even_pct": 51.75,
+      "venue": "kalshi_taker",
+      "market_softness": {
+        "by_book_count": [
+          {
+            "segment": "1-2 books",
+            "n": 2841,
+            "cover_pct": 52.2,
+            "stderr": 0.94,
+            "vs_break_even_se": 0.48,
+            "roi_pct": 0.87
+          },
+          {
+            "segment": "3 books",
+            "n": 2262,
+            "cover_pct": 51.8,
+            "stderr": 1.05,
+            "vs_break_even_se": 0.02,
+            "roi_pct": 0.04
+          },
+          {
+            "segment": "4+ books",
+            "n": 814,
+            "cover_pct": 51.0,
+            "stderr": 1.75,
+            "vs_break_even_se": -0.44,
+            "roi_pct": -1.48
+          }
+        ],
+        "by_conference_tier": [
+          {
+            "segment": "P4 vs P4",
+            "n": 1197,
+            "cover_pct": 53.6,
+            "stderr": 1.44,
+            "vs_break_even_se": 1.25,
+            "roi_pct": 3.48
+          },
+          {
+            "segment": "P4 vs G5",
+            "n": 641,
+            "cover_pct": 50.4,
+            "stderr": 1.97,
+            "vs_break_even_se": -0.69,
+            "roi_pct": -2.63
+          },
+          {
+            "segment": "G5 vs G5",
+            "n": 4079,
+            "cover_pct": 51.6,
+            "stderr": 0.78,
+            "vs_break_even_se": -0.18,
+            "roi_pct": -0.28
+          }
+        ],
+        "by_week": [
+          {
+            "segment": "weeks 1-2",
+            "n": 1056,
+            "cover_pct": 53.3,
+            "stderr": 1.54,
+            "vs_break_even_se": 1.02,
+            "roi_pct": 3.02
+          },
+          {
+            "segment": "weeks 3-6",
+            "n": 1623,
+            "cover_pct": 50.7,
+            "stderr": 1.24,
+            "vs_break_even_se": -0.84,
+            "roi_pct": -2.01
+          },
+          {
+            "segment": "weeks 7-11",
+            "n": 2154,
+            "cover_pct": 51.9,
+            "stderr": 1.08,
+            "vs_break_even_se": 0.1,
+            "roi_pct": 0.21
+          },
+          {
+            "segment": "weeks 12+",
+            "n": 1084,
+            "cover_pct": 52.2,
+            "stderr": 1.52,
+            "vs_break_even_se": 0.31,
+            "roi_pct": 0.9
+          }
+        ],
+        "by_line_movement": [
+          {
+            "segment": "line barely moved",
+            "n": 2996,
+            "cover_pct": 51.6,
+            "stderr": 0.91,
+            "vs_break_even_se": -0.2,
+            "roi_pct": -0.35
+          },
+          {
+            "segment": "moved 0.5-2",
+            "n": 1870,
+            "cover_pct": 51.6,
+            "stderr": 1.16,
+            "vs_break_even_se": -0.13,
+            "roi_pct": -0.28
+          },
+          {
+            "segment": "moved 2+",
+            "n": 1051,
+            "cover_pct": 53.2,
+            "stderr": 1.54,
+            "vs_break_even_se": 0.93,
+            "roi_pct": 2.78
+          }
+        ],
+        "by_spread_size": [
+          {
+            "segment": "pick'em (<=3)",
+            "n": 1071,
+            "cover_pct": 51.9,
+            "stderr": 1.53,
+            "vs_break_even_se": 0.11,
+            "roi_pct": 0.32
+          },
+          {
+            "segment": "3.5-10",
+            "n": 2069,
+            "cover_pct": 52.4,
+            "stderr": 1.1,
+            "vs_break_even_se": 0.59,
+            "roi_pct": 1.24
+          },
+          {
+            "segment": "10.5-21",
+            "n": 1732,
+            "cover_pct": 50.6,
+            "stderr": 1.2,
+            "vs_break_even_se": -0.98,
+            "roi_pct": -2.27
+          },
+          {
+            "segment": "21+",
+            "n": 1045,
+            "cover_pct": 52.9,
+            "stderr": 1.54,
+            "vs_break_even_se": 0.76,
+            "roi_pct": 2.26
+          }
+        ],
+        "soft_and_loud": [
+          {
+            "segment": "soft game & disagree 3+",
+            "n": 1477,
+            "cover_pct": 52.6,
+            "stderr": 1.3,
+            "vs_break_even_se": 0.66,
+            "roi_pct": 1.66
+          },
+          {
+            "segment": "sharp game & disagree 3+",
+            "n": 123,
+            "cover_pct": 57.7,
+            "stderr": 4.45,
+            "vs_break_even_se": 1.34,
+            "roi_pct": 11.54
+          }
+        ]
+      },
       "shrink_raw": 0.15
     }
   },
