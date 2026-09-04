@@ -198,3 +198,161 @@ def test_kelly():
     assert abs(american_payout(-110) - 0.909) < 0.01
     assert kelly(0.50, 0.909) == 0.0
     assert kelly(0.60, 0.909) > 0
+
+
+# --- Kalshi -------------------------------------------------------------------------
+# Fixtures copied verbatim from a live /markets response (2026-09-04) so the parser is
+# tested against the real payload shape rather than my guess at it.
+KALSHI_SAMPLE = [
+    {"event_ticker": "KXNCAAFGAME-26SEP17SYRPITT", "ticker": "KXNCAAFGAME-26SEP17SYRPITT-SYR",
+     "title": "Syracuse wins", "yes_sub_title": "Syracuse", "no_sub_title": "Pittsburgh",
+     "market_type": "binary", "yes_bid_dollars": "0.0800", "yes_ask_dollars": "0.8100",
+     "yes_ask_size_fp": "131.00", "yes_bid_size_fp": "538.00", "volume_fp": "0.00",
+     "open_interest_fp": "0.00", "last_price_dollars": "0.0000",
+     "occurrence_datetime": "2026-09-18T02:30:00Z",
+     "rules_primary": "If Syracuse wins the Syracuse vs Pittsburgh college football game "
+                      "originally scheduled for Sep 17, 2026, then the market resolves to Yes."},
+    {"event_ticker": "KXNCAAFGAME-26SEP17SYRPITT", "ticker": "KXNCAAFGAME-26SEP17SYRPITT-PITT",
+     "title": "Pittsburgh wins", "yes_sub_title": "Pittsburgh", "no_sub_title": "Syracuse",
+     "market_type": "binary", "yes_bid_dollars": "0.1300", "yes_ask_dollars": "0.8200",
+     "yes_ask_size_fp": "138.00", "yes_bid_size_fp": "231.00", "volume_fp": "0.00",
+     "open_interest_fp": "0.00", "last_price_dollars": "0.0000",
+     "occurrence_datetime": "2026-09-18T02:30:00Z",
+     "rules_primary": "If Pittsburgh wins the Syracuse vs Pittsburgh college football game "
+                      "originally scheduled for Sep 17, 2026, then the market resolves to Yes."},
+    {"event_ticker": "KXNCAAFGAME-26SEP05CWUCP", "ticker": "KXNCAAFGAME-26SEP05CWUCP-CP",
+     "title": "Cal Poly wins", "yes_sub_title": "Cal Poly", "no_sub_title": "Central Washington Wildcats",
+     "market_type": "binary", "yes_bid_dollars": "0.8400", "yes_ask_dollars": "0.8600",
+     "yes_ask_size_fp": "318.00", "yes_bid_size_fp": "143.00", "volume_fp": "766.09",
+     "open_interest_fp": "696.28", "last_price_dollars": "0.8400",
+     "occurrence_datetime": "2026-09-06T03:00:00Z",
+     "rules_primary": "If Cal Poly wins the Central Washington Wildcats vs Cal Poly college "
+                      "football game originally scheduled for Sep 5, 2026, then the market "
+                      "resolves to Yes."},
+]
+
+
+def test_kalshi_parse(env):
+    from datetime import date as _date
+    from cfb.sources import kalshi
+    rows = [kalshi.parse_market(m) for m in KALSHI_SAMPLE]
+    assert all(r for r in rows)
+    syr = rows[0]
+    assert syr["kalshi_team"] == "Syracuse"
+    assert syr["home_raw"] == "Pittsburgh" and syr["away_raw"] == "Syracuse"
+    assert syr["date"] == _date(2026, 9, 17)
+    assert syr["yes_ask"] == 0.81
+    # 73c spread, zero volume -> must NOT be considered tradeable
+    assert syr["tradeable"] is False
+    cp = rows[2]
+    assert cp["kalshi_team"] == "Cal Poly"
+    assert cp["home_raw"] == "Cal Poly" and cp["away_raw"] == "Central Washington Wildcats"
+    assert round(cp["quote_spread"], 2) == 0.02
+    assert cp["tradeable"] is True          # 2c spread, real size and volume
+
+
+def test_kalshi_fee_and_ev(env):
+    from cfb.sources import kalshi
+    # published taker formula: 0.07 * P * (1-P); peaks at 1.75c on a 50c contract
+    assert abs(kalshi.fee(0.50, 0.07) - 0.0175) < 1e-9
+    assert kalshi.fee(0.90, 0.07) < kalshi.fee(0.50, 0.07)
+    # no edge -> negative EV once the fee is paid
+    ev, roi = kalshi.contract_ev(0.50, 0.50)
+    assert ev < 0
+    # a real 8-point probability edge survives the fee
+    ev, roi = kalshi.contract_ev(0.58, 0.50)
+    assert ev > 0.05 and roi > 0.1
+
+
+def test_kalshi_board_matches_names(env, monkeypatch):
+    from cfb.sources import kalshi, odds
+    monkeypatch.setattr(kalshi, "fetch_markets", lambda *a, **k: KALSHI_SAMPLE)
+    matcher = odds.build_matcher(["Pittsburgh", "Syracuse", "Cal Poly"])
+    df = kalshi.moneyline_board(matcher)
+    assert len(df) == 3
+    assert set(df[df.event_ticker.str.endswith("SYRPITT")]["team"]) == {"Syracuse", "Pittsburgh"}
+    assert int(df["tradeable"].sum()) == 1
+
+
+# --- Kalshi spread / total ladders --------------------------------------------------
+# Verbatim from a live /markets response (2026-09-04).
+KALSHI_TOTAL = [
+    {"event_ticker": "KXNCAAFTOTAL-26SEP05SHUMONM", "ticker": "KXNCAAFTOTAL-26SEP05SHUMONM-79",
+     "title": "Over 78.5 points scored", "yes_sub_title": "Over 78.5 points scored",
+     "floor_strike": 78.5, "strike_type": "greater", "market_type": "binary",
+     "yes_bid_dollars": "0.0900", "yes_ask_dollars": "0.1700", "yes_ask_size_fp": "150.00",
+     "volume_fp": "0.00", "open_interest_fp": "0.00",
+     "rules_primary": "If the teams collectively score more than 78.5 points in the Sacred "
+                      "Heart vs Monmouth college football game originally scheduled for "
+                      "Sep 5, 2026, then the market resolves to Yes."},
+    {"event_ticker": "KXNCAAFTOTAL-26SEP05SHUMONM", "ticker": "KXNCAAFTOTAL-26SEP05SHUMONM-71",
+     "title": "Over 70.5 points scored", "yes_sub_title": "Over 70.5 points scored",
+     "floor_strike": 70.5, "strike_type": "greater", "market_type": "binary",
+     "yes_bid_dollars": "0.1600", "yes_ask_dollars": "0.2900", "yes_ask_size_fp": "150.00",
+     "volume_fp": "0.00", "open_interest_fp": "0.00",
+     "rules_primary": "If the teams collectively score more than 70.5 points in the Sacred "
+                      "Heart vs Monmouth college football game originally scheduled for "
+                      "Sep 5, 2026, then the market resolves to Yes."},
+]
+
+KALSHI_SPREAD = [
+    {"event_ticker": "KXNCAAFSPREAD-26SEP05UCDUSD", "ticker": "KXNCAAFSPREAD-26SEP05UCDUSD-USD9",
+     "title": "San Diego wins by over 8.5 points", "floor_strike": 8.5, "strike_type": "greater",
+     "market_type": "binary", "yes_bid_dollars": "0.0700", "yes_ask_dollars": "0.9000",
+     "yes_ask_size_fp": "701.00", "volume_fp": "0.00", "open_interest_fp": "0.00",
+     "rules_primary": "If San Diego wins by more than 8.5 points in the UC Davis vs San Diego "
+                      "college football game originally scheduled for Sep 5, 2026, then the "
+                      "market resolves to Yes."},
+    {"event_ticker": "KXNCAAFSPREAD-26SEP05UCDUSD", "ticker": "KXNCAAFSPREAD-26SEP05UCDUSD-USD5",
+     "title": "San Diego wins by over 4.5 points", "floor_strike": 4.5, "strike_type": "greater",
+     "market_type": "binary", "yes_bid_dollars": "0.0700", "yes_ask_dollars": "0.1700",
+     "yes_ask_size_fp": "150.00", "volume_fp": "0.00", "open_interest_fp": "0.00",
+     "rules_primary": "If San Diego wins by more than 4.5 points in the UC Davis vs San Diego "
+                      "college football game originally scheduled for Sep 5, 2026, then the "
+                      "market resolves to Yes."},
+]
+
+
+def test_kalshi_ladder_parse(env):
+    from datetime import date as _date
+    from cfb.sources import kalshi
+    t = kalshi.parse_ladder(KALSHI_TOTAL[0], "total")
+    assert t["strike"] == 78.5 and t["date"] == _date(2026, 9, 5)
+    assert t["away_raw"] == "Sacred Heart" and t["home_raw"] == "Monmouth"
+    assert t["yes_ask"] == 0.17
+
+    s = kalshi.parse_ladder(KALSHI_SPREAD[0], "spread")
+    assert s["strike"] == 8.5
+    assert s["team_raw"] == "San Diego"
+    # matchup is phrased away-first: "UC Davis vs San Diego" => San Diego hosts
+    assert s["away_raw"] == "UC Davis" and s["home_raw"] == "San Diego"
+
+
+def test_kalshi_monotonicity_detects_incoherent_ladder(env, monkeypatch):
+    """P(win by >8.5) cannot exceed P(win by >4.5). The live sample violated this."""
+    import pandas as pd
+    from cfb.sources import kalshi
+    monkeypatch.setattr(kalshi, "fetch_markets", lambda *a, **k: KALSHI_SPREAD)
+    lad = kalshi.ladder_board("spread")
+    breaks = kalshi.monotonicity_breaks(lad)
+    assert len(breaks) == 1
+    b = breaks[0]
+    assert b["lower_strike"] == 4.5 and b["higher_strike"] == 8.5
+    assert b["higher_ask"] > b["lower_ask"]
+
+    # a coherent ladder (totals sample) must produce no breaks
+    monkeypatch.setattr(kalshi, "fetch_markets", lambda *a, **k: KALSHI_TOTAL)
+    assert kalshi.monotonicity_breaks(kalshi.ladder_board("total")) == []
+
+
+def test_ladder_probabilities_are_ordered(env):
+    """Sanity on the pricing math itself: higher strike => lower probability."""
+    from scipy.stats import norm
+    p_hi = float(norm.sf(78.5, loc=72.0, scale=16.0))
+    p_lo = float(norm.sf(70.5, loc=72.0, scale=16.0))
+    assert p_lo > p_hi
+    # away-side spread contract mirrors through the margin distribution
+    p_home_by_7 = float(norm.sf(7.0, loc=3.0, scale=15.0))
+    p_away_by_7 = float(norm.cdf(-7.0, loc=3.0, scale=15.0))
+    assert 0 < p_home_by_7 < 1 and 0 < p_away_by_7 < 1
+    assert p_home_by_7 > p_away_by_7          # home is favoured by 3

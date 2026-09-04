@@ -11,6 +11,7 @@ import logging
 import shutil
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -55,8 +56,18 @@ def _board() -> tuple[list[dict], int | None]:
     # Rank by the model's largest disagreement with the line - that's the reason to look at
     # this page at all. Kickoff order is available via the filter chips.
     df["_rank"] = df[["total_disagree", "margin_disagree"]].abs().max(axis=1)
+    # A tradeable Kalshi edge outranks a big model disagreement - it is the only number here
+    # that reflects a price you could actually pay.
+    if "kalshi_home_ev" in df:
+        best_ev = df[["kalshi_home_ev", "kalshi_away_ev"]].max(axis=1)
+        df["kalshi_best_ev"] = best_ev.round(3)
+        df["kalshi_ev_cents"] = (best_ev * 100).round(1)
+        df["_rank"] = df["_rank"] + np.where(
+            df.get("kalshi_tradeable", False).fillna(False).astype(bool) & (best_ev > 0),
+            50 + best_ev * 100, 0)
     df = df.sort_values("_rank", ascending=False)
-    for col, out in (("total_p_win", "total_cents"), ("spread_p_win", "spread_cents")):
+    for col, out in (("total_p_win", "total_cents"), ("spread_p_win", "spread_cents"),
+                     ("p_home_win", "home_win_cents"), ("p_away_win", "away_win_cents")):
         if col in df:
             df[out] = df[col].map(_prob_cents)
     # tier flag drives the G5 filter chip

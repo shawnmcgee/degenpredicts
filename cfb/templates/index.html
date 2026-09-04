@@ -120,7 +120,11 @@
        data-kick="{{ g.tip_et or '' }}">
     <div class="ghead">
       <span>{{ g.tip_et }} ET</span>
-      <span><span class="gap">&#916;{{ '%.1f'|format(gap) }}</span>{% if g.neutral_site %} · neutral{% endif %}{% if g.thin_data %} · early season{% endif %}</span>
+      <span>
+        {% if g.kalshi_ev_cents is not none and g.kalshi_ev_cents > 0 and g.kalshi_tradeable %}
+          <span class="tag play" style="background:var(--good);color:#052e16">Kalshi {{ '%+.0f'|format(g.kalshi_ev_cents) }}&cent;</span>
+        {% endif %}
+        <span class="gap">&#916;{{ '%.1f'|format(gap) }}</span>{% if g.neutral_site %} · neutral{% endif %}{% if g.thin_data %} · early season{% endif %}</span>
     </div>
     <div class="teams">{{ g.away_team }}<span class="at">{% if g.neutral_site %}vs{% else %}at{% endif %}</span>{{ g.home_team }}</div>
     <div class="bets">
@@ -145,12 +149,59 @@
         </div>
       </div>
     </div>
+    {% if g.kt_pick or g.ks_pick %}
+    <div class="bets" style="border-top:1px solid var(--line)">
+      {% if g.kt_pick %}
+      <div class="bet">
+        <div class="l">Kalshi total <span class="tag bold">exchange</span></div>
+        <div class="p">{{ g.kt_pick }}</div>
+        <div class="px">
+          <span>Model <b>{{ (g.kt_prob * 100)|round|int }}&cent;</b></span>
+          <span>Ask <b>{{ (g.kt_ask * 100)|round|int }}&cent;</b></span>
+          <span class="{% if (g.kt_ev or 0) > 0 %}up{% else %}down{% endif %}">EV <b>{{ '%+.1f'|format((g.kt_ev or 0)*100) }}&cent;</b></span>
+          {% if g.kt_book_gap %}<span>vs book {{ '%+.1f'|format(g.kt_book_gap) }}</span>{% endif %}
+        </div>
+      </div>
+      {% endif %}
+      {% if g.ks_pick %}
+      <div class="bet">
+        <div class="l">Kalshi spread <span class="tag bold">exchange</span></div>
+        <div class="p">{{ g.ks_pick }}</div>
+        <div class="px">
+          <span>Model <b>{{ (g.ks_prob * 100)|round|int }}&cent;</b></span>
+          <span>Ask <b>{{ (g.ks_ask * 100)|round|int }}&cent;</b></span>
+          <span class="{% if (g.ks_ev or 0) > 0 %}up{% else %}down{% endif %}">EV <b>{{ '%+.1f'|format((g.ks_ev or 0)*100) }}&cent;</b></span>
+          {% if g.ks_book_gap %}<span>vs book {{ '%+.1f'|format(g.ks_book_gap) }}</span>{% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% if g.kalshi_incoherent %}
+    <div style="padding:6px 14px;font-size:11px;color:var(--warn);background:var(--card2)">
+      Ladder quotes contradict each other (a higher strike costs more than a lower one) — at
+      least one price is stale. Treat any edge here as unreal.
+    </div>
+    {% endif %}
+    {% if g.ml_pick %}
+    <div class="bet" style="border-top:1px solid var(--line)">
+      <div class="l">Kalshi moneyline <span class="tag {% if (g.ml_roi or 0) > 0.02 %}bold{% else %}play{% endif %}">exchange</span></div>
+      <div class="p">{{ g.ml_pick }}</div>
+      <div class="px">
+        <span>Model <b>{{ g.ml_model_cents }}&cent;</b></span>
+        <span>Ask <b>{{ (g.ml_ask * 100)|round|int }}&cent;</b></span>
+        <span class="{% if (g.ml_roi or 0) > 0 %}up{% else %}down{% endif %}">ROI <b>{{ '%+.1f'|format((g.ml_roi or 0)*100) }}%</b></span>
+        <span>Stake <b>{{ g.ml_stake }}u</b></span>
+      </div>
+    </div>
+    {% endif %}
   </div>
   {% endfor %}
   {% if picks %}
   <p class="sub"><b>Model &cent;</b> is our win probability written as an exchange price, so it sits
     directly against a Kalshi quote — the trade is only interesting when the market asks less than
-    our number.</p>
+    our number. Moneyline rows appear only where Kalshi has a genuinely tradeable quote (tight
+    spread, real size and volume); most listed markets never trade and their prices are fiction.</p>
   {% endif %}
 </section>
 

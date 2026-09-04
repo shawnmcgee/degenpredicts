@@ -192,6 +192,34 @@ python -m cfb.site && open docs/index.html
 | `DEGEN_VENUE` | `kalshi_taker` | cost model: `sportsbook`, `kalshi_taker`, `kalshi_maker`, `exchange_zero` |
 | `DEGEN_BREAK_EVEN` | (derived) | override the computed break-even win rate |
 
+### Kalshi markets
+
+Three series are wired in, all confirmed against live payloads:
+
+| Series | Shape | Model input |
+|---|---|---|
+| `KXNCAAFGAME` | "&lt;team&gt; wins" | `P(margin > 0)` |
+| `KXNCAAFSPREAD` | "&lt;team&gt; wins by over X" — **ladder** | `P(margin > X)`, mirrored for the away side |
+| `KXNCAAFTOTAL` | "Over X points scored" — **ladder** | `P(total > X)` |
+
+Spreads and totals list many strikes per game, so every rung is priced against the model's
+distribution and the best tradeable positive-EV rung is kept. Quarter and half series
+(`KXNCAAF1HSPREAD` etc.) exist and are likely softer, but the models predict full-game results,
+so those would need their own training target.
+
+Two guards worth knowing about:
+
+* **Liquidity.** EV is computed against the **ask**, never the mid, and a pick only surfaces if
+  the quote passes width/size/volume gates. A live sample quoted 0.07 x 0.90 with zero volume;
+  an "edge" against that ask is imaginary.
+* **Monotonicity.** P(win by >8.5) can never exceed P(win by >4.5). The live spread sample
+  violated this (90c vs 17c). Games whose ladders contradict themselves are flagged on the site,
+  because at least one quote is stale.
+
+`ks_book_gap` / `kt_book_gap` show how far Kalshi's strike sits from the sportsbook number. A
+stale exchange strike is a far likelier source of profit than the model outsmarting Bovada —
+watch that column more than the model's own disagreement.
+
 ### Venue matters more than any model tweak
 
 Break-even win rate by venue, for a contract priced near 50c:
