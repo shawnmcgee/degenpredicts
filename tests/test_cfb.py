@@ -431,3 +431,40 @@ def test_ladder_guards_reject_thin_and_tails(env, monkeypatch):
     res3 = predict._price_ladders(out2.copy(), pd.DataFrame())
     assert res3["kt_pick"].isna().all()
     assert res3["kt_rungs"].fillna(0).iloc[0] == 0
+
+
+def test_site_hides_empty_kalshi_sections(env):
+    """Regression: pandas cannot hold None in a float64 column, so `where(notna, None)` left
+    NaN in place. bool(nan) is True, so every Jinja `{% if %}` passed and the page rendered the
+    literal string 'nan'. Empty Kalshi sections must not render at all."""
+    import json
+    import numpy as np
+    import pandas as pd
+    from cfb import site
+
+    env.ensure_dirs()
+    pd.DataFrame([{
+        "prediction_date": "2026-09-04", "game_id": "g1", "season": 2026, "week": 1,
+        "date": "2026-09-04", "tip_et": "Fri Sep 04, 6:30 PM",
+        "home_team": "Eastern Michigan", "away_team": "San José State",
+        "neutral_site": False, "total_line": 56.0, "spread_home": -3.0,
+        "total_raw": 57.9, "total_pred": 57.9, "total_disagree": 1.9, "total_pick": "Over",
+        "total_strength": "pass", "total_p_win": 0.51, "total_ev": -0.023, "total_stake": 0.0,
+        "margin_raw": 5.9, "margin_pred": 5.9, "margin_disagree": 2.9,
+        "spread_pick": "Eastern Michigan -3.0", "spread_strength": "pass",
+        "spread_p_win": 0.51, "spread_ev": -0.024, "spread_stake": 0.0,
+        "thin_data": True, "h_games": 0, "a_games": 0,
+        # every Kalshi field empty - the guards published nothing
+        "kt_pick": np.nan, "kt_ask": np.nan, "kt_prob": np.nan, "kt_ev": np.nan,
+        "ks_pick": np.nan, "ks_ask": np.nan, "ks_prob": np.nan, "ks_ev": np.nan,
+        "ml_pick": np.nan, "ml_ask": np.nan, "ml_roi": np.nan, "ml_stake": np.nan,
+        "ml_model_cents": np.nan, "kalshi_incoherent": False,
+    }]).to_csv(env.PICKS, index=False)
+    env.METRICS.write_text(json.dumps({"updated": "2026-09-04", "break_even": 51.75}))
+
+    site.build()
+    html = (env.DOCS / "index.html").read_text()
+    assert "Eastern Michigan" in html
+    assert "nan" not in html.lower().replace("finance", ""), "empty fields must not render as 'nan'"
+    for section in ("Kalshi total", "Kalshi spread", "Kalshi moneyline", "Kalshi play"):
+        assert section not in html, f"{section} rendered with no pick"

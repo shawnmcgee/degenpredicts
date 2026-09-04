@@ -121,8 +121,8 @@
     <div class="ghead">
       <span>{{ g.tip_et }} ET</span>
       <span>
-        {% if g.kalshi_ev_cents is not none and g.kalshi_ev_cents > 0 and g.kalshi_tradeable %}
-          <span class="tag play" style="background:var(--good);color:#052e16">Kalshi {{ '%+.0f'|format(g.kalshi_ev_cents) }}&cent;</span>
+        {% if g.ml_pick or g.kt_pick or g.ks_pick %}
+          <span class="tag play" style="background:var(--good);color:#052e16">Kalshi play</span>
         {% endif %}
         <span class="gap">&#916;{{ '%.1f'|format(gap) }}</span>{% if g.neutral_site %} · neutral{% endif %}{% if g.thin_data %} · early season{% endif %}</span>
     </div>

@@ -36,6 +36,8 @@ MANUAL = {
     "Middle Tennessee Blue Raiders": "Middle Tennessee", "UTSA Roadrunners": "UT San Antonio",
     "Florida International Golden Panthers": "Florida International",
     "Jacksonville State Gamecocks": "Jacksonville State", "Kennesaw State Owls": "Kennesaw State",
+    # Kalshi says "UMass"; CFBD says "Massachusetts".
+    "UMass": "Massachusetts", "UMass Minutemen": "Massachusetts",
 }
 
 

@@ -38,7 +38,7 @@ def _recent_results(limit: int = 12) -> list[dict]:
         return []
     df["date"] = pd.to_datetime(df["date"]).dt.date
     df = df.sort_values("date", ascending=False).head(limit)
-    return df.where(pd.notna(df), None).to_dict("records")
+    return df.astype(object).where(pd.notna(df), None).to_dict("records")
 
 
 def _board() -> tuple[list[dict], int | None]:
@@ -76,7 +76,7 @@ def _board() -> tuple[list[dict], int | None]:
         df["is_g5"] = ~(df["home_conf"].isin(P4) & df["away_conf"].isin(P4))
     else:
         df["is_g5"] = False
-    df = df.where(pd.notna(df), None)
+    df = df.astype(object).where(pd.notna(df), None)
     return df.to_dict("records"), week
 
 
