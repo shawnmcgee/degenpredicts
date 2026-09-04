@@ -141,6 +141,12 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         out[f"{kind}_pred"] = np.round(blended, 1)
         out[f"{kind}_raw"] = np.round(raw, 1)
         out[f"{kind}_edge"] = np.round(blended - line, 1)
+        # Selection uses the model's RAW disagreement with the line. The shrunk `edge` is the
+        # honest expected difference and is tiny by construction (shrink is usually < 0.3), so
+        # thresholding on it would produce an empty board. Disagreement is what the
+        # ats_by_disagreement table in meta.json is bucketed on, so the thresholds you set
+        # from that table apply to the same quantity.
+        out[f"{kind}_disagree"] = np.round(raw - line, 1)
         out[f"{kind}_sigma"] = sigma
         out[f"{kind}_model"] = name
         out[f"{kind}_p_over"] = np.round(norm.cdf((blended - line) / sigma), 4)
@@ -167,10 +173,10 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
 
     thin = (out["h_games"] < config.MIN_GAMES) | (out["a_games"] < config.MIN_GAMES)
     out["thin_data"] = thin
-    out["total_strength"] = [_strength(e, config.TOTAL_EDGE_MIN, t)
-                             for e, t in zip(out["total_edge"], thin)]
-    out["spread_strength"] = [_strength(e, config.SPREAD_EDGE_MIN, t)
-                              for e, t in zip(out["margin_edge"], thin)]
+    out["total_strength"] = [_strength(d, config.TOTAL_EDGE_MIN, t)
+                             for d, t in zip(out["total_disagree"], thin)]
+    out["spread_strength"] = [_strength(d, config.SPREAD_EDGE_MIN, t)
+                              for d, t in zip(out["margin_disagree"], thin)]
     out["prediction_date"] = str(today)
     out = out.sort_values(["date", "tip_et"]).reset_index(drop=True)
 
@@ -180,8 +186,9 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
              out.spread_strength.value_counts().to_dict())
 
     if dry_run:
-        cols = ["tip_et", "away_team", "home_team", "total_line", "total_pred", "total_edge",
-                "total_strength", "spread_home", "spread_pick", "margin_edge", "spread_strength"]
+        cols = ["tip_et", "away_team", "home_team", "total_line", "total_raw", "total_disagree",
+                "total_pick", "total_strength", "spread_home", "margin_raw", "margin_disagree",
+                "spread_pick", "spread_strength"]
         print(out[[c for c in cols if c in out]].to_string(index=False))
         return out
 

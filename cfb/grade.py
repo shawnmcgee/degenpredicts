@@ -117,8 +117,8 @@ def metrics(done: pd.DataFrame) -> dict:
         season = done[done["season"] == done["season"].max()]
 
     for kind, edge_col, err_col, strength_col in (
-            ("total", "total_edge", "total_abs_err", "total_strength"),
-            ("spread", "margin_edge", "margin_abs_err", "spread_strength")):
+            ("total", "total_disagree", "total_abs_err", "total_strength"),
+            ("spread", "margin_disagree", "margin_abs_err", "spread_strength")):
         key = "totals" if kind == "total" else "spreads"
         played = season[season[strength_col].isin(["play", "bold"])]
         out[key] = {
@@ -129,10 +129,10 @@ def metrics(done: pd.DataFrame) -> dict:
             "mae": round(float(season[err_col].mean()), 2) if len(season) else None,
             "by_edge": [],
         }
-        for lo, hi in [(0, 2), (2, 4), (4, 7), (7, 10), (10, 99)]:
+        for lo, hi in [(0, 1), (1, 2), (2, 3), (3, 5), (5, 7), (7, 999)]:
             b = season[(season[edge_col].abs() >= lo) & (season[edge_col].abs() < hi)]
             if len(b):
-                out[key]["by_edge"].append({"bucket": f"{lo}-{hi if hi < 99 else '+'}", **_rec(b, kind)})
+                out[key]["by_edge"].append({"bucket": f"{lo}-{hi if hi < 999 else '+'}", **_rec(b, kind)})
 
     for wk, grp in season.groupby("week"):
         played = grp[grp["total_strength"].isin(["play", "bold"]) |

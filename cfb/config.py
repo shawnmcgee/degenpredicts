@@ -76,8 +76,12 @@ BOARD_DAYS = int(os.environ.get("DEGEN_BOARD_DAYS", "7"))
 
 # --- modelling / betting -------------------------------------------------------------
 MIN_GAMES = int(os.environ.get("DEGEN_MIN_GAMES", "2"))     # thin-data guard (weeks 1-2)
-TOTAL_EDGE_MIN = float(os.environ.get("DEGEN_TOTAL_EDGE", "3.5"))
-SPREAD_EDGE_MIN = float(os.environ.get("DEGEN_SPREAD_EDGE", "2.5"))
+# NOTE: these thresholds apply to the model's RAW disagreement with the line
+# (|model - line|), NOT to the shrunk display edge. Set them from the
+# ats_by_disagreement table in models/meta.json - pick the smallest bucket whose
+# cover_pct clears 52.4 by more than ~2 stderr on a decent sample.
+TOTAL_EDGE_MIN = float(os.environ.get("DEGEN_TOTAL_EDGE", "5.0"))
+SPREAD_EDGE_MIN = float(os.environ.get("DEGEN_SPREAD_EDGE", "4.0"))
 BOLD_MULT = 2.0
 KELLY_FRACTION = float(os.environ.get("DEGEN_KELLY", "0.25"))
 BANKROLL_UNITS = 100.0

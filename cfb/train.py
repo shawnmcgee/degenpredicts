@@ -182,6 +182,7 @@ def walk_forward(df: pd.DataFrame, kind: str, market: bool, params=None,
                         kind, "mkt", n_dec)
             shrink = min(shrink, config.DEFAULT_SHRINK)
         out["shrink"] = round(float(min(shrink, SHRINK_CAP)), 2)
+        out["ats_by_disagreement"] = _ats_by_disagreement(pool)
         out["shrink_raw"] = round(float(_best_shrink(pool.pred.values, pool.line.values,
                                                      pool.actual.values)), 2)
     return out
@@ -195,6 +196,40 @@ def _best_shrink(pred, line, actual) -> float:
         if mae < best_mae:
             best, best_mae = float(w), mae
     return best
+
+
+def _ats_by_disagreement(pool: pd.DataFrame) -> list[dict]:
+    """The question this whole project exists to answer: does the model get *better* when it
+    disagrees with the line the most?
+
+    Buckets pooled out-of-sample games by |model - line| (the RAW model output, before any
+    shrink) and reports the cover rate and ROI at -110 in each bucket. If the high-disagreement
+    buckets clear 52.4% on a decent sample, there is an edge in a subset even when the overall
+    rate is not profitable. If they don't, larger disagreements are just larger errors - which
+    is the more common finding and the reason to publish rather than bet.
+    """
+    p = pool.dropna(subset=["line"]).copy()
+    if p.empty:
+        return []
+    p["disagree"] = (p["pred"] - p["line"]).abs()
+    decided = p[p["actual"] != p["line"]].copy()
+    if decided.empty:
+        return []
+    decided["right"] = np.where(decided["pred"] > decided["line"],
+                                decided["actual"] > decided["line"],
+                                decided["actual"] < decided["line"])
+    out = []
+    for lo, hi in [(0, 1), (1, 2), (2, 3), (3, 5), (5, 7), (7, 10), (10, 999)]:
+        b = decided[(decided["disagree"] >= lo) & (decided["disagree"] < hi)]
+        if len(b) < 50:
+            continue
+        rate = float(b["right"].mean())
+        out.append({"disagreement": f"{lo}-{hi if hi < 999 else '+'}",
+                    "n": int(len(b)),
+                    "cover_pct": round(100 * rate, 1),
+                    "stderr": round(100 * (rate * (1 - rate) / len(b)) ** 0.5, 2),
+                    "roi_at_110": round(100 * (rate * (100 / 110) - (1 - rate)), 2)})
+    return out
 
 
 def _ats(chunk: pd.DataFrame) -> tuple[float | None, int]:
