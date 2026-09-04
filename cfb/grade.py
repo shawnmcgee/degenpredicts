@@ -18,7 +18,7 @@ from . import config
 from .sources import cfbd, odds
 
 log = logging.getLogger("cfb.grade")
-BREAK_EVEN = 52.38
+BREAK_EVEN = config.BREAK_EVEN  # venue-aware; see config.break_even_pct()
 
 
 def _load(path, dates=("date",)):
@@ -108,8 +108,8 @@ def _rec(df, kind) -> dict:
 
 def metrics(done: pd.DataFrame) -> dict:
     today = config.today_et()
-    out = {"updated": str(today), "break_even": BREAK_EVEN, "totals": {}, "spreads": {},
-           "by_week": []}
+    out = {"updated": str(today), "break_even": round(BREAK_EVEN, 2), "venue": config.VENUE,
+           "totals": {}, "spreads": {}, "by_week": []}
     if done.empty:
         return out
     season = done[done["season"] == config.season_of(today)]

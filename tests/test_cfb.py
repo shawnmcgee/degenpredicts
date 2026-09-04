@@ -60,7 +60,9 @@ def synth() -> tuple[pd.DataFrame, pd.DataFrame]:
                                   home_team=h, away_team=a, home_points=float(hp),
                                   away_points=float(ap), total_points=float(hp + ap),
                                   home_margin=float(hp - ap), neutral_site=False,
-                                  conference_game=bool(i % 3), home_conf="X", away_conf="Y",
+                                  conference_game=bool(i % 3),
+                                  home_conf=("SEC" if i % 4 == 0 else "Mid-American"),
+                                  away_conf=("Big Ten" if i % 3 == 0 else "Sun Belt"),
                                   completed=True))
                 # a market that knows the truth plus noise, i.e. a hard target
                 lines.append(dict(game_id=str(gid), season=s, week=wk, date=day,
@@ -115,8 +117,21 @@ def test_pipeline(env, monkeypatch):
     ev = meta["eval"]["margin_market"]
     # the market in this fixture is deliberately near-perfect, so the model should NOT beat it
     assert ev["mae_market_baseline"] <= ev["mae_model"] * 1.2
-    assert 0.0 <= ev["shrink"] <= 1.0
-    assert ev["ats_n"] > 100
+    # walk-forward must never hold out the in-progress season
+    assert THIS not in ev["test_seasons"]
+    assert ev["n_test_total"] > 200
+    # shrink is capped and can't be pushed to 1.0 by a lucky slice
+    assert 0.0 <= ev["shrink"] <= 0.6
+    assert "ats_stderr" in ev and "beats_market" in ev
+    buckets = ev["ats_by_disagreement"]
+    assert buckets and all(b["n"] >= 50 for b in buckets)
+    assert all("cover_pct" in b and "roi_pct" in b for b in buckets)
+    assert 50.0 <= ev["break_even_pct"] <= 53.0
+    soft = ev["market_softness"]
+    assert "by_week" in soft and "by_spread_size" in soft
+    for rows in soft.values():
+        for r in rows:
+            assert r["n"] >= 100 and "vs_break_even_se" in r
 
     # Week 1 of the CURRENT season: no games played yet, exactly the real week-1 situation
     upcoming = games.iloc[:20].copy()
@@ -136,8 +151,8 @@ def test_pipeline(env, monkeypatch):
 
     out = predict.run()
     assert len(out) == 20
-    for c in ("total_pred", "total_edge", "total_p_win", "total_stake",
-              "margin_pred", "margin_edge", "spread_pick", "spread_stake"):
+    for c in ("total_pred", "total_edge", "total_disagree", "total_p_win", "total_stake",
+              "margin_pred", "margin_edge", "margin_disagree", "spread_pick", "spread_stake"):
         assert c in out.columns
     assert out["total_p_win"].between(0, 1).all()
     assert (out["total_stake"] >= 0).all()

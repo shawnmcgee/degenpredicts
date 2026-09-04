@@ -20,6 +20,26 @@ log = logging.getLogger("cfb.site")
 TEMPLATES = Path(__file__).resolve().parent / "templates"  # ships with the package
 
 
+def _prob_cents(p):
+    """Model win probability as exchange cents, so it sits next to a Kalshi quote."""
+    try:
+        return int(round(float(p) * 100))
+    except (TypeError, ValueError):
+        return None
+
+
+def _recent_results(limit: int = 12) -> list[dict]:
+    """Last graded games, newest first - gives the page a memory instead of resetting daily."""
+    if not config.RESULTS.exists():
+        return []
+    df = pd.read_csv(config.RESULTS, dtype={"game_id": str})
+    if df.empty:
+        return []
+    df["date"] = pd.to_datetime(df["date"]).dt.date
+    df = df.sort_values("date", ascending=False).head(limit)
+    return df.where(pd.notna(df), None).to_dict("records")
+
+
 def _board() -> tuple[list[dict], int | None]:
     """This week's games, freshest prediction per game."""
     if not config.PICKS.exists():
@@ -31,8 +51,20 @@ def _board() -> tuple[list[dict], int | None]:
     upcoming = df[df["date"] >= config.today_et()]
     df = upcoming if len(upcoming) else df[df["week"] == df["week"].max()]
     week = int(df["week"].mode().iloc[0]) if len(df) else None
-    df = (df.sort_values("prediction_date").drop_duplicates("game_id", keep="last")
-            .sort_values(["date", "tip_et"]))
+    df = df.sort_values("prediction_date").drop_duplicates("game_id", keep="last")
+    # Rank by the model's largest disagreement with the line - that's the reason to look at
+    # this page at all. Kickoff order is available via the filter chips.
+    df["_rank"] = df[["total_disagree", "margin_disagree"]].abs().max(axis=1)
+    df = df.sort_values("_rank", ascending=False)
+    for col, out in (("total_p_win", "total_cents"), ("spread_p_win", "spread_cents")):
+        if col in df:
+            df[out] = df[col].map(_prob_cents)
+    # tier flag drives the G5 filter chip
+    P4 = {"SEC", "Big Ten", "Big 12", "ACC"}
+    if "home_conf" in df and "away_conf" in df:
+        df["is_g5"] = ~(df["home_conf"].isin(P4) & df["away_conf"].isin(P4))
+    else:
+        df["is_g5"] = False
     df = df.where(pd.notna(df), None)
     return df.to_dict("records"), week
 
@@ -52,6 +84,7 @@ def build() -> None:
     metrics = _metrics()
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, m=metrics, week=week,
+        results=_recent_results(), venue=config.VENUE,
         updated=metrics.get("updated", ""),
         total_min=config.TOTAL_EDGE_MIN, spread_min=config.SPREAD_EDGE_MIN,
     )

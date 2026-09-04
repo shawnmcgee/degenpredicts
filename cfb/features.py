@@ -113,12 +113,13 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
         ret = {(int(r.season), r.team): {"ret_ppa": r.ret_ppa, "ret_pass_pct": r.ret_pass_pct}
                for r in returning.itertuples()}
 
-    line_map = {}
+    line_map, n_prov = {}, {}
     if lines is not None and len(lines):
         for r in lines.itertuples():
             line_map[str(r.game_id)] = (r.spread_home, r.total_line,
                                         getattr(r, "spread_open", np.nan),
                                         getattr(r, "total_open", np.nan))
+            n_prov[str(r.game_id)] = getattr(r, "n_providers", np.nan)
 
     book = RatingBook(cfg)
     rows = []
@@ -133,7 +134,9 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
         r = _market(r, tl, sh, to, so)
         r.update({"game_id": g.game_id, "date": g.date, "season": season, "week": week,
                   "home_team": g.home_team, "away_team": g.away_team,
-                  "total_points": g.total_points, "home_margin": g.home_margin})
+                  "total_points": g.total_points, "home_margin": g.home_margin,
+                  "home_conf": getattr(g, "home_conf", ""), "away_conf": getattr(g, "away_conf", ""),
+                  "n_providers": n_prov.get(str(g.game_id), np.nan)})
         rows.append(r)
         book.update(season, g.home_team, g.away_team, g.home_points, g.away_points, g.date, neutral)
 

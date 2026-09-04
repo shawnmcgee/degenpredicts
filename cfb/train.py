@@ -147,7 +147,8 @@ def walk_forward(df: pd.DataFrame, kind: str, market: bool, params=None,
         model, _ = _fit(tr, feats, target, params)
         pred = model.predict(te[feats])
         line = (te[line_col] if kind == "total" else -te[line_col]).values if market else np.full(len(te), np.nan)
-        chunk = pd.DataFrame({"season": s, "pred": pred, "actual": te[target].values,
+        chunk = pd.DataFrame({"season": s, "game_id": te["game_id"].values,
+                              "pred": pred, "actual": te[target].values,
                               "rating": te[rating_col].values, "line": line})
         chunks.append(chunk)
         per_season.append({"season": int(s), "n": int(len(te)),
@@ -183,8 +184,123 @@ def walk_forward(df: pd.DataFrame, kind: str, market: bool, params=None,
             shrink = min(shrink, config.DEFAULT_SHRINK)
         out["shrink"] = round(float(min(shrink, SHRINK_CAP)), 2)
         out["ats_by_disagreement"] = _ats_by_disagreement(pool)
+        out["break_even_pct"] = round(config.BREAK_EVEN, 2)
+        out["venue"] = config.VENUE
+        out["market_softness"] = _softness(pool, d)
         out["shrink_raw"] = round(float(_best_shrink(pool.pred.values, pool.line.values,
                                                      pool.actual.values)), 2)
+    return out
+
+
+# Power Four in 2026. Anything else (including the rebuilt Pac-12) is treated as G5, which is
+# the right split for "how carefully does the market price this game".
+P4 = {"SEC", "Big Ten", "Big 12", "ACC"}
+
+
+def _decided(pool: pd.DataFrame) -> pd.DataFrame:
+    p = pool.dropna(subset=["line"]).copy()
+    p = p[p["actual"] != p["line"]].copy()
+    p["right"] = np.where(p["pred"] > p["line"], p["actual"] > p["line"], p["actual"] < p["line"])
+    p["disagree"] = (p["pred"] - p["line"]).abs()
+    return p
+
+
+def _seg(b: pd.DataFrame, label: str, min_n: int = 150) -> dict | None:
+    if len(b) < min_n:
+        return None
+    rate = float(b["right"].mean())
+    se = (rate * (1 - rate) / len(b)) ** 0.5
+    be = config.BREAK_EVEN / 100
+    return {"segment": label, "n": int(len(b)),
+            "cover_pct": round(100 * rate, 1),
+            "stderr": round(100 * se, 2),
+            "vs_break_even_se": round((rate - be) / se, 2) if se else None,
+            "roi_pct": round(100 * _roi(rate), 2)}
+
+
+def _roi(rate: float, price: float = 0.50) -> float:
+    """Return per unit risked at the configured venue."""
+    coef = config.FEE_COEF.get(config.VENUE, 0.07)
+    if coef is None:
+        return rate * (100 / 110) - (1 - rate)
+    fee = coef * price * (1 - price)
+    cost = price + fee
+    return (rate * (1 - cost) - (1 - rate) * cost) / cost
+
+
+def _softness(pool: pd.DataFrame, meta: pd.DataFrame) -> dict:
+    """Where is the market soft? Splits pooled out-of-sample results by things that proxy for
+    how much attention a game gets, rather than by how loud our model is.
+
+    Books price Alabama-Georgia with far more care than a Tuesday-night MAC game. If an edge
+    exists anywhere in a public-data model, this is where to expect it.
+    """
+    p = _decided(pool)
+    if p.empty:
+        return {}
+    cols = ["game_id", "week", "n_providers", "home_conf", "away_conf", "total_line",
+            "spread_home", "spread_move", "total_move", "neutral_site"]
+    have = [c for c in cols if c in meta.columns]
+    p = p.merge(meta[have].astype({"game_id": str}), on="game_id", how="left")
+    out: dict[str, list] = {}
+
+    def add(key, rows):
+        rows = [r for r in rows if r]
+        if rows:
+            out[key] = rows
+
+    # 1. how many books bothered to post a number (thin coverage = less scrutiny)
+    if "n_providers" in p:
+        add("by_book_count", [
+            _seg(p[p.n_providers <= 2], "1-2 books"),
+            _seg(p[p.n_providers == 3], "3 books"),
+            _seg(p[p.n_providers >= 4], "4+ books"),
+        ])
+
+    # 2. conference tier
+    if "home_conf" in p:
+        both_p4 = p.home_conf.isin(P4) & p.away_conf.isin(P4)
+        neither = ~p.home_conf.isin(P4) & ~p.away_conf.isin(P4)
+        add("by_conference_tier", [
+            _seg(p[both_p4], "P4 vs P4"),
+            _seg(p[~both_p4 & ~neither], "P4 vs G5"),
+            _seg(p[neither], "G5 vs G5"),
+        ])
+
+    # 3. week of season
+    add("by_week", [
+        _seg(p[p.week <= 2], "weeks 1-2"),
+        _seg(p[(p.week >= 3) & (p.week <= 6)], "weeks 3-6"),
+        _seg(p[(p.week >= 7) & (p.week <= 11)], "weeks 7-11"),
+        _seg(p[p.week >= 12], "weeks 12+"),
+    ])
+
+    # 4. did the line move since it opened? (movement = money = sharper number)
+    if "spread_move" in p:
+        mv = p.spread_move.abs()
+        add("by_line_movement", [
+            _seg(p[mv < 0.5], "line barely moved"),
+            _seg(p[(mv >= 0.5) & (mv < 2)], "moved 0.5-2"),
+            _seg(p[mv >= 2], "moved 2+"),
+        ])
+
+    # 5. favourite size - big mismatches are priced by formula more than by opinion
+    if "spread_home" in p:
+        fav = p.spread_home.abs()
+        add("by_spread_size", [
+            _seg(p[fav <= 3], "pick'em (<=3)"),
+            _seg(p[(fav > 3) & (fav <= 10)], "3.5-10"),
+            _seg(p[(fav > 10) & (fav <= 21)], "10.5-21"),
+            _seg(p[fav > 21], "21+"),
+        ])
+
+    # 6. the interesting cross: our biggest disagreements inside soft segments
+    if "n_providers" in p and "home_conf" in p:
+        soft = (p.n_providers <= 3) | (~p.home_conf.isin(P4) & ~p.away_conf.isin(P4))
+        add("soft_and_loud", [
+            _seg(p[soft & (p.disagree >= 3)], "soft game & disagree 3+", min_n=100),
+            _seg(p[~soft & (p.disagree >= 3)], "sharp game & disagree 3+", min_n=100),
+        ])
     return out
 
 
@@ -228,7 +344,10 @@ def _ats_by_disagreement(pool: pd.DataFrame) -> list[dict]:
                     "n": int(len(b)),
                     "cover_pct": round(100 * rate, 1),
                     "stderr": round(100 * (rate * (1 - rate) / len(b)) ** 0.5, 2),
-                    "roi_at_110": round(100 * (rate * (100 / 110) - (1 - rate)), 2)})
+                    "roi_pct": round(100 * _roi(rate), 2),
+                    "vs_break_even_se": round(
+                        (rate - config.BREAK_EVEN / 100) /
+                        max((rate * (1 - rate) / len(b)) ** 0.5, 1e-9), 2)})
     return out
 
 

@@ -84,6 +84,32 @@ TOTAL_EDGE_MIN = float(os.environ.get("DEGEN_TOTAL_EDGE", "5.0"))
 SPREAD_EDGE_MIN = float(os.environ.get("DEGEN_SPREAD_EDGE", "4.0"))
 BOLD_MULT = 2.0
 KELLY_FRACTION = float(os.environ.get("DEGEN_KELLY", "0.25"))
+
+# --- venue / cost model --------------------------------------------------------------
+# Sportsbooks bake their margin into the line (-110 => 52.38% break-even). Prediction-market
+# exchanges (Kalshi, Polymarket, DK/FanDuel Predictions) instead sell a 0/100 contract at its
+# implied probability and charge an explicit fee, which is materially cheaper. Kalshi's
+# published taker formula is roundup(0.07 * contracts * P * (1-P)); several sports series carry
+# maker fees at a quarter of that when a resting order fills.
+#
+# Fee schedules change - verify at kalshi.com/fee-schedule before sizing anything.
+VENUE = os.environ.get("DEGEN_VENUE", "kalshi_taker")
+FEE_COEF = {"sportsbook": None, "kalshi_taker": 0.07, "kalshi_maker": 0.0175,
+            "exchange_zero": 0.0}
+
+
+def break_even_pct(venue: str | None = None, price: float = 0.50) -> float:
+    """Win rate needed to break even at `venue` on a contract priced at `price`."""
+    venue = venue or VENUE
+    coef = FEE_COEF.get(venue, 0.07)
+    if coef is None:                      # sportsbook at -110
+        return 52.38
+    fee = coef * price * (1 - price)
+    cost = price + fee
+    return 100 * cost / ((1 - cost) + cost)
+
+
+BREAK_EVEN = float(os.environ.get("DEGEN_BREAK_EVEN", "0")) or break_even_pct()
 BANKROLL_UNITS = 100.0
 DEFAULT_SHRINK = float(os.environ.get("DEGEN_SHRINK", "0.4"))
 

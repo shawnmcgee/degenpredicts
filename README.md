@@ -105,20 +105,38 @@ against the de-vigged price, and a quarter-Kelly stake.
 
 ### The number that decides whether to bet any of this
 
+Evaluation is **walk-forward**: train on everything before season S, predict S, repeat for the
+last four *complete* seasons, then pool. The in-progress season is never the holdout — early-
+season games are unrepresentative, and calibrating on a few dozen of them produces nonsense.
+
 `data/cfb/models/meta.json`:
 
 ```json
 "margin_market": {
-  "mae_model": 10.2,
-  "mae_market_baseline": 10.1,   ← the line's own error
-  "ats_rate": 50.9,              ← how often the model's side covered
-  "shrink": 0.25
+  "test_seasons": [2022, 2023, 2024, 2025],
+  "n_test_total": 3400,
+  "mae_model": 12.10,
+  "mae_market_baseline": 12.05,   ← the line's own error
+  "ats_rate": 50.4,
+  "ats_stderr": 0.86,             ← 1 s.e. on a coin flip at this sample size
+  "beats_market": false,
+  "shrink": 0.15,
+  "per_season": [ ... ]
 }
 ```
 
-If `mae_model` isn't below `mae_market_baseline`, the model has no edge over the book and
-`ats_rate` will hover near 50. That is the *expected* result for a first pass, and it's not a
-failure of the code — it means don't bet it yet. Break-even at −110 is 52.4%.
+Read it in this order:
+
+1. **`beats_market`** — if false, the model does not beat the closing line. Don't bet it.
+2. **`ats_rate` vs `ats_stderr`** — you need roughly `50 + 3×stderr` before a rate is
+   distinguishable from luck, and `52.4` to break even at −110. An impressive rate on a few
+   hundred games is noise; that is the normal state of affairs, not a bug.
+3. **`per_season`** — a model that only works in one season didn't work.
+
+`shrink` is how far off the closing line the published number moves. It is fitted on the pooled
+walk-forward residuals, clamped by `DEGEN_SHRINK_CAP` (default 0.6), and forced back to the
+default if fewer than 500 decided games back it. Shrink near 0 means "the line is better than
+you, publish the line" — which is the correct answer more often than not.
 
 Watch **CLV** (on the site, and in `results.csv`). If the line moves toward your side after you
 pick, that's real evidence of an edge and it shows up in weeks rather than the seasons a win
@@ -171,9 +189,42 @@ python -m cfb.site && open docs/index.html
 | `DEGEN_KELLY` | 0.25 | Kelly fraction |
 | `DEGEN_BOARD_DAYS` | 7 | how far ahead to post games |
 | `DEGEN_FIRST_SEASON` | 2015 | earliest season to train on |
+| `DEGEN_VENUE` | `kalshi_taker` | cost model: `sportsbook`, `kalshi_taker`, `kalshi_maker`, `exchange_zero` |
+| `DEGEN_BREAK_EVEN` | (derived) | override the computed break-even win rate |
 
-After four or five weeks, read the **accuracy by edge size** table on the site and set the two
-edge minimums to the smallest bucket clearing 52.4% on a real sample.
+### Venue matters more than any model tweak
+
+Break-even win rate by venue, for a contract priced near 50c:
+
+| Venue | Break-even |
+|---|---|
+| Sportsbook at −110 | 52.38% |
+| Kalshi taker fee (0.07 formula) | 51.75% |
+| Kalshi maker fee (quarter rate, some series) | 50.44% |
+| Zero-fee exchange | 50.00% |
+
+Kalshi's published taker fee is `roundup(0.07 × contracts × P × (1−P))`, which peaks at 1.75c
+per contract at 50c and falls toward the wings. **Verify the current schedule at
+kalshi.com/fee-schedule before sizing anything** — they revise it periodically.
+
+This is not a rounding difference. A 51.9% cover rate loses ~0.9% at −110 and gains ~0.3% at
+Kalshi taker fees. `train.py` computes ROI and "standard errors above break-even" at whatever
+`DEGEN_VENUE` you set, so the tables tell you about *your* costs, not a sportsbook's.
+
+### Finding soft spots
+
+`market_softness` in `meta.json` splits pooled out-of-sample results by proxies for how much
+attention a game gets — number of books posting, P4/G5 tier, week, whether the line moved since
+open, favourite size — plus a `soft_and_loud` cross of "quiet game AND big model disagreement".
+Each row reports `vs_break_even_se`: standard errors above your venue's break-even. Treat
+anything under +2 as unproven, and remember you're looking at ~20 segments, so the best one
+being +2 is roughly what chance alone produces.
+
+`DEGEN_TOTAL_EDGE` / `DEGEN_SPREAD_EDGE` apply to the model's **raw disagreement with the
+line** (`|model − line|`), not to the shrunk display edge. Set them from the
+`ats_by_disagreement` table in `models/meta.json`: pick the smallest bucket whose `cover_pct`
+clears 52.4 by more than about two standard errors, on at least a few hundred games. If no
+bucket does, no threshold makes this profitable and the right setting is "don't bet".
 
 ---
 
