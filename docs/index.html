@@ -1,12 +1,2902 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DegenPredicts — College Football</title>
-<style>body{background:#0e0f12;color:#e8e8ea;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;max-width:640px;margin:0 auto;padding:48px 20px}
-h1{font-size:22px;margin:0 0 12px}p{color:#9aa0a8}code{background:#20232a;padding:2px 6px;border-radius:4px;font-size:13px}</style>
-</head><body>
-<h1>DegenPredicts — College Football</h1>
-<p>Setting up. This placeholder is replaced the first time the
-<code>CFB picks</code> workflow runs.</p>
-<p>If you're seeing this after a successful run, check the Actions log for the commit step.</p>
-</body></html>
+<style>
+  :root{--bg:#0e0f12;--card:#181a1f;--card2:#20232a;--line:#272a31;--fg:#e8e8ea;--dim:#9aa0a8;
+        --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:64px}
+  header,main,footer{max-width:940px;margin:0 auto;padding:0 16px}
+  header{padding-top:22px}
+  h1{font-size:22px} .sub{color:var(--dim);font-size:13px;margin-top:4px}
+  section{margin-top:26px}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-bottom:10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .stat{background:var(--card);border-radius:10px;padding:14px;text-align:center}
+  .stat .v{font-size:23px;font-weight:700;margin:3px 0}
+  .stat .l{font-size:11px;color:var(--dim);text-transform:uppercase}
+  .up{color:var(--good)} .down{color:var(--bad)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .chip{background:var(--card2);color:var(--dim);border:1px solid var(--line);border-radius:999px;
+        padding:6px 14px;font-size:13px;cursor:pointer;user-select:none}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  .game{background:var(--card);border-radius:10px;margin-bottom:12px;overflow:hidden;border:1px solid transparent}
+  .game.bold{border-color:var(--accent)}
+  .ghead{display:flex;justify-content:space-between;align-items:center;gap:8px;
+         padding:9px 14px;background:var(--card2);font-size:12px;color:var(--dim)}
+  .gap{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:700}
+  .teams{padding:11px 14px;font-weight:600}
+  .teams .at{color:var(--dim);font-weight:400;font-size:13px;margin:0 6px}
+  .bets{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}
+  .bet{background:var(--card);padding:11px 14px}
+  .bet .l{font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:4px}
+  .bet .p{font-size:16px;font-weight:700}
+  .bet .d{font-size:12px;color:var(--dim);margin-top:4px}
+  .px{display:flex;gap:14px;margin-top:6px;font-size:12px;flex-wrap:wrap}
+  .px b{font-variant-numeric:tabular-nums;color:var(--fg)}
+  .tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em}
+  .tag.bold{background:var(--accent);color:#06121f}
+  .tag.play{background:#2f4858;color:var(--fg)}
+  .tag.thin{background:var(--warn);color:#2a1c00}
+  .tag.pass{background:var(--card2);color:var(--dim)}
+  .tag.win{background:var(--good);color:#052e16}
+  .tag.loss{background:var(--bad);color:#3f0a0a}
+  .tag.push{background:var(--card2);color:var(--dim)}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:10px;overflow:hidden}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--dim);font-weight:500;font-size:11px;text-transform:uppercase}
+  .note{background:var(--card);border-left:3px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
+  footer{margin-top:40px;color:var(--dim);font-size:12px}
+  a{color:var(--accent)}
+  @media(max-width:560px){.bets{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>DegenPredicts — College Football</h1>
+  <div class="sub">Spread and total models for every FBS game, Week 1.
+    Ranked by how far the model disagrees with the market. Updated —.</div>
+</header>
+
+<main>
+
+
+
+
+
+
+
+<section>
+  <h2>Week 1 board</h2>
+  
+  <div class="chips" role="group" aria-label="Filters">
+    <button class="chip" aria-pressed="true" data-f="all">All (81)</button>
+    <button class="chip" aria-pressed="false" data-f="plays">Plays only</button>
+    <button class="chip" aria-pressed="false" data-f="g5">Group of Five</button>
+    <button class="chip" aria-pressed="false" data-f="kick">By kickoff</button>
+  </div>
+  
+
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:30 PM ET</span>
+      <span><span class="gap">&#916;8.0</span> · early season</span>
+    </div>
+    <div class="teams">Northwestern State<span class="at">at</span>Louisiana Tech</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag thin">thin</span></div>
+        <div class="p">Over 55.5</div>
+        <div class="d">Model 63.5 (+8.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>55&cent;</b></span>
+          <span class="up">EV <b>+4.9%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag thin">thin</span></div>
+        <div class="p">Louisiana Tech -44.5</div>
+        <div class="d">Model margin 49.6 (+5.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-0.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:45 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:45 PM ET</span>
+      <span><span class="gap">&#916;7.2</span> · early season</span>
+    </div>
+    <div class="teams">Oklahoma State<span class="at">at</span>Tulsa</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 59.0</div>
+        <div class="d">Model 55.9 (-3.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-0.9%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag thin">thin</span></div>
+        <div class="p">Tulsa +13.5</div>
+        <div class="d">Model margin -6.3 (+7.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>53&cent;</b></span>
+          <span class="up">EV <b>+0.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 10:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 10:00 PM ET</span>
+      <span><span class="gap">&#916;6.7</span> · early season</span>
+    </div>
+    <div class="teams">Mississippi Valley State<span class="at">at</span>Sacramento State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag thin">thin</span></div>
+        <div class="p">Over 56.5</div>
+        <div class="d">Model 63.2 (+6.7 vs line)</div>
+        <div class="px">
+          <span>Model <b>54&cent;</b></span>
+          <span class="up">EV <b>+3.4%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Sacramento State -37.5</div>
+        <div class="d">Model margin 40.9 (+3.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.0%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:00 PM ET</span>
+      <span><span class="gap">&#916;6.5</span> · early season</span>
+    </div>
+    <div class="teams">North Texas<span class="at">at</span>Indiana</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag thin">thin</span></div>
+        <div class="p">Under 57.0</div>
+        <div class="d">Model 50.5 (-6.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>54&cent;</b></span>
+          <span class="up">EV <b>+3.1%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Indiana -41.0</div>
+        <div class="d">Model margin 42.1 (+1.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.7%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 10:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 10:00 PM ET</span>
+      <span><span class="gap">&#916;6.3</span> · early season</span>
+    </div>
+    <div class="teams">Morgan State<span class="at">at</span>Arizona State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag thin">thin</span></div>
+        <div class="p">Over 52.5</div>
+        <div class="d">Model 58.8 (+6.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>54&cent;</b></span>
+          <span class="up">EV <b>+2.9%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Arizona State -43.5</div>
+        <div class="d">Model margin 44.3 (+0.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.9%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 4:15 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 4:15 PM ET</span>
+      <span><span class="gap">&#916;6.2</span> · early season</span>
+    </div>
+    <div class="teams">Northern Illinois<span class="at">at</span>Iowa</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag thin">thin</span></div>
+        <div class="p">Under 44.5</div>
+        <div class="d">Model 38.3 (-6.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>54&cent;</b></span>
+          <span class="up">EV <b>+2.8%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Northern Illinois +32.0</div>
+        <div class="d">Model margin 30.0 (-2.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.1%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:00 PM ET</span>
+      <span><span class="gap">&#916;6.2</span> · early season</span>
+    </div>
+    <div class="teams">Tarleton State<span class="at">at</span>Bowling Green</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag thin">thin</span></div>
+        <div class="p">Over 48.5</div>
+        <div class="d">Model 54.7 (+6.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>54&cent;</b></span>
+          <span class="up">EV <b>+2.7%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Bowling Green -2.5</div>
+        <div class="d">Model margin 3.9 (+1.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.5%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;6.1</span> · early season</span>
+    </div>
+    <div class="teams">Nicholls<span class="at">at</span>Kansas State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag thin">thin</span></div>
+        <div class="p">Over 54.5</div>
+        <div class="d">Model 60.6 (+6.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>54&cent;</b></span>
+          <span class="up">EV <b>+2.7%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Nicholls +40.5</div>
+        <div class="d">Model margin 36.7 (-3.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-1.7%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:30 PM ET</span>
+      <span><span class="gap">&#916;6.0</span> · early season</span>
+    </div>
+    <div class="teams">VMI<span class="at">at</span>Virginia Tech</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 62.5</div>
+        <div class="d">Model 63.7 (+1.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.1%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag thin">thin</span></div>
+        <div class="p">VMI +55.5</div>
+        <div class="d">Model margin 49.5 (-6.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-0.1%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:30 PM ET</span>
+      <span><span class="gap">&#916;5.8</span> · early season</span>
+    </div>
+    <div class="teams">Fordham<span class="at">at</span>North Dakota State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag thin">thin</span></div>
+        <div class="p">Over 56.5</div>
+        <div class="d">Model 62.3 (+5.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>54&cent;</b></span>
+          <span class="up">EV <b>+2.3%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">North Dakota State -41.5</div>
+        <div class="d">Model margin 43.1 (+1.6 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.3%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:30 PM ET</span>
+      <span><span class="gap">&#916;5.5</span> · neutral · early season</span>
+    </div>
+    <div class="teams">Baylor<span class="at">vs</span>Auburn</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag thin">thin</span></div>
+        <div class="p">Under 59.5</div>
+        <div class="d">Model 54.0 (-5.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>53&cent;</b></span>
+          <span class="up">EV <b>+2.0%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Auburn -7.5</div>
+        <div class="d">Model margin 7.9 (+0.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.3%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:30 PM ET</span>
+      <span><span class="gap">&#916;5.4</span> · early season</span>
+    </div>
+    <div class="teams">Boston College<span class="at">at</span>Cincinnati</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag thin">thin</span></div>
+        <div class="p">Under 50.0</div>
+        <div class="d">Model 44.6 (-5.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>53&cent;</b></span>
+          <span class="up">EV <b>+1.8%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Boston College +7.5</div>
+        <div class="d">Model margin 5.9 (-1.6 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.3%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 8:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 8:00 PM ET</span>
+      <span><span class="gap">&#916;5.3</span> · early season</span>
+    </div>
+    <div class="teams">Hampton<span class="at">at</span>Maryland</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag thin">thin</span></div>
+        <div class="p">Over 56.5</div>
+        <div class="d">Model 61.8 (+5.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>53&cent;</b></span>
+          <span class="up">EV <b>+1.7%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Hampton +45.5</div>
+        <div class="d">Model margin 44.5 (-1.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sun Sep 06, 7:30 PM">
+    <div class="ghead">
+      <span>Sun Sep 06, 7:30 PM ET</span>
+      <span><span class="gap">&#916;5.0</span> · neutral · early season</span>
+    </div>
+    <div class="teams">Louisville<span class="at">vs</span>Ole Miss</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag thin">thin</span></div>
+        <div class="p">Under 55.0</div>
+        <div class="d">Model 50.0 (-5.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>53&cent;</b></span>
+          <span class="up">EV <b>+1.4%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Ole Miss -7.0</div>
+        <div class="d">Model margin 9.4 (+2.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;4.6</span> · early season</span>
+    </div>
+    <div class="teams">Houston Christian<span class="at">at</span>Rice</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 47.5</div>
+        <div class="d">Model 52.1 (+4.6 vs line)</div>
+        <div class="px">
+          <span>Model <b>53&cent;</b></span>
+          <span class="up">EV <b>+0.9%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Rice -22.5</div>
+        <div class="d">Model margin 23.1 (+0.6 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.1%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:30 PM ET</span>
+      <span><span class="gap">&#916;4.4</span> · early season</span>
+    </div>
+    <div class="teams">Tulane<span class="at">at</span>Duke</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 50.5</div>
+        <div class="d">Model 46.1 (-4.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>53&cent;</b></span>
+          <span class="up">EV <b>+0.6%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Tulane +7.5</div>
+        <div class="d">Model margin 7.2 (-0.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.4%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Fri Sep 04, 8:00 PM">
+    <div class="ghead">
+      <span>Fri Sep 04, 8:00 PM ET</span>
+      <span><span class="gap">&#916;4.1</span> · early season</span>
+    </div>
+    <div class="teams">Long Island University<span class="at">at</span>Kansas</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 54.5</div>
+        <div class="d">Model 56.6 (+2.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.1%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag thin">thin</span></div>
+        <div class="p">Long Island University +42.0</div>
+        <div class="d">Model margin 37.9 (-4.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-1.5%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;4.0</span> · early season</span>
+    </div>
+    <div class="teams">SE Louisiana<span class="at">at</span>South Alabama</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 52.5</div>
+        <div class="d">Model 56.5 (+4.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="up">EV <b>+0.2%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">South Alabama -12.5</div>
+        <div class="d">Model margin 14.2 (+1.7 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.3%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 9:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 9:30 PM ET</span>
+      <span><span class="gap">&#916;3.9</span> · early season</span>
+    </div>
+    <div class="teams">Northern Arizona<span class="at">at</span>Arizona</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 58.5</div>
+        <div class="d">Model 60.6 (+2.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.0%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Arizona -31.5</div>
+        <div class="d">Model margin 35.4 (+3.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-1.6%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Fri Sep 04, 9:00 PM">
+    <div class="ghead">
+      <span>Fri Sep 04, 9:00 PM ET</span>
+      <span><span class="gap">&#916;3.8</span> · early season</span>
+    </div>
+    <div class="teams">Miami<span class="at">at</span>Stanford</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 48.0</div>
+        <div class="d">Model 51.8 (+3.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>+0.0%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Miami -23.5</div>
+        <div class="d">Model margin -23.3 (+0.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.7%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;3.8</span> · early season</span>
+    </div>
+    <div class="teams">Idaho State<span class="at">at</span>Utah State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 62.5</div>
+        <div class="d">Model 58.7 (-3.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-0.1%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Utah State -14.0</div>
+        <div class="d">Model margin 16.1 (+2.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.0%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:30 PM ET</span>
+      <span><span class="gap">&#916;3.8</span> · early season</span>
+    </div>
+    <div class="teams">Texas State<span class="at">at</span>Texas</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 60.0</div>
+        <div class="d">Model 56.2 (-3.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-0.1%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Texas State +29.5</div>
+        <div class="d">Model margin 28.0 (-1.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.4%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:00 PM ET</span>
+      <span><span class="gap">&#916;3.8</span> · early season</span>
+    </div>
+    <div class="teams">Coastal Carolina<span class="at">at</span>West Virginia</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 56.0</div>
+        <div class="d">Model 52.2 (-3.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>+0.0%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Coastal Carolina +21.0</div>
+        <div class="d">Model margin 20.7 (-0.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.3%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Fri Sep 04, 8:00 PM">
+    <div class="ghead">
+      <span>Fri Sep 04, 8:00 PM ET</span>
+      <span><span class="gap">&#916;3.6</span> · early season</span>
+    </div>
+    <div class="teams">UTEP<span class="at">at</span>Oklahoma</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 51.5</div>
+        <div class="d">Model 51.6 (+0.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.6%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">UTEP +41.5</div>
+        <div class="d">Model margin 37.9 (-3.6 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-1.9%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Fri Sep 04, 7:00 PM">
+    <div class="ghead">
+      <span>Fri Sep 04, 7:00 PM ET</span>
+      <span><span class="gap">&#916;3.5</span> · early season</span>
+    </div>
+    <div class="teams">North Carolina A&amp;T<span class="at">at</span>Georgia State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 61.0</div>
+        <div class="d">Model 61.2 (+0.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.3%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Georgia State -28.0</div>
+        <div class="d">Model margin 31.5 (+3.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-1.9%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;3.5</span> · early season</span>
+    </div>
+    <div class="teams">Austin Peay<span class="at">at</span>Vanderbilt</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 60.5</div>
+        <div class="d">Model 59.7 (-0.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.6%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Vanderbilt -29.5</div>
+        <div class="d">Model margin 33.0 (+3.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-1.9%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 5:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 5:00 PM ET</span>
+      <span><span class="gap">&#916;3.4</span> · early season</span>
+    </div>
+    <div class="teams">Alcorn State<span class="at">at</span>Southern Miss</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 50.5</div>
+        <div class="d">Model 53.9 (+3.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-0.6%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Alcorn State +20.5</div>
+        <div class="d">Model margin 20.3 (-0.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.4%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:30 PM ET</span>
+      <span><span class="gap">&#916;3.4</span> · early season</span>
+    </div>
+    <div class="teams">Furman<span class="at">at</span>Tennessee</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 66.5</div>
+        <div class="d">Model 65.0 (-1.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.8%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Furman +47.5</div>
+        <div class="d">Model margin 44.1 (-3.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.0%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;3.3</span> · early season</span>
+    </div>
+    <div class="teams">Sam Houston<span class="at">at</span>Troy</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 55.0</div>
+        <div class="d">Model 53.6 (-1.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.9%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Troy -17.0</div>
+        <div class="d">Model margin 20.3 (+3.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.1%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:30 PM ET</span>
+      <span><span class="gap">&#916;3.3</span> · early season</span>
+    </div>
+    <div class="teams">The Citadel<span class="at">at</span>Charlotte</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 46.5</div>
+        <div class="d">Model 49.8 (+3.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-0.7%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Charlotte -20.5</div>
+        <div class="d">Model margin 23.4 (+2.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.4%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:00 PM ET</span>
+      <span><span class="gap">&#916;3.3</span> · early season</span>
+    </div>
+    <div class="teams">Oregon State<span class="at">at</span>Houston</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 49.5</div>
+        <div class="d">Model 48.2 (-1.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.0%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Oregon State +21.0</div>
+        <div class="d">Model margin 17.7 (-3.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.1%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:30 PM ET</span>
+      <span><span class="gap">&#916;3.1</span> · early season</span>
+    </div>
+    <div class="teams">Towson<span class="at">at</span>Navy</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 49.5</div>
+        <div class="d">Model 49.2 (-0.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.2%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Towson +30.5</div>
+        <div class="d">Model margin 27.4 (-3.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.2%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;3.0</span> · early season</span>
+    </div>
+    <div class="teams">Arkansas State<span class="at">at</span>Memphis</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 51.5</div>
+        <div class="d">Model 48.5 (-3.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-1.0%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Memphis -10.5</div>
+        <div class="d">Model margin 11.0 (+0.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.2%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;3.0</span> · early season</span>
+    </div>
+    <div class="teams">Murray State<span class="at">at</span>Middle Tennessee</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 57.5</div>
+        <div class="d">Model 58.3 (+0.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.6%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Middle Tennessee -20.5</div>
+        <div class="d">Model margin 23.5 (+3.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.3%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 1:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 1:00 PM ET</span>
+      <span><span class="gap">&#916;2.9</span> · early season</span>
+    </div>
+    <div class="teams">Duquesne<span class="at">at</span>Air Force</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 57.5</div>
+        <div class="d">Model 56.0 (-1.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.8%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Air Force -28.5</div>
+        <div class="d">Model margin 31.4 (+2.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.4%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Fri Sep 04, 6:30 PM">
+    <div class="ghead">
+      <span>Fri Sep 04, 6:30 PM ET</span>
+      <span><span class="gap">&#916;2.9</span> · early season</span>
+    </div>
+    <div class="teams">San José State<span class="at">at</span>Eastern Michigan</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 56.0</div>
+        <div class="d">Model 57.9 (+1.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.3%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Eastern Michigan -3.0</div>
+        <div class="d">Model margin 5.9 (+2.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.4%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;2.8</span> · early season</span>
+    </div>
+    <div class="teams">Eastern Kentucky<span class="at">at</span>Jacksonville State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 53.5</div>
+        <div class="d">Model 56.3 (+2.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-1.3%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Jacksonville State -20.5</div>
+        <div class="d">Model margin 21.3 (+0.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.0%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 4:15 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 4:15 PM ET</span>
+      <span><span class="gap">&#916;2.8</span> · early season</span>
+    </div>
+    <div class="teams">North Alabama<span class="at">at</span>Arkansas</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 63.5</div>
+        <div class="d">Model 60.7 (-2.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-1.2%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">North Alabama +40.5</div>
+        <div class="d">Model margin 39.3 (-1.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.6%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 6:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 6:00 PM ET</span>
+      <span><span class="gap">&#916;2.7</span> · early season</span>
+    </div>
+    <div class="teams">Norfolk State<span class="at">at</span>Old Dominion</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 52.5</div>
+        <div class="d">Model 55.2 (+2.7 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-1.3%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Norfolk State +41.5</div>
+        <div class="d">Model margin 40.5 (-1.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:00 PM ET</span>
+      <span><span class="gap">&#916;2.7</span> · early season</span>
+    </div>
+    <div class="teams">Tennessee State<span class="at">at</span>Georgia</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 55.5</div>
+        <div class="d">Model 58.2 (+2.7 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-1.4%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Georgia -46.5</div>
+        <div class="d">Model margin 47.7 (+1.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.6%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Fri Sep 04, 9:00 PM">
+    <div class="ghead">
+      <span>Fri Sep 04, 9:00 PM ET</span>
+      <span><span class="gap">&#916;2.5</span> · early season</span>
+    </div>
+    <div class="teams">Fresno State<span class="at">at</span>USC</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 51.5</div>
+        <div class="d">Model 49.0 (-2.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-1.6%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Fresno State +21.5</div>
+        <div class="d">Model margin 20.8 (-0.7 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.0%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:30 PM ET</span>
+      <span><span class="gap">&#916;2.5</span> · early season</span>
+    </div>
+    <div class="teams">UL Monroe<span class="at">at</span>Mississippi State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 55.0</div>
+        <div class="d">Model 52.5 (-2.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-1.6%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">UL Monroe +28.5</div>
+        <div class="d">Model margin 28.1 (-0.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.2%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Mon Sep 07, 7:30 PM">
+    <div class="ghead">
+      <span>Mon Sep 07, 7:30 PM ET</span>
+      <span><span class="gap">&#916;2.5</span> · early season</span>
+    </div>
+    <div class="teams">SMU<span class="at">at</span>Florida State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 53.0</div>
+        <div class="d">Model 50.5 (-2.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-1.5%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Florida State +3.0</div>
+        <div class="d">Model margin -1.8 (+1.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.7%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:00 PM ET</span>
+      <span><span class="gap">&#916;2.5</span> · early season</span>
+    </div>
+    <div class="teams">Bryant<span class="at">at</span>Army</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 51.5</div>
+        <div class="d">Model 54.0 (+2.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-1.6%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Bryant +36.5</div>
+        <div class="d">Model margin 36.0 (-0.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.1%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sun Sep 06, 4:00 PM">
+    <div class="ghead">
+      <span>Sun Sep 06, 4:00 PM ET</span>
+      <span><span class="gap">&#916;2.4</span> · early season</span>
+    </div>
+    <div class="teams">Washington State<span class="at">at</span>Washington</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 51.0</div>
+        <div class="d">Model 48.6 (-2.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>52&cent;</b></span>
+          <span class="">EV <b>-1.7%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Washington State +23.0</div>
+        <div class="d">Model margin 21.4 (-1.6 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.4%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 6:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 6:00 PM ET</span>
+      <span><span class="gap">&#916;2.4</span> · early season</span>
+    </div>
+    <div class="teams">Wyoming<span class="at">at</span>Colorado State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 46.5</div>
+        <div class="d">Model 46.3 (-0.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.3%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Colorado State -3.0</div>
+        <div class="d">Model margin 5.4 (+2.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:30 PM ET</span>
+      <span><span class="gap">&#916;2.4</span> · early season</span>
+    </div>
+    <div class="teams">Miami (OH)<span class="at">at</span>Pittsburgh</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 47.0</div>
+        <div class="d">Model 45.9 (-1.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.2%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Miami (OH) +16.0</div>
+        <div class="d">Model margin 13.6 (-2.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:30 PM ET</span>
+      <span><span class="gap">&#916;2.4</span> · early season</span>
+    </div>
+    <div class="teams">Boise State<span class="at">at</span>Oregon</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 51.5</div>
+        <div class="d">Model 49.1 (-2.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-1.8%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Boise State +25.0</div>
+        <div class="d">Model margin 25.2 (+0.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.7%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:45 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:45 PM ET</span>
+      <span><span class="gap">&#916;2.4</span> · early season</span>
+    </div>
+    <div class="teams">Kent State<span class="at">at</span>South Carolina</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 53.5</div>
+        <div class="d">Model 55.9 (+2.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-1.8%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">South Carolina -36.5</div>
+        <div class="d">Model margin 37.5 (+1.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:00 PM ET</span>
+      <span><span class="gap">&#916;2.4</span> · early season</span>
+    </div>
+    <div class="teams">Lafayette<span class="at">at</span>UConn</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 51.5</div>
+        <div class="d">Model 49.1 (-2.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-1.7%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">UConn -19.5</div>
+        <div class="d">Model margin 21.9 (+2.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 10:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 10:30 PM ET</span>
+      <span><span class="gap">&#916;2.4</span> · early season</span>
+    </div>
+    <div class="teams">Western Kentucky<span class="at">at</span>Nevada</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 52.5</div>
+        <div class="d">Model 53.9 (+1.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.9%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Nevada +1.0</div>
+        <div class="d">Model margin 1.4 (+2.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 8:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 8:00 PM ET</span>
+      <span><span class="gap">&#916;2.4</span> · early season</span>
+    </div>
+    <div class="teams">South Dakota State<span class="at">at</span>Northwestern</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 46.5</div>
+        <div class="d">Model 48.1 (+1.6 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.7%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">South Dakota State +12.5</div>
+        <div class="d">Model margin 10.1 (-2.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.7%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 10:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 10:00 PM ET</span>
+      <span><span class="gap">&#916;2.3</span> · early season</span>
+    </div>
+    <div class="teams">Central Michigan<span class="at">at</span>New Mexico</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 46.5</div>
+        <div class="d">Model 44.2 (-2.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-1.8%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">New Mexico -10.0</div>
+        <div class="d">Model margin 10.9 (+0.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.9%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:00 PM ET</span>
+      <span><span class="gap">&#916;2.2</span> · early season</span>
+    </div>
+    <div class="teams">East Carolina<span class="at">at</span>Alabama</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 52.5</div>
+        <div class="d">Model 51.3 (-1.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.2%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Alabama -28.0</div>
+        <div class="d">Model margin 30.2 (+2.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.9%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:00 PM ET</span>
+      <span><span class="gap">&#916;2.2</span> · early season</span>
+    </div>
+    <div class="teams">New Hampshire<span class="at">at</span>Syracuse</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 54.5</div>
+        <div class="d">Model 56.7 (+2.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.0%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Syracuse -33.5</div>
+        <div class="d">Model margin 35.5 (+2.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.1%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 9:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 9:30 PM ET</span>
+      <span><span class="gap">&#916;2.2</span> · early season</span>
+    </div>
+    <div class="teams">Portland State<span class="at">at</span>San Diego State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 61.5</div>
+        <div class="d">Model 63.7 (+2.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-1.9%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">San Diego State -40.5</div>
+        <div class="d">Model margin 41.6 (+1.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.7%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:30 PM ET</span>
+      <span><span class="gap">&#916;2.1</span> · early season</span>
+    </div>
+    <div class="teams">Clemson<span class="at">at</span>LSU</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 50.5</div>
+        <div class="d">Model 48.6 (-1.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.3%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">LSU -10.0</div>
+        <div class="d">Model margin 12.1 (+2.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.0%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 1:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 1:00 PM ET</span>
+      <span><span class="gap">&#916;2.0</span> · early season</span>
+    </div>
+    <div class="teams">Youngstown State<span class="at">at</span>Kentucky</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 62.5</div>
+        <div class="d">Model 61.3 (-1.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.1%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Kentucky -22.5</div>
+        <div class="d">Model margin 24.5 (+2.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.1%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;2.0</span> · early season</span>
+    </div>
+    <div class="teams">Florida International<span class="at">at</span>South Florida</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 52.0</div>
+        <div class="d">Model 50.0 (-2.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.2%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Florida International +14.5</div>
+        <div class="d">Model margin 13.5 (-1.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 8:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 8:00 PM ET</span>
+      <span><span class="gap">&#916;1.9</span> · early season</span>
+    </div>
+    <div class="teams">Lamar<span class="at">at</span>Louisiana</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 48.5</div>
+        <div class="d">Model 50.4 (+1.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.3%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Lamar +20.5</div>
+        <div class="d">Model margin 20.1 (-0.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.2%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:30 PM ET</span>
+      <span><span class="gap">&#916;1.9</span> · early season</span>
+    </div>
+    <div class="teams">Marshall<span class="at">at</span>Penn State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 52.0</div>
+        <div class="d">Model 50.1 (-1.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.3%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Marshall +23.5</div>
+        <div class="d">Model margin 21.8 (-1.7 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.3%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Fri Sep 04, 7:00 PM">
+    <div class="ghead">
+      <span>Fri Sep 04, 7:00 PM ET</span>
+      <span><span class="gap">&#916;1.9</span> · early season</span>
+    </div>
+    <div class="teams">Indiana State<span class="at">at</span>Purdue</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 56.0</div>
+        <div class="d">Model 57.9 (+1.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.3%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Purdue -35.5</div>
+        <div class="d">Model margin 36.6 (+1.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.7%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:00 PM ET</span>
+      <span><span class="gap">&#916;1.9</span> · early season</span>
+    </div>
+    <div class="teams">Ohio<span class="at">at</span>Nebraska</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 46.0</div>
+        <div class="d">Model 46.2 (+0.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.3%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Ohio +23.5</div>
+        <div class="d">Model margin 21.6 (-1.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.2%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:30 PM ET</span>
+      <span><span class="gap">&#916;1.7</span> · early season</span>
+    </div>
+    <div class="teams">Maine<span class="at">at</span>App State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 53.5</div>
+        <div class="d">Model 55.2 (+1.7 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-2.5%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">App State -19.5</div>
+        <div class="d">Model margin 20.7 (+1.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.7%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 9:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 9:00 PM ET</span>
+      <span><span class="gap">&#916;1.6</span> · early season</span>
+    </div>
+    <div class="teams">Mercyhurst<span class="at">at</span>New Mexico State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 52.5</div>
+        <div class="d">Model 53.4 (+0.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.5%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">New Mexico State -28.5</div>
+        <div class="d">Model margin 30.1 (+1.6 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.3%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 3:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 3:30 PM ET</span>
+      <span><span class="gap">&#916;1.4</span> · early season</span>
+    </div>
+    <div class="teams">UT Rio Grande Valley<span class="at">at</span>UTSA</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 59.5</div>
+        <div class="d">Model 59.6 (+0.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.7%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">UTSA -28.5</div>
+        <div class="d">Model margin 29.9 (+1.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.5%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 10:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 10:00 PM ET</span>
+      <span><span class="gap">&#916;1.4</span> · early season</span>
+    </div>
+    <div class="teams">UNLV<span class="at">at</span>Hawai&#39;i</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 55.5</div>
+        <div class="d">Model 55.4 (-0.1 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.4%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Hawai&#39;i +3.0</div>
+        <div class="d">Model margin -1.6 (+1.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.5%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 1:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 1:00 PM ET</span>
+      <span><span class="gap">&#916;1.3</span> · early season</span>
+    </div>
+    <div class="teams">Southeast Missouri State<span class="at">at</span>Iowa State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 53.5</div>
+        <div class="d">Model 52.2 (-1.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.0%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Southeast Missouri State +29.5</div>
+        <div class="d">Model margin 29.2 (-0.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.3%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;1.3</span> · early season</span>
+    </div>
+    <div class="teams">Missouri State<span class="at">at</span>Texas A&amp;M</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 53.5</div>
+        <div class="d">Model 54.2 (+0.7 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.8%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Missouri State +40.5</div>
+        <div class="d">Model margin 39.2 (-1.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.6%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sun Sep 06, 7:30 PM">
+    <div class="ghead">
+      <span>Sun Sep 06, 7:30 PM ET</span>
+      <span><span class="gap">&#916;1.3</span> · neutral · early season</span>
+    </div>
+    <div class="teams">Wisconsin<span class="at">vs</span>Notre Dame</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 46.5</div>
+        <div class="d">Model 45.2 (-1.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.0%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Wisconsin +20.5</div>
+        <div class="d">Model margin 20.3 (-0.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.4%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:30 PM ET</span>
+      <span><span class="gap">&#916;1.0</span> · early season</span>
+    </div>
+    <div class="teams">Ball State<span class="at">at</span>Ohio State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 56.5</div>
+        <div class="d">Model 57.5 (+1.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.4%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Ball State +51.0</div>
+        <div class="d">Model margin 50.3 (-0.7 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.0%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Fri Sep 11, 8:00 PM">
+    <div class="ghead">
+      <span>Fri Sep 11, 8:00 PM ET</span>
+      <span><span class="gap">&#916;1.0</span> · early season</span>
+    </div>
+    <div class="teams">Missouri<span class="at">at</span>Kansas</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 53.5</div>
+        <div class="d">Model 54.3 (+0.8 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.6%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Missouri -6.5</div>
+        <div class="d">Model margin -7.5 (-1.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Fri Sep 04, 8:00 PM">
+    <div class="ghead">
+      <span>Fri Sep 04, 8:00 PM ET</span>
+      <span><span class="gap">&#916;1.0</span> · early season</span>
+    </div>
+    <div class="teams">Toledo<span class="at">at</span>Michigan State</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 47.5</div>
+        <div class="d">Model 46.6 (-0.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.4%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Michigan State -10.5</div>
+        <div class="d">Model margin 11.5 (+1.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.8%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;0.9</span> · early season</span>
+    </div>
+    <div class="teams">Abilene Christian<span class="at">at</span>Texas Tech</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 59.5</div>
+        <div class="d">Model 58.6 (-0.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.5%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Texas Tech -42.5</div>
+        <div class="d">Model margin 43.0 (+0.5 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.2%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:00 PM ET</span>
+      <span><span class="gap">&#916;0.9</span> · early season</span>
+    </div>
+    <div class="teams">Charleston Southern<span class="at">at</span>Georgia Southern</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 51.5</div>
+        <div class="d">Model 52.4 (+0.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.5%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Charleston Southern +25.5</div>
+        <div class="d">Model margin 25.5 (+0.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.5%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 8:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 8:00 PM ET</span>
+      <span><span class="gap">&#916;0.9</span> · early season</span>
+    </div>
+    <div class="teams">Utah Tech<span class="at">at</span>BYU</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 61.5</div>
+        <div class="d">Model 62.4 (+0.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>51&cent;</b></span>
+          <span class="">EV <b>-3.5%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Utah Tech +51.5</div>
+        <div class="d">Model margin 51.1 (-0.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.2%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:45 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:45 PM ET</span>
+      <span><span class="gap">&#916;0.9</span> · early season</span>
+    </div>
+    <div class="teams">Florida Atlantic<span class="at">at</span>Florida</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 59.5</div>
+        <div class="d">Model 59.5 (+0.0 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.6%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Florida Atlantic +26.5</div>
+        <div class="d">Model margin 25.6 (-0.9 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.9%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 12:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 12:00 PM ET</span>
+      <span><span class="gap">&#916;0.7</span> · early season</span>
+    </div>
+    <div class="teams">Liberty<span class="at">at</span>James Madison</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 50.5</div>
+        <div class="d">Model 50.7 (+0.2 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.3%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">James Madison -6.5</div>
+        <div class="d">Model margin 7.2 (+0.7 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.0%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 7:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 7:30 PM ET</span>
+      <span><span class="gap">&#916;0.7</span> · early season</span>
+    </div>
+    <div class="teams">Western Michigan<span class="at">at</span>Michigan</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 49.5</div>
+        <div class="d">Model 48.8 (-0.7 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-3.7%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Michigan -27.5</div>
+        <div class="d">Model margin 28.1 (+0.6 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.1%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 10:30 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 10:30 PM ET</span>
+      <span><span class="gap">&#916;0.6</span> · early season</span>
+    </div>
+    <div class="teams">UCLA<span class="at">at</span>California</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Over 53.5</div>
+        <div class="d">Model 53.8 (+0.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.2%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">UCLA -2.5</div>
+        <div class="d">Model margin -3.1 (-0.6 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.1%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="game "
+       data-play="0"
+       data-g5="0"
+       data-kick="Sat Sep 05, 2:00 PM">
+    <div class="ghead">
+      <span>Sat Sep 05, 2:00 PM ET</span>
+      <span><span class="gap">&#916;0.4</span> · early season</span>
+    </div>
+    <div class="teams">Rhode Island<span class="at">at</span>Temple</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">pass</span></div>
+        <div class="p">Under 51.5</div>
+        <div class="d">Model 51.2 (-0.3 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.2%</b></span>
+          
+        </div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">pass</span></div>
+        <div class="p">Rhode Island +14.5</div>
+        <div class="d">Model margin 14.1 (-0.4 vs line)</div>
+        <div class="px">
+          <span>Model <b>50&cent;</b></span>
+          <span class="">EV <b>-4.3%</b></span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <p class="sub"><b>Model &cent;</b> is our win probability written as an exchange price, so it sits
+    directly against a Kalshi quote — the trade is only interesting when the market asks less than
+    our number.</p>
+  
+</section>
+
+
+
+
+
+<section>
+  <div class="note">
+    Model output, not advice. College football markets are efficient, and any real edge here is
+    small and slow to prove out — weeks 1–4 especially, when almost nothing is known about this
+    year's teams. Exchange fees are lower than sportsbook vig, which lowers the bar but doesn't
+    remove it. Bet only what you can afford to lose; the units column is bookkeeping, not a
+    recommendation.
+  </div>
+</section>
+
+</main>
+<footer>
+  Data: CollegeFootballData.com (games, lines, SP+, returning production) · live prices via The Odds API.
+  Raw: <a href="picks.csv">picks.csv</a>, <a href="results.csv">results.csv</a>,
+  <a href="metrics.json">metrics.json</a>.
+</footer>
+
+<script>
+(function () {
+  var chips = document.querySelectorAll('.chip');
+  var games = Array.prototype.slice.call(document.querySelectorAll('.game'));
+  if (!games.length) { return; }
+  var parent = games[0].parentNode;
+  var byRank = games.slice();
+
+  function apply(mode) {
+    var order = byRank.slice();
+    if (mode === 'kick') {
+      order.sort(function (a, b) {
+        return (a.dataset.kick || '').localeCompare(b.dataset.kick || '');
+      });
+    }
+    order.forEach(function (el) { parent.appendChild(el); });
+    games.forEach(function (el) {
+      var show = (mode === 'all' || mode === 'kick')
+        || (mode === 'plays' && el.dataset.play === '1')
+        || (mode === 'g5' && el.dataset.g5 === '1');
+      el.style.display = show ? '' : 'none';
+    });
+  }
+
+  Array.prototype.forEach.call(chips, function (chip) {
+    chip.addEventListener('click', function () {
+      Array.prototype.forEach.call(chips, function (c) {
+        c.setAttribute('aria-pressed', String(c === chip));
+      });
+      apply(chip.dataset.f);
+    });
+  });
+})();
+</script>
+</body>
+</html>
