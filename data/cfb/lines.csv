@@ -11818,6 +11818,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401856668,2026,1,2026-09-05,Texas A&M,Missouri State,-40.5,-38.5,53.5,52.5,Bovada,2
 401856669,2026,1,2026-09-05,Vanderbilt,Austin Peay,-28.5,-30.5,60.5,61.5,DraftKings,1
 401856670,2026,2,2026-09-12,Utah,Arkansas,-9.5,-9.5,56.5,54.5,DraftKings,1
+401856673,2026,2,2026-09-12,Georgia,Western Kentucky,-35.5,-35.5,52.5,52.5,DraftKings,1
 401856674,2026,2,2026-09-12,Kentucky,Alabama,10.5,10.5,48.5,,DraftKings,1
 401856677,2026,2,2026-09-12,Minnesota,Mississippi State,-2.5,-2.5,53.5,,DraftKings,1
 401856678,2026,2,2026-09-11,Kansas,Missouri,6.5,7.0,51.5,52.5,DraftKings,1
@@ -11976,6 +11977,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401864498,2026,1,2026-09-05,New Mexico,Central Michigan,-10.0,-12.5,46.5,49.0,Bovada,2
 401864499,2026,1,2026-09-05,North Dakota State,Fordham,-41.5,-39.5,56.5,57.5,DraftKings,1
 401864570,2026,1,2026-08-29,Florida State,New Mexico State,-31.0,-29.5,53.5,53.5,Bovada,3
+401864571,2026,2,2026-09-12,East Carolina,App State,-11.5,-11.5,56.5,56.5,DraftKings,1
 401864577,2026,1,2026-08-29,North Dakota State,Jacksonville State,-7.0,-10.0,46.5,48.5,Bovada,3
 401866408,2026,1,2026-08-29,Eastern Michigan,Sacramento State,-9.0,-8.5,53.0,52.5,Bovada,3
 401866409,2026,1,2026-09-03,Buffalo,UAlbany,-18.5,-24.5,47.5,48.5,DraftKings,2
