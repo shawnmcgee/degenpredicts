@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-09-04T16:22:21",
+  "trained_at": "2026-09-04T16:28:43",
   "base_features": [
     "neutral_site",
     "conference_game",
@@ -145,6 +145,57 @@
       "ats_stderr": 0.65,
       "beats_market": false,
       "shrink": 0.25,
+      "ats_by_disagreement": [
+        {
+          "disagreement": "0-1",
+          "n": 1525,
+          "cover_pct": 50.4,
+          "stderr": 1.28,
+          "roi_at_110": -3.86
+        },
+        {
+          "disagreement": "1-2",
+          "n": 1342,
+          "cover_pct": 51.7,
+          "stderr": 1.36,
+          "roi_at_110": -1.27
+        },
+        {
+          "disagreement": "2-3",
+          "n": 1015,
+          "cover_pct": 50.9,
+          "stderr": 1.57,
+          "roi_at_110": -2.76
+        },
+        {
+          "disagreement": "3-5",
+          "n": 1271,
+          "cover_pct": 51.8,
+          "stderr": 1.4,
+          "roi_at_110": -1.02
+        },
+        {
+          "disagreement": "5-7",
+          "n": 503,
+          "cover_pct": 55.9,
+          "stderr": 2.21,
+          "roi_at_110": 6.65
+        },
+        {
+          "disagreement": "7-10",
+          "n": 219,
+          "cover_pct": 51.6,
+          "stderr": 3.38,
+          "roi_at_110": -1.49
+        },
+        {
+          "disagreement": "10-+",
+          "n": 74,
+          "cover_pct": 56.8,
+          "stderr": 5.76,
+          "roi_at_110": 8.35
+        }
+      ],
       "shrink_raw": 0.25
     },
     "margin_nomarket": {
@@ -230,6 +281,50 @@
       "ats_stderr": 0.65,
       "beats_market": false,
       "shrink": 0.15,
+      "ats_by_disagreement": [
+        {
+          "disagreement": "0-1",
+          "n": 1762,
+          "cover_pct": 52.7,
+          "stderr": 1.19,
+          "roi_at_110": 0.55
+        },
+        {
+          "disagreement": "1-2",
+          "n": 1491,
+          "cover_pct": 50.9,
+          "stderr": 1.29,
+          "roi_at_110": -2.82
+        },
+        {
+          "disagreement": "2-3",
+          "n": 1064,
+          "cover_pct": 50.2,
+          "stderr": 1.53,
+          "roi_at_110": -4.19
+        },
+        {
+          "disagreement": "3-5",
+          "n": 1126,
+          "cover_pct": 52.6,
+          "stderr": 1.49,
+          "roi_at_110": 0.37
+        },
+        {
+          "disagreement": "5-7",
+          "n": 356,
+          "cover_pct": 53.9,
+          "stderr": 2.64,
+          "roi_at_110": 2.96
+        },
+        {
+          "disagreement": "7-10",
+          "n": 109,
+          "cover_pct": 56.0,
+          "stderr": 4.75,
+          "roi_at_110": 6.84
+        }
+      ],
       "shrink_raw": 0.15
     }
   },
