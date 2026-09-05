@@ -26121,35 +26121,35 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401908789,2026,1,regular,2026-09-03,False,"Thu Sep 03, 7:00 PM",Marietta,Westminster (PA),,,,,False,False,Ohio,Presidents',False
 401908854,2026,1,regular,2026-09-03,False,"Thu Sep 03, 7:00 PM",Wooster,Wilmington (OH),19.0,22.0,41.0,-3.0,False,False,North Coast,Ohio,True
 401908891,2026,1,regular,2026-09-03,False,"Thu Sep 03, 5:00 PM",Montclair State,Merchant Marine,24.0,41.0,65.0,-17.0,False,False,New Jersey,NEWMAC,True
-401856664,2026,1,regular,2026-09-04,False,"Fri Sep 04, 8:00 PM",Oklahoma,UTEP,,,,,False,False,SEC,Mountain West,False
-401856769,2026,1,regular,2026-09-04,False,"Fri Sep 04, 8:00 PM",Kansas,Long Island University,,,,,False,False,Big 12,NEC,False
-401858206,2026,1,regular,2026-09-04,False,"Fri Sep 04, 9:00 PM",Stanford,Miami,,,,,False,True,ACC,ACC,False
-401858429,2026,1,regular,2026-09-04,False,"Fri Sep 04, 8:00 PM",Michigan State,Toledo,,,,,False,False,Big Ten,Mid-American,False
-401858435,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Purdue,Indiana State,,,,,False,False,Big Ten,MVFC,False
-401858436,2026,1,regular,2026-09-04,False,"Fri Sep 04, 9:00 PM",USC,Fresno State,,,,,False,False,Big Ten,Pac-12,False
-401864495,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:30 PM",Eastern Michigan,San José State,,,,,False,False,Mid-American,Mountain West,False
-401866623,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Georgia State,North Carolina A&T,,,,,False,False,Sun Belt,Coastal Athletic,False
-401868262,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Marist,Franklin Pierce,,,,,False,False,Pioneer,Northeast 10,False
-401906610,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:30 PM",Keystone,Alvernia,,,,,False,False,Independent DIII,Mid Atlantic,False
-401907008,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:00 PM",Ferris State,Bentley,,,,,False,False,GLIAC,Northeast 10,False
-401907537,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Pace,East Stroudsburg,,,,,False,False,Northeast 10,Pennsylvania State Athletic,False
-401907736,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Rochester (NY),Case Western Reserve,,,,,False,False,Liberty League,Presidents',False
-401907818,2026,1,regular,2026-09-04,False,"Fri Sep 04, 8:00 PM",Carthage,Lakeland,,,,,False,False,CCIW,NACC,False
-401907862,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Hobart,Alfred,,,,,False,False,Liberty League,Empire 8,False
-401907966,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Misericordia,Hartwick,,,,,False,False,Mid Atlantic,Empire 8,False
-401908094,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:00 PM",Methodist,Shenandoah,,,,,False,False,USA South,Old Dominion,False
-401908162,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:00 PM",Albright,Gallaudet,,,,,False,False,Mid Atlantic,Southern Collegiate Athletic,False
-401908181,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Ursinus,Delaware Valley,,,,,False,False,Centennial,Mid Atlantic,False
-401908263,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Franklin & Marshall,Lebanon Valley,,,,,False,False,Centennial,Mid Atlantic,False
-401908292,2026,1,regular,2026-09-04,False,"Fri Sep 04, 10:00 PM",Pacific (OR),Howard Payne,,,,,False,False,Northwest,American Southwest,False
-401908309,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Stevenson,Bridgewater,,,,,False,False,Mid Atlantic,Old Dominion,False
-401908318,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:00 PM",Rowan,Mary Hardin Baylor,,,,,False,False,New Jersey,American Southwest,False
-401908331,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:00 PM",Dickinson,Randolph Macon,,,,,False,False,Centennial,Old Dominion,False
+401856664,2026,1,regular,2026-09-04,False,"Fri Sep 04, 8:00 PM",Oklahoma,UTEP,51.0,0.0,51.0,51.0,False,False,SEC,Mountain West,True
+401856769,2026,1,regular,2026-09-04,False,"Fri Sep 04, 8:00 PM",Kansas,Long Island University,51.0,6.0,57.0,45.0,False,False,Big 12,NEC,True
+401858206,2026,1,regular,2026-09-04,False,"Fri Sep 04, 9:00 PM",Stanford,Miami,6.0,45.0,51.0,-39.0,False,True,ACC,ACC,True
+401858429,2026,1,regular,2026-09-04,False,"Fri Sep 04, 8:00 PM",Michigan State,Toledo,30.0,20.0,50.0,10.0,False,False,Big Ten,Mid-American,True
+401858435,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Purdue,Indiana State,44.0,19.0,63.0,25.0,False,False,Big Ten,MVFC,True
+401858436,2026,1,regular,2026-09-04,False,"Fri Sep 04, 9:00 PM",USC,Fresno State,39.0,0.0,39.0,39.0,False,False,Big Ten,Pac-12,True
+401864495,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:30 PM",Eastern Michigan,San José State,21.0,27.0,48.0,-6.0,False,False,Mid-American,Mountain West,True
+401866623,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Georgia State,North Carolina A&T,59.0,10.0,69.0,49.0,False,False,Sun Belt,Coastal Athletic,True
+401868262,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Marist,Franklin Pierce,27.0,18.0,45.0,9.0,False,False,Pioneer,Northeast 10,True
+401906610,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:30 PM",Keystone,Alvernia,25.0,21.0,46.0,4.0,False,False,Independent DIII,Mid Atlantic,True
+401907008,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:00 PM",Ferris State,Bentley,38.0,3.0,41.0,35.0,False,False,GLIAC,Northeast 10,True
+401907537,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Pace,East Stroudsburg,26.0,37.0,63.0,-11.0,False,False,Northeast 10,Pennsylvania State Athletic,True
+401907736,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Rochester (NY),Case Western Reserve,20.0,38.0,58.0,-18.0,False,False,Liberty League,Presidents',True
+401907818,2026,1,regular,2026-09-04,False,"Fri Sep 04, 8:00 PM",Carthage,Lakeland,23.0,14.0,37.0,9.0,False,False,CCIW,NACC,True
+401907862,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Hobart,Alfred,24.0,17.0,41.0,7.0,False,False,Liberty League,Empire 8,True
+401907966,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Misericordia,Hartwick,42.0,14.0,56.0,28.0,False,False,Mid Atlantic,Empire 8,True
+401908094,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:00 PM",Methodist,Shenandoah,3.0,30.0,33.0,-27.0,False,False,USA South,Old Dominion,True
+401908162,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:00 PM",Albright,Gallaudet,44.0,7.0,51.0,37.0,False,False,Mid Atlantic,Southern Collegiate Athletic,True
+401908181,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Ursinus,Delaware Valley,17.0,14.0,31.0,3.0,False,False,Centennial,Mid Atlantic,True
+401908263,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Franklin & Marshall,Lebanon Valley,31.0,7.0,38.0,24.0,False,False,Centennial,Mid Atlantic,True
+401908292,2026,1,regular,2026-09-04,False,"Fri Sep 04, 10:00 PM",Pacific (OR),Howard Payne,0.0,49.0,49.0,-49.0,False,False,Northwest,American Southwest,True
+401908309,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Stevenson,Bridgewater,17.0,0.0,17.0,17.0,False,False,Mid Atlantic,Old Dominion,True
+401908318,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:00 PM",Rowan,Mary Hardin Baylor,14.0,35.0,49.0,-21.0,False,False,New Jersey,American Southwest,True
+401908331,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:00 PM",Dickinson,Randolph Macon,27.0,14.0,41.0,13.0,False,False,Centennial,Old Dominion,True
 401908359,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:30 PM",McDaniel,Catholic,,,,,False,False,Centennial,Landmark Conference,False
-401908517,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Springfield,Western New England,,,,,False,False,NEWMAC,Commonwealth Coast,False
-401908537,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:00 PM",Nichols,MIT,,,,,False,False,Commonwealth Coast,NEWMAC,False
-401908606,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",UMass Dartmouth,Salve Regina,,,,,False,False,MSCAC,NEWMAC,False
-401908690,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Norwich,St. Lawrence,,,,,False,False,NEWMAC,Liberty League,False
+401908517,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Springfield,Western New England,42.0,28.0,70.0,14.0,False,False,NEWMAC,Commonwealth Coast,True
+401908537,2026,1,regular,2026-09-04,False,"Fri Sep 04, 6:00 PM",Nichols,MIT,7.0,35.0,42.0,-28.0,False,False,Commonwealth Coast,NEWMAC,True
+401908606,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",UMass Dartmouth,Salve Regina,13.0,21.0,34.0,-8.0,False,False,MSCAC,NEWMAC,True
+401908690,2026,1,regular,2026-09-04,False,"Fri Sep 04, 7:00 PM",Norwich,St. Lawrence,10.0,18.0,28.0,-8.0,False,False,NEWMAC,Liberty League,True
 401856634,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Alabama,East Carolina,,,,,False,False,SEC,American Athletic,False
 401856635,2026,1,regular,2026-09-05,False,"Sat Sep 05, 4:15 PM",Arkansas,North Alabama,,,,,False,False,SEC,UAC,False
 401856636,2026,1,regular,2026-09-05,False,"Sat Sep 05, 3:30 PM",Auburn,Baylor,,,,,True,False,SEC,Big 12,False
@@ -26212,7 +26212,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401866627,2026,1,regular,2026-09-05,False,"Sat Sep 05, 3:30 PM",App State,Maine,,,,,False,False,Sun Belt,Coastal Athletic,False
 401867684,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",UT Martin,Chicago State,,,,,False,False,OVC,FCS Independents,False
 401867692,2026,1,regular,2026-09-05,False,"Sat Sep 05, 6:00 PM",William & Mary,Delaware State,,,,,False,False,Patriot,MEAC,False
-401867845,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Western Illinois,Illinois State,,,,,False,False,OVC,MVFC,False
+401867845,2026,1,regular,2026-09-05,False,"Sat Sep 05, 8:00 PM",Western Illinois,Illinois State,,,,,False,False,OVC,MVFC,False
 401867866,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Middle Tennessee,Murray State,,,,,False,False,Conference USA,MVFC,False
 401867875,2026,1,regular,2026-09-05,False,"Sat Sep 05, 4:00 PM",North Dakota,St. Thomas (MN),,,,,False,False,MVFC,Pioneer,False
 401867883,2026,1,regular,2026-09-05,False,"Sat Sep 05, 8:00 PM",Northern Colorado,South Dakota,,,,,False,False,Big Sky,MVFC,False
@@ -26253,7 +26253,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401869960,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",James Madison,Liberty,,,,,False,False,Sun Belt,Conference USA,False
 401870763,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Troy,Sam Houston,,,,,False,False,Sun Belt,Conference USA,False
 401870790,2026,1,regular,2026-09-05,False,"Sat Sep 05, 9:00 PM",New Mexico State,Mercyhurst,,,,,False,False,Conference USA,NEC,False
-401873228,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Puget Sound,Lewis & Clark,,,,,False,True,Northwest,Northwest,False
+401873228,2026,1,regular,2026-09-05,False,"Sat Sep 05, 4:00 PM",Puget Sound,Lewis & Clark,,,,,False,True,Northwest,Northwest,False
 401873403,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Kean,SUNY Morrisville,,,,,False,False,New Jersey,Empire 8,False
 401906049,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Concord,Bluefield State,,,,,False,False,Mountain East,CIAA,False
 401906118,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Virginia State,Bowie State,,,,,False,True,CIAA,CIAA,False
@@ -26264,7 +26264,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401906168,2026,1,regular,2026-09-05,False,"Sat Sep 05, 8:00 PM",Winston-Salem State,Mars Hill,,,,,False,False,CIAA,South Atlantic,False
 401906178,2026,1,regular,2026-09-05,False,"Sat Sep 05, 6:00 PM",UVA Wise,Chowan,,,,,False,False,South Atlantic,Carolinas,False
 401906199,2026,1,regular,2026-09-05,False,"Sat Sep 05, 6:00 PM",Catawba,North Greenville,,,,,False,False,South Atlantic,Carolinas,False
-401906206,2026,1,regular,2026-09-05,False,"Sat Sep 05, 3:00 PM",Shorter,Benedict,,,,,False,False,Carolinas,SIAC,False
+401906206,2026,1,regular,2026-09-05,False,"Sat Sep 05, 5:00 PM",Shorter,Benedict,,,,,False,False,Carolinas,SIAC,False
 401906589,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Missouri S&T,Northeastern State,,,,,False,False,Great Lakes,Independent DII,False
 401906597,2026,1,regular,2026-09-05,False,"Sat Sep 05, 3:00 PM",Lenoir Rhyne,West Alabama,,,,,False,False,South Atlantic,Gulf South,False
 401906605,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Delta State,Wingate,,,,,False,False,Gulf South,South Atlantic,False
@@ -26275,17 +26275,17 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401906860,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Indianapolis,Findlay,,,,,False,False,Great Lakes,Great Midwest Athletic,False
 401906903,2026,1,regular,2026-09-05,False,"Sat Sep 05, 6:00 PM",Saginaw Valley State,Texas A&M-Kingsville,,,,,False,False,GLIAC,Lone Star,False
 401906921,2026,1,regular,2026-09-05,False,"Sat Sep 05, 4:00 PM",Allen,Florida Memorial University,,,,,False,False,SIAC,,False
-401906929,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Quincy,Roosevelt,,,,,False,False,Great Lakes,GLIAC,False
+401906929,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:30 PM",Quincy,Roosevelt,,,,,False,False,Great Lakes,GLIAC,False
 401906973,2026,1,regular,2026-09-05,False,"Sat Sep 05, 5:00 PM",Fort Valley State,Tuskegee,,,,,True,True,SIAC,SIAC,False
 401906994,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Michigan Tech,Midwestern State,,,,,False,False,GLIAC,Lone Star,False
 401907013,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Davenport,Truman State,,,,,False,False,GLIAC,Great Lakes,False
 401907100,2026,1,regular,2026-09-05,False,"Sat Sep 05, 8:00 PM",Sul Ross State,Adams State,,,,,False,False,Lone Star,Rocky Mountain,False
 401907111,2026,1,regular,2026-09-05,False,"Sat Sep 05, 3:00 PM",Black Hills State,Dakota State University,,,,,False,False,Rocky Mountain,,False
 401907130,2026,1,regular,2026-09-05,False,"Sat Sep 05, 4:00 PM",Eastern New Mexico,Colorado Mesa,,,,,False,False,Lone Star,Rocky Mountain,False
-401907138,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Washburn,Colorado School of Mines,,,,,False,False,Mid America,Rocky Mountain,False
+401907138,2026,1,regular,2026-09-05,False,"Sat Sep 05, 10:00 AM",Washburn,Colorado School of Mines,,,,,False,False,Mid America,Rocky Mountain,False
 401907151,2026,1,regular,2026-09-05,False,"Sat Sep 05, 8:00 PM",Fort Lewis,Phoenix,,,,,False,False,Rocky Mountain,,False
 401907159,2026,1,regular,2026-09-05,False,"Sat Sep 05, 3:00 PM",South Dakota Mines,Southwest Baptist,,,,,False,False,Rocky Mountain,Great Lakes,False
-401907247,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Missouri Southern State,Upper Iowa,,,,,False,False,Mid America,Great Lakes,False
+401907247,2026,1,regular,2026-09-05,False,"Sat Sep 05, 8:00 PM",Missouri Southern State,Upper Iowa,,,,,False,False,Mid America,Great Lakes,False
 401907250,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Morehouse,Clark Atlanta,,,,,False,True,SIAC,SIAC,False
 401907273,2026,1,regular,2026-09-05,False,"Sat Sep 05, 6:00 PM",Anderson (SC),Keiser (Fl),,,,,False,False,South Atlantic,,False
 401907332,2026,1,regular,2026-09-05,False,"Sat Sep 05, 4:00 PM",Southern Oregon,Western Oregon,,,,,False,False,,Lone Star,False
@@ -26303,17 +26303,17 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401907758,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Buena Vista,Benedictine (IL),,,,,False,False,American Rivers,NACC,False
 401907779,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Augustana (IL),Simpson (IA),,,,,False,False,CCIW,American Rivers,False
 401907789,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",St. Norbert,Carroll (WI),,,,,False,False,NACC,CCIW,False
-401907826,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Elmhurst,Illinois College,,,,,False,False,CCIW,Midwest,False
+401907826,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Elmhurst,Illinois College,,,,,False,False,CCIW,Midwest,False
 401907832,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Albion,Illinois Wesleyan,,,,,False,False,Michigan,CCIW,False
-401907843,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",North Central College,Bethel (MN),,,,,False,False,CCIW,Minnesota,False
+401907843,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",North Central College,Bethel (MN),,,,,False,False,CCIW,Minnesota,False
 401907847,2026,1,regular,2026-09-05,False,"Sat Sep 05, 6:00 PM",Franklin,North Park,,,,,False,False,Heartland,CCIW,False
-401907850,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Wheaton (IL),Mount Union,,,,,False,False,CCIW,Ohio,False
+401907850,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Wheaton (IL),Mount Union,,,,,False,False,CCIW,Ohio,False
 401907852,2026,1,regular,2026-09-05,False,"Sat Sep 05, 4:00 PM",Alfred State,Thiel,,,,,False,False,Empire 8,Presidents',False
 401907879,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Grove City,SUNY Cortland,,,,,False,False,Presidents',Empire 8,False
 401907886,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Wisconsin Whitewater,Carleton,,,,,False,False,Wisconsin,Minnesota,False
 401907956,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Dubuque,Wisconsin Stout,,,,,False,False,American Rivers,Wisconsin,False
 401907977,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Wisconsin Stevens Point,Augsburg,,,,,False,False,Wisconsin,Minnesota,False
-401908008,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Wisconsin Platteville,Aurora,,,,,False,False,Wisconsin,NACC,False
+401908008,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:30 PM",Wisconsin Platteville,Aurora,,,,,False,False,Wisconsin,NACC,False
 401908018,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Wisconsin Oshkosh,Linfield,,,,,False,False,Wisconsin,Northwest,False
 401908039,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Saint John's (MN),Wisconsin La Crosse,,,,,False,False,Minnesota,Wisconsin,False
 401908049,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Wisconsin Eau Claire,Alma,,,,,False,False,Wisconsin,Michigan,False
@@ -26323,13 +26323,13 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401908091,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Utica,Washington & Jefferson,,,,,False,False,Empire 8,Presidents',False
 401908101,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Heidelberg,Maryville (TN),,,,,False,False,Ohio,USA South,False
 401908111,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:30 PM",LaGrange,Point University,,,,,False,False,USA South,,False
-401908141,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Gustavus Adolphus,Central College,,,,,False,False,Minnesota,American Rivers,False
-401908150,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Coe,Cornell (IA),,,,,False,False,American Rivers,Midwest,False
+401908141,2026,1,regular,2026-09-05,False,"Sat Sep 05, 11:00 AM",Gustavus Adolphus,Central College,,,,,False,False,Minnesota,American Rivers,False
+401908150,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:30 PM",Coe,Cornell (IA),,,,,False,False,American Rivers,Midwest,False
 401908189,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Endicott,Eastern,,,,,False,False,Commonwealth Coast,Mid Atlantic,False
 401908206,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:30 PM",Anderson (IN),Allegheny,,,,,False,False,Heartland,Presidents',False
-401908231,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Hanover,Centre,,,,,False,False,Heartland,Southern Athletic,False
-401908241,2026,1,regular,2026-09-05,False,"Sat Sep 05, 6:00 PM",Loras,St. Olaf,,,,,False,False,American Rivers,Minnesota,False
-401908247,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Nebraska Wesleyan,Concordia (MN),,,,,False,False,American Rivers,Minnesota,False
+401908231,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:30 PM",Hanover,Centre,,,,,False,False,Heartland,Southern Athletic,False
+401908241,2026,1,regular,2026-09-05,False,"Sat Sep 05, 8:00 PM",Loras,St. Olaf,,,,,False,False,American Rivers,Minnesota,False
+401908247,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Nebraska Wesleyan,Concordia (MN),,,,,False,False,American Rivers,Minnesota,False
 401908254,2026,1,regular,2026-09-05,False,"Sat Sep 05, 8:00 PM",Monmouth (IL),Wartburg,,,,,False,False,Midwest,American Rivers,False
 401908257,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Manchester,Westminster (MO),,,,,False,False,Heartland,Upper Midwest,False
 401908267,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Mount St Joseph,Muskingum,,,,,False,False,Heartland,Ohio,False
@@ -26346,15 +26346,15 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401908426,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Southwestern U,McMurry,,,,,False,False,Southern Athletic,American Southwest,False
 401908429,2026,1,regular,2026-09-05,False,"Sat Sep 05, 4:00 PM",Pacific Lutheran,Cal Lutheran,,,,,False,False,Northwest,So. Cal.,False
 401908433,2026,1,regular,2026-09-05,False,"Sat Sep 05, 8:00 PM",Trinity (TX),Texas Lutheran,,,,,False,False,Southern Athletic,Southern Collegiate Athletic,False
-401908448,2026,1,regular,2026-09-05,False,"Sat Sep 05, 3:00 PM",Claremont Mudd Scripps,Northwestern (MN),,,,,False,False,So. Cal.,Upper Midwest,False
+401908448,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Claremont Mudd Scripps,Northwestern (MN),,,,,False,False,So. Cal.,Upper Midwest,False
 401908454,2026,1,regular,2026-09-05,False,"Sat Sep 05, 8:00 PM",La Verne,Azusa Pacific,,,,,False,True,So. Cal.,So. Cal.,False
-401908460,2026,1,regular,2026-09-05,False,"Sat Sep 05, 3:00 PM",Pomona Pitzer,Willamette,,,,,False,False,So. Cal.,Northwest,False
+401908460,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Pomona Pitzer,Willamette,,,,,False,False,So. Cal.,Northwest,False
 401908467,2026,1,regular,2026-09-05,False,"Sat Sep 05, 8:00 PM",Whittier,Simpson (CA),,,,,False,False,So. Cal.,,False
-401908470,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Crown,Hamline,,,,,False,False,Upper Midwest,Minnesota,False
-401908475,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Bridgewater State,Curry,,,,,False,False,MSCAC,Commonwealth Coast,False
+401908470,2026,1,regular,2026-09-05,False,"Sat Sep 05, 11:00 AM",Crown,Hamline,,,,,False,False,Upper Midwest,Minnesota,False
+401908475,2026,1,regular,2026-09-05,False,"Sat Sep 05, 8:00 PM",Bridgewater State,Curry,,,,,False,False,MSCAC,Commonwealth Coast,False
 401908499,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Lake Forest,Greenville,,,,,False,False,Midwest,Upper Midwest,False
-401908508,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Martin Luther,Macalester,,,,,False,False,Upper Midwest,Minnesota,False
-401908514,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Minnesota Morris,Concordia Chicago,,,,,False,False,Upper Midwest,NACC,False
+401908508,2026,1,regular,2026-09-05,False,"Sat Sep 05, 11:00 AM",Martin Luther,Macalester,,,,,False,False,Upper Midwest,Minnesota,False
+401908514,2026,1,regular,2026-09-05,False,"Sat Sep 05, 11:00 AM",Minnesota Morris,Concordia Chicago,,,,,False,False,Upper Midwest,NACC,False
 401908530,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Coast Guard,New England,,,,,False,False,NEWMAC,Commonwealth Coast,False
 401908553,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Centenary (LA),Westgate Christian University,,,,,False,False,Southern Collegiate Athletic,,False
 401908557,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Plymouth State,New England College,,,,,False,False,MSCAC,,False
@@ -26372,9 +26372,9 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401908722,2026,1,regular,2026-09-05,False,"Sat Sep 05, 3:00 PM",Geneva,Widener,,,,,False,False,Presidents',Mid Atlantic,False
 401908738,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:00 PM",Otterbein,Calvin,,,,,False,False,Ohio,Michigan,False
 401908744,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Denison,Hope,,,,,False,False,North Coast,Michigan,False
-401908759,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Luther,Lawrence,,,,,False,True,Midwest,Midwest,False
+401908759,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:30 PM",Luther,Lawrence,,,,,False,True,Midwest,Midwest,False
 401908765,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Ripon,Concordia (WI),,,,,False,False,Midwest,NACC,False
-401908771,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",Grinnell,Mount Mercy,,,,,False,False,Midwest,,False
+401908771,2026,1,regular,2026-09-05,False,"Sat Sep 05, 12:30 PM",Grinnell,Mount Mercy,,,,,False,False,Midwest,,False
 401908781,2026,1,regular,2026-09-05,False,"Sat Sep 05, 7:00 PM",Eureka,Knox,,,,,False,False,NACC,Midwest,False
 401908805,2026,1,regular,2026-09-05,False,"Sat Sep 05, 1:00 PM",Kalamazoo,Kenyon,,,,,False,False,Michigan,North Coast,False
 401908921,2026,1,regular,2026-09-05,False,"Sat Sep 05, 2:00 PM",St. Scholastica,Wisconsin Lutheran,,,,,False,False,Minnesota,NACC,False
@@ -26478,7 +26478,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401866629,2026,2,regular,2026-09-12,False,"Sat Sep 12, 6:00 PM",Hampton,Bryant,,,,,False,True,Coastal Athletic,Coastal Athletic,False
 401866630,2026,2,regular,2026-09-12,False,"Sat Sep 12, 5:00 PM",Maine,Merrimack,,,,,False,False,Coastal Athletic,FCS Independents,False
 401866631,2026,2,regular,2026-09-12,False,"Sat Sep 12, 6:00 PM",New Hampshire,Stonehill,,,,,False,False,Coastal Athletic,NEC,False
-401866632,2026,2,regular,2026-09-12,False,"Sat Sep 12, 6:00 PM",Long Island University,UAlbany,,,,,False,False,NEC,Coastal Athletic,False
+401866632,2026,2,regular,2026-09-12,False,"Sat Sep 12, 12:00 PM",Long Island University,UAlbany,,,,,False,False,NEC,Coastal Athletic,False
 401866633,2026,2,regular,2026-09-12,False,"Sat Sep 12, 6:00 PM",North Carolina Central,North Carolina A&T,,,,,False,False,MEAC,Coastal Athletic,False
 401867685,2026,2,regular,2026-09-12,False,"Sat Sep 12, 1:00 PM",Chicago State,Kentucky Christian,,,,,False,False,FCS Independents,,False
 401867796,2026,2,regular,2026-09-12,False,"Sat Sep 12, 7:30 PM",LSU,Louisiana Tech,,,,,False,False,SEC,Sun Belt,False
