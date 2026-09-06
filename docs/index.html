@@ -1,12 +1,5529 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DegenPredicts — College Football</title>
-<style>body{background:#0e0f12;color:#e8e8ea;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;max-width:640px;margin:0 auto;padding:48px 20px}
-h1{font-size:22px;margin:0 0 12px}p{color:#9aa0a8}code{background:#20232a;padding:2px 6px;border-radius:4px;font-size:13px}</style>
-</head><body>
-<h1>DegenPredicts — College Football</h1>
-<p>Setting up. This placeholder is replaced the first time the
-<code>CFB picks</code> workflow runs.</p>
-<p>If you're seeing this after a successful run, check the Actions log for the commit step.</p>
-</body></html>
+<style>
+/* ============================================================================
+   Three themes. Switch with DEGEN_THEME=ticker|scoreboard|field.
+   The shared idea across all three: every market gets a probability axis with
+   two markers — what we think, and what the exchange charges. The gap between
+   them is the bet. You read a shape, not two numbers.
+   ========================================================================= */
+
+/* --- ticker: ink on cool newsprint, dense, tabular. Built to scan 100 rows. */
+[data-theme="ticker"]{
+  --bg:#eef0f3; --surface:#fbfcfd; --surface-2:#e4e8ed; --rule:#c3cad3;
+  --ink:#161b22; --ink-2:#5b6672; --accent:#1b4d8f;
+  --buy:#0f7a4a; --sell:#a02c2c; --flag:#8a6100;
+  --radius:2px; --pad:14px;
+  --font:"Helvetica Neue",Inter,ui-sans-serif,system-ui,sans-serif;
+  --font-num:"Helvetica Neue",ui-sans-serif,system-ui,sans-serif;
+  --title-size:19px; --title-weight:600; --title-spacing:-0.01em;
+}
+/* --- scoreboard: incandescent amber on deep slate, oversized numerals. */
+[data-theme="scoreboard"]{
+  --bg:#10141a; --surface:#181e27; --surface-2:#212934; --rule:#2e3742;
+  --ink:#f2e9d8; --ink-2:#8d97a5; --accent:#f0a92b;
+  --buy:#5fd08a; --sell:#e8695f; --flag:#f0a92b;
+  --radius:3px; --pad:15px;
+  --font:ui-sans-serif,"Segoe UI",Roboto,system-ui,sans-serif;
+  --font-num:"DIN Alternate","Roboto Condensed","Arial Narrow",ui-sans-serif,sans-serif;
+  --title-size:21px; --title-weight:700; --title-spacing:0.01em;
+}
+/* --- field: chalk green on paper, serif headings, horizontal position strips. */
+[data-theme="field"]{
+  --bg:#f7f5ef; --surface:#ffffff; --surface-2:#eceade; --rule:#d3d0c2;
+  --ink:#1d2b22; --ink-2:#63705f; --accent:#2f6b45;
+  --buy:#2f6b45; --sell:#9c3b2e; --flag:#9a6b1f;
+  --radius:8px; --pad:16px;
+  --font:ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --font-num:ui-sans-serif,system-ui,sans-serif;
+  --title-size:20px; --title-weight:600; --title-spacing:0;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);
+     font-size:15px;line-height:1.5;padding-bottom:56px;
+     -webkit-font-smoothing:antialiased}
+[data-theme="field"] h1,[data-theme="field"] h2{font-family:Iowan Old Style,Georgia,serif}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* header */
+header{padding:22px 0 14px;border-bottom:1px solid var(--rule);margin-bottom:16px}
+.brandrow{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+h1{font-size:var(--title-size);font-weight:var(--title-weight);letter-spacing:var(--title-spacing)}
+.meta{color:var(--ink-2);font-size:13px}
+.support{display:inline-block;border:1px solid var(--rule);border-radius:999px;
+         padding:5px 13px;font-size:13px;color:var(--ink);text-decoration:none;background:var(--surface)}
+.support:hover{border-color:var(--accent);color:var(--accent)}
+
+/* controls */
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+#q{flex:1 1 220px;min-width:180px;background:var(--surface);color:var(--ink);
+   border:1px solid var(--rule);border-radius:var(--radius);padding:8px 11px;font:inherit;font-size:14px}
+#q:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.tabs,.chips{display:flex;gap:6px;flex-wrap:wrap}
+.tab,.chip{background:var(--surface);color:var(--ink-2);border:1px solid var(--rule);
+     border-radius:var(--radius);padding:6px 11px;font:inherit;font-size:13px;cursor:pointer}
+.tab[aria-pressed="true"],.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+[data-theme="scoreboard"] .tab[aria-pressed="true"],
+[data-theme="scoreboard"] .chip[aria-pressed="true"]{color:#191308}
+.count{color:var(--ink-2);font-size:13px;margin-left:auto}
+
+/* day heading */
+.dayhead{font-size:12px;letter-spacing:.08em;color:var(--ink-2);
+         margin:22px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+
+/* game */
+.game{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);
+      margin-bottom:8px;overflow:hidden}
+.game.playable{border-color:var(--accent);border-left-width:3px}
+.grow{display:grid;grid-template-columns:190px 1fr;gap:0}
+.side{padding:var(--pad);border-right:1px solid var(--rule)}
+.matchup{font-weight:600;line-height:1.35}
+.matchup .vs{color:var(--ink-2);font-weight:400;font-size:13px}
+.kick{color:var(--ink-2);font-size:12.5px;margin-top:5px}
+.kick.tbd{color:var(--flag)}
+.mkts{display:grid;grid-template-columns:repeat(3,1fr)}
+.mkt{padding:var(--pad);border-right:1px solid var(--rule)}
+.mkt:last-child{border-right:0}
+.mkt h3{font-size:12px;font-weight:500;color:var(--ink-2);margin-bottom:3px;
+        display:flex;justify-content:space-between;gap:6px;align-items:center}
+.sel{font-weight:600;font-size:14.5px;margin-bottom:7px}
+[data-theme="scoreboard"] .sel{font-family:var(--font-num);font-size:16px;letter-spacing:.01em}
+
+/* the signature element: model vs market on one axis */
+.gauge{position:relative;height:6px;background:var(--surface-2);border-radius:3px;margin:9px 0 7px}
+.gauge .fill{position:absolute;top:0;bottom:0;border-radius:3px;opacity:.85}
+.gauge .fill.buy{background:var(--buy)} .gauge .fill.sell{background:var(--sell)}
+.gauge .pin{position:absolute;top:-4px;width:2px;height:14px;background:var(--ink)}
+.gauge .pin.mkt{background:var(--ink-2)}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--ink-2);flex-wrap:wrap}
+.legend b{color:var(--ink);font-family:var(--font-num);font-variant-numeric:tabular-nums}
+.pos{color:var(--buy)} .neg{color:var(--sell)}
+
+/* tags */
+.tag{font-size:10.5px;padding:2px 6px;border-radius:var(--radius);white-space:nowrap;
+     border:1px solid transparent}
+.tag.play{background:var(--buy);color:#fff}
+.tag.bold{background:var(--accent);color:#fff}
+.tag.pass{background:transparent;color:var(--ink-2);border-color:var(--rule)}
+.tag.early,.tag.illiquid{background:transparent;color:var(--flag);border-color:var(--flag)}
+.tag.win{background:var(--buy);color:#fff} .tag.loss{background:var(--sell);color:#fff}
+.tag.push{background:transparent;color:var(--ink-2);border-color:var(--rule)}
+.warn{padding:7px var(--pad);font-size:12px;color:var(--flag);
+      background:var(--surface-2);border-top:1px solid var(--rule)}
+
+/* stats + tables */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:8px}
+.stat{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);padding:13px}
+.stat .l{font-size:11.5px;color:var(--ink-2)}
+.stat .v{font-size:23px;font-weight:600;margin:2px 0;font-family:var(--font-num);
+         font-variant-numeric:tabular-nums}
+h2{font-size:13px;font-weight:600;color:var(--ink-2);margin:26px 0 9px;letter-spacing:.03em}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);
+      border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--rule);vertical-align:top}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--ink-2);font-weight:500;font-size:11.5px}
+td.num{font-variant-numeric:tabular-nums}
+.note{background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--flag);
+      padding:13px var(--pad);border-radius:var(--radius);font-size:13px;color:var(--ink-2)}
+footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--rule);
+       color:var(--ink-2);font-size:12.5px}
+a{color:var(--accent)}
+.empty{padding:28px;text-align:center;color:var(--ink-2);background:var(--surface);
+       border:1px solid var(--rule);border-radius:var(--radius)}
+@media(max-width:760px){
+  .grow{grid-template-columns:1fr}
+  .side{border-right:0;border-bottom:1px solid var(--rule);
+        display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .kick{margin-top:0}
+  .mkts{grid-template-columns:1fr}
+  .mkt{border-right:0;border-bottom:1px solid var(--rule)}
+  .mkt:last-child{border-bottom:0}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body data-theme="ticker">
+
+<div class="wrap">
+<header>
+  <div class="brandrow">
+    <div>
+      <h1>DegenPredicts</h1>
+      <div class="meta">Model vs market for every FBS game, week 2 · updated 2026-09-06</div>
+    </div>
+    
+  </div>
+</header>
+
+
+
+
+
+
+
+<h2>Week 2</h2>
+
+
+<div class="controls">
+  <input id="q" type="search" placeholder="Find a team or conference" autocomplete="off"
+         aria-label="Find a team or conference">
+  <div class="tabs" role="group" aria-label="Kickoff day">
+    <button class="tab" data-day="all" aria-pressed="true">All days</button>
+    <button class="tab" data-day="2026-09-06" aria-pressed="false">Sun Sep 6</button><button class="tab" data-day="2026-09-07" aria-pressed="false">Mon Sep 7</button><button class="tab" data-day="2026-09-11" aria-pressed="false">Fri Sep 11</button><button class="tab" data-day="2026-09-12" aria-pressed="false">Sat Sep 12</button>
+  </div>
+  <div class="chips" role="group" aria-label="Filter">
+    <button class="chip" data-f="all" aria-pressed="true">Everything</button>
+    <button class="chip" data-f="plays" aria-pressed="false">Plays</button>
+    <button class="chip" data-f="kalshi" aria-pressed="false">Priced on Kalshi</button>
+    <button class="chip" data-f="g5" aria-pressed="false">Group of Five</button>
+  </div>
+  <span class="count" id="count"></span>
+</div>
+
+
+<div id="board">
+
+
+
+  <div class="dayhead" data-dayhead="2026-09-06">Sun Sep 6</div>
+  
+  
+  <div class="game "
+       data-day="2026-09-06"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Louisville<br><span class="vs">vs</span> Ole Miss</div>
+        <div class="kick ">Sun Sep 06, 7:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 55.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 45 percent, market asks 49 cents">
+    <div class="fill sell"
+         style="left:45.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:49.0%"></div>
+    <div class="pin" style="left:45.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.96&times;</b></span>
+      <span>fair <b>2.22&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Ole Miss by 6.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 51 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:51.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:51.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>1.96&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Louisville to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 33 percent, market asks 31 cents">
+    <div class="fill buy"
+         style="left:31.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:31.0%"></div>
+    <div class="pin" style="left:33.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">3.03&times;</b></span>
+      <span>fair <b>3.06&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-06"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">South Carolina State<br><span class="vs">vs</span> Florida A&amp;M</div>
+        <div class="kick ">Sun Sep 06, 3:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 52.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 52 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:52.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:52.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>1.91&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">South Carolina State by 19.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>1.99&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">South Carolina State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 90 percent, market asks 90 cents">
+    <div class="fill sell"
+         style="left:90.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:90.0%"></div>
+    <div class="pin" style="left:90.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.1&times;</b></span>
+      <span>fair <b>1.11&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-06"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Washington State<br><span class="vs">at</span> Washington</div>
+        <div class="kick ">Sun Sep 06, 4:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 51.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 47 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:47.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:47.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.12&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Washington by 23.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>2.08&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Washington State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 7 percent, market asks 7 cents">
+    <div class="fill sell"
+         style="left:7.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:7.0%"></div>
+    <div class="pin" style="left:7.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">12.5&times;</b></span>
+      <span>fair <b>14.47&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-06"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Texas Southern<br><span class="vs">at</span> Prairie View A&amp;M</div>
+        <div class="kick ">Sun Sep 06, 12:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 53.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 53 percent, market asks 80 cents">
+    <div class="fill sell"
+         style="left:53.0%;width:27.0%"></div>
+    <div class="pin mkt" style="left:80.0%"></div>
+    <div class="pin" style="left:53.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.22&times;</b></span>
+      <span>fair <b>1.88&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Prairie View A&amp;M by 10.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>1.99&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Texas Southern to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 25 percent, market asks 28 cents">
+    <div class="fill sell"
+         style="left:25.0%;width:3.0%"></div>
+    <div class="pin mkt" style="left:28.0%"></div>
+    <div class="pin" style="left:25.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">3.33&times;</b></span>
+      <span>fair <b>4.08&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-06"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Wisconsin<br><span class="vs">vs</span> Notre Dame</div>
+        <div class="kick ">Sun Sep 06, 7:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 46.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 49 percent, market asks 50 cents">
+    <div class="fill sell"
+         style="left:49.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:50.0%"></div>
+    <div class="pin" style="left:49.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.92&times;</b></span>
+      <span>fair <b>2.03&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Notre Dame by 20.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 55 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:5.0%"></div>
+    <div class="pin mkt" style="left:55.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.75&times;</b></span>
+      <span>fair <b>2.0&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Wisconsin to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 9 percent, market asks 9 cents">
+    <div class="fill sell"
+         style="left:9.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:9.0%"></div>
+    <div class="pin" style="left:9.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">10.0&times;</b></span>
+      <span>fair <b>10.95&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+
+  <div class="dayhead" data-dayhead="2026-09-07">Mon Sep 7</div>
+  
+  
+  <div class="game "
+       data-day="2026-09-07"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">SMU<br><span class="vs">at</span> Florida State</div>
+        <div class="kick ">Mon Sep 07, 7:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 52.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 53 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:3.0%"></div>
+    <div class="pin mkt" style="left:53.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.82&times;</b></span>
+      <span>fair <b>2.01&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">SMU by 2.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 51 percent, market asks 54 cents">
+    <div class="fill sell"
+         style="left:51.0%;width:3.0%"></div>
+    <div class="pin mkt" style="left:54.0%"></div>
+    <div class="pin" style="left:51.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.79&times;</b></span>
+      <span>fair <b>1.97&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Florida State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 57 percent, market asks 42 cents">
+    <div class="fill buy"
+         style="left:42.0%;width:15.0%"></div>
+    <div class="pin mkt" style="left:42.0%"></div>
+    <div class="pin" style="left:57.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">2.27&times;</b></span>
+      <span>fair <b>1.75&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+
+  <div class="dayhead" data-dayhead="2026-09-11">Fri Sep 11</div>
+  
+  
+  <div class="game "
+       data-day="2026-09-11"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Missouri<br><span class="vs">at</span> Kansas</div>
+        <div class="kick ">Fri Sep 11, 8:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 50.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>2.07&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Missouri by 6.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>1.99&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Kansas to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 67 percent, market asks 31 cents">
+    <div class="fill buy"
+         style="left:31.0%;width:36.0%"></div>
+    <div class="pin mkt" style="left:31.0%"></div>
+    <div class="pin" style="left:67.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">3.03&times;</b></span>
+      <span>fair <b>1.5&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-11"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Rutgers<br><span class="vs">at</span> Boston College</div>
+        <div class="kick ">Fri Sep 11, 7:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 55.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 49 cents">
+    <div class="fill buy"
+         style="left:49.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:49.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.96&times;</b></span>
+      <span>fair <b>2.02&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Rutgers by 3.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 32 percent, market asks 44 cents">
+    <div class="fill sell"
+         style="left:32.0%;width:12.0%"></div>
+    <div class="pin mkt" style="left:44.0%"></div>
+    <div class="pin" style="left:32.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">2.17&times;</b></span>
+      <span>fair <b>3.15&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Rutgers to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 40 percent, market asks 38 cents">
+    <div class="fill buy"
+         style="left:38.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:38.0%"></div>
+    <div class="pin" style="left:40.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">2.5&times;</b></span>
+      <span>fair <b>2.49&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+
+  <div class="dayhead" data-dayhead="2026-09-12">Sat Sep 12</div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Oklahoma<br><span class="vs">at</span> Michigan</div>
+        <div class="kick ">Sat Sep 12, 12:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 45.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 46 cents">
+    <div class="fill buy"
+         style="left:46.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:46.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">2.08&times;</b></span>
+      <span>fair <b>2.08&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Oklahoma by 2.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 39 percent, market asks 65 cents">
+    <div class="fill sell"
+         style="left:39.0%;width:26.0%"></div>
+    <div class="pin mkt" style="left:65.0%"></div>
+    <div class="pin" style="left:39.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.49&times;</b></span>
+      <span>fair <b>2.58&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Michigan to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 45 percent, market asks 34 cents">
+    <div class="fill buy"
+         style="left:34.0%;width:11.0%"></div>
+    <div class="pin mkt" style="left:34.0%"></div>
+    <div class="pin" style="left:45.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">2.78&times;</b></span>
+      <span>fair <b>2.22&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">San Diego State<br><span class="vs">at</span> UCLA</div>
+        <div class="kick ">Sat Sep 12, 7:15 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 50.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:3.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.1&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">San Diego State by 9.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 12 percent, market asks 27 cents">
+    <div class="fill sell"
+         style="left:12.0%;width:15.0%"></div>
+    <div class="pin mkt" style="left:27.0%"></div>
+    <div class="pin" style="left:12.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">3.45&times;</b></span>
+      <span>fair <b>8.64&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">San Diego State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 28 percent, market asks 24 cents">
+    <div class="fill buy"
+         style="left:24.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:24.0%"></div>
+    <div class="pin" style="left:28.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">3.85&times;</b></span>
+      <span>fair <b>3.55&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Arizona<br><span class="vs">at</span> BYU</div>
+        <div class="kick ">Sat Sep 12, 3:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 51.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 45 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:45.0%;width:6.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:45.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.22&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">BYU by 7.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 49 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:49.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:49.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.02&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Arizona to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 32 percent, market asks 28 cents">
+    <div class="fill buy"
+         style="left:28.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:28.0%"></div>
+    <div class="pin" style="left:32.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">3.33&times;</b></span>
+      <span>fair <b>3.15&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">UTSA<br><span class="vs">at</span> Texas State</div>
+        <div class="kick ">Sat Sep 12, 3:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 64.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 45 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:45.0%;width:6.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:45.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.21&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">UTSA by 1.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 50 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:50.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.92&times;</b></span>
+      <span>fair <b>2.01&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">UTSA to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 54 percent, market asks 51 cents">
+    <div class="fill buy"
+         style="left:51.0%;width:3.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:54.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">1.89&times;</b></span>
+      <span>fair <b>1.86&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">South Alabama<br><span class="vs">at</span> Tulane</div>
+        <div class="kick ">Sat Sep 12, 7:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 52.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 49 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:49.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:49.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.05&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">South Alabama by 9.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 11 percent, market asks 87 cents">
+    <div class="fill sell"
+         style="left:11.0%;width:76.0%"></div>
+    <div class="pin mkt" style="left:87.0%"></div>
+    <div class="pin" style="left:11.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.14&times;</b></span>
+      <span>fair <b>9.23&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">South Alabama to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 27 percent, market asks 21 cents">
+    <div class="fill buy"
+         style="left:21.0%;width:6.0%"></div>
+    <div class="pin mkt" style="left:21.0%"></div>
+    <div class="pin" style="left:27.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">4.35&times;</b></span>
+      <span>fair <b>3.73&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Memphis<br><span class="vs">at</span> Boise State</div>
+        <div class="kick ">Sat Sep 12, 6:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 54.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 53 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:3.0%"></div>
+    <div class="pin mkt" style="left:53.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.82&times;</b></span>
+      <span>fair <b>2.01&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Memphis by 7.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 16 percent, market asks 85 cents">
+    <div class="fill sell"
+         style="left:16.0%;width:69.0%"></div>
+    <div class="pin mkt" style="left:85.0%"></div>
+    <div class="pin" style="left:16.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.16&times;</b></span>
+      <span>fair <b>6.38&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Memphis to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 30 percent, market asks 25 cents">
+    <div class="fill buy"
+         style="left:25.0%;width:5.0%"></div>
+    <div class="pin mkt" style="left:25.0%"></div>
+    <div class="pin" style="left:30.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">3.7&times;</b></span>
+      <span>fair <b>3.32&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">UCF<br><span class="vs">at</span> Pittsburgh</div>
+        <div class="kick ">Sat Sep 12, 3:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 56.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 49 percent, market asks 50 cents">
+    <div class="fill sell"
+         style="left:49.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:50.0%"></div>
+    <div class="pin" style="left:49.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.92&times;</b></span>
+      <span>fair <b>2.04&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Pittsburgh by 8.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 49 percent, market asks 49 cents">
+    <div class="fill sell"
+         style="left:49.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:49.0%"></div>
+    <div class="pin" style="left:49.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.96&times;</b></span>
+      <span>fair <b>2.05&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">UCF to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 30 percent, market asks 26 cents">
+    <div class="fill buy"
+         style="left:26.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:26.0%"></div>
+    <div class="pin" style="left:30.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">3.57&times;</b></span>
+      <span>fair <b>3.32&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Alabama<br><span class="vs">at</span> Kentucky</div>
+        <div class="kick ">Sat Sep 12, 3:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 48.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>2.08&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Kentucky by 10.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 9 percent, market asks 17 cents">
+    <div class="fill sell"
+         style="left:9.0%;width:8.0%"></div>
+    <div class="pin mkt" style="left:17.0%"></div>
+    <div class="pin" style="left:9.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">5.56&times;</b></span>
+      <span>fair <b>11.09&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Kentucky to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 74 percent, market asks 22 cents">
+    <div class="fill buy"
+         style="left:22.0%;width:52.0%"></div>
+    <div class="pin mkt" style="left:22.0%"></div>
+    <div class="pin" style="left:74.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">4.17&times;</b></span>
+      <span>fair <b>1.34&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Maryland<br><span class="vs">at</span> UConn</div>
+        <div class="kick ">Sat Sep 12, 3:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 53.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 49 percent, market asks 53 cents">
+    <div class="fill sell"
+         style="left:49.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:53.0%"></div>
+    <div class="pin" style="left:49.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.82&times;</b></span>
+      <span>fair <b>2.03&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">UConn by 13.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 4 percent, market asks 22 cents">
+    <div class="fill sell"
+         style="left:4.0%;width:18.0%"></div>
+    <div class="pin mkt" style="left:22.0%"></div>
+    <div class="pin" style="left:4.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">4.17&times;</b></span>
+      <span>fair <b>23.58&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">UConn to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 80 percent, market asks 17 cents">
+    <div class="fill buy"
+         style="left:17.0%;width:63.0%"></div>
+    <div class="pin mkt" style="left:17.0%"></div>
+    <div class="pin" style="left:80.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">5.56&times;</b></span>
+      <span>fair <b>1.25&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">App State<br><span class="vs">at</span> East Carolina</div>
+        <div class="kick ">Sat Sep 12, 12:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 55.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 47 percent, market asks 50 cents">
+    <div class="fill sell"
+         style="left:47.0%;width:3.0%"></div>
+    <div class="pin mkt" style="left:50.0%"></div>
+    <div class="pin" style="left:47.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.92&times;</b></span>
+      <span>fair <b>2.12&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">App State by 9.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 11 percent, market asks 91 cents">
+    <div class="fill sell"
+         style="left:11.0%;width:80.0%"></div>
+    <div class="pin mkt" style="left:91.0%"></div>
+    <div class="pin" style="left:11.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.09&times;</b></span>
+      <span>fair <b>9.03&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">App State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 27 percent, market asks 25 cents">
+    <div class="fill buy"
+         style="left:25.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:25.0%"></div>
+    <div class="pin" style="left:27.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">3.7&times;</b></span>
+      <span>fair <b>3.67&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Penn State<br><span class="vs">at</span> Temple</div>
+        <div class="kick ">Sat Sep 12, 12:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 50.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>2.09&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Penn State by 21.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>2.08&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Temple to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 91 percent, market asks 8 cents">
+    <div class="fill buy"
+         style="left:8.0%;width:83.0%"></div>
+    <div class="pin mkt" style="left:8.0%"></div>
+    <div class="pin" style="left:91.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">11.11&times;</b></span>
+      <span>fair <b>1.1&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Arizona State<br><span class="vs">at</span> Texas A&amp;M</div>
+        <div class="kick ">Sat Sep 12, 12:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 51.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 47 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:47.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:47.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.12&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Texas A&amp;M by 14.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 50 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:50.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.92&times;</b></span>
+      <span>fair <b>1.99&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Arizona State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 17 percent, market asks 16 cents">
+    <div class="fill buy"
+         style="left:16.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:16.0%"></div>
+    <div class="pin" style="left:17.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">5.88&times;</b></span>
+      <span>fair <b>5.84&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Texas Tech<br><span class="vs">at</span> Oregon State</div>
+        <div class="kick ">Sat Sep 12, 7:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 50.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 51 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:51.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:51.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>1.95&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Texas Tech by 24.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 54 percent, market asks 86 cents">
+    <div class="fill sell"
+         style="left:54.0%;width:32.0%"></div>
+    <div class="pin mkt" style="left:86.0%"></div>
+    <div class="pin" style="left:54.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.15&times;</b></span>
+      <span>fair <b>1.85&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Oregon State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 96 percent, market asks 4 cents">
+    <div class="fill buy"
+         style="left:4.0%;width:92.0%"></div>
+    <div class="pin mkt" style="left:4.0%"></div>
+    <div class="pin" style="left:96.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">20.0&times;</b></span>
+      <span>fair <b>1.05&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Tulsa<br><span class="vs">at</span> Sam Houston</div>
+        <div class="kick ">Sat Sep 12, 7:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 52.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>1.98&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Tulsa by 13.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 85 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:35.0%"></div>
+    <div class="pin mkt" style="left:85.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.16&times;</b></span>
+      <span>fair <b>1.99&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Sam Houston to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 81 percent, market asks 16 cents">
+    <div class="fill buy"
+         style="left:16.0%;width:65.0%"></div>
+    <div class="pin mkt" style="left:16.0%"></div>
+    <div class="pin" style="left:81.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">5.88&times;</b></span>
+      <span>fair <b>1.23&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">South Florida<br><span class="vs">at</span> Army</div>
+        <div class="kick ">Sat Sep 12, 12:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 51.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 49 cents">
+    <div class="fill buy"
+         style="left:49.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:49.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.96&times;</b></span>
+      <span>fair <b>2.0&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">South Florida by 2.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 35 percent, market asks 45 cents">
+    <div class="fill sell"
+         style="left:35.0%;width:10.0%"></div>
+    <div class="pin mkt" style="left:45.0%"></div>
+    <div class="pin" style="left:35.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">2.13&times;</b></span>
+      <span>fair <b>2.83&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">South Florida to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 42 percent, market asks 38 cents">
+    <div class="fill buy"
+         style="left:38.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:38.0%"></div>
+    <div class="pin" style="left:42.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">2.5&times;</b></span>
+      <span>fair <b>2.41&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Ohio State<br><span class="vs">at</span> Texas</div>
+        <div class="kick ">Sat Sep 12, 7:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 47.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:3.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.08&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Texas by 1.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 49 cents">
+    <div class="fill buy"
+         style="left:49.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:49.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.96&times;</b></span>
+      <span>fair <b>1.99&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Texas to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 46 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:46.0%;width:6.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:46.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>2.18&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Eastern Michigan<br><span class="vs">at</span> Michigan State</div>
+        <div class="kick ">Sat Sep 12, 3:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 51.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 49 percent, market asks 54 cents">
+    <div class="fill sell"
+         style="left:49.0%;width:5.0%"></div>
+    <div class="pin mkt" style="left:54.0%"></div>
+    <div class="pin" style="left:49.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.79&times;</b></span>
+      <span>fair <b>2.03&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Michigan State by 17.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 49 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:49.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:49.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.03&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Eastern Michigan to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 13 percent, market asks 11 cents">
+    <div class="fill buy"
+         style="left:11.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:11.0%"></div>
+    <div class="pin" style="left:13.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">8.33&times;</b></span>
+      <span>fair <b>7.59&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Georgia Southern<br><span class="vs">at</span> Clemson</div>
+        <div class="kick ">Sat Sep 12, 7:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Under 56.5</div>
+          <div class="legend"><span>model <b>54.0</b></span>
+            <span>-2.5 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">Georgia Southern +23.5</div>
+          <div class="legend"><span>model margin <b>23.2</b></span>
+            <span>-0.3 vs line</span></div>
+        </div>
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Clemson to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 6 percent, market asks 92 cents">
+    <div class="fill sell"
+         style="left:6.0%;width:86.0%"></div>
+    <div class="pin mkt" style="left:92.0%"></div>
+    <div class="pin" style="left:6.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.08&times;</b></span>
+      <span>fair <b>15.6&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Georgia State<br><span class="vs">at</span> Kennesaw State</div>
+        <div class="kick ">Sat Sep 12, 7:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Over 50.5</div>
+          <div class="legend"><span>model <b>51.3</b></span>
+            <span>+0.8 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">Georgia State +9.5</div>
+          <div class="legend"><span>model margin <b>8.3</b></span>
+            <span>-1.2 vs line</span></div>
+        </div>
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Georgia State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 27 percent, market asks 24 cents">
+    <div class="fill buy"
+         style="left:24.0%;width:3.0%"></div>
+    <div class="pin mkt" style="left:24.0%"></div>
+    <div class="pin" style="left:27.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">3.85&times;</b></span>
+      <span>fair <b>3.67&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Iowa State<br><span class="vs">at</span> Iowa</div>
+        <div class="kick ">Sat Sep 12, 7:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 41.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 46 cents">
+    <div class="fill buy"
+         style="left:46.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:46.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">2.08&times;</b></span>
+      <span>fair <b>1.98&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Iowa by 14.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 51 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:51.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:51.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>1.97&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Iowa State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 17 percent, market asks 15 cents">
+    <div class="fill buy"
+         style="left:15.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:15.0%"></div>
+    <div class="pin" style="left:17.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">6.25&times;</b></span>
+      <span>fair <b>5.95&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Southern Miss<br><span class="vs">at</span> Auburn</div>
+        <div class="kick ">Sat Sep 12, 7:45 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Over 52.5</div>
+          <div class="legend"><span>model <b>53.0</b></span>
+            <span>+0.5 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">Southern Miss +29.5</div>
+          <div class="legend"><span>model margin <b>27.5</b></span>
+            <span>-2.0 vs line</span></div>
+        </div>
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Auburn to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 3 percent, market asks 96 cents">
+    <div class="fill sell"
+         style="left:3.0%;width:93.0%"></div>
+    <div class="pin mkt" style="left:96.0%"></div>
+    <div class="pin" style="left:3.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.03&times;</b></span>
+      <span>fair <b>34.72&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Buffalo<br><span class="vs">at</span> Florida International</div>
+        <div class="kick ">Sat Sep 12, 6:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Under 51.5</div>
+          <div class="legend"><span>model <b>50.4</b></span>
+            <span>-1.1 vs line</span></div>
+        </div>
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Buffalo by 10.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 8 percent, market asks 87 cents">
+    <div class="fill sell"
+         style="left:8.0%;width:79.0%"></div>
+    <div class="pin mkt" style="left:87.0%"></div>
+    <div class="pin" style="left:8.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.14&times;</b></span>
+      <span>fair <b>11.9&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Buffalo to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 24 percent, market asks 22 cents">
+    <div class="fill buy"
+         style="left:22.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:22.0%"></div>
+    <div class="pin" style="left:24.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">4.17&times;</b></span>
+      <span>fair <b>4.11&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Utah State<br><span class="vs">at</span> Washington</div>
+        <div class="kick ">Sat Sep 12, 3:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 56.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>2.01&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Washington by 27.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 51 percent, market asks 53 cents">
+    <div class="fill sell"
+         style="left:51.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:53.0%"></div>
+    <div class="pin" style="left:51.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.82&times;</b></span>
+      <span>fair <b>1.98&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Washington to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 4 percent, market asks 95 cents">
+    <div class="fill sell"
+         style="left:4.0%;width:91.0%"></div>
+    <div class="pin mkt" style="left:95.0%"></div>
+    <div class="pin" style="left:4.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.04&times;</b></span>
+      <span>fair <b>27.93&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">UNLV<br><span class="vs">at</span> North Texas</div>
+        <div class="kick ">Sat Sep 12, 3:45 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 58.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.0&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">North Texas by 5.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 24 percent, market asks 87 cents">
+    <div class="fill sell"
+         style="left:24.0%;width:63.0%"></div>
+    <div class="pin mkt" style="left:87.0%"></div>
+    <div class="pin" style="left:24.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.14&times;</b></span>
+      <span>fair <b>4.25&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">North Texas to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 64 percent, market asks 33 cents">
+    <div class="fill buy"
+         style="left:33.0%;width:31.0%"></div>
+    <div class="pin mkt" style="left:33.0%"></div>
+    <div class="pin" style="left:64.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">2.86&times;</b></span>
+      <span>fair <b>1.56&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Oregon<br><span class="vs">at</span> Oklahoma State</div>
+        <div class="kick ">Sat Sep 12, 12:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 58.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 51 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:51.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:51.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>1.97&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Oregon by 23.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 45 percent, market asks 57 cents">
+    <div class="fill sell"
+         style="left:45.0%;width:12.0%"></div>
+    <div class="pin mkt" style="left:57.0%"></div>
+    <div class="pin" style="left:45.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.69&times;</b></span>
+      <span>fair <b>2.23&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Oklahoma State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 92 percent, market asks 8 cents">
+    <div class="fill buy"
+         style="left:8.0%;width:84.0%"></div>
+    <div class="pin mkt" style="left:8.0%"></div>
+    <div class="pin" style="left:92.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">11.11&times;</b></span>
+      <span>fair <b>1.09&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Louisiana<br><span class="vs">at</span> USC</div>
+        <div class="kick ">Sat Sep 12, 11:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Under 60.5</div>
+          <div class="legend"><span>model <b>55.7</b></span>
+            <span>-4.8 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">Louisiana +28.5</div>
+          <div class="legend"><span>model margin <b>26.5</b></span>
+            <span>-2.0 vs line</span></div>
+        </div>
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">USC to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 3 percent, market asks 97 cents">
+    <div class="fill sell"
+         style="left:3.0%;width:94.0%"></div>
+    <div class="pin mkt" style="left:97.0%"></div>
+    <div class="pin" style="left:3.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.02&times;</b></span>
+      <span>fair <b>29.94&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Navy<br><span class="vs">at</span> Florida Atlantic</div>
+        <div class="kick ">Sat Sep 12, 7:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Under 57.5</div>
+          <div class="legend"><span>model <b>53.3</b></span>
+            <span>-4.2 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">Navy -6.5</div>
+          <div class="legend"><span>model margin <b>-9.2</b></span>
+            <span>-2.7 vs line</span></div>
+        </div>
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Florida Atlantic to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 67 percent, market asks 32 cents">
+    <div class="fill buy"
+         style="left:32.0%;width:35.0%"></div>
+    <div class="pin mkt" style="left:32.0%"></div>
+    <div class="pin" style="left:67.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">2.94&times;</b></span>
+      <span>fair <b>1.49&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Washington State<br><span class="vs">at</span> Kansas State</div>
+        <div class="kick ">Sat Sep 12, 12:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 51.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>2.09&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Kansas State by 20.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 63 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:15.0%"></div>
+    <div class="pin mkt" style="left:63.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.54&times;</b></span>
+      <span>fair <b>2.06&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Washington State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 10 percent, market asks 10 cents">
+    <div class="fill sell"
+         style="left:10.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:10.0%"></div>
+    <div class="pin" style="left:10.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">9.09&times;</b></span>
+      <span>fair <b>10.21&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">California<br><span class="vs">at</span> Syracuse</div>
+        <div class="kick ">Sat Sep 12, 3:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 52.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 51 percent, market asks 53 cents">
+    <div class="fill sell"
+         style="left:51.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:53.0%"></div>
+    <div class="pin" style="left:51.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.82&times;</b></span>
+      <span>fair <b>1.97&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Syracuse by 1.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 50 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:50.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.92&times;</b></span>
+      <span>fair <b>2.06&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">California to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 48 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:48.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">2.0&times;</b></span>
+      <span>fair <b>2.1&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Old Dominion<br><span class="vs">at</span> Virginia Tech</div>
+        <div class="kick ">Sat Sep 12, 12:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 51.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>2.08&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Virginia Tech by 17.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 51 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:51.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:51.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>1.98&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Old Dominion to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 12 percent, market asks 12 cents">
+    <div class="fill sell"
+         style="left:12.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:12.0%"></div>
+    <div class="pin" style="left:12.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">7.69&times;</b></span>
+      <span>fair <b>8.01&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Bowling Green<br><span class="vs">at</span> Nebraska</div>
+        <div class="kick ">Sat Sep 12, 7:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 51.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 49 percent, market asks 86 cents">
+    <div class="fill sell"
+         style="left:49.0%;width:37.0%"></div>
+    <div class="pin mkt" style="left:86.0%"></div>
+    <div class="pin" style="left:49.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.15&times;</b></span>
+      <span>fair <b>2.03&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Nebraska by 28.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 51 percent, market asks 53 cents">
+    <div class="fill sell"
+         style="left:51.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:53.0%"></div>
+    <div class="pin" style="left:51.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.82&times;</b></span>
+      <span>fair <b>1.95&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Nebraska to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 3 percent, market asks 97 cents">
+    <div class="fill sell"
+         style="left:3.0%;width:94.0%"></div>
+    <div class="pin mkt" style="left:97.0%"></div>
+    <div class="pin" style="left:3.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.02&times;</b></span>
+      <span>fair <b>33.67&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Tennessee<br><span class="vs">at</span> Georgia Tech</div>
+        <div class="kick ">Sat Sep 12, 7:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 55.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 50 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:50.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.92&times;</b></span>
+      <span>fair <b>2.07&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Georgia Tech by 13.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 4 percent, market asks 17 cents">
+    <div class="fill sell"
+         style="left:4.0%;width:13.0%"></div>
+    <div class="pin mkt" style="left:17.0%"></div>
+    <div class="pin" style="left:4.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">5.56&times;</b></span>
+      <span>fair <b>23.87&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Georgia Tech to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 80 percent, market asks 19 cents">
+    <div class="fill buy"
+         style="left:19.0%;width:61.0%"></div>
+    <div class="pin mkt" style="left:19.0%"></div>
+    <div class="pin" style="left:80.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">4.76&times;</b></span>
+      <span>fair <b>1.25&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Rice<br><span class="vs">at</span> Notre Dame</div>
+        <div class="kick ">Sat Sep 12, 3:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 52.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>1.98&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Notre Dame by 44.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 49 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:49.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:49.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.04&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Rice to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 0 percent, market asks 1 cents">
+    <div class="fill sell"
+         style="left:0.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:1.0%"></div>
+    <div class="pin" style="left:0.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">50.0&times;</b></span>
+      <span>fair <b>476.19&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Mississippi State<br><span class="vs">at</span> Minnesota</div>
+        <div class="kick ">Sat Sep 12, 3:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 55.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 48 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:48.0%;width:4.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:48.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>2.07&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Mississippi State by 1.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 49 percent, market asks 49 cents">
+    <div class="fill sell"
+         style="left:49.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:49.0%"></div>
+    <div class="pin" style="left:49.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.96&times;</b></span>
+      <span>fair <b>2.02&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Mississippi State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 53 percent, market asks 52 cents">
+    <div class="fill buy"
+         style="left:52.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:53.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>1.87&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Middle Tennessee<br><span class="vs">at</span> Marshall</div>
+        <div class="kick ">Sat Sep 12, 7:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Under 57.5</div>
+          <div class="legend"><span>model <b>55.8</b></span>
+            <span>-1.7 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">Marshall -17.5</div>
+          <div class="legend"><span>model margin <b>20.2</b></span>
+            <span>+2.7 vs line</span></div>
+        </div>
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Marshall to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 12 percent, market asks 88 cents">
+    <div class="fill sell"
+         style="left:12.0%;width:76.0%"></div>
+    <div class="pin mkt" style="left:88.0%"></div>
+    <div class="pin" style="left:12.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.12&times;</b></span>
+      <span>fair <b>8.18&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="0"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">UL Monroe<br><span class="vs">at</span> UAB</div>
+        <div class="kick ">Sat Sep 12, 3:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Over 56.5</div>
+          <div class="legend"><span>model <b>59.0</b></span>
+            <span>+2.5 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">UL Monroe +10.0</div>
+          <div class="legend"><span>model margin <b>10.3</b></span>
+            <span>+0.3 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Moneyline <span class="tag pass">no market</span></h3>
+          <div class="sel">&mdash;</div>
+          <div class="legend"><span>not listed on Kalshi</span></div>
+        </div>
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Delaware<br><span class="vs">at</span> Vanderbilt</div>
+        <div class="kick ">Sat Sep 12, 4:15 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 54.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 49 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:49.0%;width:3.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:49.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>2.06&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Vanderbilt by 20.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>1.99&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Delaware to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 9 percent, market asks 9 cents">
+    <div class="fill sell"
+         style="left:9.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:9.0%"></div>
+    <div class="pin" style="left:9.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">10.0&times;</b></span>
+      <span>fair <b>11.09&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Jacksonville State<br><span class="vs">at</span> Ohio</div>
+        <div class="kick ">Sat Sep 12, 6:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 50.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 51 percent, market asks 52 cents">
+    <div class="fill sell"
+         style="left:51.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:52.0%"></div>
+    <div class="pin" style="left:51.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.85&times;</b></span>
+      <span>fair <b>1.94&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Ohio by 1.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.01&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Ohio to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 46 percent, market asks 55 cents">
+    <div class="fill sell"
+         style="left:46.0%;width:9.0%"></div>
+    <div class="pin mkt" style="left:55.0%"></div>
+    <div class="pin" style="left:46.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.75&times;</b></span>
+      <span>fair <b>2.16&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Louisiana Tech<br><span class="vs">at</span> LSU</div>
+        <div class="kick ">Sat Sep 12, 7:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Under 55.5</div>
+          <div class="legend"><span>model <b>53.6</b></span>
+            <span>-1.9 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">LSU -31.5</div>
+          <div class="legend"><span>model margin <b>33.2</b></span>
+            <span>+1.7 vs line</span></div>
+        </div>
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Louisiana Tech to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 2 percent, market asks 2 cents">
+    <div class="fill sell"
+         style="left:2.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:2.0%"></div>
+    <div class="pin" style="left:2.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">33.33&times;</b></span>
+      <span>fair <b>51.81&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">North Dakota State<br><span class="vs">at</span> Air Force</div>
+        <div class="kick ">Sat Sep 12, 10:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Under 49.5</div>
+          <div class="legend"><span>model <b>49.4</b></span>
+            <span>-0.1 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">Air Force +6.5</div>
+          <div class="legend"><span>model margin <b>-4.6</b></span>
+            <span>+1.9 vs line</span></div>
+        </div>
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Air Force to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 66 percent, market asks 34 cents">
+    <div class="fill buy"
+         style="left:34.0%;width:32.0%"></div>
+    <div class="pin mkt" style="left:34.0%"></div>
+    <div class="pin" style="left:66.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">2.78&times;</b></span>
+      <span>fair <b>1.52&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Charlotte<br><span class="vs">at</span> Ole Miss</div>
+        <div class="kick ">Sat Sep 12, 7:45 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Under 61.5</div>
+          <div class="legend"><span>model <b>61.4</b></span>
+            <span>-0.1 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">Ole Miss -46.5</div>
+          <div class="legend"><span>model margin <b>48.0</b></span>
+            <span>+1.5 vs line</span></div>
+        </div>
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Charlotte to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 0 percent, market asks 2 cents">
+    <div class="fill sell"
+         style="left:0.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:2.0%"></div>
+    <div class="pin" style="left:0.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">33.33&times;</b></span>
+      <span>fair <b>833.33&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Sacramento State<br><span class="vs">at</span> Fresno State</div>
+        <div class="kick ">Sat Sep 12, 10:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Under 48.5</div>
+          <div class="legend"><span>model <b>47.1</b></span>
+            <span>-1.4 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">Fresno State -18.5</div>
+          <div class="legend"><span>model margin <b>18.9</b></span>
+            <span>+0.4 vs line</span></div>
+        </div>
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Fresno State to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 11 percent, market asks 89 cents">
+    <div class="fill sell"
+         style="left:11.0%;width:78.0%"></div>
+    <div class="pin mkt" style="left:89.0%"></div>
+    <div class="pin" style="left:11.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.11&times;</b></span>
+      <span>fair <b>8.83&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="0"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">New Mexico State<br><span class="vs">at</span> Hawai&#39;i</div>
+        <div class="kick ">Sat Sep 12, 11:59 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Over 51.5</div>
+          <div class="legend"><span>model <b>52.0</b></span>
+            <span>+0.5 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">New Mexico State +10.0</div>
+          <div class="legend"><span>model margin <b>8.7</b></span>
+            <span>-1.3 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Moneyline <span class="tag pass">no market</span></h3>
+          <div class="sel">&mdash;</div>
+          <div class="legend"><span>not listed on Kalshi</span></div>
+        </div>
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Duke<br><span class="vs">at</span> Illinois</div>
+        <div class="kick ">Sat Sep 12, 3:30 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Over 54.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 49 cents">
+    <div class="fill buy"
+         style="left:49.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:49.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.96&times;</b></span>
+      <span>fair <b>2.0&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Illinois by 7.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 51 percent, market asks 49 cents">
+    <div class="fill buy"
+         style="left:49.0%;width:2.0%"></div>
+    <div class="pin mkt" style="left:49.0%"></div>
+    <div class="pin" style="left:51.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.96&times;</b></span>
+      <span>fair <b>1.98&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Duke to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 31 percent, market asks 30 cents">
+    <div class="fill buy"
+         style="left:30.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:30.0%"></div>
+    <div class="pin" style="left:31.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">3.12&times;</b></span>
+      <span>fair <b>3.24&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Western Kentucky<br><span class="vs">at</span> Georgia</div>
+        <div class="kick ">Sat Sep 12, 12:45 PM</div>
+      </div>
+      <div class="mkts">
+        
+        <div class="mkt">
+          <h3>Total <span class="tag pass">pass</span></h3>
+          <div class="sel">Under 52.5</div>
+          <div class="legend"><span>model <b>51.8</b></span>
+            <span>-0.7 vs line</span></div>
+        </div>
+        
+        
+        <div class="mkt">
+          <h3>Spread <span class="tag pass">pass</span></h3>
+          <div class="sel">Georgia -39.5</div>
+          <div class="legend"><span>model margin <b>40.7</b></span>
+            <span>+1.2 vs line</span></div>
+        </div>
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Western Kentucky to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 0 percent, market asks 1 cents">
+    <div class="fill sell"
+         style="left:0.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:1.0%"></div>
+    <div class="pin" style="left:0.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">50.0&times;</b></span>
+      <span>fair <b>204.08&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Arkansas<br><span class="vs">at</span> Utah</div>
+        <div class="kick ">Sat Sep 12, 10:15 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 56.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 50 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:0.0%"></div>
+    <div class="pin mkt" style="left:50.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.92&times;</b></span>
+      <span>fair <b>2.02&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Arkansas by 11.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 7 percent, market asks 19 cents">
+    <div class="fill sell"
+         style="left:7.0%;width:12.0%"></div>
+    <div class="pin mkt" style="left:19.0%"></div>
+    <div class="pin" style="left:7.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">4.76&times;</b></span>
+      <span>fair <b>14.47&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Arkansas to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 23 percent, market asks 22 cents">
+    <div class="fill buy"
+         style="left:22.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:22.0%"></div>
+    <div class="pin" style="left:23.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">4.17&times;</b></span>
+      <span>fair <b>4.32&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-12"
+       data-play="0"
+       data-kalshi="1"
+       data-g5="0"
+       data-search="None">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">Wake Forest<br><span class="vs">at</span> Purdue</div>
+        <div class="kick ">Sat Sep 12, 12:00 PM</div>
+      </div>
+      <div class="mkts">
+        
+          
+  <div class="mkt">
+    <h3>Total
+      <span class="tag illiquid">illiquid</span>
+      
+    </h3>
+    <div class="sel">Over 49.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>2.01&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Spread
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Wake Forest by 4.5</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 50 percent, market asks 51 cents">
+    <div class="fill sell"
+         style="left:50.0%;width:1.0%"></div>
+    <div class="pin mkt" style="left:51.0%"></div>
+    <div class="pin" style="left:50.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="">1.89&times;</b></span>
+      <span>fair <b>1.99&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+        
+          
+  <div class="mkt">
+    <h3>Moneyline
+      <span class="tag pass">no play</span>
+    </h3>
+    <div class="sel">Purdue to win</div>
+    
+  
+  
+  
+  <div class="gauge" role="img"
+       aria-label="model 62 percent, market asks 38 cents">
+    <div class="fill buy"
+         style="left:38.0%;width:24.0%"></div>
+    <div class="pin mkt" style="left:38.0%"></div>
+    <div class="pin" style="left:62.0%"></div>
+  </div>
+  
+
+    <div class="legend">
+      <span>pays <b class="pos">2.5&times;</b></span>
+      <span>fair <b>1.62&times;</b></span>
+      
+    </div>
+  </div>
+
+        
+      </div>
+    </div>
+    
+  </div>
+  
+
+</div>
+
+<div class="empty" id="noresults" hidden>Nothing matches that. Clear the search or pick another day.</div>
+
+
+<h2>Recent results</h2>
+<table>
+  <tr><th>Game</th><th>Total</th><th>Spread</th><th>Units</th></tr>
+  
+  
+  <tr>
+    <td>Fordham at North Dakota State<br><span class="meta">2026-09-05 · 38 pts</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Over 56.0</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">North Dakota State -41.5</span></td>
+    <td class="num neg">-0.82</td>
+  </tr>
+  
+  
+  <tr>
+    <td>Murray State at Middle Tennessee<br><span class="meta">2026-09-05 · 52 pts</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Over 57.5</span></td>
+    <td><span class="tag win">win</span><br><span class="meta">Middle Tennessee -21.0</span></td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+  
+  <tr>
+    <td>Florida International at South Florida<br><span class="meta">2026-09-05 · 28 pts</span></td>
+    <td><span class="tag win">win</span><br><span class="meta">Under 52.0</span></td>
+    <td><span class="tag win">win</span><br><span class="meta">Florida International +14.5</span></td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+  
+  <tr>
+    <td>Houston Christian at Rice<br><span class="meta">2026-09-05 · 34 pts</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Over 47.5</span></td>
+    <td><span class="tag win">win</span><br><span class="meta">Rice -22.5</span></td>
+    <td class="num neg">-0.09</td>
+  </tr>
+  
+  
+  <tr>
+    <td>Arkansas State at Memphis<br><span class="meta">2026-09-05 · 66 pts</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Under 53.0</span></td>
+    <td><span class="tag win">win</span><br><span class="meta">Memphis -11.0</span></td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+  
+  <tr>
+    <td>Idaho State at Utah State<br><span class="meta">2026-09-05 · 46 pts</span></td>
+    <td><span class="tag win">win</span><br><span class="meta">Under 62.0</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Utah State -14.0</span></td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+  
+  <tr>
+    <td>Nicholls at Kansas State<br><span class="meta">2026-09-05 · 74 pts</span></td>
+    <td><span class="tag win">win</span><br><span class="meta">Over 54.5</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Nicholls +40.5</span></td>
+    <td class="num pos">+0.64</td>
+  </tr>
+  
+  
+  <tr>
+    <td>Abilene Christian at Texas Tech<br><span class="meta">2026-09-05 · 43 pts</span></td>
+    <td><span class="tag win">win</span><br><span class="meta">Under 59.5</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Texas Tech -42.5</span></td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+  
+  <tr>
+    <td>Austin Peay at Vanderbilt<br><span class="meta">2026-09-05 · 37 pts</span></td>
+    <td><span class="tag win">win</span><br><span class="meta">Under 60.0</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Vanderbilt -29.0</span></td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+  
+  <tr>
+    <td>Missouri State at Texas A&amp;M<br><span class="meta">2026-09-05 · 50 pts</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Over 53.5</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Missouri State +40.5</span></td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+  
+  <tr>
+    <td>Richmond at Howard<br><span class="meta">2026-09-05 · 49 pts</span></td>
+    <td><span class="tag win">win</span><br><span class="meta">Over 45.5</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Richmond -14.5</span></td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+  
+  <tr>
+    <td>Tennessee Tech at Chattanooga<br><span class="meta">2026-09-05 · 33 pts</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Over 48.5</span></td>
+    <td><span class="tag loss">loss</span><br><span class="meta">Chattanooga +10.5</span></td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+</table>
+
+
+
+<h2>Cover rate by model disagreement</h2>
+<table>
+  <tr><th>|Model &minus; line|</th><th>Totals</th><th>Win%</th><th>Units</th><th>Spreads</th><th>Win%</th><th>Units</th></tr>
+  
+  
+  <tr>
+    <td>0-1</td>
+    <td class="num">14&ndash;13</td><td class="num">51.9%</td>
+    <td class="num ">+0.00</td>
+    <td class="num">7&ndash;25</td>
+    <td class="num">21.9%</td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+  
+  <tr>
+    <td>1-2</td>
+    <td class="num">9&ndash;11</td><td class="num">45.0%</td>
+    <td class="num ">+0.00</td>
+    <td class="num">13&ndash;17</td>
+    <td class="num">43.3%</td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+  
+  <tr>
+    <td>2-3</td>
+    <td class="num">13&ndash;6</td><td class="num">68.4%</td>
+    <td class="num ">+0.00</td>
+    <td class="num">10&ndash;7</td>
+    <td class="num">58.8%</td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+  
+  <tr>
+    <td>3-5</td>
+    <td class="num">13&ndash;7</td><td class="num">65.0%</td>
+    <td class="num neg">-0.07</td>
+    <td class="num">7&ndash;7</td>
+    <td class="num">50.0%</td>
+    <td class="num ">+0.00</td>
+  </tr>
+  
+  
+  <tr>
+    <td>5-7</td>
+    <td class="num">6&ndash;4</td><td class="num">60.0%</td>
+    <td class="num pos">+0.33</td>
+    <td class="num">0&ndash;4</td>
+    <td class="num">0.0%</td>
+    <td class="num neg">-0.01</td>
+  </tr>
+  
+  
+  <tr>
+    <td>7-+</td>
+    <td class="num">3&ndash;0</td><td class="num">100.0%</td>
+    <td class="num pos">+3.67</td>
+    <td class="num">2&ndash;0</td>
+    <td class="num">100.0%</td>
+    <td class="num pos">+0.35</td>
+  </tr>
+  
+</table>
+<p class="meta" style="margin-top:8px">A bucket only matters if it clears 51.75% by a
+  clear margin on a real sample. Play thresholds: totals 5.0, spreads 4.0.</p>
+
+
+<div class="note" style="margin-top:24px">
+  Model output, not advice. College football markets are efficient and any real edge here is small
+  and slow to prove out — weeks 1&ndash;4 especially, when almost nothing is known about this
+  year's teams. Exchange fees are lower than sportsbook vig, which lowers the bar but doesn't
+  remove it. Bet only what you can afford to lose.
+</div>
+
+<footer>
+  <p><b>pays</b> is what a winning contract returns per dollar, fee included. <b>fair</b> is what
+  our probability says it should return. Buy when pays is the larger number — that's the green
+  bar. Grey pin is the market, dark pin is the model.</p>
+  <p style="margin-top:7px">Data: CollegeFootballData.com · prices: Kalshi.
+  Raw: <a href="picks.csv">picks.csv</a>, <a href="results.csv">results.csv</a>,
+  <a href="metrics.json">metrics.json</a>.
+  </p>
+</footer>
+</div>
+
+<script>
+(function () {
+  var q = document.getElementById('q');
+  if (!q) return;
+  var games = [].slice.call(document.querySelectorAll('.game'));
+  var heads = [].slice.call(document.querySelectorAll('[data-dayhead]'));
+  var tabs = [].slice.call(document.querySelectorAll('.tab'));
+  var chips = [].slice.call(document.querySelectorAll('.chip'));
+  var count = document.getElementById('count');
+  var none = document.getElementById('noresults');
+  var day = 'all', filt = 'all';
+
+  function press(list, el) {
+    list.forEach(function (b) { b.setAttribute('aria-pressed', String(b === el)); });
+  }
+
+  function apply() {
+    var term = q.value.trim().toLowerCase();
+    var shown = 0;
+    games.forEach(function (g) {
+      var ok = (day === 'all' || g.dataset.day === day)
+        && (filt === 'all'
+            || (filt === 'plays' && g.dataset.play === '1')
+            || (filt === 'kalshi' && g.dataset.kalshi === '1')
+            || (filt === 'g5' && g.dataset.g5 === '1'))
+        && (!term || (g.dataset.search || '').indexOf(term) !== -1);
+      g.hidden = !ok;
+      if (ok) shown++;
+    });
+    // hide a day heading when nothing under it survived the filter
+    heads.forEach(function (h) {
+      var k = h.getAttribute('data-dayhead');
+      h.hidden = !games.some(function (g) { return !g.hidden && g.dataset.day === k; });
+    });
+    count.textContent = shown + ' of ' + games.length;
+    none.hidden = shown > 0;
+  }
+
+  q.addEventListener('input', apply);
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { day = t.dataset.day; press(tabs, t); apply(); });
+  });
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () { filt = c.dataset.f; press(chips, c); apply(); });
+  });
+  apply();
+})();
+</script>
+</body>
+</html>
