@@ -11895,7 +11895,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401858211,2026,1,2026-09-05,Virginia Tech,VMI,-54.5,-55.5,62.0,62.0,Bovada,3
 401858212,2026,1,2026-09-07,Florida State,SMU,3.0,2.5,53.0,52.5,Bovada,2
 401858214,2026,2,2026-09-11,Boston College,Rutgers,-3.5,-3.5,55.5,,DraftKings,1
-401858216,2026,2,2026-09-12,Syracuse,California,-1.5,1.5,52.5,52.5,DraftKings,1
+401858216,2026,2,2026-09-12,Syracuse,California,-1.5,1.5,53.5,52.5,DraftKings,1
 401858217,2026,2,2026-09-12,Illinois,Duke,-7.5,-8.5,54.5,,DraftKings,1
 401858219,2026,2,2026-09-12,Clemson,Georgia Southern,-23.5,-26.5,56.5,57.5,DraftKings,1
 401858221,2026,2,2026-09-12,Virginia Tech,Old Dominion,-17.5,-14.0,51.5,,DraftKings,1
@@ -11935,7 +11935,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401858442,2026,2,2026-09-12,Temple,Penn State,21.5,21.5,50.5,51.5,DraftKings,1
 401858443,2026,2,2026-09-12,UCLA,San Diego State,-10.0,-8.5,50.5,,DraftKings,1
 401858444,2026,2,2026-09-12,UConn,Maryland,13.5,12.5,53.5,53.5,DraftKings,1
-401858445,2026,2,2026-09-12,USC,Louisiana,-28.5,-28.5,60.5,63.5,DraftKings,1
+401858445,2026,2,2026-09-12,USC,Louisiana,-28.5,-28.5,58.5,63.5,DraftKings,1
 401858446,2026,2,2026-09-12,Washington,Utah State,-27.5,-24.5,56.5,56.5,DraftKings,1
 401858469,2026,4,2026-09-26,USC,Oregon,5.5,5.5,58.5,58.5,DraftKings,1
 401858485,2026,6,2026-10-10,Penn State,USC,-1.5,-1.5,56.5,56.5,DraftKings,1
