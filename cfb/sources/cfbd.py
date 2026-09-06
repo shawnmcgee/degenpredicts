@@ -24,7 +24,7 @@ from core.http import get_json
 
 log = logging.getLogger(__name__)
 
-GAME_COLS = ["game_id", "season", "week", "season_type", "date", "start_time_tbd", "kickoff_utc",
+GAME_COLS = ["game_id", "season", "week", "season_type", "date", "start_time_tbd", "day", "kickoff_utc",
              "home_team", "away_team", "home_points", "away_points", "total_points",
              "home_margin", "neutral_site", "conference_game", "home_conf", "away_conf",
              "completed"]
@@ -100,6 +100,7 @@ def fetch_games(season: int, season_type: str = "both") -> pd.DataFrame:
                 "tip_et": ("" if bool(pick(g, "startTimeTBD", "start_time_tbd", default=False))
                            or et is None else et.strftime("%a %b %d, %-I:%M %p")),
                 "kickoff_utc": et.isoformat() if et is not None else "",
+                "day": et.strftime("%a") if et is not None else "",
                 "home_team": str(home), "away_team": str(away),
                 "home_points": hp, "away_points": ap,
                 "total_points": hp + ap if done else float("nan"),

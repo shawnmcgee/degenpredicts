@@ -50,6 +50,28 @@ def _fair(prob):
     return round(1 / prob, 2)
 
 
+def _mult(ask, prob):
+    """Turn an exchange ask into what a punter actually reads: a payout multiple.
+
+    You pay `ask` plus the taker fee for a contract that settles at $1, so the return per
+    dollar risked is 1/(ask+fee). "Fair" is 1/prob — what the multiple would have to be for the
+    bet to break even at our estimated probability. Edge is the ratio, i.e. the ROI.
+    """
+    from .sources.kalshi import fee
+    try:
+        ask = float(ask); prob = float(prob)
+    except (TypeError, ValueError):
+        return None, None, None
+    if not (0 < ask < 1) or not (0 < prob < 1):
+        return None, None, None
+    cost = ask + fee(ask)
+    if cost <= 0 or cost >= 1:
+        return None, None, None
+    pays = 1.0 / cost
+    fair = 1.0 / prob
+    return round(pays, 2), round(fair, 2), round(100 * (prob / cost - 1), 1)
+
+
 def _prob_cents(p):
     """Model win probability as exchange cents, so it sits next to a Kalshi quote."""
     try:
@@ -71,7 +93,7 @@ def _recent_results(limit: int = 12) -> list[dict]:
 
 
 def _board() -> tuple[list[dict], int | None]:
-    """This week's games, freshest prediction per game."""
+    """This week's games, freshest prediction per game, ready for the template."""
     if not config.PICKS.exists():
         return [], None
     df = pd.read_csv(config.PICKS, dtype={"game_id": str})
@@ -82,56 +104,51 @@ def _board() -> tuple[list[dict], int | None]:
     df = upcoming if len(upcoming) else df[df["week"] == df["week"].max()]
     week = int(df["week"].mode().iloc[0]) if len(df) else None
     df = df.sort_values("prediction_date").drop_duplicates("game_id", keep="last")
-    # Rank by the model's largest disagreement with the line - that's the reason to look at
-    # this page at all. Kickoff order is available via the filter chips.
-    df["_rank"] = df[["total_disagree", "margin_disagree"]].abs().max(axis=1)
-    # A tradeable Kalshi edge outranks a big model disagreement - it is the only number here
-    # that reflects a price you could actually pay.
-    if "kalshi_home_ev" in df:
-        best_ev = df[["kalshi_home_ev", "kalshi_away_ev"]].max(axis=1)
-        df["kalshi_best_ev"] = best_ev.round(3)
-        df["kalshi_ev_cents"] = (best_ev * 100).round(1)
-        df["_rank"] = df["_rank"] + np.where(
-            df.get("kalshi_tradeable", False).fillna(False).astype(bool) & (best_ev > 0),
-            50 + best_ev * 100, 0)
+
+    # Rank by the model's largest disagreement with the line, but a tradeable exchange edge
+    # outranks it - that's the only number here tied to a price you could actually pay.
+    df["_rank"] = df[["total_disagree", "margin_disagree"]].abs().max(axis=1).fillna(0)
+    playable = pd.Series(False, index=df.index)
+    for c in ("kt_pick", "ks_pick", "ml_pick"):
+        if c in df:
+            playable |= df[c].notna()
+    df["has_play"] = playable
+    df.loc[playable, "_rank"] = df.loc[playable, "_rank"] + 100
     df = df.sort_values("_rank", ascending=False)
-    for col, out in (("total_p_win", "total_cents"), ("spread_p_win", "spread_cents"),
-                     ("p_home_win", "home_win_cents"), ("p_away_win", "away_win_cents")):
-        if col in df:
-            df[out] = df[col].map(_prob_cents)
 
-    # Multipliers: what the market pays vs what our probability says is fair.
-    for pre in ("kt", "ks", "ml"):
-        ask_col = f"{pre}_ask" if f"{pre}_ask" in df else None
-        ref_ask = f"{pre}_ref_ask" if f"{pre}_ref_ask" in df else None
-        prob_col = f"{pre}_prob" if f"{pre}_prob" in df else None
-        ref_prob = f"{pre}_ref_prob" if f"{pre}_ref_prob" in df else None
-        ask = df[ask_col] if ask_col else None
-        if ref_ask is not None:
+    # Exchange quotes as payout multiples. `pays` is what the contract returns per unit risked
+    # after the taker fee; `fair` is what our probability says it should return. Paying more
+    # than fair is the edge, and the gap between them is the ROI.
+    for pre, ask_c, prob_c in (("kt", "kt_ask", "kt_prob"), ("ks", "ks_ask", "ks_prob"),
+                               ("ml", "ml_ask", "ml_ref_prob")):
+        ref_ask, ref_prob = f"{pre}_ref_ask", f"{pre}_ref_prob"
+        ask = df[ask_c] if ask_c in df else None
+        if ref_ask in df:
             ask = df[ref_ask] if ask is None else ask.fillna(df[ref_ask])
-        prob = df[prob_col] if prob_col else None
-        if ref_prob is not None:
+        prob = df[prob_c] if prob_c in df else None
+        if ref_prob in df:
             prob = df[ref_prob] if prob is None else prob.fillna(df[ref_prob])
-        if ask is not None:
-            df[f"{pre}_pays"] = ask.map(_pays)
-            df[f"{pre}_ask_pct"] = (ask * 100).round(0)
-        if prob is not None:
-            df[f"{pre}_fair"] = prob.map(_fair)
-            df[f"{pre}_prob_pct"] = (prob * 100).round(0)
+        if ask is None or prob is None:
+            continue
+        trio = [_mult(a, p) for a, p in zip(ask, prob)]
+        df[f"{pre}_pays"] = [t[0] for t in trio]
+        df[f"{pre}_fair"] = [t[1] for t in trio]
+        df[f"{pre}_edge"] = [t[2] for t in trio]
+        df[f"{pre}_prob_pct"] = (prob * 100).round(0)
 
-    # Day grouping + a searchable blob, so the page can filter without a backend.
+    # Day tabs, a TBD-safe kickoff label, and a searchable blob so filtering needs no backend.
     df["day"] = pd.to_datetime(df["date"]).dt.strftime("%a %b %-d")
     df["day_key"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+    df["time_label"] = [("Time TBD" if (not t or str(t) in ("nan", "")) else str(t))
+                        for t in df.get("tip_et", pd.Series([""] * len(df)))]
+    conf_h = df["home_conf"] if "home_conf" in df else pd.Series([""] * len(df), index=df.index)
+    conf_a = df["away_conf"] if "away_conf" in df else pd.Series([""] * len(df), index=df.index)
     df["search"] = (df["home_team"].fillna("") + " " + df["away_team"].fillna("") + " "
-                    + df.get("home_conf", pd.Series([""] * len(df))).fillna("") + " "
-                    + df.get("away_conf", pd.Series([""] * len(df))).fillna("")).str.lower()
-    df["sort_key"] = df["kickoff_utc"].fillna("") if "kickoff_utc" in df else ""
-    # tier flag drives the G5 filter chip
+                    + conf_h.fillna("") + " " + conf_a.fillna("")).str.lower()
+
     P4 = {"SEC", "Big Ten", "Big 12", "ACC"}
-    if "home_conf" in df and "away_conf" in df:
-        df["is_g5"] = ~(df["home_conf"].isin(P4) & df["away_conf"].isin(P4))
-    else:
-        df["is_g5"] = False
+    df["is_g5"] = ~(conf_h.isin(P4) & conf_a.isin(P4))
+
     df = df.astype(object).where(pd.notna(df), None)
     return df.to_dict("records"), week
 
@@ -161,7 +178,7 @@ def build() -> None:
     metrics = _metrics()
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, m=metrics, week=week,
-        results=_recent_results(), venue=config.VENUE, theme=config.THEME,
+        results=_recent_results(), venue=config.VENUE,
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL,
         days=_days(picks), updated=metrics.get("updated", ""),
         total_min=config.TOTAL_EDGE_MIN, spread_min=config.SPREAD_EDGE_MIN,

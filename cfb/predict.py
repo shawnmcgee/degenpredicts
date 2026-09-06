@@ -313,6 +313,23 @@ def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def _multiplier(ask, prob):
+    """What the contract pays per unit risked, and what it *should* pay.
+
+    Buying YES costs ask + fee and returns 1.00, so the payout multiple is 1/(ask+fee). The
+    fair multiple implied by our probability is 1/prob. Paying more than fair is the edge, and
+    the ratio between them is exactly the ROI - it's the same number as EV/cost, just in a
+    form that reads like odds instead of cents.
+    """
+    if ask is None or ask != ask or ask <= 0:
+        return np.nan, np.nan, np.nan
+    cost = ask + kalshi.fee(ask)
+    pays = 1.0 / cost if cost > 0 else np.nan
+    fair = 1.0 / prob if prob and prob == prob and prob > 0 else np.nan
+    edge = (pays / fair - 1.0) * 100 if pays == pays and fair == fair else np.nan
+    return round(pays, 3), round(fair, 3), round(edge, 1)
+
+
 def _price_ladders(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
     """Price every rung of Kalshi's spread and total ladders against the model distribution.
 
@@ -465,6 +482,16 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
                     out.at[i, "ks_book_gap"] = round(r.strike - book_fav_margin, 1)
                 if r.event_ticker in breaks:
                     out.at[i, "kalshi_incoherent"] = True
+
+    for pre in ("kt", "ks", "ml"):
+        ask_col = f"{pre}_ref_ask"
+        prob_col = f"{pre}_ref_prob"
+        if ask_col not in out or prob_col not in out:
+            continue
+        trio = [_multiplier(a, p) for a, p in zip(out[ask_col], out[prob_col])]
+        out[f"{pre}_pays"] = [t[0] for t in trio]
+        out[f"{pre}_fair"] = [t[1] for t in trio]
+        out[f"{pre}_edge_pct"] = [t[2] for t in trio]
 
     log.info("kalshi quotes recorded: %d totals, %d spreads (reference rung nearest the book "
              "number, shown regardless of playability)",

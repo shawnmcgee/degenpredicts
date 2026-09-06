@@ -189,6 +189,8 @@ python -m cfb.site && open docs/index.html
 | `DEGEN_KELLY` | 0.25 | Kelly fraction |
 | `DEGEN_BOARD_DAYS` | 7 | how far ahead to post games |
 | `DEGEN_FIRST_SEASON` | 2015 | earliest season to train on |
+| `DEGEN_SUPPORT_URL` | (unset) | Buy Me a Coffee link shown at the top; omit and the button hides |
+| `DEGEN_SUPPORT_LABEL` | Buy me a coffee | button text |
 | `DEGEN_THEME` | `ticker` | site look: `ticker`, `scoreboard`, `field` |
 | `DEGEN_SUPPORT_URL` | (blank) | e.g. a Buy Me a Coffee link; blank hides the button |
 | `DEGEN_SUPPORT_LABEL` | `Buy me a coffee` | button text |
@@ -208,6 +210,22 @@ Prices are multipliers rather than cents:
 Buy when **pays** is larger than **fair**. Everything else on the card is context.
 | `DEGEN_VENUE` | `kalshi_taker` | cost model: `sportsbook`, `kalshi_taker`, `kalshi_maker`, `exchange_zero` |
 | `DEGEN_BREAK_EVEN` | (derived) | override the computed break-even win rate |
+
+### Reading the board
+
+Exchange quotes show as **payout multiples**, not cents:
+
+* **pays** — what Kalshi's ask returns per dollar risked, after the taker fee. A 48c contract
+  pays about 2.01x.
+* **fair** — what it would have to pay to break even at the model's probability.
+* **edge %** — pays against fair. Positive means the market is offering more than our number
+  says it should. This is the same figure as ROI.
+
+The rows always show the strike nearest the sportsbook line, tagged `play` (cleared every
+guard), `no play` (real quote, edge too small) or `illiquid` (quote too wide or untraded).
+
+Games with no scheduled kickoff carry CFBD's `startTimeTBD` flag and render as "Time TBD"
+rather than the placeholder time CFBD stamps on them.
 
 ### Kalshi markets
 
