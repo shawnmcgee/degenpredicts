@@ -21,6 +21,35 @@ log = logging.getLogger("cfb.site")
 TEMPLATES = Path(__file__).resolve().parent / "templates"  # ships with the package
 
 
+FEE_COEF = 0.07  # Kalshi taker: roundup(0.07 * C * P * (1-P))
+
+
+def _fee(price):
+    import math
+    if price is None or price != price:
+        return float("nan")
+    return math.ceil(FEE_COEF * price * (1 - price) * 100) / 100
+
+
+def _pays(ask):
+    """What a winning contract returns per dollar risked, fee included.
+
+    A Kalshi contract settles at $1. Buying at 58c with a 1c fee costs 59c and returns 100c,
+    i.e. 1.69x. This is the number to compare against the model's fair multiplier.
+    """
+    if ask is None or ask != ask:
+        return None
+    cost = ask + _fee(ask)
+    return round(1 / cost, 2) if 0 < cost < 1 else None
+
+
+def _fair(prob):
+    """The multiplier that would make the bet break even at our probability."""
+    if prob is None or prob != prob or prob <= 0:
+        return None
+    return round(1 / prob, 2)
+
+
 def _prob_cents(p):
     """Model win probability as exchange cents, so it sits next to a Kalshi quote."""
     try:
@@ -70,6 +99,33 @@ def _board() -> tuple[list[dict], int | None]:
                      ("p_home_win", "home_win_cents"), ("p_away_win", "away_win_cents")):
         if col in df:
             df[out] = df[col].map(_prob_cents)
+
+    # Multipliers: what the market pays vs what our probability says is fair.
+    for pre in ("kt", "ks", "ml"):
+        ask_col = f"{pre}_ask" if f"{pre}_ask" in df else None
+        ref_ask = f"{pre}_ref_ask" if f"{pre}_ref_ask" in df else None
+        prob_col = f"{pre}_prob" if f"{pre}_prob" in df else None
+        ref_prob = f"{pre}_ref_prob" if f"{pre}_ref_prob" in df else None
+        ask = df[ask_col] if ask_col else None
+        if ref_ask is not None:
+            ask = df[ref_ask] if ask is None else ask.fillna(df[ref_ask])
+        prob = df[prob_col] if prob_col else None
+        if ref_prob is not None:
+            prob = df[ref_prob] if prob is None else prob.fillna(df[ref_prob])
+        if ask is not None:
+            df[f"{pre}_pays"] = ask.map(_pays)
+            df[f"{pre}_ask_pct"] = (ask * 100).round(0)
+        if prob is not None:
+            df[f"{pre}_fair"] = prob.map(_fair)
+            df[f"{pre}_prob_pct"] = (prob * 100).round(0)
+
+    # Day grouping + a searchable blob, so the page can filter without a backend.
+    df["day"] = pd.to_datetime(df["date"]).dt.strftime("%a %b %-d")
+    df["day_key"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
+    df["search"] = (df["home_team"].fillna("") + " " + df["away_team"].fillna("") + " "
+                    + df.get("home_conf", pd.Series([""] * len(df))).fillna("") + " "
+                    + df.get("away_conf", pd.Series([""] * len(df))).fillna("")).str.lower()
+    df["sort_key"] = df["kickoff_utc"].fillna("") if "kickoff_utc" in df else ""
     # tier flag drives the G5 filter chip
     P4 = {"SEC", "Big Ten", "Big 12", "ACC"}
     if "home_conf" in df and "away_conf" in df:
@@ -86,6 +142,16 @@ def _metrics() -> dict:
     return {}
 
 
+def _days(picks: list[dict]) -> list[dict]:
+    """Distinct kickoff days in order, for the day tabs."""
+    seen: dict[str, str] = {}
+    for p in picks:
+        k = p.get("day_key")
+        if k and k not in seen:
+            seen[k] = p.get("day") or k
+    return [{"key": k, "label": v} for k, v in sorted(seen.items())]
+
+
 def build() -> None:
     config.ensure_dirs()
     env = Environment(loader=FileSystemLoader(TEMPLATES),
@@ -95,8 +161,9 @@ def build() -> None:
     metrics = _metrics()
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, m=metrics, week=week,
-        results=_recent_results(), venue=config.VENUE,
-        updated=metrics.get("updated", ""),
+        results=_recent_results(), venue=config.VENUE, theme=config.THEME,
+        support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL,
+        days=_days(picks), updated=metrics.get("updated", ""),
         total_min=config.TOTAL_EDGE_MIN, spread_min=config.SPREAD_EDGE_MIN,
     )
     (config.DOCS / "index.html").write_text(html)

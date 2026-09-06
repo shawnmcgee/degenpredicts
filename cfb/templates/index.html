@@ -5,326 +5,404 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ title }} — College Football</title>
 <style>
-  :root{--bg:#0e0f12;--card:#181a1f;--card2:#20232a;--line:#272a31;--fg:#e8e8ea;--dim:#9aa0a8;
-        --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:64px}
-  header,main,footer{max-width:940px;margin:0 auto;padding:0 16px}
-  header{padding-top:22px}
-  h1{font-size:22px} .sub{color:var(--dim);font-size:13px;margin-top:4px}
-  section{margin-top:26px}
-  h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-bottom:10px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-  .stat{background:var(--card);border-radius:10px;padding:14px;text-align:center}
-  .stat .v{font-size:23px;font-weight:700;margin:3px 0}
-  .stat .l{font-size:11px;color:var(--dim);text-transform:uppercase}
-  .up{color:var(--good)} .down{color:var(--bad)}
-  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-  .chip{background:var(--card2);color:var(--dim);border:1px solid var(--line);border-radius:999px;
-        padding:6px 14px;font-size:13px;cursor:pointer;user-select:none}
-  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
-  .game{background:var(--card);border-radius:10px;margin-bottom:12px;overflow:hidden;border:1px solid transparent}
-  .game.bold{border-color:var(--accent)}
-  .ghead{display:flex;justify-content:space-between;align-items:center;gap:8px;
-         padding:9px 14px;background:var(--card2);font-size:12px;color:var(--dim)}
-  .gap{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:700}
-  .teams{padding:11px 14px;font-weight:600}
-  .teams .at{color:var(--dim);font-weight:400;font-size:13px;margin:0 6px}
-  .bets{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}
-  .bet{background:var(--card);padding:11px 14px}
-  .bet .l{font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:4px}
-  .bet .p{font-size:16px;font-weight:700}
-  .bet .d{font-size:12px;color:var(--dim);margin-top:4px}
-  .px{display:flex;gap:14px;margin-top:6px;font-size:12px;flex-wrap:wrap}
-  .px b{font-variant-numeric:tabular-nums;color:var(--fg)}
-  .tag{display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.04em}
-  .tag.bold{background:var(--accent);color:#06121f}
-  .tag.play{background:#2f4858;color:var(--fg)}
-  .tag.thin{background:var(--warn);color:#2a1c00}
-  .tag.early{background:var(--warn);color:#2a1c00}
-  .tag.pass{background:var(--card2);color:var(--dim)}
-  .tag.win{background:var(--good);color:#052e16}
-  .tag.loss{background:var(--bad);color:#3f0a0a}
-  .tag.push{background:var(--card2);color:var(--dim)}
-  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:10px;overflow:hidden}
-  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
-  th:first-child,td:first-child{text-align:left}
-  th{color:var(--dim);font-weight:500;font-size:11px;text-transform:uppercase}
-  .note{background:var(--card);border-left:3px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
-  footer{margin-top:40px;color:var(--dim);font-size:12px}
-  a{color:var(--accent)}
-  @media(max-width:560px){.bets{grid-template-columns:1fr}}
+/* ============================================================================
+   Three themes. Switch with DEGEN_THEME=ticker|scoreboard|field.
+   The shared idea across all three: every market gets a probability axis with
+   two markers — what we think, and what the exchange charges. The gap between
+   them is the bet. You read a shape, not two numbers.
+   ========================================================================= */
+
+/* --- ticker: ink on cool newsprint, dense, tabular. Built to scan 100 rows. */
+[data-theme="ticker"]{
+  --bg:#eef0f3; --surface:#fbfcfd; --surface-2:#e4e8ed; --rule:#c3cad3;
+  --ink:#161b22; --ink-2:#5b6672; --accent:#1b4d8f;
+  --buy:#0f7a4a; --sell:#a02c2c; --flag:#8a6100;
+  --radius:2px; --pad:14px;
+  --font:"Helvetica Neue",Inter,ui-sans-serif,system-ui,sans-serif;
+  --font-num:"Helvetica Neue",ui-sans-serif,system-ui,sans-serif;
+  --title-size:19px; --title-weight:600; --title-spacing:-0.01em;
+}
+/* --- scoreboard: incandescent amber on deep slate, oversized numerals. */
+[data-theme="scoreboard"]{
+  --bg:#10141a; --surface:#181e27; --surface-2:#212934; --rule:#2e3742;
+  --ink:#f2e9d8; --ink-2:#8d97a5; --accent:#f0a92b;
+  --buy:#5fd08a; --sell:#e8695f; --flag:#f0a92b;
+  --radius:3px; --pad:15px;
+  --font:ui-sans-serif,"Segoe UI",Roboto,system-ui,sans-serif;
+  --font-num:"DIN Alternate","Roboto Condensed","Arial Narrow",ui-sans-serif,sans-serif;
+  --title-size:21px; --title-weight:700; --title-spacing:0.01em;
+}
+/* --- field: chalk green on paper, serif headings, horizontal position strips. */
+[data-theme="field"]{
+  --bg:#f7f5ef; --surface:#ffffff; --surface-2:#eceade; --rule:#d3d0c2;
+  --ink:#1d2b22; --ink-2:#63705f; --accent:#2f6b45;
+  --buy:#2f6b45; --sell:#9c3b2e; --flag:#9a6b1f;
+  --radius:8px; --pad:16px;
+  --font:ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --font-num:ui-sans-serif,system-ui,sans-serif;
+  --title-size:20px; --title-weight:600; --title-spacing:0;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);
+     font-size:15px;line-height:1.5;padding-bottom:56px;
+     -webkit-font-smoothing:antialiased}
+[data-theme="field"] h1,[data-theme="field"] h2{font-family:Iowan Old Style,Georgia,serif}
+.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
+.num{font-family:var(--font-num);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* header */
+header{padding:22px 0 14px;border-bottom:1px solid var(--rule);margin-bottom:16px}
+.brandrow{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+h1{font-size:var(--title-size);font-weight:var(--title-weight);letter-spacing:var(--title-spacing)}
+.meta{color:var(--ink-2);font-size:13px}
+.support{display:inline-block;border:1px solid var(--rule);border-radius:999px;
+         padding:5px 13px;font-size:13px;color:var(--ink);text-decoration:none;background:var(--surface)}
+.support:hover{border-color:var(--accent);color:var(--accent)}
+
+/* controls */
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+#q{flex:1 1 220px;min-width:180px;background:var(--surface);color:var(--ink);
+   border:1px solid var(--rule);border-radius:var(--radius);padding:8px 11px;font:inherit;font-size:14px}
+#q:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.tabs,.chips{display:flex;gap:6px;flex-wrap:wrap}
+.tab,.chip{background:var(--surface);color:var(--ink-2);border:1px solid var(--rule);
+     border-radius:var(--radius);padding:6px 11px;font:inherit;font-size:13px;cursor:pointer}
+.tab[aria-pressed="true"],.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+[data-theme="scoreboard"] .tab[aria-pressed="true"],
+[data-theme="scoreboard"] .chip[aria-pressed="true"]{color:#191308}
+.count{color:var(--ink-2);font-size:13px;margin-left:auto}
+
+/* day heading */
+.dayhead{font-size:12px;letter-spacing:.08em;color:var(--ink-2);
+         margin:22px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+
+/* game */
+.game{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);
+      margin-bottom:8px;overflow:hidden}
+.game.playable{border-color:var(--accent);border-left-width:3px}
+.grow{display:grid;grid-template-columns:190px 1fr;gap:0}
+.side{padding:var(--pad);border-right:1px solid var(--rule)}
+.matchup{font-weight:600;line-height:1.35}
+.matchup .vs{color:var(--ink-2);font-weight:400;font-size:13px}
+.kick{color:var(--ink-2);font-size:12.5px;margin-top:5px}
+.kick.tbd{color:var(--flag)}
+.mkts{display:grid;grid-template-columns:repeat(3,1fr)}
+.mkt{padding:var(--pad);border-right:1px solid var(--rule)}
+.mkt:last-child{border-right:0}
+.mkt h3{font-size:12px;font-weight:500;color:var(--ink-2);margin-bottom:3px;
+        display:flex;justify-content:space-between;gap:6px;align-items:center}
+.sel{font-weight:600;font-size:14.5px;margin-bottom:7px}
+[data-theme="scoreboard"] .sel{font-family:var(--font-num);font-size:16px;letter-spacing:.01em}
+
+/* the signature element: model vs market on one axis */
+.gauge{position:relative;height:6px;background:var(--surface-2);border-radius:3px;margin:9px 0 7px}
+.gauge .fill{position:absolute;top:0;bottom:0;border-radius:3px;opacity:.85}
+.gauge .fill.buy{background:var(--buy)} .gauge .fill.sell{background:var(--sell)}
+.gauge .pin{position:absolute;top:-4px;width:2px;height:14px;background:var(--ink)}
+.gauge .pin.mkt{background:var(--ink-2)}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--ink-2);flex-wrap:wrap}
+.legend b{color:var(--ink);font-family:var(--font-num);font-variant-numeric:tabular-nums}
+.pos{color:var(--buy)} .neg{color:var(--sell)}
+
+/* tags */
+.tag{font-size:10.5px;padding:2px 6px;border-radius:var(--radius);white-space:nowrap;
+     border:1px solid transparent}
+.tag.play{background:var(--buy);color:#fff}
+.tag.bold{background:var(--accent);color:#fff}
+.tag.pass{background:transparent;color:var(--ink-2);border-color:var(--rule)}
+.tag.early,.tag.illiquid{background:transparent;color:var(--flag);border-color:var(--flag)}
+.tag.win{background:var(--buy);color:#fff} .tag.loss{background:var(--sell);color:#fff}
+.tag.push{background:transparent;color:var(--ink-2);border-color:var(--rule)}
+.warn{padding:7px var(--pad);font-size:12px;color:var(--flag);
+      background:var(--surface-2);border-top:1px solid var(--rule)}
+
+/* stats + tables */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:8px}
+.stat{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);padding:13px}
+.stat .l{font-size:11.5px;color:var(--ink-2)}
+.stat .v{font-size:23px;font-weight:600;margin:2px 0;font-family:var(--font-num);
+         font-variant-numeric:tabular-nums}
+h2{font-size:13px;font-weight:600;color:var(--ink-2);margin:26px 0 9px;letter-spacing:.03em}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);
+      border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--rule);vertical-align:top}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--ink-2);font-weight:500;font-size:11.5px}
+td.num{font-variant-numeric:tabular-nums}
+.note{background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--flag);
+      padding:13px var(--pad);border-radius:var(--radius);font-size:13px;color:var(--ink-2)}
+footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--rule);
+       color:var(--ink-2);font-size:12.5px}
+a{color:var(--accent)}
+.empty{padding:28px;text-align:center;color:var(--ink-2);background:var(--surface);
+       border:1px solid var(--rule);border-radius:var(--radius)}
+@media(max-width:760px){
+  .grow{grid-template-columns:1fr}
+  .side{border-right:0;border-bottom:1px solid var(--rule);
+        display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .kick{margin-top:0}
+  .mkts{grid-template-columns:1fr}
+  .mkt{border-right:0;border-bottom:1px solid var(--rule)}
+  .mkt:last-child{border-bottom:0}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
-<body>
+<body data-theme="{{ theme }}">
+
+<div class="wrap">
 <header>
-  <h1>{{ title }} — College Football</h1>
-  <div class="sub">Spread and total models for every FBS game{% if week %}, Week {{ week }}{% endif %}.
-    Ranked by how far the model disagrees with the market. Updated {{ updated or "—" }}.</div>
+  <div class="brandrow">
+    <div>
+      <h1>{{ title }}</h1>
+      <div class="meta">Model vs market for every FBS game{% if week %}, week {{ week }}{% endif %}{% if updated %} · updated {{ updated }}{% endif %}</div>
+    </div>
+    {% if support_url %}<a class="support" href="{{ support_url }}" rel="noopener" target="_blank">{{ support_label }}</a>{% endif %}
+  </div>
 </header>
 
-<main>
-
-{% macro record(r, label) %}
-  <div class="stat">
-    <div class="l">{{ label }}</div>
-    <div class="v {% if r.units > 0 %}up{% elif r.units < 0 %}down{% endif %}">{{ r.units|money }}u</div>
-    <div class="l">{{ r.wins }}-{{ r.losses }}{% if r.pushes %}-{{ r.pushes }}{% endif %}
-      · {{ r.win_pct }}% · ROI {{ r.roi }}%</div>
+{% macro gauge(prob_pct, ask_pct) %}
+  {# Model marker and market ask on one 0-100 axis. Green fill means our number sits
+     above the ask, i.e. the contract is cheaper than we think it should be. #}
+  {% if prob_pct is not none and ask_pct is not none %}
+  {% set lo = [prob_pct, ask_pct]|min %}{% set hi = [prob_pct, ask_pct]|max %}
+  <div class="gauge" role="img"
+       aria-label="model {{ prob_pct|round|int }} percent, market asks {{ ask_pct|round|int }} cents">
+    <div class="fill {{ 'buy' if prob_pct > ask_pct else 'sell' }}"
+         style="left:{{ lo }}%;width:{{ (hi - lo) }}%"></div>
+    <div class="pin mkt" style="left:{{ ask_pct }}%"></div>
+    <div class="pin" style="left:{{ prob_pct }}%"></div>
   </div>
+  {% endif %}
 {% endmacro %}
 
-{% macro clv(r, label) %}
-  <div class="stat">
-    <div class="l">{{ label }}</div>
-    <div class="v {% if r.clv and r.clv > 0 %}up{% elif r.clv and r.clv < 0 %}down{% endif %}">
-      {% if r.clv is not none %}{{ '%+.2f'|format(r.clv) }}{% else %}—{% endif %}</div>
-    <div class="l">avg line move our way</div>
+{% macro kalshi(label, pick, ref_label, prob_pct, ask_pct, pays, fair, tradeable, stake) %}
+  <div class="mkt">
+    <h3>{{ label }}
+      {% if pick %}<span class="tag play">play</span>
+      {% elif not tradeable %}<span class="tag illiquid">illiquid</span>
+      {% else %}<span class="tag pass">no play</span>{% endif %}
+    </h3>
+    <div class="sel">{{ pick or ref_label }}</div>
+    {{ gauge(prob_pct, ask_pct) }}
+    <div class="legend">
+      <span>pays <b class="{{ 'pos' if pays and fair and pays > fair else '' }}">{{ pays or '—' }}&times;</b></span>
+      <span>fair <b>{{ fair or '—' }}&times;</b></span>
+      {% if stake %}<span>stake <b>{{ stake }}u</b></span>{% endif %}
+    </div>
   </div>
 {% endmacro %}
 
 {% if m.totals and m.totals.season and m.totals.season.n %}
-<section>
-  <h2>Season performance</h2>
-  <div class="grid">
-    {{ record(m.totals.season, "Totals") }}
-    {{ record(m.spreads.season, "Spreads") }}
-    {{ clv(m.totals.season, "Totals CLV") }}
-    {{ clv(m.spreads.season, "Spreads CLV") }}
+<h2>Season</h2>
+<div class="grid">
+  {% for r, lbl in [(m.totals.season,'Totals'), (m.spreads.season,'Spreads')] %}
+  <div class="stat">
+    <div class="l">{{ lbl }}</div>
+    <div class="v {{ 'pos' if r.units > 0 else ('neg' if r.units < 0 else '') }}">{{ r.units|money }}u</div>
+    <div class="l">{{ r.wins }}&ndash;{{ r.losses }}{% if r.pushes %}&ndash;{{ r.pushes }}{% endif %} · {{ r.win_pct }}%</div>
   </div>
-  <p class="sub" style="margin-top:8px">Break-even at <b>{{ m.venue or venue }}</b> is
-    {{ m.break_even }}%. Model error: totals {{ m.totals.mae }} pts, margin {{ m.spreads.mae }} pts.
-    <b>CLV is the number that matters early</b> — positive means the market moved toward our side
-    after we posted, and it shows up far sooner than a win rate does.</p>
-</section>
+  {% endfor %}
+  {% for r, lbl in [(m.totals.season,'Totals CLV'), (m.spreads.season,'Spreads CLV')] %}
+  <div class="stat">
+    <div class="l">{{ lbl }}</div>
+    <div class="v {{ 'pos' if r.clv and r.clv > 0 else ('neg' if r.clv and r.clv < 0 else '') }}">{% if r.clv is not none %}{{ '%+.2f'|format(r.clv) }}{% else %}&mdash;{% endif %}</div>
+    <div class="l">line move our way</div>
+  </div>
+  {% endfor %}
+</div>
+<p class="meta" style="margin-top:8px">Break-even at {{ m.venue or venue }} is {{ m.break_even }}%.
+  Model error: totals {{ m.totals.mae }} pts, margin {{ m.spreads.mae }} pts. CLV resolves far
+  sooner than a win rate does — watch it first.</p>
 {% endif %}
 
-<section>
-  <h2>{% if week %}Week {{ week }}{% else %}This week{% endif %} board</h2>
-  {% if picks %}
-  <div class="chips" role="group" aria-label="Filters">
-    <button class="chip" aria-pressed="true" data-f="all">All ({{ picks|length }})</button>
-    <button class="chip" aria-pressed="false" data-f="plays">Plays only</button>
-    <button class="chip" aria-pressed="false" data-f="g5">Group of Five</button>
-    <button class="chip" aria-pressed="false" data-f="kick">By kickoff</button>
-  </div>
-  {% else %}
-    <div class="note">No games on the board yet. The pipeline posts the week's slate each morning
-      once lines are up.</div>
-  {% endif %}
+<h2>{% if week %}Week {{ week }}{% else %}This week{% endif %}</h2>
 
-  {% for g in picks %}
-  {% set gap = [(g.total_disagree or 0)|abs, (g.margin_disagree or 0)|abs]|max %}
-  <div class="game {% if g.total_strength == 'bold' or g.spread_strength == 'bold' %}bold{% endif %}"
-       data-play="{{ 1 if g.total_strength in ('play','bold') or g.spread_strength in ('play','bold') else 0 }}"
+{% if picks %}
+<div class="controls">
+  <input id="q" type="search" placeholder="Find a team or conference" autocomplete="off"
+         aria-label="Find a team or conference">
+  <div class="tabs" role="group" aria-label="Kickoff day">
+    <button class="tab" data-day="all" aria-pressed="true">All days</button>
+    {% for d in days %}<button class="tab" data-day="{{ d.key }}" aria-pressed="false">{{ d.label }}</button>{% endfor %}
+  </div>
+  <div class="chips" role="group" aria-label="Filter">
+    <button class="chip" data-f="all" aria-pressed="true">Everything</button>
+    <button class="chip" data-f="plays" aria-pressed="false">Plays</button>
+    <button class="chip" data-f="kalshi" aria-pressed="false">Priced on Kalshi</button>
+    <button class="chip" data-f="g5" aria-pressed="false">Group of Five</button>
+  </div>
+  <span class="count" id="count"></span>
+</div>
+{% endif %}
+
+<div id="board">
+{% if not picks %}
+  <div class="empty">No games posted yet. The board fills each morning once lines are up.</div>
+{% endif %}
+
+{% for d in days %}
+  <div class="dayhead" data-dayhead="{{ d.key }}">{{ d.label }}</div>
+  {% for g in picks if g.day_key == d.key %}
+  {% set playable = g.kt_pick or g.ks_pick or g.ml_pick %}
+  <div class="game {{ 'playable' if playable else '' }}"
+       data-day="{{ g.day_key }}"
+       data-play="{{ 1 if playable or g.total_strength in ('play','bold') or g.spread_strength in ('play','bold') else 0 }}"
+       data-kalshi="{{ 1 if g.kt_ref_ask or g.ks_ref_ask or g.ml_ref_ask else 0 }}"
        data-g5="{{ 1 if g.is_g5 else 0 }}"
-       data-kick="{{ g.tip_et or '' }}">
-    <div class="ghead">
-      <span>{{ g.tip_et }} ET</span>
-      <span>
-        {% if g.ml_pick or g.kt_pick or g.ks_pick %}
-          <span class="tag play" style="background:var(--good);color:#052e16">Kalshi play</span>
+       data-search="{{ g.search }}">
+    <div class="grow">
+      <div class="side">
+        <div class="matchup">{{ g.away_team }}<br><span class="vs">{% if g.neutral_site %}vs{% else %}at{% endif %}</span> {{ g.home_team }}</div>
+        <div class="kick {{ 'tbd' if not g.tip_et else '' }}">{{ g.tip_et or 'Kickoff time TBD' }}</div>
+      </div>
+      <div class="mkts">
+        {% if g.kt_ref_ask %}
+          {{ kalshi('Total', g.kt_pick, 'Over ' ~ g.kt_ref_strike, g.kt_prob_pct, g.kt_ask_pct,
+                    g.kt_pays, g.kt_fair, g.kt_ref_tradeable, none) }}
+        {% else %}
+        <div class="mkt">
+          <h3>Total <span class="tag {{ 'early' if g.total_strength == 'thin' else 'pass' }}">{{ 'early' if g.total_strength == 'thin' else g.total_strength }}</span></h3>
+          <div class="sel">{{ g.total_pick }} {{ g.total_line }}</div>
+          <div class="legend"><span>model <b>{{ g.total_raw }}</b></span>
+            <span>{{ '%+.1f'|format(g.total_disagree or 0) }} vs line</span></div>
+        </div>
         {% endif %}
-        <span class="gap">&#916;{{ '%.1f'|format(gap) }}</span>{% if g.neutral_site %} · neutral{% endif %}{% if g.thin_data %} · early season{% endif %}</span>
-    </div>
-    <div class="teams">{{ g.away_team }}<span class="at">{% if g.neutral_site %}vs{% else %}at{% endif %}</span>{{ g.home_team }}</div>
-    <div class="bets">
-      <div class="bet">
-        <div class="l">Total <span class="tag {{ 'early' if g.total_strength == 'thin' else g.total_strength }}">{{ 'no play (early)' if g.total_strength == 'thin' else g.total_strength }}</span></div>
-        <div class="p">{{ g.total_pick }} {{ g.total_line }}</div>
-        <div class="d">Model {{ g.total_raw }} ({{ '%+.1f'|format(g.total_disagree or 0) }} vs line)</div>
-        <div class="px">
-          <span>Win prob <b>{{ (g.total_p_win * 100)|round|int if g.total_p_win else '—' }}%</b></span>
-          <span class="{% if (g.total_ev or 0) > 0 %}up{% endif %}">EV at &minus;110 <b>{{ '%+.1f'|format((g.total_ev or 0)*100) }}%</b></span>
-          {% if g.total_strength in ('play','bold') %}<span>Stake <b>{{ g.total_stake }}u</b></span>{% endif %}
+        {% if g.ks_ref_ask %}
+          {{ kalshi('Spread', g.ks_pick, (g.ks_ref_side or '') ~ ' by ' ~ g.ks_ref_strike,
+                    g.ks_prob_pct, g.ks_ask_pct, g.ks_pays, g.ks_fair, g.ks_ref_tradeable, g.ks_stake) }}
+        {% else %}
+        <div class="mkt">
+          <h3>Spread <span class="tag {{ 'early' if g.spread_strength == 'thin' else 'pass' }}">{{ 'early' if g.spread_strength == 'thin' else g.spread_strength }}</span></h3>
+          <div class="sel">{{ g.spread_pick }}</div>
+          <div class="legend"><span>model margin <b>{{ g.margin_raw }}</b></span>
+            <span>{{ '%+.1f'|format(g.margin_disagree or 0) }} vs line</span></div>
         </div>
-      </div>
-      <div class="bet">
-        <div class="l">Spread <span class="tag {{ 'early' if g.spread_strength == 'thin' else g.spread_strength }}">{{ 'no play (early)' if g.spread_strength == 'thin' else g.spread_strength }}</span></div>
-        <div class="p">{{ g.spread_pick }}</div>
-        <div class="d">Model margin {{ g.margin_raw }} ({{ '%+.1f'|format(g.margin_disagree or 0) }} vs line)</div>
-        <div class="px">
-          <span>Win prob <b>{{ (g.spread_p_win * 100)|round|int if g.spread_p_win else '—' }}%</b></span>
-          <span class="{% if (g.spread_ev or 0) > 0 %}up{% endif %}">EV at &minus;110 <b>{{ '%+.1f'|format((g.spread_ev or 0)*100) }}%</b></span>
-          {% if g.spread_strength in ('play','bold') %}<span>Stake <b>{{ g.spread_stake }}u</b></span>{% endif %}
+        {% endif %}
+        {% if g.ml_ref_ask %}
+          {{ kalshi('Moneyline', g.ml_pick, (g.ml_ref_side or '') ~ ' to win',
+                    g.ml_prob_pct, g.ml_ask_pct, g.ml_pays, g.ml_fair, g.kalshi_tradeable, g.ml_stake) }}
+        {% else %}
+        <div class="mkt">
+          <h3>Moneyline <span class="tag pass">no market</span></h3>
+          <div class="sel">&mdash;</div>
+          <div class="legend"><span>not listed on Kalshi</span></div>
         </div>
+        {% endif %}
       </div>
     </div>
-    {% if g.kt_ref_ask or g.ks_ref_ask or g.ml_ref_ask %}
-    <div class="bets" style="border-top:1px solid var(--line)">
-      {% if g.kt_ref_ask %}
-      <div class="bet">
-        <div class="l">Kalshi total
-          {% if g.kt_pick %}<span class="tag bold">play</span>
-          {% elif not g.kt_ref_tradeable %}<span class="tag thin">illiquid</span>
-          {% else %}<span class="tag pass">no play</span>{% endif %}
-        </div>
-        <div class="p">{{ g.kt_pick or ('Over ' ~ g.kt_ref_strike) }}</div>
-        <div class="px">
-          <span>Model <b>{{ ((g.kt_pick and g.kt_prob or g.kt_ref_prob) * 100)|round|int }}&cent;</b></span>
-          <span>Ask <b>{{ ((g.kt_pick and g.kt_ask or g.kt_ref_ask) * 100)|round|int }}&cent;</b></span>
-          {% set e = g.kt_pick and g.kt_ev or g.kt_ref_ev %}
-          <span class="{% if (e or 0) > 0 %}up{% else %}down{% endif %}">EV <b>{{ '%+.1f'|format((e or 0)*100) }}&cent;</b></span>
-          {% if g.kt_ref_spread_c %}<span>spread {{ g.kt_ref_spread_c }}&cent;</span>{% endif %}
-        </div>
-      </div>
-      {% endif %}
-      {% if g.ks_ref_ask %}
-      <div class="bet">
-        <div class="l">Kalshi spread
-          {% if g.ks_pick %}<span class="tag bold">play</span>
-          {% elif not g.ks_ref_tradeable %}<span class="tag thin">illiquid</span>
-          {% else %}<span class="tag pass">no play</span>{% endif %}
-        </div>
-        <div class="p">{{ g.ks_pick or (g.ks_ref_side ~ ' by over ' ~ g.ks_ref_strike) }}</div>
-        <div class="px">
-          <span>Model <b>{{ ((g.ks_pick and g.ks_prob or g.ks_ref_prob) * 100)|round|int }}&cent;</b></span>
-          <span>Ask <b>{{ ((g.ks_pick and g.ks_ask or g.ks_ref_ask) * 100)|round|int }}&cent;</b></span>
-          {% set e = g.ks_pick and g.ks_ev or g.ks_ref_ev %}
-          <span class="{% if (e or 0) > 0 %}up{% else %}down{% endif %}">EV <b>{{ '%+.1f'|format((e or 0)*100) }}&cent;</b></span>
-          {% if g.ks_ref_spread_c %}<span>spread {{ g.ks_ref_spread_c }}&cent;</span>{% endif %}
-        </div>
-      </div>
-      {% endif %}
-      {% if g.ml_ref_ask %}
-      <div class="bet">
-        <div class="l">Kalshi moneyline
-          {% if g.ml_pick %}<span class="tag bold">play</span>
-          {% elif not g.kalshi_tradeable %}<span class="tag thin">illiquid</span>
-          {% else %}<span class="tag pass">no play</span>{% endif %}
-        </div>
-        <div class="p">{{ g.ml_pick or ((g.ml_ref_side or '') ~ ' to win') }}</div>
-        <div class="px">
-          <span>Model <b>{{ ((g.ml_ref_prob or 0) * 100)|round|int }}&cent;</b></span>
-          <span>Ask <b>{{ ((g.ml_ask or g.ml_ref_ask) * 100)|round|int }}&cent;</b></span>
-          <span class="{% if (g.ml_ref_ev or 0) > 0 %}up{% else %}down{% endif %}">EV <b>{{ '%+.1f'|format((g.ml_ref_ev or 0)*100) }}&cent;</b></span>
-          {% if g.ml_stake %}<span>Stake <b>{{ g.ml_stake }}u</b></span>{% endif %}
-        </div>
-      </div>
-      {% endif %}
-    </div>
-    {% endif %}
     {% if g.kalshi_incoherent %}
-    <div style="padding:6px 14px;font-size:11px;color:var(--warn);background:var(--card2)">
-      Ladder quotes contradict each other (a higher strike costs more than a lower one) — at
-      least one price is stale. Treat any edge here as unreal.
-    </div>
-    {% endif %}
-    {% if g.ml_pick %}
-    <div class="bet" style="border-top:1px solid var(--line)">
-      <div class="l">Kalshi moneyline <span class="tag {% if (g.ml_roi or 0) > 0.02 %}bold{% else %}play{% endif %}">exchange</span></div>
-      <div class="p">{{ g.ml_pick }}</div>
-      <div class="px">
-        <span>Model <b>{{ g.ml_model_cents }}&cent;</b></span>
-        <span>Ask <b>{{ (g.ml_ask * 100)|round|int }}&cent;</b></span>
-        <span class="{% if (g.ml_roi or 0) > 0 %}up{% else %}down{% endif %}">ROI <b>{{ '%+.1f'|format((g.ml_roi or 0)*100) }}%</b></span>
-        <span>Stake <b>{{ g.ml_stake }}u</b></span>
-      </div>
-    </div>
+    <div class="warn">Ladder quotes contradict each other — a higher strike costs more than a
+      lower one, so at least one price is stale. Any edge here is not real.</div>
     {% endif %}
   </div>
   {% endfor %}
-  {% if picks %}
-  <p class="sub"><b>Model &cent;</b> is our win probability written as an exchange price, so it sits
-    directly against a Kalshi quote — the trade is only interesting when the market asks less than
-    our number. Moneyline rows appear only where Kalshi has a genuinely tradeable quote (tight
-    spread, real size and volume); most listed markets never trade and their prices are fiction.</p>
-  {% endif %}
-</section>
+{% endfor %}
+</div>
+
+<div class="empty" id="noresults" hidden>Nothing matches that. Clear the search or pick another day.</div>
 
 {% if results %}
-<section>
-  <h2>Recent results</h2>
-  <table>
-    <tr><th>Game</th><th>Total</th><th>Spread</th><th>Units</th></tr>
-    {% for r in results %}
-    {% set u = (r.total_units or 0) + (r.spread_units or 0) %}
-    <tr>
-      <td>{{ r.away_team }} at {{ r.home_team }}<br>
-        <span class="sub">{{ r.date }}{% if r.total_points %} · {{ r.total_points|int }} pts{% endif %}</span></td>
-      <td><span class="tag {{ r.total_result }}">{{ r.total_result }}</span><br>
-        <span class="sub">{{ r.total_pick }} {{ r.total_line }}</span></td>
-      <td><span class="tag {{ r.spread_result }}">{{ r.spread_result }}</span><br>
-        <span class="sub">{{ r.spread_pick }}</span></td>
-      <td class="{% if u > 0 %}up{% elif u < 0 %}down{% endif %}">{{ u|money }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-</section>
+<h2>Recent results</h2>
+<table>
+  <tr><th>Game</th><th>Total</th><th>Spread</th><th>Units</th></tr>
+  {% for r in results %}
+  {% set u = (r.total_units or 0) + (r.spread_units or 0) %}
+  <tr>
+    <td>{{ r.away_team }} at {{ r.home_team }}<br><span class="meta">{{ r.date }}{% if r.total_points %} · {{ r.total_points|int }} pts{% endif %}</span></td>
+    <td><span class="tag {{ r.total_result }}">{{ r.total_result }}</span><br><span class="meta">{{ r.total_pick }} {{ r.total_line }}</span></td>
+    <td><span class="tag {{ r.spread_result }}">{{ r.spread_result }}</span><br><span class="meta">{{ r.spread_pick }}</span></td>
+    <td class="num {{ 'pos' if u > 0 else ('neg' if u < 0 else '') }}">{{ u|money }}</td>
+  </tr>
+  {% endfor %}
+</table>
 {% endif %}
 
 {% if m.totals and m.totals.by_edge %}
-<section>
-  <h2>Cover rate by model disagreement</h2>
-  <table>
-    <tr><th>|Model − line|</th><th>Totals W-L</th><th>Win%</th><th>Units</th>
-        <th>Spreads W-L</th><th>Win%</th><th>Units</th></tr>
-    {% for row in m.totals.by_edge %}
-    {% set sp = (m.spreads.by_edge | selectattr('bucket','equalto',row.bucket) | list | first) %}
-    <tr>
-      <td>{{ row.bucket }}</td>
-      <td>{{ row.wins }}-{{ row.losses }}</td><td>{{ row.win_pct }}%</td>
-      <td class="{% if row.units>0 %}up{% elif row.units<0 %}down{% endif %}">{{ row.units|money }}</td>
-      <td>{% if sp %}{{ sp.wins }}-{{ sp.losses }}{% endif %}</td>
-      <td>{% if sp %}{{ sp.win_pct }}%{% endif %}</td>
-      <td class="{% if sp and sp.units>0 %}up{% elif sp and sp.units<0 %}down{% endif %}">{% if sp %}{{ sp.units|money }}{% endif %}</td>
-    </tr>
-    {% endfor %}
-  </table>
-  <p class="sub" style="margin-top:8px">A bucket only matters if it clears {{ m.break_even }}% by a
-    clear margin on a real sample. Play thresholds: totals {{ total_min }}, spreads {{ spread_min }}.</p>
-</section>
+<h2>Cover rate by model disagreement</h2>
+<table>
+  <tr><th>|Model &minus; line|</th><th>Totals</th><th>Win%</th><th>Units</th><th>Spreads</th><th>Win%</th><th>Units</th></tr>
+  {% for row in m.totals.by_edge %}
+  {% set sp = (m.spreads.by_edge | selectattr('bucket','equalto',row.bucket) | list | first) %}
+  <tr>
+    <td>{{ row.bucket }}</td>
+    <td class="num">{{ row.wins }}&ndash;{{ row.losses }}</td><td class="num">{{ row.win_pct }}%</td>
+    <td class="num {{ 'pos' if row.units>0 else ('neg' if row.units<0 else '') }}">{{ row.units|money }}</td>
+    <td class="num">{% if sp %}{{ sp.wins }}&ndash;{{ sp.losses }}{% endif %}</td>
+    <td class="num">{% if sp %}{{ sp.win_pct }}%{% endif %}</td>
+    <td class="num {{ 'pos' if sp and sp.units>0 else ('neg' if sp and sp.units<0 else '') }}">{% if sp %}{{ sp.units|money }}{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table>
+<p class="meta" style="margin-top:8px">A bucket only matters if it clears {{ m.break_even }}% by a
+  clear margin on a real sample. Play thresholds: totals {{ total_min }}, spreads {{ spread_min }}.</p>
 {% endif %}
 
-<section>
-  <div class="note">
-    Model output, not advice. College football markets are efficient, and any real edge here is
-    small and slow to prove out — weeks 1–4 especially, when almost nothing is known about this
-    year's teams. Exchange fees are lower than sportsbook vig, which lowers the bar but doesn't
-    remove it. Bet only what you can afford to lose; the units column is bookkeeping, not a
-    recommendation.
-  </div>
-</section>
+<div class="note" style="margin-top:24px">
+  Model output, not advice. College football markets are efficient and any real edge here is small
+  and slow to prove out — weeks 1&ndash;4 especially, when almost nothing is known about this
+  year's teams. Exchange fees are lower than sportsbook vig, which lowers the bar but doesn't
+  remove it. Bet only what you can afford to lose.
+</div>
 
-</main>
 <footer>
-  Data: CollegeFootballData.com (games, lines, SP+, returning production) · live prices via The Odds API.
+  <p><b>pays</b> is what a winning contract returns per dollar, fee included. <b>fair</b> is what
+  our probability says it should return. Buy when pays is the larger number — that's the green
+  bar. Grey pin is the market, dark pin is the model.</p>
+  <p style="margin-top:7px">Data: CollegeFootballData.com · prices: Kalshi.
   Raw: <a href="picks.csv">picks.csv</a>, <a href="results.csv">results.csv</a>,
   <a href="metrics.json">metrics.json</a>.
+  {% if support_url %} · <a href="{{ support_url }}" rel="noopener" target="_blank">{{ support_label }}</a>{% endif %}</p>
 </footer>
+</div>
 
 <script>
 (function () {
-  var chips = document.querySelectorAll('.chip');
-  var games = Array.prototype.slice.call(document.querySelectorAll('.game'));
-  if (!games.length) { return; }
-  var parent = games[0].parentNode;
-  var byRank = games.slice();
+  var q = document.getElementById('q');
+  if (!q) return;
+  var games = [].slice.call(document.querySelectorAll('.game'));
+  var heads = [].slice.call(document.querySelectorAll('[data-dayhead]'));
+  var tabs = [].slice.call(document.querySelectorAll('.tab'));
+  var chips = [].slice.call(document.querySelectorAll('.chip'));
+  var count = document.getElementById('count');
+  var none = document.getElementById('noresults');
+  var day = 'all', filt = 'all';
 
-  function apply(mode) {
-    var order = byRank.slice();
-    if (mode === 'kick') {
-      order.sort(function (a, b) {
-        return (a.dataset.kick || '').localeCompare(b.dataset.kick || '');
-      });
-    }
-    order.forEach(function (el) { parent.appendChild(el); });
-    games.forEach(function (el) {
-      var show = (mode === 'all' || mode === 'kick')
-        || (mode === 'plays' && el.dataset.play === '1')
-        || (mode === 'g5' && el.dataset.g5 === '1');
-      el.style.display = show ? '' : 'none';
-    });
+  function press(list, el) {
+    list.forEach(function (b) { b.setAttribute('aria-pressed', String(b === el)); });
   }
 
-  Array.prototype.forEach.call(chips, function (chip) {
-    chip.addEventListener('click', function () {
-      Array.prototype.forEach.call(chips, function (c) {
-        c.setAttribute('aria-pressed', String(c === chip));
-      });
-      apply(chip.dataset.f);
+  function apply() {
+    var term = q.value.trim().toLowerCase();
+    var shown = 0;
+    games.forEach(function (g) {
+      var ok = (day === 'all' || g.dataset.day === day)
+        && (filt === 'all'
+            || (filt === 'plays' && g.dataset.play === '1')
+            || (filt === 'kalshi' && g.dataset.kalshi === '1')
+            || (filt === 'g5' && g.dataset.g5 === '1'))
+        && (!term || (g.dataset.search || '').indexOf(term) !== -1);
+      g.hidden = !ok;
+      if (ok) shown++;
     });
+    // hide a day heading when nothing under it survived the filter
+    heads.forEach(function (h) {
+      var k = h.getAttribute('data-dayhead');
+      h.hidden = !games.some(function (g) { return !g.hidden && g.dataset.day === k; });
+    });
+    count.textContent = shown + ' of ' + games.length;
+    none.hidden = shown > 0;
+  }
+
+  q.addEventListener('input', apply);
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { day = t.dataset.day; press(tabs, t); apply(); });
   });
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () { filt = c.dataset.f; press(chips, c); apply(); });
+  });
+  apply();
 })();
 </script>
 </body>

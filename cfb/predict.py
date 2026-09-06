@@ -110,7 +110,8 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     _, up, _ = build(games, board, lines=lines, sp=cfbd.load_sp(),
                      returning=cfbd.load_returning())
 
-    keep = ["game_id", "season", "week", "date", "tip_et", "home_team", "away_team",
+    keep = ["game_id", "season", "week", "date", "tip_et", "kickoff_utc", "start_time_tbd",
+            "home_team", "away_team",
             "neutral_site", "conference_game", "total_line", "spread_home", "provider",
             "over_price", "under_price", "spread_home_price", "spread_away_price",
             "total_book", "spread_book", "h_games", "a_games", "exp_total", "exp_margin"]

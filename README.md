@@ -189,6 +189,23 @@ python -m cfb.site && open docs/index.html
 | `DEGEN_KELLY` | 0.25 | Kelly fraction |
 | `DEGEN_BOARD_DAYS` | 7 | how far ahead to post games |
 | `DEGEN_FIRST_SEASON` | 2015 | earliest season to train on |
+| `DEGEN_THEME` | `ticker` | site look: `ticker`, `scoreboard`, `field` |
+| `DEGEN_SUPPORT_URL` | (blank) | e.g. a Buy Me a Coffee link; blank hides the button |
+| `DEGEN_SUPPORT_LABEL` | `Buy me a coffee` | button text |
+
+### Reading the board
+
+Each market shows a probability axis with two pins: the **dark pin is the model**, the **grey pin
+is Kalshi's ask**. The bar between them is green when our number sits above the ask (the contract
+is cheaper than we think it should be) and red when it doesn't.
+
+Prices are multipliers rather than cents:
+
+* **pays** — what a winning contract returns per dollar, taker fee included. A 58c ask with a 1c
+  fee costs 59c and returns $1, so it pays 1.69x.
+* **fair** — what our probability says it should return (1 / probability).
+
+Buy when **pays** is larger than **fair**. Everything else on the card is context.
 | `DEGEN_VENUE` | `kalshi_taker` | cost model: `sportsbook`, `kalshi_taker`, `kalshi_maker`, `exchange_zero` |
 | `DEGEN_BREAK_EVEN` | (derived) | override the computed break-even win rate |
 

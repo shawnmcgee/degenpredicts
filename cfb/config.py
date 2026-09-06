@@ -127,6 +127,12 @@ KALSHI_PROB_MAX = float(os.environ.get("DEGEN_KALSHI_PROB_MAX", "0.80"))
 KALSHI_MAX_BOOK_GAP = float(os.environ.get("DEGEN_KALSHI_MAX_GAP", "7.0"))
 
 SITE_TITLE = os.environ.get("DEGEN_SITE_TITLE", "DegenPredicts")
+# Visual theme: "ticker" (light, dense, tabular), "scoreboard" (dark, amber, oversized
+# numerals), "field" (light, chalk green, position strips).
+THEME = os.environ.get("DEGEN_THEME", "ticker")
+# Optional support link, e.g. https://buymeacoffee.com/yourname . Blank hides it.
+SUPPORT_URL = os.environ.get("DEGEN_SUPPORT_URL", "")
+SUPPORT_LABEL = os.environ.get("DEGEN_SUPPORT_LABEL", "Buy me a coffee")
 
 
 def ensure_dirs() -> None:
