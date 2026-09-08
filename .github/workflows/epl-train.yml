@@ -1,0 +1,32 @@
+name: EPL retrain
+on:
+  schedule:
+    # Tuesdays 06:00 UTC. The Premier League week ends on Monday night, so Tuesday is the
+    # first day on which a full round is always in the book.
+    - cron: '0 6 * * 2'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: {group: epl-data, cancel-in-progress: false}
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.txt
+      # football-data.co.uk needs no key. The first run backfills every season from
+      # DEGEN_FIRST_SEASON and also pulls the division below, to give newly promoted clubs a
+      # prior instead of a blank; later runs refresh two seasons.
+      - env:
+          DEGEN_EPL_LEAGUE: ${{ vars.DEGEN_EPL_LEAGUE }}
+          DEGEN_FIRST_SEASON: ${{ vars.DEGEN_FIRST_SEASON }}
+        run: python -m epl.train
+      - run: |
+          git config user.name  "degenbot"
+          git config user.email "actions@github.com"
+          git pull --rebase --autostash || true
+          git add data
+          git diff --staged --quiet || git commit -m "epl retrain $(date -u +%Y-%m-%d)"
+          git push

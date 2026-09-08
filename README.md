@@ -13,9 +13,14 @@ No server, no manual uploads, no hosting bill.
   nfl-grade.yml     daily 7:30am ET
   nfl-train.yml     Tuesdays
   nfl-kalshi-discover.yml  manual  → confirm Kalshi's series tickers, runs from a phone
+  epl-predict.yml   daily 8:00am UTC → fixtures + prices → models → data/epl/picks.csv → docs/
+  epl-grade.yml     daily 6:30am UTC → results → grade → results.csv, metrics.json
+  epl-train.yml     Tuesdays        → refit models
+  epl-source-check.yml     manual  → confirm football-data's odds columns, runs from a phone
   test.yml          on push         → offline tests, one job per sport plus the landing page
 cfb/     college football pipeline (live now)
 nfl/     NFL pipeline (live now)
+epl/     Premier League pipeline (live now)
 ncaab/   basketball pipeline (built, dormant until November)
 core/    sport-neutral bits only: the landing page, shared settings
 ```
@@ -29,6 +34,7 @@ docs/
   index.html      ← the chooser: a card per sport, with week, board size and season record
   cfb/index.html  ← college football board
   nfl/index.html  ← NFL board
+  epl/index.html  ← Premier League board
 ```
 
 `core/landing.py` imports nothing from `cfb`, `nfl` or `ncaab` — it reads the files those
@@ -432,6 +438,239 @@ To confirm it took, run the picks job and look for `kalshi board: N sides` in th
 
 ---
 
+## Premier League
+
+`epl/` is the same architecture pointed at association football — Actions as scheduler, repo as
+database, Pages as frontend; ratings replayed chronologically with a leak-free test in CI; four
+models with shrinkage fitted on a holdout; EV and Kelly output. But this is the first sport in
+this repo that is not gridiron, and the **model at the centre of it is a different kind of
+object**. That is the section worth reading.
+
+### 1. Data source: football-data.co.uk, no key, no quota
+
+The same property that made CFBD and nflverse work: static CSVs, one per league per season,
+carrying results **and the bookmakers' closing prices**. So the market-aware models train from
+day one rather than after a season of self-logging.
+
+| Feed | What it gives | Size |
+|---|---|---|
+| `mmz4281/<season>/E0.csv` | one season: results, shots, shots on target, corners, cards, referee, **1X2 / Asian handicap / over-under 2.5 prices** from a panel of books | ~30 KB |
+| `fixtures.csv` | every forthcoming match across all divisions, with current prices — this is the board | ~50 KB |
+| `mmz4281/<season>/E1.csv` | the Championship, fetched only to give newly promoted clubs a prior | ~35 KB |
+
+**Set up with `Actions → EPL retrain → Run workflow`.** No secrets required.
+
+### 2. The model is a scoreline distribution, not a margin
+
+The other two sports predict a margin and read probabilities off a normal CDF. That is the
+wrong instrument here, for three reasons that all point the same way:
+
+- **The scale is tiny and discrete.** A match produces about 2.8 goals, so the whole
+  distribution lives on the integers 0–5. A continuous density is not approximating anything.
+- **The draw is a real outcome** — about 24% of matches, and its own market. `P(margin == 0)`
+  is exactly zero under a Gaussian, so you would have to bolt on a fudge, and the fudge would
+  be doing the most important work in the model.
+- **Low scores are correlated.** Independent Poisson marginals understate 0-0 and 1-1 and
+  overstate 1-0 and 0-1 — the four scorelines that decide whether a match is drawn.
+
+So the two models predict **supremacy** (home goals minus away) and **total goals**, and
+`epl/poisson.py` turns that pair into a Dixon–Coles bivariate Poisson grid over every scoreline.
+Every market is then read off the same grid:
+
+```
+lambda_home = (total + supremacy) / 2      P(i,j) = Poisson(i;lh) * Poisson(j;la) * tau(i,j)
+lambda_away = (total - supremacy) / 2      tau = the Dixon-Coles low-score correction
+```
+
+| Market | Read off the grid as |
+|---|---|
+| 1X2 | `sum(i>j)`, `sum(i==j)`, `sum(i<j)` |
+| Asian handicap | `sum(i-j+h > 0)`, with quarter lines split across the two adjacent lines |
+| Over/under | `sum(i+j > line)`, with a real push leg on whole-number lines |
+| Both teams to score | `sum(i>0 and j>0)` |
+
+The payoff is consistency: the 1X2 price, the handicap and the total **cannot contradict each
+other**, so when our number disagrees with the book in the same direction across all three,
+that is one piece of evidence rather than three.
+
+At the default settings the grid reproduces the league from first principles. Averaged over
+3,040 real fixtures, the replayed ratings imply **42.9% / 23.7% / 33.4%** home/draw/away against
+those matches' actual **44.3% / 22.9% / 32.8%**.
+
+Note that this has to be averaged over real fixtures, not read off one "average match": a single
+0.35-goal supremacy gives 44.9 / 26.0 / 29.0, which overstates draws by two points because one
+representative fixture ignores the spread of team strengths across the league. The draw rate is
+a property of the distribution of mismatches, not of the average mismatch.
+
+### 3. What actually differs about football
+
+**Promotion and relegation.** Three of twenty clubs are replaced every season and have no
+top-flight history at all. This has no NFL analogue whatsoever — the same 32 franchises come
+back every year. Two things follow:
+
+- A club entering the league is **seeded at a promoted-club prior** (−0.22 attack, +0.20
+  defence in log-goals, about 0.4 goals a match below average), not at league average. Starting
+  them at average hands them roughly a third of a goal a match they have not earned, which is
+  larger than any feature in the model.
+- The **division below is fetched too**, and a promoted club's Championship season is carried
+  up scaled by a division gap, flagged `promoted` so the model can learn how much to trust it
+  rather than being told.
+
+**European commitments.** A club playing Thursday in the Europa League and Sunday in the league
+is carrying a real load, but the league schedule cannot see those midweek matches. `in_europe`
+is derived from prior-season finishing position — legitimately known before a ball is kicked,
+and the honest version of a fixture-congestion feature given what this data contains.
+
+**The behind-closed-doors window is a date range, not a season.** 2019-20 was played in front of
+full grounds until March and empty from June, so flagging whole seasons would mislabel 288
+matches that had crowds. Measured across 2015-16 to 2024-25, home supremacy ran **+0.302 goals**
+in normal seasons and **+0.161** in the empty ones — a natural experiment large enough that
+crediting those matches a normal home edge would push every home club's rating down by an
+advantage that was not there.
+
+**Matchweek is deliberately not a feature.** football-data publishes no round number, and the
+one you would reconstruct from dates is a lie: postponements and European fixtures put two clubs
+three matches apart in the same calendar week. The model sees `h_games` / `a_games` — matches
+actually played by that club — which is the honest version of the same question.
+
+**Derbies and travel.** England has no time zones, so the NFL's body-clock term does not exist.
+What remains is a genuine north–south haul (Newcastle to Bournemouth is 470 km) and, at the
+other end, the local derby, which is detected geometrically: two grounds within 20 km.
+
+Prior-season strength is the SP+ / prior-EPA analogue, opponent-adjusted by multiplicative
+fixed point, in **two flavours: goals and shots on target**. The shot version carries the
+preseason weight, for the reason every football analytics department rediscovered a decade ago —
+over 38 matches, shot volume predicts next season's goals better than this season's goals do.
+
+### 4. Expect no edge, and check that you are told so
+
+The closing Asian handicap on a Premier League match is, by most measures, the most efficient
+price in world sport: enormous limits, sharp money, and twenty clubs that thousands of people
+model full-time. The realistic outcome is `beats_market: false` and a fitted `shrink` near zero,
+and the site says so on the page rather than burying it in JSON.
+
+**But point error is not the whole test here**, and that is genuinely new in this repo. Two
+models can have identical mean absolute error on supremacy while disagreeing completely about
+how often matches are drawn. So `models/meta.json` carries a `probability` block that scores the
+implied 1X2 probabilities directly (shape shown; your first run fills in the numbers):
+
+```json
+"probability": {
+  "log_loss_model": 0.9971,
+  "log_loss_market": 0.9903,     ← the de-vigged closing price's own log loss
+  "log_loss_edge": -0.0068,      ← negative means the market's probabilities were better
+  "beats_market_log_loss": false,
+  "draw": { "actual_pct": 24.1, "model_pct": 24.6, "market_pct": 24.3 },
+  "calibration": [ ... ]
+}
+```
+
+Read it in this order:
+
+1. **`log_loss_edge`** — the proper scoring rule, and the honest answer to "does this model know
+   anything the price does not". Expect it negative.
+2. **`draw`** — predicted against actual. This is the specific failure a Gaussian margin model
+   cannot even express, so it is the first thing to check that this one gets right.
+3. **`calibration`** — do the probabilities mean what they say? A different and more basic
+   question than whether they beat the price, and worth passing before anything else matters.
+
+A model that beat the market on log loss while losing on supremacy MAE would not be a
+contradiction — it would mean the edge is in the *shape* of the distribution rather than its
+centre, which for football is the more plausible of the two.
+
+#### Three-way de-vigging is not proportional de-vigging
+
+With two outcomes at 1.95/1.95, dividing each implied probability by their sum is exactly right.
+With three it is not, because bookmakers load proportionally more margin onto the longshot —
+the favourite-longshot bias, one of the most replicated findings in the literature. On a
+1.25 / 6.00 / 12.00 book, proportional de-vigging says the away side is 7.9%; Shin's method says
+7.0%.
+
+That 0.9 of a point is not academic: it is subtracted from exactly the leg where a model most
+easily talks itself into a "value" bet. So `epl/odds_math.py` uses **Shin by default**, with the
+proportional and power methods available for comparison.
+
+#### Where the edge would actually be, if anywhere
+
+Not here. `DEGEN_EPL_LEAGUE` points the whole pipeline at a different division — football-data
+publishes the Championship (`E1`), League One (`E2`) and League Two (`E3`) in an identical
+column layout, and the same code produces a board for any of them with no other change. Those
+markets take smaller limits, attract less modelling attention, and have far more roster churn.
+If a public-data edge in English football exists, it is far likelier a division or two down than
+in the most-modelled league on earth.
+
+The `market_softness` segments are cut with that in mind: promoted clubs, European load, closed
+doors, derbies, favourite size, stage of season — each reported with `vs_break_even_se` **and**
+per-season stability, and each stamped with whether it survives correction for the ~20 looks
+taken. Treat anything under +2 as unproven, and remember that the best of twenty segments
+landing at +2 is roughly what chance alone produces.
+
+### The guardrails that earned their place
+
+Front-loaded, because football naming and football dates are both worse than they look:
+
+- **Club names raise rather than guess, and ambiguous short forms raise too.** "Sheffield" is
+  two clubs. So is "Bristol", and so is "Manchester". Resolving one of those either way silently
+  merges two clubs' rating histories and nothing downstream can detect it, so `epl/teams.py`
+  refuses them by name and says which clubs it could have meant. CI asserts every club in the
+  committed data resolves, so a newly promoted side fails the build the week it appears rather
+  than entering the league as an unrated stranger.
+- **Dates are parsed day-first, and the format is detected rather than inferred.**
+  football-data writes `01/02/2024` for 1 February. Parsed month-first that is 2 January — which
+  raises nothing, reorders a third of every season, and breaks the one guarantee this whole
+  project rests on. The GitHub mirror writes ISO dates instead, so the convention is detected
+  once per file and then forced; pandas will otherwise infer a different one for different
+  chunks of the same column.
+- **The odds columns changed shape in 2019-20 and every quantity is resolved through an ordered
+  candidate list.** Betbrain's aggregates (`BbAvH`, `BbAHh`, `BbAv>2.5`) were dropped and
+  replaced with `AvgH` / `AHh` / `Avg>2.5`, plus a whole parallel set of *closing* columns
+  (`PSCH`, `AHCh`, `PC>2.5`). Reading one era's spelling does not raise — it yields NaN for
+  every row in the other era, and the market models then train on whichever half of history
+  happened to match. The winning columns are recorded per row in `odds_source` and summarised
+  per season in `meta.json`, so this is visible rather than quiet.
+- **`game_id` is season-plus-clubs, deliberately not date-based.** English football rearranges
+  fixtures constantly. A date-keyed id would mint a *new* id when a postponed match is finally
+  played, so the pick published for it would never grade and would sit in `picks.csv` forever.
+- **Quarter handicaps are split, not rounded.** A −0.75 line is half at −0.5 and half at −1.0,
+  so half the stake can win while the other half pushes. Both the pricing and the grading
+  express that, including "half win" and "half loss" as settlement outcomes. Rounding a quarter
+  line away would misprice the market that is quoted on most matches in this league.
+- **Push legs are returned, not lost.** A whole-number handicap or goal line pushes on an exact
+  hit — on a level handicap that is the ~24% of matches that end drawn. Folding those into the
+  loss column would understate EV by more than any edge being measured.
+- **The ratings are anchored to the league mean.** Nothing otherwise forces mean attack and mean
+  defence to zero, so in a high-scoring season every club's ratings drift up together. That
+  breaks the season rollover, which regresses toward zero — no longer the mean — and quietly
+  deflates predicted scoring every August. A league-level term absorbs the era instead, and the
+  club ratings are re-centred around it at each boundary. After the fix, an eight-season replay
+  predicts a mean supremacy of +0.249 against an actual +0.257, and a mean total of 2.851
+  against an actual 2.850.
+
+### Confirming the odds columns
+
+The one thing here that cannot be verified without reaching the live host is the shape of
+football-data's odds columns — and that layout has already changed once. It is
+environment-overridable, every path degrades to "no market prices" rather than failing, and
+there is a results-only GitHub mirror behind it that logs loudly when it is used, so the
+pipeline runs either way.
+
+**From anywhere, including a phone: Actions → EPL source check → Run workflow.** The result goes
+to the job summary, which the GitHub mobile app renders as a page rather than as raw logs: a row
+per season showing how many matches and prices resolved and from which columns, plus a table of
+what each outcome means.
+
+Locally:
+
+```bash
+python -m epl.sources.footballdata --check
+python -m epl.sources.footballdata --check --league E1 --seasons 2018,2019,2024
+```
+
+A season showing matches but zero priced means the layout moved: add the new spellings to
+`CLOSING_1X2` / `OPENING_AH` and friends at the top of `epl/sources/footballdata.py`.
+
+---
+
 ## Basketball
 
 `ncaab/` is a complete parallel pipeline, already written and tested, using ncaa-api for
@@ -455,6 +694,11 @@ python -m nfl.train --no-fetch                  # nflverse needs no key at all
 python -m nfl.predict --dry-run
 python -m nfl.site && open docs/nfl/index.html
 
+python -m epl.train --no-fetch                  # football-data needs no key either
+python -m epl.predict --dry-run
+python -m epl.site && open docs/epl/index.html
+python -m epl.sources.footballdata --check      # what the odds resolver actually found
+
 python -m core.landing && open docs/index.html  # the chooser, built from what is published
 ```
 
@@ -472,6 +716,11 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_WALK_SEASONS` | 6 (nfl) | seasons pooled by the walk-forward evaluation |
 | `DEGEN_NFL_HTTP_TIMEOUT` | 60 | NFL-only HTTP timeout; nflverse serves multi-MB files |
 | `DEGEN_NFL_DOCS` | `docs/nfl` | where the NFL board is written |
+| `DEGEN_EPL_LEAGUE` | `E0` | which division the EPL pipeline predicts: `E0` Premier League, `E1` Championship, `E2` League One, `E3` League Two |
+| `DEGEN_SUP_EDGE` | 0.60 | min goals of supremacy disagreement to publish a handicap play |
+| `DEGEN_GOALS_EDGE` | 0.70 | same for total goals |
+| `DEGEN_DC_RHO` | −0.04 | Dixon-Coles low-score correction; more negative lifts 0-0 and 1-1 |
+| `DEGEN_EPL_DOCS` | `docs/epl` | where the Premier League board is written |
 | `DEGEN_CFB_DOCS` | `docs/cfb` | where the college football board is written |
 | `DEGEN_KALSHI_ML_SERIES` | `KXNFLGAME` | Kalshi moneyline series (also `..._SPREAD_SERIES`, `..._TOTAL_SERIES`) |
 | `DEGEN_SUPPORT_URL` | (unset) | Buy Me a Coffee link shown at the top; omit and the button hides |
