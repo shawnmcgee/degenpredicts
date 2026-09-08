@@ -11869,8 +11869,8 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401856780,2026,1,2026-09-05,West Virginia,Coastal Carolina,-21.0,-17.5,54.5,57.5,Bovada,3
 401856781,2026,2,2026-09-12,Kansas State,Washington State,-19.0,-18.5,48.5,49.0,Bovada,2
 401856782,2026,2,2026-09-12,Oklahoma State,Oregon,22.5,22.5,57.5,57.5,Bovada,2
-401856783,2026,2,2026-09-12,Oregon State,Texas Tech,26.5,26.5,54.0,51.5,Bovada,2
-401856788,2026,2,2026-09-12,Iowa,Iowa State,-14.0,-14.0,41.0,41.0,Bovada,2
+401856783,2026,2,2026-09-12,Oregon State,Texas Tech,27.0,26.5,54.0,51.5,Bovada,2
+401856788,2026,2,2026-09-12,Iowa,Iowa State,-14.0,-14.0,40.5,41.0,Bovada,2
 401856790,2026,2,2026-09-12,Pittsburgh,UCF,-7.0,-7.5,57.5,57.0,Bovada,2
 401856809,2026,7,2026-10-17,BYU,Notre Dame,10.0,10.0,54.5,54.5,DraftKings,1
 401856810,2026,2,2026-09-12,BYU,Arizona,-7.5,-7.5,48.5,50.5,Bovada,2
@@ -11939,7 +11939,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401858442,2026,2,2026-09-12,Temple,Penn State,24.0,23.5,49.5,49.5,Bovada,2
 401858443,2026,2,2026-09-12,UCLA,San Diego State,-12.0,-11.5,55.0,53.0,Bovada,2
 401858444,2026,2,2026-09-12,UConn,Maryland,12.0,12.5,52.5,53.5,Bovada,2
-401858445,2026,2,2026-09-12,USC,Louisiana,-31.0,-31.0,60.0,60.0,Bovada,2
+401858445,2026,2,2026-09-12,USC,Louisiana,-31.0,-31.0,59.5,60.0,Bovada,2
 401858446,2026,2,2026-09-12,Washington,Utah State,-26.5,-26.5,55.5,55.5,Bovada,2
 401858469,2026,4,2026-09-26,USC,Oregon,5.5,5.5,58.5,58.5,DraftKings,1
 401858485,2026,6,2026-10-10,Penn State,USC,-1.5,-1.5,56.5,56.5,DraftKings,1
@@ -11961,7 +11961,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401860879,2026,1,2026-09-05,San Diego State,Portland State,-40.5,-40.5,62.0,62.0,Bovada,3
 401860880,2026,1,2026-09-05,Utah State,Idaho State,-14.5,-14.0,60.0,62.0,Bovada,3
 401860881,2026,2,2026-09-12,Boise State,Memphis,-9.5,-7.5,54.5,55.5,Bovada,2
-401860883,2026,2,2026-09-12,Fresno State,Sacramento State,-18.0,-18.0,45.5,46.0,Bovada,2
+401860883,2026,2,2026-09-12,Fresno State,Sacramento State,-18.0,-18.0,45.0,46.0,Bovada,2
 401860884,2026,2,2026-09-12,Texas State,UTSA,-1.5,1.0,67.0,64.5,Bovada,2
 401861962,2026,1,2026-09-05,UConn,Lafayette,-19.5,-19.5,51.5,51.5,Bovada,3
 401862693,2026,1,2026-08-29,UNLV,Memphis,-5.0,-3.0,55.5,60.5,Bovada,3
@@ -11974,9 +11974,9 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401862700,2026,1,2026-09-05,UTSA,UT Rio Grande Valley,-28.5,-28.5,59.5,59.5,Bovada,3
 401862701,2026,1,2026-09-05,Army,Bryant,-37.0,-37.0,50.5,50.5,Bovada,3
 401862702,2026,2,2026-09-12,Army,South Florida,-3.5,-3.5,46.5,49.5,Bovada,2
-401862703,2026,2,2026-09-12,Florida Atlantic,Navy,5.5,5.5,59.0,59.0,Bovada,2
+401862703,2026,2,2026-09-12,Florida Atlantic,Navy,5.0,5.5,59.0,59.0,Bovada,2
 401862705,2026,2,2026-09-12,North Texas,UNLV,3.5,4.5,57.0,57.0,Bovada,2
-401862707,2026,2,2026-09-12,Sam Houston,Tulsa,13.0,13.5,51.0,52.0,Bovada,2
+401862707,2026,2,2026-09-12,Sam Houston,Tulsa,14.0,13.5,51.5,52.0,Bovada,2
 401862708,2026,2,2026-09-12,UAB,UL Monroe,-9.5,-10.5,56.0,56.0,Bovada,2
 401862844,2026,15,2026-12-12,Army,Navy,2.5,2.5,37.5,37.5,DraftKings,1
 401864424,2026,1,2026-09-03,Delaware,Merrimack,-31.5,-28.5,56.5,55.5,DraftKings,2
@@ -11991,9 +11991,9 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401864502,2026,2,2026-09-12,Air Force,North Dakota State,2.5,3.5,47.5,47.5,Bovada,2
 401864570,2026,1,2026-08-29,Florida State,New Mexico State,-31.0,-29.5,53.5,53.5,Bovada,3
 401864571,2026,2,2026-09-12,East Carolina,App State,-7.5,-8.0,56.5,56.5,Bovada,2
-401864575,2026,2,2026-09-12,Tulane,South Alabama,-9.5,-10.0,50.0,50.5,Bovada,2
+401864575,2026,2,2026-09-12,Tulane,South Alabama,-9.5,-10.0,49.5,50.5,Bovada,2
 401864577,2026,1,2026-08-29,North Dakota State,Jacksonville State,-7.0,-10.0,46.5,48.5,Bovada,3
-401864578,2026,2,2026-09-12,Hawai'i,New Mexico State,-8.5,-10.0,50.5,50.5,Bovada,2
+401864578,2026,2,2026-09-12,Hawai'i,New Mexico State,-8.0,-10.0,50.5,50.5,Bovada,2
 401866408,2026,1,2026-08-29,Eastern Michigan,Sacramento State,-9.0,-8.5,53.0,52.5,Bovada,3
 401866409,2026,1,2026-09-03,Buffalo,UAlbany,-18.5,-24.5,47.5,48.5,DraftKings,2
 401866410,2026,1,2026-09-05,Bowling Green,Tarleton State,-2.0,-2.0,48.0,48.0,Bovada,3
