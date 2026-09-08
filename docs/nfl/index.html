@@ -61,11 +61,19 @@
   .empty{text-align:center;color:var(--dim);padding:26px 0;font-size:14px}
   footer{margin-top:36px;color:var(--dim);font-size:12px;text-align:center}
   a{color:var(--accent)}
+  nav.sports{display:flex;gap:8px;margin:0 0 4px}
+  nav.sports .chip{text-decoration:none}
+  nav.sports .chip[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
   @media(max-width:560px){.bets{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header>
+  <nav class="sports" aria-label="Sport">
+    <a class="chip" href="../">&larr; All sports</a>
+    <a class="chip" href="../cfb/">College football</a>
+    <a class="chip" aria-current="page" href="./">NFL</a>
+  </nav>
   <div class="topbar">
     <div>
       <h1>DegenPredicts — NFL</h1>
@@ -125,7 +133,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="0" data-ctx="1"
-       data-search="jax cle afc south afc north trevor lawrence deshaun watson" data-kick="Sun Sep 13, 1:00 PM">
+       data-search="jax cle afc south afc north trevor lawrence deshaun watson" data-kick="2026-09-13T13:00:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 1:00 PM</span>
       <span>&#916;5.4 &middot; early season</span>
@@ -152,7 +160,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="0" data-ctx="1"
-       data-search="ten nyj afc south afc east cam ward geno smith" data-kick="Sun Sep 13, 1:00 PM">
+       data-search="ten nyj afc south afc east cam ward geno smith" data-kick="2026-09-13T13:00:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 1:00 PM</span>
       <span>&#916;5.1 &middot; early season</span>
@@ -179,7 +187,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="1" data-ctx="1"
-       data-search="min gb nfc north nfc north kyler murray jordan love" data-kick="Sun Sep 13, 4:25 PM">
+       data-search="min gb nfc north nfc north kyler murray jordan love" data-kick="2026-09-13T16:25:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 4:25 PM</span>
       <span>&#916;3.4 &middot; early season</span>
@@ -206,7 +214,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="0" data-ctx="0"
-       data-search="hou buf afc south afc east c.j. stroud josh allen" data-kick="Sun Sep 13, 1:00 PM">
+       data-search="hou buf afc south afc east c.j. stroud josh allen" data-kick="2026-09-13T13:00:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 1:00 PM</span>
       <span>&#916;3.3 &middot; early season</span>
@@ -233,7 +241,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="1" data-ctx="1"
-       data-search="nyg dal nfc east nfc east jaxson dart dak prescott" data-kick="Sun Sep 13, 8:20 PM">
+       data-search="nyg dal nfc east nfc east jaxson dart dak prescott" data-kick="2026-09-13T20:20:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 8:20 PM</span>
       <span>&#916;3.2 &middot; early season</span>
@@ -260,7 +268,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="0" data-ctx="0"
-       data-search="car chi nfc south nfc north bryce young caleb williams" data-kick="Sun Sep 13, 1:00 PM">
+       data-search="car chi nfc south nfc north bryce young caleb williams" data-kick="2026-09-13T13:00:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 1:00 PM</span>
       <span>&#916;3.0 &middot; early season</span>
@@ -287,7 +295,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="0" data-ctx="0"
-       data-search="det no nfc north nfc south jared goff tyler shough" data-kick="Sun Sep 13, 1:00 PM">
+       data-search="det no nfc north nfc south jared goff tyler shough" data-kick="2026-09-13T13:00:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 1:00 PM</span>
       <span>&#916;2.4 &middot; early season</span>
@@ -314,7 +322,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="0" data-ctx="1"
-       data-search="ind bal afc south afc north daniel jones lamar jackson" data-kick="Sun Sep 13, 1:00 PM">
+       data-search="ind bal afc south afc north daniel jones lamar jackson" data-kick="2026-09-13T13:00:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 1:00 PM</span>
       <span>&#916;2.2 &middot; early season</span>
@@ -341,7 +349,7 @@
   <div class="game "
        data-day="2026-09-09" data-play="0"
        data-div="0" data-ctx="1"
-       data-search="sea ne nfc west afc east sam darnold drake maye" data-kick="Wed Sep 09, 8:20 PM">
+       data-search="sea ne nfc west afc east sam darnold drake maye" data-kick="2026-09-09T20:20:00-04:00">
     <div class="ghead">
       <span>Wed Sep 09, 8:20 PM</span>
       <span>&#916;1.8 &middot; early season</span>
@@ -368,7 +376,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="0" data-ctx="1"
-       data-search="pit atl afc north nfc south aaron rodgers tua tagovailoa" data-kick="Sun Sep 13, 1:00 PM">
+       data-search="pit atl afc north nfc south aaron rodgers tua tagovailoa" data-kick="2026-09-13T13:00:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 1:00 PM</span>
       <span>&#916;1.6 &middot; early season</span>
@@ -395,7 +403,7 @@
   <div class="game "
        data-day="2026-09-14" data-play="0"
        data-div="1" data-ctx="1"
-       data-search="kc den afc west afc west patrick mahomes bo nix" data-kick="Mon Sep 14, 8:15 PM">
+       data-search="kc den afc west afc west patrick mahomes bo nix" data-kick="2026-09-14T20:15:00-04:00">
     <div class="ghead">
       <span>Mon Sep 14, 8:15 PM</span>
       <span>&#916;1.6 &middot; early season</span>
@@ -422,7 +430,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="0" data-ctx="0"
-       data-search="cin tb afc north nfc south joe burrow baker mayfield" data-kick="Sun Sep 13, 1:00 PM">
+       data-search="cin tb afc north nfc south joe burrow baker mayfield" data-kick="2026-09-13T13:00:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 1:00 PM</span>
       <span>&#916;1.4 &middot; early season</span>
@@ -449,7 +457,7 @@
   <div class="game "
        data-day="2026-09-10" data-play="0"
        data-div="1" data-ctx="1"
-       data-search="la sf nfc west nfc west matthew stafford brock purdy" data-kick="Thu Sep 10, 8:35 PM">
+       data-search="la sf nfc west nfc west matthew stafford brock purdy" data-kick="2026-09-10T20:35:00-04:00">
     <div class="ghead">
       <span>Thu Sep 10, 8:35 PM</span>
       <span>&#916;1.0 &middot; early season</span>
@@ -476,7 +484,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="0" data-ctx="1"
-       data-search="lv mia afc west afc east kirk cousins malik willis" data-kick="Sun Sep 13, 4:25 PM">
+       data-search="lv mia afc west afc east kirk cousins malik willis" data-kick="2026-09-13T16:25:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 4:25 PM</span>
       <span>&#916;1.0 &middot; early season</span>
@@ -503,7 +511,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="0" data-ctx="0"
-       data-search="lac ari afc west nfc west justin herbert jacoby brissett" data-kick="Sun Sep 13, 4:25 PM">
+       data-search="lac ari afc west nfc west justin herbert jacoby brissett" data-kick="2026-09-13T16:25:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 4:25 PM</span>
       <span>&#916;0.9 &middot; early season</span>
@@ -530,7 +538,7 @@
   <div class="game "
        data-day="2026-09-13" data-play="0"
        data-div="1" data-ctx="1"
-       data-search="phi was nfc east nfc east jalen hurts jayden daniels" data-kick="Sun Sep 13, 4:25 PM">
+       data-search="phi was nfc east nfc east jalen hurts jayden daniels" data-kick="2026-09-13T16:25:00-04:00">
     <div class="ghead">
       <span>Sun Sep 13, 4:25 PM</span>
       <span>&#916;0.9 &middot; early season</span>
@@ -581,7 +589,7 @@
 <footer>
   Data: nflverse &middot; prices via Kalshi and The Odds API.
   <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
-  &middot; <a href="../">college football</a>
+  &middot; <a href="../cfb/">college football</a>
   <br><a href="https://buymeacoffee.com/smcgee" rel="noopener">Buy me a coffee</a>
 </footer>
 
@@ -596,10 +604,17 @@
   var none = document.getElementById('noresults');
   var state = { day: 'all', plays: false, div: false, ctx: false, kick: false, q: '' };
 
+  function kickAt(el) {
+    // Real time order, not alphabetical order on the printed label. Anything without an
+    // announced kickoff sorts to the end instead of at a placeholder time.
+    var t = Date.parse(el.dataset.kick || '');
+    return t === t ? t : Infinity;   // NaN is the only value that fails self-equality
+  }
+
   function apply() {
     var seq = order.slice();
     if (state.kick) {
-      seq.sort(function (a, b) { return (a.dataset.kick || '').localeCompare(b.dataset.kick || ''); });
+      seq.sort(function (a, b) { return kickAt(a) - kickAt(b); });
     }
     seq.forEach(function (el) { list.appendChild(el); });
     var shown = 0;

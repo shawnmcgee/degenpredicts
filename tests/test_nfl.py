@@ -641,8 +641,7 @@ def test_pipeline(env, monkeypatch):
     site.build()
     html = (env.DOCS / "index.html").read_text()
     assert "NFL" in html
-    assert "nan" not in html.lower().replace("finance", ""), \
-        "empty fields must not render as 'nan'"
+    assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
 
 
 def test_odds_matcher():
@@ -1042,6 +1041,58 @@ def test_empty_env_vars_fall_back_to_defaults(env):
         importlib.reload(config)
 
 
+def test_the_nfl_page_is_reachable_from_the_site_root(env):
+    """The NFL board must be reachable from the front door, not just built.
+
+    All sports publish into one GitHub Pages deployment: a chooser at the root and each board
+    in its own subfolder. The NFL page linked back to college football from day one, but for
+    a while nothing linked forward and the root had no reference to the NFL at all - the board
+    was published and invisible. Both pages rendered perfectly on their own, which is exactly
+    why nothing caught it: the fault was in the relationship between them.
+
+    This reads the college template rather than importing from `cfb` - the sports stay
+    separate in code, but they share one published site, and that surface needs a guard.
+    """
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent
+
+    nfl_tpl = (root / "nfl" / "templates" / "index.html").read_text()
+    assert 'href="../"' in nfl_tpl, "the NFL page must link back to the chooser"
+    assert 'href="../cfb/"' in nfl_tpl, "the NFL page must link across to college football"
+
+    cfb_tpl = root / "cfb" / "templates" / "index.html"
+    if cfb_tpl.exists():
+        t = cfb_tpl.read_text()
+        assert 'href="../nfl/"' in t, "college football must link across to the NFL"
+        assert 'href="../"' in t, "college football must link back to the chooser"
+
+    # the rendered pages agree, so a stale docs/ cannot hide a broken link
+    published = root / "docs" / "nfl" / "index.html"
+    if published.exists():
+        html = published.read_text()
+        assert 'href="../"' in html and 'href="../cfb/"' in html
+
+
+def test_landing_page_lists_the_nfl(env):
+    """The chooser must offer the NFL, and must not depend on any sport's code to do it."""
+    import re
+    from pathlib import Path
+    from core import landing
+
+    root = Path(__file__).resolve().parent.parent
+    src = (root / "core" / "landing.py").read_text()
+    for line in src.splitlines():
+        assert not re.match(r"\s*(from|import)\s+(cfb|nfl|ncaab)\b", line), (
+            "the landing page must read published files, not import a sport: " + line)
+
+    assert any(s["slug"] == "nfl" for s in landing.SPORTS)
+    index = root / "docs" / "index.html"
+    if index.exists():
+        html = index.read_text()
+        assert 'href="nfl/"' in html, "the chooser must link to the NFL board"
+        assert "<title>" in html
+
+
 def test_predict_workflow_forwards_the_kalshi_series_vars(env):
     """Discovering the right ticker is useless if the daily job cannot be told about it."""
     from pathlib import Path
@@ -1068,3 +1119,72 @@ def test_nfl_module_does_not_import_other_sports(env):
             if re.match(r"\s*(from|import)\s+(cfb|ncaab|core)\b", line):
                 offenders.append(f"{path.relative_to(pkg.parent)}:{i}: {line.strip()}")
     assert not offenders, "nfl/ imports another sport or the shared core: " + "; ".join(offenders)
+
+
+def test_kickoff_sort_key_is_chronological_not_alphabetical():
+    """Sorting the printed label sorts by weekday NAME, which is not a time order.
+
+    Reported from the live board: with "Sort by kickoff" on, a Wednesday game went to the
+    bottom. The cause was `data-kick="{{ g.tip_et }}"` compared with localeCompare, so
+    "Wed Sep 09, 8:20 PM" sorted against "Mon Sep 14, 8:15 PM" as text: Fri < Mon < Sat < Sun
+    < Thu < Tue < Wed. Monday came first, Wednesday last. Two more failures rode along - the
+    hour compared as text put "10:00 PM" ahead of "12:00 PM" on the same day, and dates
+    interleaved across weeks. The ISO timestamp is the only field that orders correctly.
+    """
+    from nfl.site import _kick_key
+
+    assert _kick_key("2026-09-09T20:20:00-04:00", "Wed Sep 09, 8:20 PM") == \
+        "2026-09-09T20:20:00-04:00"
+
+    # an unannounced kickoff sorts last rather than at a placeholder time
+    for tip in ("", None, float("nan"), "nan", "   "):
+        assert _kick_key("2026-09-09T20:20:00-04:00", tip) == ""
+    for iso in ("", None, float("nan"), "NaT", "None"):
+        assert _kick_key(iso, "Wed Sep 09, 8:20 PM") == ""
+
+    # the three orderings the old label sort got wrong
+    board = [
+        ("2026-09-09T20:20:00-04:00", "Wed Sep 09, 8:20 PM"),
+        ("2026-09-14T20:15:00-04:00", "Mon Sep 14, 8:15 PM"),
+        ("2026-09-12T22:00:00-04:00", "Sat Sep 12, 10:00 PM"),
+        ("2026-09-12T12:00:00-04:00", "Sat Sep 12, 12:00 PM"),
+        ("2026-09-12T09:30:00-04:00", "Sat Sep 12, 9:30 AM"),
+        ("", "Time TBD"),
+    ]
+    keys = [_kick_key(i, t if t != "Time TBD" else "") for i, t in board]
+    labels = [t for _, t in board]
+    order = sorted(range(len(keys)), key=lambda i: (keys[i] == "", keys[i]))
+    got = [labels[i] for i in order]
+
+    assert got[0] == "Wed Sep 09, 8:20 PM", "Wednesday must lead, not trail"
+    assert got.index("Sat Sep 12, 9:30 AM") < got.index("Sat Sep 12, 12:00 PM")
+    assert got.index("Sat Sep 12, 12:00 PM") < got.index("Sat Sep 12, 10:00 PM")
+    assert got.index("Wed Sep 09, 8:20 PM") < got.index("Mon Sep 14, 8:15 PM")
+    assert got[-1] == "Time TBD"
+
+    # and the label sort really would have failed - this is what was shipped
+    assert sorted(labels)[0] != "Wed Sep 09, 8:20 PM"
+
+
+def test_kickoff_sort_uses_a_numeric_comparator_in_the_page():
+    """The template must compare timestamps numerically, not with localeCompare."""
+    from pathlib import Path
+    tpl = (Path(__file__).resolve().parent.parent
+           / "nfl" / "templates" / "index.html").read_text()
+    assert 'data-kick="{{ g.kick_sort' in tpl, "the page must sort on the ISO key"
+    assert "g.tip_et or 'zzz'" not in tpl, "the display label must not be the sort key"
+    assert "kickAt" in tpl and "Date.parse" in tpl
+    assert "dataset.kick || '').localeCompare" not in tpl
+
+
+def _rendered_text(html: str) -> str:
+    """Page content with <script> and <style> stripped.
+
+    The "no literal nan" guard below greps a lowercased page, so it fires on any identifier
+    that happens to contain those three letters - isNaN, financial, tenant. What it is
+    actually guarding is a pandas NaN leaking into a displayed field, so it should look at
+    the content and not at the code around it.
+    """
+    import re
+    body = re.sub(r"<script\b.*?</script>", "", html, flags=re.S | re.I)
+    return re.sub(r"<style\b.*?</style>", "", body, flags=re.S | re.I).lower()

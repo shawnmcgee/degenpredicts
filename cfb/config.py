@@ -8,7 +8,12 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(os.environ.get("DEGEN_ROOT", Path(__file__).resolve().parent.parent))
 DATA = Path(os.environ.get("DEGEN_DATA", ROOT / "data")) / "cfb"
-DOCS = Path(os.environ.get("DEGEN_DOCS", ROOT / "docs"))
+# GitHub Pages serves the docs folder. Its ROOT is a sport chooser rendered by
+# core.landing; each sport publishes into its own subfolder, so neither can overwrite the
+# other and adding a sport needs no coordination.
+_CFB_DOCS = os.environ.get("DEGEN_CFB_DOCS", "")
+DOCS = Path(_CFB_DOCS) if _CFB_DOCS else \
+    Path(os.environ.get("DEGEN_DOCS", ROOT / "docs")) / "cfb"
 
 GAMES = DATA / "games.csv"            # every FBS game, final or scheduled
 LINES = DATA / "lines.csv"            # CFBD historical + current lines (open and current)
