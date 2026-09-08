@@ -1,0 +1,31 @@
+name: EPL source check
+# Manual and read-only. Never commits.
+#
+# The one thing in the EPL pipeline that cannot be verified without reaching the live host is
+# the shape of football-data.co.uk's odds columns - and that layout already changed once, in
+# 2019-20. This fetches a sample of seasons either side of that change and reports which
+# columns the resolver actually found, into the job summary, which the GitHub mobile app
+# renders as a page rather than as raw logs.
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: 'Comma-separated start years (blank = a sensible sample)'
+        required: false
+      league:
+        description: 'League code, e.g. E0 (Premier League), E1 (Championship)'
+        required: false
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.txt
+      - run: |
+          python -m epl.sources.footballdata --check \
+            ${{ inputs.league && format('--league {0}', inputs.league) || '' }} \
+            ${{ inputs.seasons && format('--seasons {0}', inputs.seasons) || '' }}
