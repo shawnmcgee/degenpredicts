@@ -26389,7 +26389,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401868967,2026,1,regular,2026-09-06,False,"Sun Sep 06, 12:00 PM",Prairie View A&M,Texas Southern,52.0,14.0,66.0,38.0,False,True,SWAC,SWAC,True,2026-09-06T12:00:00-04:00,Sun
 401906158,2026,1,regular,2026-09-06,False,"Sun Sep 06, 4:00 PM",Johnson C. Smith,Albany State,7.0,27.0,34.0,-20.0,True,False,CIAA,SIAC,True,2026-09-06T16:00:00-04:00,Sun
 401917058,2026,1,regular,2026-09-06,False,"Sun Sep 06, 11:00 AM",Campbell,Western Carolina,28.0,19.0,47.0,9.0,False,False,Coastal Athletic,Southern,True,2026-09-06T11:00:00-04:00,Sun
-401858212,2026,1,regular,2026-09-07,False,"Mon Sep 07, 7:30 PM",Florida State,SMU,,,,,False,True,ACC,ACC,False,2026-09-07T19:30:00-04:00,Mon
+401858212,2026,1,regular,2026-09-07,False,"Mon Sep 07, 7:30 PM",Florida State,SMU,24.0,27.0,51.0,-3.0,False,True,ACC,ACC,True,2026-09-07T19:30:00-04:00,Mon
 401858213,2026,2,regular,2026-09-10,False,"Thu Sep 10, 8:00 PM",Miami,Florida A&M,,,,,False,False,ACC,SWAC,False,2026-09-10T20:00:00-04:00,Thu
 401906516,2026,2,regular,2026-09-10,False,"Thu Sep 10, 7:00 PM",Northwestern (OK),Arkansas Tech,,,,,False,True,Great American,Great American,False,2026-09-10T19:00:00-04:00,Thu
 401906527,2026,2,regular,2026-09-10,False,"Thu Sep 10, 8:00 PM",East Central,Arkansas Monticello,,,,,False,True,Great American,Great American,False,2026-09-10T20:00:00-04:00,Thu
@@ -26782,7 +26782,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401867857,2026,3,regular,2026-09-19,False,"Sat Sep 19, 1:00 PM",Indiana State,Valparaiso,,,,,False,False,MVFC,Pioneer,False,2026-09-19T13:00:00-04:00,Sat
 401867896,2026,3,regular,2026-09-19,False,"Sat Sep 19, 7:00 PM",South Dakota State,Youngstown State,,,,,False,True,MVFC,MVFC,False,2026-09-19T19:00:00-04:00,Sat
 401867898,2026,3,regular,2026-09-19,False,"Sat Sep 19, 3:00 PM",Montana State,Central Connecticut,,,,,False,False,Big Sky,NEC,False,2026-09-19T15:00:00-04:00,Sat
-401867908,2026,3,regular,2026-09-19,True,,Long Island University,Villanova,,,,,False,False,NEC,Patriot,False,2026-09-19T00:00:00-04:00,Sat
+401867908,2026,3,regular,2026-09-19,False,"Sat Sep 19, 12:00 PM",Long Island University,Villanova,,,,,False,False,NEC,Patriot,False,2026-09-19T12:00:00-04:00,Sat
 401867979,2026,3,regular,2026-09-19,False,"Sat Sep 19, 6:00 PM",Gardner-Webb,North Carolina Central,,,,,False,False,OVC,MEAC,False,2026-09-19T18:00:00-04:00,Sat
 401867984,2026,3,regular,2026-09-19,False,"Sat Sep 19, 7:00 PM",Furman,South Carolina State,,,,,False,False,Southern,MEAC,False,2026-09-19T19:00:00-04:00,Sat
 401867991,2026,3,regular,2026-09-19,False,"Sat Sep 19, 3:00 PM",Bucknell,Pennsylvania,,,,,False,False,Patriot,Ivy,False,2026-09-19T15:00:00-04:00,Sat
