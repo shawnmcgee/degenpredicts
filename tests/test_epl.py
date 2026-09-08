@@ -338,6 +338,101 @@ def test_unknown_club_is_skipped_loudly_not_invented(caplog):
 
 
 # ---------------------------------------------------------------------------------
+# Fetch budget: a dead upstream must not become a stuck job
+# ---------------------------------------------------------------------------------
+def test_per_request_budget_is_bounded():
+    """A first backfill fetches ~50 files, so per-request slack is paid fifty times over. The
+    shipped 45s timeout with four retries cost 4.1 minutes per unreachable file, which turned a
+    six-file schema check into a 25-minute job and a first retrain into a three-hour one."""
+    from epl import config
+
+    connect, read = config.HTTP_TIMEOUT
+    assert connect <= 10, "a blackholed host is bounded only by the CONNECT timeout"
+    assert read <= 30
+    assert config.HTTP_RETRIES <= 2
+    worst = (config.HTTP_RETRIES + 1) * connect + 8      # attempts plus capped backoff
+    assert worst < 60, f"{worst}s per dead URL is too much when a run fetches ~50 of them"
+
+
+def test_primary_host_is_abandoned_after_repeated_failure(monkeypatch):
+    """Retrying a host that has already failed twice, once per file, for fifty files, is the
+    difference between a slow run and a stuck one."""
+    from epl import config
+    from epl.sources import footballdata as F
+
+    F.reset_primary()
+    tried = []
+
+    def fake_csv(url):
+        tried.append(url)
+        # the primary never answers; the mirror always does
+        if "football-data.co.uk" in url:
+            return pd.DataFrame()
+        return pd.DataFrame({"Date": ["16/08/2024"], "HomeTeam": ["Arsenal"],
+                             "AwayTeam": ["Chelsea"], "FTHG": [1], "FTAG": [0]})
+
+    monkeypatch.setattr(F, "_csv", fake_csv)
+    for season in range(2015, 2025):
+        F.fetch_season(season)
+
+    primary_hits = [u for u in tried if "football-data.co.uk" in u]
+    assert len(primary_hits) == config.PRIMARY_FAILURE_LIMIT, (
+        f"the dead host was tried {len(primary_hits)} times across 10 seasons; it must be "
+        f"abandoned after {config.PRIMARY_FAILURE_LIMIT}")
+    assert F.primary_is_down()
+    # and the mirror still served every season, so the run completes rather than failing
+    assert len([u for u in tried if "githubusercontent" in u]) == 10
+    F.reset_primary()
+
+
+def test_a_recovered_primary_is_used_again(monkeypatch):
+    """The breaker is per-process, never persisted, so an outage heals on the next run."""
+    from epl.sources import footballdata as F
+
+    F.reset_primary()
+    F._note_primary(False)
+    F._note_primary(False)
+    assert F.primary_is_down()
+    F.reset_primary()
+    assert not F.primary_is_down()
+
+    # a success part-way through also clears the counter, so intermittent failures never trip it
+    F._note_primary(False)
+    F._note_primary(True)
+    F._note_primary(False)
+    assert not F.primary_is_down()
+    F.reset_primary()
+
+
+def test_lower_division_is_cached_between_retrains(monkeypatch):
+    """Only the promoted clubs' prior season is ever read out of the division below, but working
+    out which clubs those are needs the whole division. Completed seasons never change, so a
+    weekly retrain must not refetch a decade of it."""
+    from epl.sources import footballdata as F
+
+    F.reset_primary()
+    calls = []
+
+    def fake_fetch(season, league=None):
+        calls.append((season, league))
+        return pd.DataFrame({"Date": [f"16/08/{season}"], "HomeTeam": ["Millwall"],
+                             "AwayTeam": ["Preston"], "FTHG": [2], "FTAG": [1],
+                             "HST": [5], "AST": [3]})
+
+    monkeypatch.setattr(F, "fetch_season", fake_fetch)
+    seasons = [2018, 2019, 2020]
+    first = F._lower_division(seasons)
+    assert len(first) == 3
+    assert len(calls) == 3, "first run backfills"
+
+    calls.clear()
+    second = F._lower_division(seasons)
+    assert len(second) == 3
+    assert calls == [], "second run must serve entirely from the cache"
+    F.reset_primary()
+
+
+# ---------------------------------------------------------------------------------
 # Ratings
 # ---------------------------------------------------------------------------------
 def test_home_advantage_is_football_sized():
@@ -766,3 +861,14 @@ def test_workflows_exist_and_are_wired():
     assert "python -m core.landing" in predict, "the chooser must refresh after each sport"
     test_wf = (wf / "test.yml").read_text()
     assert "epl" in test_wf, "CI must run the EPL suite as its own job"
+
+
+def test_epl_workflows_are_time_capped():
+    """A hung upstream must never burn Actions minutes for hours. The circuit breaker should
+    make this unreachable; the cap is what makes it impossible."""
+    wf = ROOT / ".github" / "workflows"
+    for name in ("epl-train.yml", "epl-predict.yml", "epl-grade.yml", "epl-source-check.yml"):
+        text = (wf / name).read_text()
+        assert "timeout-minutes:" in text, f"{name} has no timeout-minutes"
+        mins = int(text.split("timeout-minutes:")[1].split()[0])
+        assert 0 < mins <= 30, f"{name} allows {mins} minutes"

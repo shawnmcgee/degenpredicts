@@ -27,7 +27,10 @@ def session() -> requests.Session:
     global _session
     if _session is None:
         s = requests.Session()
-        retry = Retry(total=config.HTTP_RETRIES, backoff_factor=1.5,
+        # backoff_factor is deliberately small and the total is capped: this pipeline fetches
+        # ~50 files on a first backfill, so any per-request slack is paid fifty times over.
+        retry = Retry(total=config.HTTP_RETRIES, connect=config.HTTP_RETRIES,
+                      read=config.HTTP_RETRIES, backoff_factor=0.5, backoff_max=4,
                       status_forcelist=(429, 500, 502, 503, 504), allowed_methods=("GET",))
         s.mount("https://", HTTPAdapter(max_retries=retry, pool_maxsize=8))
         s.mount("http://", HTTPAdapter(max_retries=retry, pool_maxsize=8))
