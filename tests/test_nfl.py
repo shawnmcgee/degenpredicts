@@ -1042,6 +1042,39 @@ def test_empty_env_vars_fall_back_to_defaults(env):
         importlib.reload(config)
 
 
+def test_the_nfl_page_is_reachable_from_the_site_root(env):
+    """The NFL board must be discoverable, not just built.
+
+    Both sports publish into one GitHub Pages deployment: college football at the root and the
+    NFL at /nfl/. The NFL page linked back to college football from day one, but nothing
+    linked forward, so a visitor landing on the site root had no way to find out the NFL board
+    existed at all. It was a one-way door and entirely invisible in testing, because both
+    pages rendered perfectly on their own.
+
+    This reads the college template rather than importing anything from `cfb` - the sports
+    stay separate in code, but they share one published site, and that shared surface needs a
+    guard somewhere. It lives here because being reachable is the NFL page's interest.
+    """
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent
+
+    nfl_tpl = (root / "nfl" / "templates" / "index.html").read_text()
+    assert 'href="../"' in nfl_tpl, "the NFL page must link back to college football"
+
+    cfb_tpl = root / "cfb" / "templates" / "index.html"
+    if not cfb_tpl.exists():
+        pytest.skip("no college football template in this checkout")
+    assert 'href="nfl/"' in cfb_tpl.read_text(), (
+        "the college football page must link to nfl/, or the NFL board is published but "
+        "unreachable from the site root")
+
+    # and the rendered pages agree, so a stale docs/ cannot hide a broken link
+    for page, needle in ((root / "docs" / "index.html", 'href="nfl/"'),
+                         (root / "docs" / "nfl" / "index.html", 'href="../"')):
+        if page.exists():
+            assert needle in page.read_text(), f"{page.name} lost its sport switcher"
+
+
 def test_predict_workflow_forwards_the_kalshi_series_vars(env):
     """Discovering the right ticker is useless if the daily job cannot be told about it."""
     from pathlib import Path
