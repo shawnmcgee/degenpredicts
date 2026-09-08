@@ -20,7 +20,7 @@ import logging
 import re
 import statistics
 import unicodedata
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pandas as pd
 
@@ -62,7 +62,37 @@ NAMES: dict[str, str] = {
     "vikings": "MIN", "patriots": "NE", "saints": "NO", "giants": "NYG", "jets": "NYJ",
     "eagles": "PHI", "steelers": "PIT", "49ers": "SF", "niners": "SF", "seahawks": "SEA",
     "buccaneers": "TB", "bucs": "TB", "titans": "TEN", "commanders": "WAS",
+
+    # --- city only ------------------------------------------------------------------
+    # Kalshi's spread ladder names the favourite by CITY: "If Kansas City wins by more than
+    # 7.5 points...". Without these the entire ladder fails to match, which is how a live
+    # discover run against the real API turned up "Denver" and "Kansas City" unmatched.
+    # The fuzzy fallback cannot rescue them either - "kansas city" against "kansas city
+    # chiefs" scores 0.76, below the 0.85 cutoff, and lowering that cutoff to catch it would
+    # start matching genuinely different clubs.
+    "arizona": "ARI", "atlanta": "ATL", "baltimore": "BAL", "buffalo": "BUF",
+    "carolina": "CAR", "chicago": "CHI", "cincinnati": "CIN", "cleveland": "CLE",
+    "dallas": "DAL", "denver": "DEN", "detroit": "DET", "green bay": "GB",
+    "houston": "HOU", "indianapolis": "IND", "jacksonville": "JAX", "kansas city": "KC",
+    "las vegas": "LV", "miami": "MIA", "minnesota": "MIN", "new england": "NE",
+    "new orleans": "NO", "philadelphia": "PHI", "pittsburgh": "PIT", "seattle": "SEA",
+    "san francisco": "SF", "tampa bay": "TB", "tennessee": "TEN", "washington": "WAS",
+    "oakland": "LV", "san diego": "LAC", "st louis": "LA", "st. louis": "LA",
+
+    # --- the four clubs that share a city ---------------------------------------------
+    # Kalshi disambiguates with a single trailing letter ("New York G") in yes_sub_title and
+    # with a short city form ("NY Giants") in the rules text. Both spellings appear in the
+    # same payload for the same game, so both have to resolve.
+    "new york g": "NYG", "new york j": "NYJ",
+    "los angeles r": "LA", "los angeles c": "LAC",
+    "ny giants": "NYG", "ny jets": "NYJ", "la rams": "LA", "la chargers": "LAC",
+    "n y giants": "NYG", "n y jets": "NYJ",
 }
+
+# Bare "New York" and "Los Angeles" name two clubs each and must never be guessed. They are
+# refused before the fuzzy fallback can pick one, because picking wrong here silently prices
+# the wrong team's contract - a far worse outcome than reporting the name as unmatched.
+AMBIGUOUS = {"new york", "los angeles", "la", "ny", "nyc"}
 
 
 def _norm(name: str) -> str:
@@ -91,6 +121,9 @@ def build_matcher(teams: list[str] | None = None):
             if not known or code in known:
                 return code
         n = _norm(raw)
+        if n in AMBIGUOUS:
+            unmatched.add(raw)
+            return raw
         if n in NAMES:
             return NAMES[n]
         # try dropping the city: "Kansas City Chiefs" -> "chiefs"
@@ -157,7 +190,7 @@ def snapshot(matcher=None) -> pd.DataFrame:
         return pd.DataFrame()
     log.info("Odds API quota used=%s remaining=%s",
              r.headers.get("x-requests-used"), r.headers.get("x-requests-remaining"))
-    pulled = datetime.utcnow().isoformat(timespec="seconds")
+    pulled = datetime.now(timezone.utc).isoformat(timespec="seconds")
     rows = []
     for ev in r.json():
         tot = {bm["title"]: _market(bm, "totals", ev["home_team"])

@@ -673,24 +673,68 @@ def test_odds_matcher():
 # parsing and the guards; they cannot pin the ticker, which is why every Kalshi path in
 # predict.py degrades to "no exchange prices" rather than failing.
 # ---------------------------------------------------------------------------------
+# Verbatim from a live /markets response on 2026-09-08, via the discover workflow. These
+# replaced hand-written fixtures, and the swap immediately exposed a real defect: the guessed
+# payloads used full club names ("Dallas Cowboys") but Kalshi actually sends a city
+# ("Kansas City"), a short city form ("NY Giants") and a one-letter disambiguator
+# ("New York G"). The matcher resolved none of the first or last kind, so the spread ladder
+# would have matched nothing at all in production.
 KALSHI_SAMPLE = [
-    {"event_ticker": "KXNFLGAME-26SEP13DALNYG", "ticker": "KXNFLGAME-26SEP13DALNYG-DAL",
-     "title": "Dallas Cowboys wins", "yes_sub_title": "Dallas Cowboys",
-     "market_type": "binary", "yes_bid_dollars": "0.0800", "yes_ask_dollars": "0.8100",
-     "yes_ask_size_fp": "131.00", "yes_bid_size_fp": "538.00", "volume_fp": "0.00",
-     "open_interest_fp": "0.00", "last_price_dollars": "0.0000",
-     "rules_primary": "If Dallas Cowboys wins the Dallas Cowboys vs New York Giants NFL "
-                      "football game originally scheduled for Sep 13, 2026, then the market "
-                      "resolves to Yes."},
-    {"event_ticker": "KXNFLGAME-26SEP13DALNYG", "ticker": "KXNFLGAME-26SEP13DALNYG-NYG",
-     "title": "New York Giants wins", "yes_sub_title": "New York Giants",
-     "market_type": "binary", "yes_bid_dollars": "0.4200", "yes_ask_dollars": "0.4400",
-     "yes_ask_size_fp": "318.00", "yes_bid_size_fp": "143.00", "volume_fp": "766.09",
-     "open_interest_fp": "696.28", "last_price_dollars": "0.4300",
-     "rules_primary": "If New York Giants wins the Dallas Cowboys vs New York Giants NFL "
-                      "football game originally scheduled for Sep 13, 2026, then the market "
-                      "resolves to Yes."},
+    {"event_ticker": "KXNFLGAME-26SEP21NYGLAR", "ticker": "KXNFLGAME-26SEP21NYGLAR-NYG",
+     "yes_sub_title": "New York G", "market_type": "binary",
+     "yes_bid_dollars": "0.21", "yes_ask_dollars": "0.23", "yes_ask_size_fp": "1009.00",
+     "yes_bid_size_fp": "714.74", "volume_fp": "3244.01", "open_interest_fp": "2813.86",
+     "last_price_dollars": "0.23",
+     "rules_primary": "If New York G wins the NY Giants vs LA Rams Pro Football game "
+                      "originally scheduled for Sep 21, 2026, then the market resolves to Yes."},
+    {"event_ticker": "KXNFLGAME-26SEP21NYGLAR", "ticker": "KXNFLGAME-26SEP21NYGLAR-LAR",
+     "yes_sub_title": "Los Angeles R", "market_type": "binary",
+     "yes_bid_dollars": "0.76", "yes_ask_dollars": "0.79", "yes_ask_size_fp": "6823.00",
+     "yes_bid_size_fp": "1644.11", "volume_fp": "2007.93", "open_interest_fp": "1730.20",
+     "last_price_dollars": "0.78",
+     "rules_primary": "If Los Angeles R wins the NY Giants vs LA Rams Pro Football game "
+                      "originally scheduled for Sep 21, 2026, then the market resolves to Yes."},
 ]
+
+
+def test_kalshi_team_names_match_what_the_exchange_actually_sends(env):
+    """Kalshi does not use full club names, and assuming it did broke the whole ladder.
+
+    A live discover run returned three naming styles in one payload: the spread ladder names
+    the favourite by CITY ("If Kansas City wins by more than 7.5 points"), the moneyline
+    subtitle uses a one-letter disambiguator ("New York G"), and the rules matchup uses a
+    short city form ("NY Giants vs LA Rams"). The matcher had been built for
+    "Kansas City Chiefs" and resolved none of the city-only or truncated forms, so every
+    spread rung would have failed to join - visible only as "matched 0/16" in a log.
+
+    The fuzzy fallback could not have saved it: "kansas city" scores 0.76 against
+    "kansas city chiefs", under the 0.85 cutoff, and loosening that starts matching
+    genuinely different clubs.
+    """
+    from nfl.sources.odds import build_matcher
+
+    m = build_matcher()
+    for raw, want in {
+        # moneyline yes_sub_title
+        "New York G": "NYG", "New York J": "NYJ",
+        "Los Angeles R": "LA", "Los Angeles C": "LAC",
+        # rules-text matchup
+        "NY Giants": "NYG", "LA Rams": "LA",
+        # spread ladder favourite, named by city
+        "Kansas City": "KC", "Denver": "DEN", "Green Bay": "GB", "New England": "NE",
+        "Tampa Bay": "TB", "San Francisco": "SF", "New Orleans": "NO", "Las Vegas": "LV",
+        # full club names still work, and so do relocated cities
+        "Kansas City Chiefs": "KC", "Oakland": "LV", "San Diego": "LAC", "St Louis": "LA",
+    }.items():
+        assert m(raw) == want, f"{raw!r} -> {m(raw)!r}, expected {want}"
+    assert not m.unmatched
+
+    # A bare shared city names two clubs and must never be guessed: picking wrong here prices
+    # the wrong team's contract, which is worse than reporting the name as unresolved.
+    amb = build_matcher()
+    for raw in ("New York", "Los Angeles"):
+        assert amb(raw) == raw
+    assert amb.unmatched == {"New York", "Los Angeles"}
 
 
 def test_kalshi_parses_multiword_team_names(env):
@@ -698,32 +742,28 @@ def test_kalshi_parses_multiword_team_names(env):
 
     With a lazy home-team group, "the Dallas vs New York Giants NFL football game" parsed the
     home team as "New", because "York Giants NFL football" matched a permissive sport phrase.
-    Every multi-word club would have been truncated and nothing about the output would have
-    looked wrong.
+    The live payload confirms the wording is "Pro Football game", which the closed qualifier
+    list handles.
     """
     from datetime import date as _date
     from nfl.sources import kalshi
+
     rows = [kalshi.parse_market(m) for m in KALSHI_SAMPLE]
     assert all(r for r in rows)
-    dal = rows[0]
-    assert dal["kalshi_team"] == "Dallas Cowboys"
-    assert dal["away_raw"] == "Dallas Cowboys" and dal["home_raw"] == "New York Giants"
-    assert dal["date"] == _date(2026, 9, 13)
-    assert dal["yes_ask"] == 0.81
-    # 73c spread, zero volume -> must NOT be considered tradeable
-    assert dal["tradeable"] is False
-    nyg = rows[1]
-    assert nyg["home_raw"] == "New York Giants"
-    assert round(nyg["quote_spread"], 2) == 0.02
-    assert nyg["tradeable"] is True          # 2c spread, real size and volume
+    nyg = rows[0]
+    assert nyg["kalshi_team"] == "New York G"
+    # the matchup is phrased away-first, so the SECOND name is the home side
+    assert nyg["away_raw"] == "NY Giants" and nyg["home_raw"] == "LA Rams"
+    assert nyg["date"] == _date(2026, 9, 21)
+    assert nyg["yes_ask"] == 0.23
+    assert nyg["tradeable"] is True          # 2c spread, 1009 at the ask, 3244 traded
 
-    # the sport phrase varies by series; all three wordings must parse identically
-    for phrase in ("NFL football", "pro football", "football"):
+    # every sport wording Kalshi uses across its football series must parse identically
+    for phrase in ("Pro Football", "NFL football", "football", "college football"):
         hit = kalshi.RULES_RE.search(
-            f"If Green Bay Packers wins the Green Bay Packers vs Tampa Bay Buccaneers "
-            f"{phrase} game originally scheduled for Sep 13, 2026, then...")
-        assert hit and hit.group("a") == "Green Bay Packers"
-        assert hit.group("b") == "Tampa Bay Buccaneers"
+            f"If Green Bay wins the Green Bay vs Tampa Bay {phrase} game "
+            f"originally scheduled for Sep 13, 2026, then...")
+        assert hit and hit.group("a") == "Green Bay" and hit.group("b") == "Tampa Bay"
 
 
 def test_kalshi_board_matches_names(env, monkeypatch):
@@ -731,9 +771,9 @@ def test_kalshi_board_matches_names(env, monkeypatch):
     monkeypatch.setattr(kalshi, "fetch_markets", lambda *a, **k: KALSHI_SAMPLE)
     df = kalshi.moneyline_board(odds.build_matcher())
     assert len(df) == 2
-    assert set(df["team"]) == {"DAL", "NYG"}
-    assert set(df["home_team"]) == {"NYG"} and set(df["away_team"]) == {"DAL"}
-    assert int(df["tradeable"].sum()) == 1
+    assert set(df["team"]) == {"NYG", "LA"}
+    assert set(df["home_team"]) == {"LA"} and set(df["away_team"]) == {"NYG"}
+    assert int(df["tradeable"].sum()) == 2
 
 
 def test_kalshi_fee_and_ev(env):
@@ -749,64 +789,92 @@ def test_kalshi_fee_and_ev(env):
 
 
 KALSHI_TOTAL = [
-    {"event_ticker": "KXNFLTOTAL-26SEP13DALNYG", "ticker": "KXNFLTOTAL-26SEP13DALNYG-52",
-     "floor_strike": 51.5, "strike_type": "greater", "market_type": "binary",
-     "yes_bid_dollars": "0.0900", "yes_ask_dollars": "0.1700", "yes_ask_size_fp": "150.00",
-     "volume_fp": "0.00", "open_interest_fp": "0.00",
-     "rules_primary": "If the teams collectively score more than 51.5 points in the Dallas "
-                      "Cowboys vs New York Giants NFL football game originally scheduled for "
-                      "Sep 13, 2026, then the market resolves to Yes."},
-    {"event_ticker": "KXNFLTOTAL-26SEP13DALNYG", "ticker": "KXNFLTOTAL-26SEP13DALNYG-45",
-     "floor_strike": 44.5, "strike_type": "greater", "market_type": "binary",
-     "yes_bid_dollars": "0.4600", "yes_ask_dollars": "0.4900", "yes_ask_size_fp": "150.00",
-     "volume_fp": "0.00", "open_interest_fp": "0.00",
-     "rules_primary": "If the teams collectively score more than 44.5 points in the Dallas "
-                      "Cowboys vs New York Giants NFL football game originally scheduled for "
-                      "Sep 13, 2026, then the market resolves to Yes."},
+    # verbatim from the live API, 2026-09-08
+    {"event_ticker": "KXNFLTOTAL-26SEP14DENKC", "ticker": "KXNFLTOTAL-26SEP14DENKC-64",
+     "floor_strike": 63.5, "strike_type": "greater", "market_type": "binary",
+     "yes_bid_dollars": "0.07", "yes_ask_dollars": "0.09", "yes_ask_size_fp": "4435.00",
+     "volume_fp": "414.94", "open_interest_fp": "346.97",
+     "rules_primary": "If Denver and Kansas City collectively score more than 63.5 points in "
+                      "the Denver vs Kansas City Pro Football game originally scheduled for "
+                      "Sep 14, 2026, then the market resolves to Yes."},
+    {"event_ticker": "KXNFLTOTAL-26SEP14DENKC", "ticker": "KXNFLTOTAL-26SEP14DENKC-61",
+     "floor_strike": 60.5, "strike_type": "greater", "market_type": "binary",
+     "yes_bid_dollars": "0.08", "yes_ask_dollars": "0.09", "yes_ask_size_fp": "31.11",
+     "volume_fp": "25596.56", "open_interest_fp": "18279.55",
+     "rules_primary": "If Denver and Kansas City collectively score more than 60.5 points in "
+                      "the Denver vs Kansas City Pro Football game originally scheduled for "
+                      "Sep 14, 2026, then the market resolves to Yes."},
 ]
 
 KALSHI_SPREAD = [
-    {"event_ticker": "KXNFLSPREAD-26SEP13DALNYG", "ticker": "KXNFLSPREAD-26SEP13DALNYG-NYG9",
-     "floor_strike": 8.5, "strike_type": "greater", "market_type": "binary",
-     "yes_bid_dollars": "0.0700", "yes_ask_dollars": "0.9000", "yes_ask_size_fp": "701.00",
-     "volume_fp": "0.00", "open_interest_fp": "0.00",
-     "rules_primary": "If New York Giants wins by more than 8.5 points in the Dallas Cowboys "
-                      "vs New York Giants NFL football game originally scheduled for "
-                      "Sep 13, 2026, then the market resolves to Yes."},
-    {"event_ticker": "KXNFLSPREAD-26SEP13DALNYG", "ticker": "KXNFLSPREAD-26SEP13DALNYG-NYG5",
-     "floor_strike": 4.5, "strike_type": "greater", "market_type": "binary",
-     "yes_bid_dollars": "0.0700", "yes_ask_dollars": "0.1700", "yes_ask_size_fp": "150.00",
-     "volume_fp": "0.00", "open_interest_fp": "0.00",
-     "rules_primary": "If New York Giants wins by more than 4.5 points in the Dallas Cowboys "
-                      "vs New York Giants NFL football game originally scheduled for "
-                      "Sep 13, 2026, then the market resolves to Yes."},
+    # verbatim from the live API, 2026-09-08. Note the favourite is named by CITY.
+    {"event_ticker": "KXNFLSPREAD-26SEP14DENKC", "ticker": "KXNFLSPREAD-26SEP14DENKC-KC8",
+     "floor_strike": 7.5, "strike_type": "greater", "market_type": "binary",
+     "yes_bid_dollars": "0.29", "yes_ask_dollars": "0.30", "yes_ask_size_fp": "1428.00",
+     "volume_fp": "1907.29", "open_interest_fp": "1905.91",
+     "rules_primary": "If Kansas City wins by more than 7.5 points in the Denver vs Kansas "
+                      "City Pro Football game originally scheduled for Sep 14, 2026, then "
+                      "the market resolves to Yes."},
+    {"event_ticker": "KXNFLSPREAD-26SEP14DENKC", "ticker": "KXNFLSPREAD-26SEP14DENKC-KC7",
+     "floor_strike": 6.5, "strike_type": "greater", "market_type": "binary",
+     "yes_bid_dollars": "0.34", "yes_ask_dollars": "0.35", "yes_ask_size_fp": "1084.00",
+     "volume_fp": "4064.40", "open_interest_fp": "1020.65",
+     "rules_primary": "If Kansas City wins by more than 6.5 points in the Denver vs Kansas "
+                      "City Pro Football game originally scheduled for Sep 14, 2026, then "
+                      "the market resolves to Yes."},
 ]
 
 
 def test_kalshi_ladder_parse(env):
     from datetime import date as _date
-    from nfl.sources import kalshi
+    from nfl.sources import kalshi, odds
+
     t = kalshi.parse_ladder(KALSHI_TOTAL[0], "total")
-    assert t["strike"] == 51.5 and t["date"] == _date(2026, 9, 13)
-    assert t["away_raw"] == "Dallas Cowboys" and t["home_raw"] == "New York Giants"
-    assert t["yes_ask"] == 0.17
+    assert t["strike"] == 63.5 and t["date"] == _date(2026, 9, 14)
+    assert t["away_raw"] == "Denver" and t["home_raw"] == "Kansas City"
+    assert t["yes_ask"] == 0.09
+
     s = kalshi.parse_ladder(KALSHI_SPREAD[0], "spread")
-    assert s["strike"] == 8.5 and s["team_raw"] == "New York Giants"
-    # the matchup is phrased away-first: "Dallas vs New York Giants" => the Giants host
-    assert s["away_raw"] == "Dallas Cowboys" and s["home_raw"] == "New York Giants"
+    assert s["strike"] == 7.5
+    # the favourite is named by CITY, which is what the matcher has to resolve
+    assert s["team_raw"] == "Kansas City"
+    assert s["away_raw"] == "Denver" and s["home_raw"] == "Kansas City"
+
+    m = odds.build_matcher()
+    assert (m(s["team_raw"]), m(s["away_raw"]), m(s["home_raw"])) == ("KC", "DEN", "KC")
+    assert not m.unmatched, "a ladder rung must resolve every name it carries"
+
+    # A deeply traded rung whose top-of-book happens to be thin is refused. That is the
+    # strict direction on purpose: a false positive is a bet against a price that is not
+    # really there, and the model has no proven edge to spend on that risk.
+    thin = kalshi.parse_ladder(KALSHI_TOTAL[1], "total")
+    assert thin["volume"] > 25000 and thin["ask_size"] < kalshi.MIN_ASK_SIZE
+    assert thin["tradeable"] is False
 
 
 def test_kalshi_monotonicity_detects_incoherent_ladder(env, monkeypatch):
-    """P(win by >8.5) cannot exceed P(win by >4.5)."""
+    """P(win by >7.5) can never exceed P(win by >6.5), so a higher strike must not cost more.
+
+    The live NFL ladder is coherent - 7.5 asks 30c against 6.5 at 35c - which is the whole
+    point of checking: the guard has to stay quiet on a healthy book and only fire on a real
+    contradiction, or it becomes noise nobody reads.
+    """
     from nfl.sources import kalshi
+
     monkeypatch.setattr(kalshi, "fetch_markets", lambda *a, **k: KALSHI_SPREAD)
-    breaks = kalshi.monotonicity_breaks(kalshi.ladder_board("spread"))
-    assert len(breaks) == 1
-    assert breaks[0]["lower_strike"] == 4.5 and breaks[0]["higher_strike"] == 8.5
-    assert breaks[0]["higher_ask"] > breaks[0]["lower_ask"]
-    # a coherent ladder must produce no breaks
+    assert kalshi.monotonicity_breaks(kalshi.ladder_board("spread")) == [], \
+        "the real ladder is coherent and must not be flagged"
     monkeypatch.setattr(kalshi, "fetch_markets", lambda *a, **k: KALSHI_TOTAL)
     assert kalshi.monotonicity_breaks(kalshi.ladder_board("total")) == []
+
+    # invert one quote so the higher strike costs more, and it must be caught
+    broken = [dict(m) for m in KALSHI_SPREAD]
+    broken[0]["yes_ask_dollars"] = "0.90"          # "wins by more than 7.5" now dearer
+    monkeypatch.setattr(kalshi, "fetch_markets", lambda *a, **k: broken)
+    breaks = kalshi.monotonicity_breaks(kalshi.ladder_board("spread"))
+    assert len(breaks) == 1
+    assert breaks[0]["lower_strike"] == 6.5 and breaks[0]["higher_strike"] == 7.5
+    assert breaks[0]["higher_ask"] > breaks[0]["lower_ask"]
 
 
 def test_ladder_guards_reject_thin_and_tails(env, monkeypatch):

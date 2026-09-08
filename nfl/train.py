@@ -36,7 +36,7 @@ import argparse
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
@@ -472,7 +472,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     df = assemble(fetch=not args.no_fetch)
-    meta = {"trained_at": datetime.utcnow().isoformat(timespec="seconds"),
+    meta = {"trained_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "sport": "nfl",
             "base_features": BASE_FEATURES, "market_features": MARKET_FEATURES,
             "n_rows": int(len(df)), "seasons": [int(s) for s in sorted(df.season.unique())],

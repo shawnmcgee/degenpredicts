@@ -225,11 +225,11 @@ KALSHI_PROB_MIN = _env_float("DEGEN_KALSHI_PROB_MIN", 0.25)
 KALSHI_PROB_MAX = _env_float("DEGEN_KALSHI_PROB_MAX", 0.75)
 KALSHI_MAX_BOOK_GAP = _env_float("DEGEN_KALSHI_MAX_GAP", 6.0)
 
-# Kalshi's NFL series tickers. These follow the same KX<LEAGUE><MARKET> pattern as the
-# college series, which were confirmed against live payloads. The NFL ones are NOT confirmed
-# here - the exchange was unreachable from the machine this was written on - so they are env
-# overridable and every Kalshi path degrades to "no exchange prices" rather than failing.
-# Run `python -m nfl.sources.kalshi --discover` once to confirm them against the live API.
+# Kalshi's NFL series tickers, CONFIRMED against the live API on 2026-09-08:
+# KXNFLGAME returned 64 open moneyline markets, KXNFLSPREAD 404 ladder rungs and KXNFLTOTAL
+# 304, and all three parsed. Still env-overridable, and every Kalshi path still degrades to
+# "no exchange prices" rather than failing, because a series can be renamed. Re-confirm with
+# the "NFL Kalshi discover" workflow, which runs from anywhere including a phone.
 KALSHI_SERIES_MONEYLINE = _env("DEGEN_KALSHI_ML_SERIES", "KXNFLGAME")
 KALSHI_SERIES_SPREAD = _env("DEGEN_KALSHI_SPREAD_SERIES", "KXNFLSPREAD")
 KALSHI_SERIES_TOTAL = _env("DEGEN_KALSHI_TOTAL_SERIES", "KXNFLTOTAL")
