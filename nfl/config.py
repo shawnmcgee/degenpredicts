@@ -12,6 +12,32 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+def _env(name: str, default: str) -> str:
+    """Read an environment variable, treating empty as unset.
+
+    ``os.environ.get(name, default)`` returns "" for a variable that is SET but empty, not the
+    default - and GitHub Actions passes an unconfigured repo variable as exactly that. So
+    `DEGEN_KALSHI_ML_SERIES: ${{ vars.DEGEN_KALSHI_ML_SERIES }}` in a workflow would blank the
+    ticker rather than leave the default alone. For the numeric knobs it is worse than blank:
+    float("") raises, and the daily job dies on a variable nobody ever set.
+    """
+    return os.environ.get(name, "").strip() or default
+
+
+def _env_float(name: str, default: float) -> float:
+    try:
+        return float(_env(name, str(default)))
+    except ValueError:
+        return default
+
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(_env(name, str(default)))
+    except ValueError:
+        return default
+
+
 ROOT = Path(os.environ.get("DEGEN_ROOT", Path(__file__).resolve().parent.parent))
 DATA = Path(os.environ.get("DEGEN_DATA", ROOT / "data")) / "nfl"
 # The CFB site owns docs/index.html. NFL gets its own folder so both can publish from the
@@ -125,20 +151,20 @@ def current_week(games, today: date | None = None) -> tuple[int, int]:
 # nflverse's team-level EPA (stats_team_week) starts at 2010, and the pre-2010 game is
 # different enough - lower scoring, different pass-interference and QB-contact rules - that
 # those seasons would be teaching the model about a sport that no longer exists.
-FIRST_SEASON = int(os.environ.get("DEGEN_FIRST_SEASON", "2010"))
+FIRST_SEASON = _env_int("DEGEN_FIRST_SEASON", 2010)
 # Seasons loaded BEFORE the training window purely to warm the rating engine up. Without
 # this, every team enters Week 1 of FIRST_SEASON rated identically - all 16 games in 2010
 # week 1 had one distinct `h_margin` value - and the whole first season runs on ratings that
 # started from zero rather than from a real prior. Warm-up games advance the ratings and the
 # quarterback tracker but never become training rows; see features.build(first_train_season).
-WARMUP_SEASONS = int(os.environ.get("DEGEN_WARMUP_SEASONS", "1"))
+WARMUP_SEASONS = _env_int("DEGEN_WARMUP_SEASONS", 1)
 LOAD_FROM_SEASON = FIRST_SEASON - WARMUP_SEASONS
 # Snap counts (and therefore roster continuity) only exist from 2013, so continuity is NaN
 # for games before 2014. That is fine - the trees handle a missing feature - but it is why
 # you will see the column empty in the early seasons.
 FIRST_SNAP_SEASON = 2013
 # An NFL week is Thursday to Monday; 7 days ahead covers the full slate from any weekday.
-BOARD_DAYS = int(os.environ.get("DEGEN_BOARD_DAYS", "7"))
+BOARD_DAYS = _env_int("DEGEN_BOARD_DAYS", 7)
 
 # --- modelling / betting --------------------------------------------------------------
 # 272 regular-season games a season against college football's ~800. Everything downstream
@@ -149,20 +175,20 @@ GAMES_PER_SEASON = 272
 # Weeks 1-3 are flagged and unstaked. Higher than the college pipeline's 2 because NFL
 # roster turnover between seasons is heavier, so preseason ratings are less trustworthy for
 # longer. The flag clears once both teams have this many games in the book, i.e. in week 4.
-MIN_GAMES = int(os.environ.get("DEGEN_MIN_GAMES", "3"))
+MIN_GAMES = _env_int("DEGEN_MIN_GAMES", 3)
 
 # NFL closing lines are the sharpest market in sports. These thresholds are on the model's
 # RAW disagreement with the line (|model - line|), the same quantity ats_by_disagreement in
 # models/meta.json is bucketed on - so set them from that table, not from intuition. They
 # start higher than the CFB defaults because a 3-point disagreement with a college number and
 # a 3-point disagreement with an NFL number are not the same claim.
-TOTAL_EDGE_MIN = float(os.environ.get("DEGEN_TOTAL_EDGE", "6.0"))
-SPREAD_EDGE_MIN = float(os.environ.get("DEGEN_SPREAD_EDGE", "5.0"))
+TOTAL_EDGE_MIN = _env_float("DEGEN_TOTAL_EDGE", 6.0)
+SPREAD_EDGE_MIN = _env_float("DEGEN_SPREAD_EDGE", 5.0)
 BOLD_MULT = 2.0
 # Eighth Kelly, not the quarter used for college. Kelly sizing assumes you know your edge;
 # against the NFL close you do not, and the cost of overestimating it compounds. Halving the
 # fraction costs a little growth and buys a lot of survival.
-KELLY_FRACTION = float(os.environ.get("DEGEN_KELLY", "0.125"))
+KELLY_FRACTION = _env_float("DEGEN_KELLY", 0.125)
 
 # --- venue / cost model ---------------------------------------------------------------
 # Same machinery as CFB: sportsbooks bake margin into the price (-110 => 52.38% break-even),
@@ -184,29 +210,29 @@ def break_even_pct(venue: str | None = None, price: float = 0.50) -> float:
     return 100 * cost / ((1 - cost) + cost)
 
 
-BREAK_EVEN = float(os.environ.get("DEGEN_BREAK_EVEN", "0")) or break_even_pct()
+BREAK_EVEN = _env_float("DEGEN_BREAK_EVEN", 0) or break_even_pct()
 BANKROLL_UNITS = 100.0
 # Expect the fitted shrink to come out low here - lower than college. That is the market
 # telling you it is already right, not the fitter failing.
-DEFAULT_SHRINK = float(os.environ.get("DEGEN_SHRINK", "0.25"))
+DEFAULT_SHRINK = _env_float("DEGEN_SHRINK", 0.25)
 
 # --- Kalshi guards ---------------------------------------------------------------------
 # Same winner's-curse problem as CFB, but the NFL board is far more liquid and far more
 # efficiently priced, so the EV bar is higher: a 5c edge against an NFL contract is much more
 # likely to be model error than a real mispricing.
-KALSHI_MIN_EV = float(os.environ.get("DEGEN_KALSHI_MIN_EV", "0.07"))
-KALSHI_PROB_MIN = float(os.environ.get("DEGEN_KALSHI_PROB_MIN", "0.25"))
-KALSHI_PROB_MAX = float(os.environ.get("DEGEN_KALSHI_PROB_MAX", "0.75"))
-KALSHI_MAX_BOOK_GAP = float(os.environ.get("DEGEN_KALSHI_MAX_GAP", "6.0"))
+KALSHI_MIN_EV = _env_float("DEGEN_KALSHI_MIN_EV", 0.07)
+KALSHI_PROB_MIN = _env_float("DEGEN_KALSHI_PROB_MIN", 0.25)
+KALSHI_PROB_MAX = _env_float("DEGEN_KALSHI_PROB_MAX", 0.75)
+KALSHI_MAX_BOOK_GAP = _env_float("DEGEN_KALSHI_MAX_GAP", 6.0)
 
 # Kalshi's NFL series tickers. These follow the same KX<LEAGUE><MARKET> pattern as the
 # college series, which were confirmed against live payloads. The NFL ones are NOT confirmed
 # here - the exchange was unreachable from the machine this was written on - so they are env
 # overridable and every Kalshi path degrades to "no exchange prices" rather than failing.
 # Run `python -m nfl.sources.kalshi --discover` once to confirm them against the live API.
-KALSHI_SERIES_MONEYLINE = os.environ.get("DEGEN_KALSHI_ML_SERIES", "KXNFLGAME")
-KALSHI_SERIES_SPREAD = os.environ.get("DEGEN_KALSHI_SPREAD_SERIES", "KXNFLSPREAD")
-KALSHI_SERIES_TOTAL = os.environ.get("DEGEN_KALSHI_TOTAL_SERIES", "KXNFLTOTAL")
+KALSHI_SERIES_MONEYLINE = _env("DEGEN_KALSHI_ML_SERIES", "KXNFLGAME")
+KALSHI_SERIES_SPREAD = _env("DEGEN_KALSHI_SPREAD_SERIES", "KXNFLSPREAD")
+KALSHI_SERIES_TOTAL = _env("DEGEN_KALSHI_TOTAL_SERIES", "KXNFLTOTAL")
 
 SITE_TITLE = os.environ.get("DEGEN_SITE_TITLE", "DegenPredicts")
 COFFEE_URL = os.environ.get("DEGEN_COFFEE_URL", "https://buymeacoffee.com/smcgee")

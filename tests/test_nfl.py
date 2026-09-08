@@ -989,6 +989,69 @@ def test_nfl_betting_knobs_are_conservative(env):
     assert 0.45 <= SEASON_CARRY <= 0.65
 
 
+def test_empty_env_vars_fall_back_to_defaults(env):
+    """An unset GitHub Actions repo variable arrives as an empty string, not as absent.
+
+    `os.environ.get(name, default)` returns "" in that case, so wiring
+    `DEGEN_KALSHI_ML_SERIES: ${{ vars.DEGEN_KALSHI_ML_SERIES }}` into a workflow would blank
+    the ticker for everyone who never set the variable. On the numeric knobs it is worse:
+    float("") raises, and the daily job dies on a variable nobody configured.
+    """
+    import importlib
+    import os
+    from nfl import config
+
+    keys = ["DEGEN_KALSHI_ML_SERIES", "DEGEN_KALSHI_SPREAD_SERIES",
+            "DEGEN_KALSHI_TOTAL_SERIES", "DEGEN_KELLY", "DEGEN_MIN_GAMES",
+            "DEGEN_TOTAL_EDGE", "DEGEN_SPREAD_EDGE", "DEGEN_WARMUP_SEASONS"]
+    saved = {k: os.environ.get(k) for k in keys}
+    try:
+        for k in keys:
+            os.environ[k] = ""              # exactly what an unset repo variable looks like
+        importlib.reload(config)
+        assert config.KALSHI_SERIES_MONEYLINE == "KXNFLGAME"
+        assert config.KALSHI_SERIES_SPREAD == "KXNFLSPREAD"
+        assert config.KALSHI_SERIES_TOTAL == "KXNFLTOTAL"
+        assert config.KELLY_FRACTION == pytest.approx(0.125)
+        assert config.MIN_GAMES == 3
+        assert config.TOTAL_EDGE_MIN == pytest.approx(6.0)
+        assert config.WARMUP_SEASONS == 1
+
+        # whitespace is not a configuration value either
+        os.environ["DEGEN_KALSHI_ML_SERIES"] = "   "
+        importlib.reload(config)
+        assert config.KALSHI_SERIES_MONEYLINE == "KXNFLGAME"
+
+        # garbage in a numeric knob falls back rather than crashing the daily job
+        os.environ["DEGEN_KELLY"] = "not-a-number"
+        importlib.reload(config)
+        assert config.KELLY_FRACTION == pytest.approx(0.125)
+
+        # ...and a real override still lands
+        os.environ["DEGEN_KALSHI_ML_SERIES"] = "KXNFLGAMEV2"
+        os.environ["DEGEN_KELLY"] = "0.05"
+        importlib.reload(config)
+        assert config.KALSHI_SERIES_MONEYLINE == "KXNFLGAMEV2"
+        assert config.KELLY_FRACTION == pytest.approx(0.05)
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+        importlib.reload(config)
+
+
+def test_predict_workflow_forwards_the_kalshi_series_vars(env):
+    """Discovering the right ticker is useless if the daily job cannot be told about it."""
+    from pathlib import Path
+    wf = (Path(__file__).resolve().parent.parent
+          / ".github" / "workflows" / "nfl-predict.yml").read_text()
+    for var in ("DEGEN_KALSHI_ML_SERIES", "DEGEN_KALSHI_SPREAD_SERIES",
+                "DEGEN_KALSHI_TOTAL_SERIES"):
+        assert f"{var}: ${{{{ vars.{var} }}}}" in wf, f"{var} is not forwarded to the job"
+
+
 def test_nfl_module_does_not_import_other_sports(env):
     """nfl/ must not reach into cfb/, ncaab/ or the shared core/ HTTP layer.
 

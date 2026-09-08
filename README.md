@@ -350,14 +350,51 @@ real during the build:
   import, which let the test suite train on committed production data while believing it was
   sandboxed.
 
+### Confirming the Kalshi tickers
+
 `nfl/sources/kalshi.py` is wired for the exchange the same way the college module is, but its
 series tickers could **not** be confirmed against the live API from the machine this was built
 on. They are environment-overridable, the rules regexes accept several sport wordings, and every
-Kalshi path degrades to "no exchange prices" instead of failing. Confirm them once with:
+Kalshi path degrades to "no exchange prices" instead of failing — so the pipeline runs correctly
+either way, it just publishes no exchange columns until this is done.
+
+Run it from a machine that can reach `api.elections.kalshi.com` (market data is public — no
+account, no key):
 
 ```bash
+pip install -r requirements.txt
 python -m nfl.sources.kalshi --discover
 ```
+
+It prints every Kalshi series whose ticker or title mentions the NFL, then tries each of the
+three configured tickers and shows the raw `rules_primary` text next to what the parser made of
+it. Three outcomes:
+
+| What you see | Meaning | What to do |
+|---|---|---|
+| `N open markets` and `parsed:` showing sensible teams, dates and strikes | Defaults are right | Nothing |
+| The listing shows different NFL tickers, and the configured ones return `0 open markets` | Tickers differ | Set the repo variables below |
+| `!! markets returned but none parsed` | Ticker is right, Kalshi reworded its rules | Update the regexes at the top of the module |
+| Everything `0` plus connection warnings | The host is unreachable, not misconfigured | Retry from a network that can reach it |
+
+The parsed line is the part worth reading carefully. Confirm the **home team is the second name**
+in the matchup (Kalshi phrases these away-first) and that a multi-word club comes through whole —
+"New York Giants", not "New". That exact truncation is a bug this module already had once.
+
+If the tickers differ, set them under **Settings → Secrets and variables → Actions → Variables**:
+
+| Variable | Default |
+|---|---|
+| `DEGEN_KALSHI_ML_SERIES` | `KXNFLGAME` |
+| `DEGEN_KALSHI_SPREAD_SERIES` | `KXNFLSPREAD` |
+| `DEGEN_KALSHI_TOTAL_SERIES` | `KXNFLTOTAL` |
+
+`nfl-predict.yml` forwards all three, and leaving them unset keeps the defaults — an unset repo
+variable arrives as an empty string, which `config._env` treats as unset rather than as a blank
+ticker.
+
+To confirm it took, run the picks job and look for `kalshi board: N sides` in the log instead of
+`no markets returned`.
 
 ---
 

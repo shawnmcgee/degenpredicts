@@ -23,6 +23,14 @@ jobs:
       # nflverse's numbers and assumes -110 rather than pricing EV against a real book.
       - env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          # Kalshi's NFL series tickers, overridable as repo variables (Settings ->
+          # Secrets and variables -> Actions -> Variables). Confirm the defaults once with
+          # `python -m nfl.sources.kalshi --discover`; leave the variables unset to keep
+          # them. An unset repo variable arrives as an empty string, which config._env
+          # treats as unset rather than as a blank ticker.
+          DEGEN_KALSHI_ML_SERIES: ${{ vars.DEGEN_KALSHI_ML_SERIES }}
+          DEGEN_KALSHI_SPREAD_SERIES: ${{ vars.DEGEN_KALSHI_SPREAD_SERIES }}
+          DEGEN_KALSHI_TOTAL_SERIES: ${{ vars.DEGEN_KALSHI_TOTAL_SERIES }}
         run: |
           python -m nfl.predict ${{ inputs.week && format('--week {0}', inputs.week) || '' }}
           python -m nfl.site
