@@ -1073,6 +1073,78 @@ def test_the_nfl_page_is_reachable_from_the_site_root(env):
         assert 'href="../"' in html and 'href="../cfb/"' in html
 
 
+def test_backtest_disagreement_table_fills_the_gap_before_any_grading(env):
+    """The live cover-rate table is empty until games are graded; the backtest is not.
+
+    The page builds "cover rate by model disagreement" from graded picks, so on a board
+    published before kickoff it renders nothing - for the NFL that is the whole preseason and
+    then a thin table for months. The walk-forward already measured the same quantity across
+    ~1,700 out-of-sample games and it was sitting unread in models/meta.json.
+    """
+    import json
+    from nfl import site
+
+    env.ensure_dirs()
+    (env.MODEL_DIR / "meta.json").write_text(json.dumps({"eval": {
+        "margin_market": {
+            "test_seasons": [2020, 2025], "n_test_total": 1693, "break_even_pct": 51.75,
+            "ats_by_disagreement": [
+                {"disagreement": "0-1", "n": 517, "cover_pct": 53.2,
+                 "vs_break_even_se": 0.66, "significant": False},
+                {"disagreement": "3-5", "n": 264, "cover_pct": 57.2,
+                 "vs_break_even_se": 1.79, "significant": False},
+            ],
+            "significance": {"z_required": 3.11, "verdict": "no segment survives correction"},
+        },
+        "total_market": {"ats_by_disagreement": [
+            {"disagreement": "0-1", "n": 488, "cover_pct": 49.6,
+             "vs_break_even_se": -0.9, "significant": False}]},
+    }}))
+
+    bt = site._backtest_buckets()
+    assert bt["n"] == 1693 and bt["z_required"] == 3.11
+    assert [r["bucket"] for r in bt["rows"]] == ["0-1", "3-5"]
+    # the two markets are paired by bucket, and a bucket missing from one side is tolerated
+    assert bt["rows"][0]["total"]["n"] == 488
+    assert bt["rows"][1]["total"] is None
+
+    # a missing or unreadable meta must not take the page down
+    (env.MODEL_DIR / "meta.json").write_text("{not json")
+    assert site._backtest_buckets() == {}
+    (env.MODEL_DIR / "meta.json").unlink()
+    assert site._backtest_buckets() == {}
+
+
+def test_backtest_table_yields_to_real_graded_results(env):
+    """Once live results exist they are the better evidence and the backtest steps aside."""
+    from pathlib import Path
+    tpl = (Path(__file__).resolve().parent.parent
+           / "nfl" / "templates" / "index.html").read_text()
+    assert "not (m.totals and m.totals.by_edge)" in tpl, (
+        "the backtest section must render only while the live table is empty")
+    assert "backtest" in tpl and "not live picks" in tpl, (
+        "the backtest table must be labelled as a backtest, not passed off as results")
+
+
+def test_kalshi_discover_is_runnable_without_a_local_machine(env):
+    """Confirming the tickers needs a network that can reach Kalshi. A dispatchable workflow
+    is the one way to do that from anywhere, including a phone."""
+    from pathlib import Path
+    wf = (Path(__file__).resolve().parent.parent / ".github" / "workflows"
+          / "nfl-kalshi-discover.yml")
+    assert wf.exists(), "there must be a manually runnable discover workflow"
+    text = wf.read_text()
+    assert "workflow_dispatch" in text and "schedule" not in text, "manual only, no cron"
+    assert "nfl.sources.kalshi --discover" in text
+    assert "GITHUB_STEP_SUMMARY" in text, "results must be readable without opening raw logs"
+    assert "contents: read" in text, "discovery reads public data and must not need write"
+
+    # the search keyword is settable, for a series not named after the league
+    from nfl.sources import kalshi
+    import inspect
+    assert "keyword" in inspect.signature(kalshi._discover).parameters
+
+
 def test_landing_page_lists_the_nfl(env):
     """The chooser must offer the NFL, and must not depend on any sport's code to do it."""
     import re
