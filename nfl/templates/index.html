@@ -164,7 +164,7 @@
   <div class="game {% if g.has_play %}hot{% endif %}"
        data-day="{{ g.day_key }}" data-play="{{ 1 if g.has_play else 0 }}"
        data-div="{{ 1 if g.div_game else 0 }}" data-ctx="{{ 1 if g.context else 0 }}"
-       data-search="{{ g.search }}" data-kick="{{ g.tip_et or 'zzz' }}">
+       data-search="{{ g.search }}" data-kick="{{ g.kick_sort or '' }}">
     <div class="ghead">
       <span>{{ g.time_label }}</span>
       <span>{% if g.has_play %}<span class="tag play">play</span> {% endif %}&#916;{{ '%.1f'|format(gap) }}{% if g.thin_data %} &middot; early season{% endif %}</span>
@@ -291,10 +291,17 @@
   var none = document.getElementById('noresults');
   var state = { day: 'all', plays: false, div: false, ctx: false, kick: false, q: '' };
 
+  function kickAt(el) {
+    // Real time order, not alphabetical order on the printed label. Anything without an
+    // announced kickoff sorts to the end instead of at a placeholder time.
+    var t = Date.parse(el.dataset.kick || '');
+    return t === t ? t : Infinity;   // NaN is the only value that fails self-equality
+  }
+
   function apply() {
     var seq = order.slice();
     if (state.kick) {
-      seq.sort(function (a, b) { return (a.dataset.kick || '').localeCompare(b.dataset.kick || ''); });
+      seq.sort(function (a, b) { return kickAt(a) - kickAt(b); });
     }
     seq.forEach(function (el) { list.appendChild(el); });
     var shown = 0;

@@ -92,6 +92,27 @@ def _recent_results(limit: int = 12) -> list[dict]:
     return df.astype(object).where(pd.notna(df), None).to_dict("records")
 
 
+def _kick_key(kickoff_utc, tip_et) -> str:
+    """Sort key for the "Sort by kickoff" control: the ISO timestamp, or "" if unannounced.
+
+    The page used to sort on the display label ("Wed Sep 09, 8:20 PM"). That sorts
+    alphabetically, which means by WEEKDAY NAME - Fri, Mon, Sat, Sun, Thu, Tue, Wed - so
+    Monday came first and Wednesday last. It also compared the hour as text, putting a
+    10:00 PM game ahead of a 12:00 PM one on the same day, and interleaved dates across
+    weeks. The ISO timestamp is the only field here that orders correctly.
+
+    A game with no announced kickoff returns "", which the page sorts to the end rather than
+    slotting it in at whatever placeholder time the feed stamped on it.
+    """
+    def blank(v):
+        return (v is None or (isinstance(v, float) and v != v)
+                or str(v).strip() in ("", "nan", "NaT", "None"))
+
+    if blank(tip_et) or blank(kickoff_utc):
+        return ""
+    return str(kickoff_utc).strip()
+
+
 def _board() -> tuple[list[dict], int | None]:
     """This week's games, freshest prediction per game, ready for the template."""
     if not config.PICKS.exists():
@@ -141,6 +162,10 @@ def _board() -> tuple[list[dict], int | None]:
     df["day_key"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
     df["time_label"] = [("Time TBD" if (not t or str(t) in ("nan", "")) else str(t))
                         for t in df.get("tip_et", pd.Series([""] * len(df)))]
+    _blank = pd.Series([""] * len(df), index=df.index)
+    df["kick_sort"] = [_kick_key(k, t) for k, t in
+                       zip(df["kickoff_utc"] if "kickoff_utc" in df else _blank,
+                           df["tip_et"] if "tip_et" in df else _blank)]
     conf_h = df["home_conf"] if "home_conf" in df else pd.Series([""] * len(df), index=df.index)
     conf_a = df["away_conf"] if "away_conf" in df else pd.Series([""] * len(df), index=df.index)
     df["search"] = (df["home_team"].fillna("") + " " + df["away_team"].fillna("") + " "
