@@ -4631,7 +4631,7 @@ game_id,season,week,date,home_team,away_team,provider,spread_home,spread_open,to
 2025_22_SEA_NE,2025,22,2026-02-08,NE,SEA,nflverse_close,4.5,,45.5,,195.0,-238.0,1
 2026_01_NE_SEA,2026,1,2026-09-09,SEA,NE,nflverse_close,-3.0,,44.5,,-170.0,142.0,1
 2026_01_SF_LA,2026,1,2026-09-10,LA,SF,nflverse_close,-3.5,,48.5,,-198.0,164.0,1
-2026_01_ARI_LAC,2026,1,2026-09-13,LAC,ARI,nflverse_close,-9.5,,47.5,,-500.0,380.0,1
+2026_01_ARI_LAC,2026,1,2026-09-13,LAC,ARI,nflverse_close,-9.5,,47.5,,-485.0,370.0,1
 2026_01_ATL_PIT,2026,1,2026-09-13,PIT,ATL,nflverse_close,-3.5,,42.5,,-185.0,154.0,1
 2026_01_BAL_IND,2026,1,2026-09-13,IND,BAL,nflverse_close,3.5,,47.5,,145.0,-175.0,1
 2026_01_BUF_HOU,2026,1,2026-09-13,HOU,BUF,nflverse_close,1.5,,44.5,,-105.0,-115.0,1

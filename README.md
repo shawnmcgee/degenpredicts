@@ -241,10 +241,40 @@ standard errors.** That is the expected result, not a bug, and the site says so 
 rather than burying it in JSON. `shrink` fitting to 0.2 is the same finding stated differently:
 the published number is the line nudged 20% toward the model.
 
-The one segment in `market_softness` that is statistically significant is *negative* — the model
-covers 42.9% when the away team is better rested (−2.4 s.e.), meaning it over-credits away rest.
-That is worth fixing before anything here is worth betting, and it is exactly what that table
-exists to surface.
+#### Read `market_softness` with the correction, not the raw z-score
+
+Every segment carries `vs_break_even_se`, and reading that number on its own is the single
+easiest way to talk yourself into a bet. Across twenty segments the chance at least one clears
+|z| ≥ 2 by pure chance is about 60%. So each model's `significance` block states how many looks
+were taken and what |z| a segment actually needs:
+
+```json
+"significance": {
+  "comparisons": 20,
+  "z_required": 3.02,
+  "verdict": "no segment survives correction for the number of looks taken"
+}
+```
+
+Each segment also carries `season_cover_pct` and `seasons_above_break_even`, because per-season
+stability is what settles it. A real edge shows up in most seasons; a fluke is two bad years and
+four ordinary ones.
+
+**A worked example, because this table nearly produced a bad model change.** The
+`away better rested` segment came back at 43.4% cover, −2.2 s.e. — the largest deviation in the
+file, and it reads like the model over-crediting away rest. It is not:
+
+- the model's point predictions are the **most accurate** of any rest segment there (mean error
+  −0.07, against +0.60 for even rest and +1.03 for home-rested);
+- it barely deviates from the line at all (−0.38 vs −0.19 for even rest) and takes the home side
+  47.4% of the time against 47.8% — a 0.2-point deviation cannot move a cover rate 11 points;
+- it is **not monotonic** — the most extreme away-rest bucket (≥6 days) covers 53.7%, and the
+  whole effect sits in one middle bucket;
+- it is **not stable** — 53.6 / 57.1 / 50.0 / 34.5 / 33.3 / 38.7 across six seasons of ~30 games.
+
+The market's own error there is −0.45 ± 0.92. The market is slightly off, the model correctly
+followed it, and what remains is a coin flip. Fitting the model to that segment would have been
+overfitting to noise, so the report was changed instead of the model.
 
 Default thresholds (`DEGEN_SPREAD_EDGE=5.0`, `DEGEN_TOTAL_EDGE=6.0`) sit **above every bucket
 that showed anything**, so almost nothing is flagged as a play. Deliberate. Every game is still

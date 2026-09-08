@@ -204,6 +204,11 @@ def walk_forward(df: pd.DataFrame, kind: str, market: bool, params=None,
         out["break_even_pct"] = round(config.BREAK_EVEN, 2)
         out["venue"] = config.VENUE
         out["market_softness"] = _softness(pool, d)
+        # Correct across everything reported for this model at once. A reader scans the
+        # softness segments and the disagreement buckets together looking for something
+        # bettable, so they are one family of comparisons, not two.
+        out["significance"] = _apply_multiple_comparisons(
+            out["ats_by_disagreement"], *out["market_softness"].values())
     return out
 
 
@@ -225,17 +230,37 @@ def _roi(rate: float, price: float = 0.50) -> float:
     return (rate * (1 - cost) - (1 - rate) * cost) / cost
 
 
+MIN_SEASON_ROWS = 20        # below this a season's cover rate is not worth printing
+
+
 def _seg(b: pd.DataFrame, label: str, min_n: int = MIN_SEGMENT) -> dict | None:
+    """One segment's record, with the two things needed to judge whether it is real.
+
+    `vs_break_even_se` on its own is what makes these tables dangerous: report twenty of them
+    and one will clear two standard errors by chance roughly half the time. So each segment
+    also carries how it behaved season by season - a real edge shows up in most of them, and
+    a fluke is two bad years and four ordinary ones - and `_apply_multiple_comparisons` later
+    stamps every segment with whether it survives correction for how many were looked at.
+    """
     if len(b) < min_n:
         return None
     rate = float(b["right"].mean())
     se = (rate * (1 - rate) / len(b)) ** 0.5
     be = config.BREAK_EVEN / 100
-    return {"segment": label, "n": int(len(b)),
-            "cover_pct": round(100 * rate, 1),
-            "stderr": round(100 * se, 2),
-            "vs_break_even_se": round((rate - be) / se, 2) if se else None,
-            "roi_pct": round(100 * _roi(rate), 2)}
+    out = {"segment": label, "n": int(len(b)),
+           "cover_pct": round(100 * rate, 1),
+           "stderr": round(100 * se, 2),
+           "vs_break_even_se": round((rate - be) / se, 2) if se else None,
+           "roi_pct": round(100 * _roi(rate), 2)}
+    if "season" in b.columns:
+        by = b.groupby("season")["right"].agg(["size", "mean"])
+        by = by[by["size"] >= MIN_SEASON_ROWS]
+        if len(by):
+            out["season_cover_pct"] = {int(s): round(100 * float(m), 1)
+                                       for s, m in by["mean"].items()}
+            out["seasons_measured"] = int(len(by))
+            out["seasons_above_break_even"] = int((by["mean"] > be).sum())
+    return out
 
 
 def _softness(pool: pd.DataFrame, meta: pd.DataFrame) -> dict:
@@ -262,6 +287,9 @@ def _softness(pool: pd.DataFrame, meta: pd.DataFrame) -> dict:
     p = _decided(pool)
     if p.empty:
         return {}
+    # NB: no "season" here. The pool already carries it, and merging it again from the
+    # feature frame collides into season_x/season_y - which silently emptied the per-season
+    # stability that these segments exist to be judged on.
     cols = ["game_id", "week", "week_frac", "playoff_round", "div_game", "is_primetime",
             "is_indoor", "wind", "total_line", "spread_home", "rest_diff", "h_short_week",
             "a_short_week", "h_bye", "a_bye", "neutral_site", "season_type"]
@@ -335,6 +363,45 @@ def _softness(pool: pd.DataFrame, meta: pd.DataFrame) -> dict:
     return out
 
 
+FAMILY_ALPHA = 0.05
+
+
+def _apply_multiple_comparisons(*groups) -> dict:
+    """Stamp every reported segment with whether it survives the number of looks taken.
+
+    These tables exist to be scanned for something to bet, which is exactly the situation
+    where an uncorrected z-score misleads. Across k independent segments the chance that at
+    least one clears |z| >= 2 is 1 - 0.954**k: about 60% at k=20. The Sidak correction turns
+    the family-wise error rate back into the 5% a reader assumes they are getting.
+
+    Every segment and disagreement bucket for a model counts as one look, because they are
+    read together by someone looking for an edge. Anything that fails the corrected bar is
+    marked `significant: false` - not deleted, because a suggestive segment is still worth
+    watching, just not worth sizing a bet on.
+    """
+    segs = [r for g in groups for r in (g or []) if r]
+    k = len(segs)
+    if not k:
+        return {}
+    from scipy.stats import norm
+    per_comparison = 1 - (1 - FAMILY_ALPHA) ** (1 / k)
+    crit = float(norm.isf(per_comparison / 2))
+    for r in segs:
+        z = r.get("vs_break_even_se")
+        r["significant"] = bool(z is not None and abs(z) >= crit)
+    survivors = [r["segment"] if "segment" in r else r.get("disagreement") for r in segs
+                 if r["significant"]]
+    return {"comparisons": k,
+            "family_alpha": FAMILY_ALPHA,
+            "z_required": round(crit, 2),
+            "z_required_note": (f"{k} segments were looked at, so a segment needs "
+                                f"|z| >= {crit:.2f} - not 2.0 - before it means anything"),
+            "significant_segments": survivors,
+            "verdict": ("no segment survives correction for the number of looks taken"
+                        if not survivors else
+                        f"{len(survivors)} of {k} segments survive correction")}
+
+
 def _best_shrink(pred, line, actual) -> float:
     """How far from the closing line toward the model should we move? Minimises pooled MAE."""
     best, best_mae = 0.0, np.inf
@@ -360,16 +427,12 @@ def _ats_by_disagreement(pool: pd.DataFrame) -> list[dict]:
     out = []
     for lo, hi in [(0, 1), (1, 2), (2, 3), (3, 5), (5, 7), (7, 999)]:
         b = decided[(decided["disagree"] >= lo) & (decided["disagree"] < hi)]
-        if len(b) < MIN_BUCKET:
-            continue
-        rate = float(b["right"].mean())
-        se = max((rate * (1 - rate) / len(b)) ** 0.5, 1e-9)
-        out.append({"disagreement": f"{lo}-{hi if hi < 999 else '+'}",
-                    "n": int(len(b)),
-                    "cover_pct": round(100 * rate, 1),
-                    "stderr": round(100 * se, 2),
-                    "roi_pct": round(100 * _roi(rate), 2),
-                    "vs_break_even_se": round((rate - config.BREAK_EVEN / 100) / se, 2)})
+        # Same reporting as a softness segment - per-season stability included - because a
+        # bucket is read the same way and is just as capable of being one lucky slice.
+        row = _seg(b, f"{lo}-{hi if hi < 999 else '+'}", min_n=MIN_BUCKET)
+        if row:
+            row["disagreement"] = row.pop("segment")
+            out.append(row)
     return out
 
 

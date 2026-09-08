@@ -570,6 +570,12 @@ def test_pipeline(env, monkeypatch):
     for rows in soft.values():
         for r in rows:
             assert r["n"] >= 60 and "vs_break_even_se" in r
+            # every segment must say whether it survives the number of looks taken
+            assert "significant" in r
+    sig = ev["significance"]
+    assert sig["comparisons"] >= len(soft)
+    assert sig["z_required"] > 2.0, "many segments were reported; the bar must exceed 2"
+    assert "verdict" in sig
     # line-movement features have no historical counterpart in nflverse and must be absent
     assert "spread_move" not in meta["market_features"]
     assert "ml_prob_home" in meta["market_features"]
@@ -883,6 +889,84 @@ def test_source_modules_read_config_at_call_time(env):
     from nfl.sources import nflverse
     assert str(env.DATA) in str(nflverse.config.GAMES)
     assert "degenpredicts/data/nfl/games.csv" not in str(nflverse.config.GAMES)
+
+
+def test_softness_segments_are_corrected_for_the_number_of_looks(env):
+    """A table of ~20 segments must not present an uncorrected z-score as a finding.
+
+    This is not hypothetical. The `away better rested` segment came back at 43.4% cover,
+    -2.2 s.e. below break-even, and read as a real model bias worth fixing. It was not: the
+    model's point predictions were the MOST accurate of any rest segment there (-0.07 mean
+    error against +0.60 for even rest), it barely deviated from the line, the effect was
+    absent in the most extreme rest bucket, and it was present in only three of six seasons.
+    It was one hole in the noise out of twenty looks - and across twenty looks the chance
+    that at least one clears |z| >= 2.2 is about 43%.
+    """
+    from nfl.train import FAMILY_ALPHA, _apply_multiple_comparisons
+
+    def seg(z, name="s"):
+        return {"segment": name, "vs_break_even_se": z}
+
+    # one look: the familiar ~1.96 bar
+    one = _apply_multiple_comparisons([seg(2.2)])
+    assert 1.9 <= one["z_required"] <= 2.0
+    assert one["comparisons"] == 1
+
+    # twenty looks: the bar has to rise, and the real segment stops qualifying
+    many = [seg(z) for z in
+            [-2.22, 1.79, 1.68, 0.9, 0.74, 0.66, -0.2, -0.53, 0.46, 1.0,
+             0.05, -1.01, 0.63, 0.83, -0.02, 0.41, -0.15, -0.86, 1.27, 0.25]]
+    res = _apply_multiple_comparisons(many)
+    assert res["comparisons"] == 20
+    assert res["z_required"] > 2.9, "twenty looks must raise the bar well above 2"
+    assert res["z_required"] > one["z_required"]
+    assert many[0]["significant"] is False, "the -2.2 away-rest segment must read as noise"
+    assert not res["significant_segments"]
+    assert "no segment survives" in res["verdict"]
+    assert res["family_alpha"] == FAMILY_ALPHA
+
+    # something genuinely large still gets through
+    strong = _apply_multiple_comparisons(many + [seg(4.5, "real")])
+    assert strong["significant_segments"] == ["real"]
+
+    # buckets and segments are one family - they are read together looking for a bet
+    mixed = _apply_multiple_comparisons([seg(1.0)], [{"disagreement": "3-5",
+                                                     "vs_break_even_se": 1.5}])
+    assert mixed["comparisons"] == 2
+
+    assert _apply_multiple_comparisons([]) == {}
+
+
+def test_segments_report_per_season_stability(env):
+    """Per-season cover rates are what actually settle whether a segment is real.
+
+    The away-rest scare ran 53.6 / 57.1 / 50.0 / 34.5 / 33.3 / 38.7 across six seasons -
+    three fine, three bad, about thirty games each. Having to compute that by hand to
+    dismiss a headline number is how the number gets acted on instead.
+    """
+    import numpy as np
+    from nfl.train import MIN_SEASON_ROWS, _seg
+
+    rng = np.random.default_rng(3)
+    n_per = MIN_SEASON_ROWS * 3
+    rows = []
+    for season, rate in ((2021, 0.75), (2022, 0.75), (2023, 0.30)):
+        rows += [{"season": season, "right": bool(x)}
+                 for x in rng.random(n_per) < rate]
+    out = _seg(pd.DataFrame(rows), "lumpy", min_n=10)
+    assert out["seasons_measured"] == 3
+    assert set(out["season_cover_pct"]) == {2021, 2022, 2023}
+    assert out["seasons_above_break_even"] == 2      # the 2023 collapse is visible
+    assert out["season_cover_pct"][2023] < out["season_cover_pct"][2021]
+
+    # a season too thin to say anything about is left out rather than printed
+    thin = pd.DataFrame([{"season": 2024, "right": True}] * (MIN_SEASON_ROWS - 1)
+                        + rows)
+    assert 2024 not in _seg(thin, "thin", min_n=10)["season_cover_pct"]
+
+    # no season column (a caller that does not carry one) must not break the segment
+    plain = _seg(pd.DataFrame([{"right": True}] * 50), "plain", min_n=10)
+    assert "season_cover_pct" not in plain and plain["n"] == 50
 
 
 def test_nfl_betting_knobs_are_conservative(env):
