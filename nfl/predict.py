@@ -81,8 +81,16 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
 
     games = nflverse.update_games()
     lines = nflverse.load_lines()
-    nflverse.update_epa()
-    nflverse.update_continuity()
+    # EPA and continuity are READ here, never refreshed. Both are season-static - prior-season
+    # EPA is joined from season-1 and cannot change mid-season, and roster continuity is an
+    # offseason measure - so refreshing them daily bought nothing and re-downloaded a 7 MB
+    # player crosswalk every morning. They are rebuilt by the Tuesday retrain job, which is
+    # where deriving training features belongs.
+    epa, continuity = nflverse.load_epa(), nflverse.load_continuity()
+    if epa.empty or continuity.empty:
+        log.warning("EPA (%d rows) or continuity (%d rows) missing - preseason features will "
+                    "be empty. Run `python -m nfl.train` to build them.",
+                    len(epa), len(continuity))
 
     board = build_board(games, lines, week)
     if board.empty:
@@ -112,8 +120,7 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         return board.iloc[0:0]
     board = board[priced].copy()
 
-    _, up, _ = build(games, board, lines=lines, epa=nflverse.load_epa(),
-                     continuity=nflverse.load_continuity())
+    _, up, _ = build(games, board, lines=lines, epa=epa, continuity=continuity)
 
     keep = ["game_id", "season", "week", "season_type", "playoff_round", "date", "tip_et",
             "kickoff_utc", "start_time_tbd", "weekday", "home_team", "away_team",

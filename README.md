@@ -257,7 +257,42 @@ money at risk. Lower them only when `ats_by_disagreement` gives you a reason.
 than four; trees are shallower and more regularised; between-season rating carry-over is **0.55**
 against college's 0.72, because NFL rosters churn harder; and home-field is **1.7 points**, not
 2.5. Stakes are **eighth-Kelly**, not quarter — Kelly sizing assumes you know your edge, and
-against this market you do not.
+against this market you do not. Weeks **1–3** are flagged and unstaked (college unstakes 1–2),
+because NFL roster turnover makes preseason ratings untrustworthy for longer.
+
+Two era corrections that would otherwise be silent:
+
+- **2009 is loaded as a warm-up season.** It advances the ratings and the quarterback tracker
+  but emits no training rows. Without it, every team enters Week 1 of 2010 rated identically —
+  all 16 games shared one `h_margin` value — and the whole first season runs on ratings that
+  started from zero.
+- **2020 carries a `no_crowd` flag, and home-field is suppressed in the rating replay for it.**
+  Mean home margin that season was **+0.14**, against +2.25 across 2010–2019 and +2.06 across
+  2021–2025. The season is kept — it is 269 games of real football — but crediting it a normal
+  home edge would push every 2020 home team's rating down by an advantage that did not exist.
+
+Everything the model sees is a rate or a per-game figure, so the 2021 move from a 16- to a
+17-game season cannot leak in through a season total: EPA is per play, continuity is a ratio,
+form is a mean, and week numbers are normalised.
+
+### Isolation over shared code
+
+Each sport is a **self-contained package** — its own ratings engine, config, sources, HTTP
+session, tests and workflows. `nfl/` imports nothing from `cfb/`, `ncaab/` or `core/`, and a
+test walks the package and fails on any cross-sport import.
+
+This is a deliberate choice against factoring the Elo engine and EV/Kelly math into a shared
+package. The duplication is real and measurable — `cfb/ratings.py` and `nfl/ratings.py` differ
+by 15 logic lines, 12 of which are tuning constants — but the sports are independently
+scheduled jobs committing to `main` on their own crons, and the thing worth optimising is
+blast radius, not line count. One bad edit to a shared rating engine takes down college
+football, the NFL and basketball at once; the same edit in `nfl/ratings.py` takes down one
+sport. `ncaab/` already had its own `http.py`, so this follows the repo's existing grain
+rather than cutting against it.
+
+The same rule applies to the tests: `tests/test_nfl.py` asserts absolute thresholds rather
+than comparing against `cfb.config`, so retuning the college pipeline cannot fail the NFL
+suite. CI runs one job per sport, so a red check names the sport that broke.
 
 ### The guardrails that earned their place
 
@@ -326,11 +361,13 @@ python -m nfl.site && open docs/nfl/index.html
 |---|---|---|
 | `DEGEN_TOTAL_EDGE` | 3.5 | min points of edge to publish a totals play |
 | `DEGEN_SPREAD_EDGE` | 2.5 | same for spreads |
-| `DEGEN_MIN_GAMES` | 2 | below this, picks are flagged early-season and not staked |
+| `DEGEN_MIN_GAMES` | 2 (cfb) / 3 (nfl) | below this, picks are flagged early-season and not staked |
 | `DEGEN_KELLY` | 0.25 | Kelly fraction |
 | `DEGEN_BOARD_DAYS` | 7 | how far ahead to post games |
 | `DEGEN_FIRST_SEASON` | 2015 (cfb) / 2010 (nfl) | earliest season to train on |
+| `DEGEN_WARMUP_SEASONS` | 1 (nfl) | seasons loaded before the training window to warm the ratings up |
 | `DEGEN_WALK_SEASONS` | 6 (nfl) | seasons pooled by the walk-forward evaluation |
+| `DEGEN_NFL_HTTP_TIMEOUT` | 60 | NFL-only HTTP timeout; nflverse serves multi-MB files |
 | `DEGEN_NFL_DOCS` | `docs/nfl` | where the NFL site is written |
 | `DEGEN_KALSHI_ML_SERIES` | `KXNFLGAME` | Kalshi moneyline series (also `..._SPREAD_SERIES`, `..._TOTAL_SERIES`) |
 | `DEGEN_SUPPORT_URL` | (unset) | Buy Me a Coffee link shown at the top; omit and the button hides |

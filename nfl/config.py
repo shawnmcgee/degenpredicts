@@ -36,6 +36,14 @@ MODEL_DIR = DATA / "models"
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")   # optional: live prices for EV/Kelly
 ODDS_BOOKS = ["Pinnacle", "DraftKings", "FanDuel", "BetMGM", "Caesars", "Bovada"]
 
+# nflverse serves multi-megabyte static CSVs (players.csv is ~7 MB), so this pipeline gets a
+# longer default timeout than the college one's small JSON calls need. Sport-local, so raising
+# it here cannot affect the live CFB job.
+HTTP_TIMEOUT = float(os.environ.get("DEGEN_NFL_HTTP_TIMEOUT",
+                                    os.environ.get("DEGEN_HTTP_TIMEOUT", "60")))
+HTTP_RETRIES = int(os.environ.get("DEGEN_NFL_HTTP_RETRIES",
+                                  os.environ.get("DEGEN_HTTP_RETRIES", "4")))
+
 NFLVERSE_SCHEDULE = os.environ.get(
     "DEGEN_NFLVERSE_SCHEDULE",
     "https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv")
@@ -76,6 +84,13 @@ def season_end(season: int) -> date:
 # That moved every playoff round's week number by one, so a raw `week` is NOT comparable
 # across the change - week 18 is the Wild Card round in 2019 and a regular-season game in
 # 2022. Anything the model sees has to be normalised; see features.week_features().
+# 2020 was played without crowds (or with token ones) and home-field advantage collapsed:
+# mean home margin was +0.14, against +2.25 across 2010-2019 and +2.06 across 2021-2025. The
+# season is kept - it is 269 games of real football - but it is flagged as a feature AND
+# home-field is suppressed in the rating replay, so those games do not push every home team's
+# rating down by a home edge that was not there.
+NO_CROWD_SEASONS = {2020}
+
 LAST_16_GAME_SEASON = 2020
 REG_WEEKS_BEFORE = 17
 REG_WEEKS_AFTER = 18
@@ -111,6 +126,13 @@ def current_week(games, today: date | None = None) -> tuple[int, int]:
 # different enough - lower scoring, different pass-interference and QB-contact rules - that
 # those seasons would be teaching the model about a sport that no longer exists.
 FIRST_SEASON = int(os.environ.get("DEGEN_FIRST_SEASON", "2010"))
+# Seasons loaded BEFORE the training window purely to warm the rating engine up. Without
+# this, every team enters Week 1 of FIRST_SEASON rated identically - all 16 games in 2010
+# week 1 had one distinct `h_margin` value - and the whole first season runs on ratings that
+# started from zero rather than from a real prior. Warm-up games advance the ratings and the
+# quarterback tracker but never become training rows; see features.build(first_train_season).
+WARMUP_SEASONS = int(os.environ.get("DEGEN_WARMUP_SEASONS", "1"))
+LOAD_FROM_SEASON = FIRST_SEASON - WARMUP_SEASONS
 # Snap counts (and therefore roster continuity) only exist from 2013, so continuity is NaN
 # for games before 2014. That is fine - the trees handle a missing feature - but it is why
 # you will see the column empty in the early seasons.
@@ -124,7 +146,10 @@ BOARD_DAYS = int(os.environ.get("DEGEN_BOARD_DAYS", "7"))
 # walk-forward pools - has to be looser here, and the honest read is that a single NFL season
 # tells you almost nothing.
 GAMES_PER_SEASON = 272
-MIN_GAMES = int(os.environ.get("DEGEN_MIN_GAMES", "2"))     # thin-data guard, weeks 1-2
+# Weeks 1-3 are flagged and unstaked. Higher than the college pipeline's 2 because NFL
+# roster turnover between seasons is heavier, so preseason ratings are less trustworthy for
+# longer. The flag clears once both teams have this many games in the book, i.e. in week 4.
+MIN_GAMES = int(os.environ.get("DEGEN_MIN_GAMES", "3"))
 
 # NFL closing lines are the sharpest market in sports. These thresholds are on the model's
 # RAW disagreement with the line (|model - line|), the same quantity ats_by_disagreement in

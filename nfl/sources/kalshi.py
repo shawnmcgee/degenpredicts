@@ -41,7 +41,7 @@ from datetime import datetime
 import pandas as pd
 
 from .. import config
-from core.http import get_json
+from ..http import get_json
 
 log = logging.getLogger(__name__)
 

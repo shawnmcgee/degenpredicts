@@ -335,6 +335,73 @@ def test_leak_free(env):
     assert list(full["game_id"][: len(half)]) == list(half["game_id"])
 
 
+def test_warmup_season_advances_ratings_without_emitting_rows(env):
+    """A warm-up season must teach the ratings and then stay out of the training set.
+
+    Without it every team enters week 1 of the first training season rated identically - the
+    real 2010 week 1 had ONE distinct `h_margin` across all 16 games - and the whole first
+    season runs on ratings that started from zero.
+    """
+    from nfl.features import build
+    g, ln = synth()
+    first_train = SEASONS[1]                      # treat SEASONS[0] as warm-up
+
+    cold, _, _ = build(g, lines=ln, first_train_season=SEASONS[0])
+    warm, _, _ = build(g, lines=ln, first_train_season=first_train)
+
+    # the warm-up season contributes no training rows
+    assert set(warm["season"]) == set(SEASONS[1:])
+    assert len(warm) < len(cold)
+
+    # ...but its results are in the ratings: week 1 of the first training season is no longer
+    # a league of identical teams
+    w1 = warm[(warm["season"] == first_train) & (warm["week"] == 1)]
+    assert len(w1) > 1
+    assert w1["h_margin"].nunique() == len(w1), "every team still rated identically"
+    assert w1["h_margin"].abs().max() > 0
+
+    # and the cold build's first week is exactly the degenerate case being fixed
+    c1 = cold[(cold["season"] == SEASONS[0]) & (cold["week"] == 1)]
+    assert c1["h_margin"].nunique() == 1
+
+    # the rows that DO survive are unchanged by the warm-up cut being drawn elsewhere:
+    # same games, same order
+    overlap = cold[cold["season"] >= first_train]
+    assert list(overlap["game_id"]) == list(warm["game_id"])
+
+
+def test_no_crowd_season_is_flagged_and_loses_home_field(env):
+    """2020 was played without crowds and home-field collapsed to +0.14 points.
+
+    Keeping the season is right - it is 269 games of real football - but applying a normal
+    home edge to it is not: it would push every 2020 home team's rating down by an advantage
+    that did not exist.
+    """
+    from nfl.features import hfa_suppressed
+    from nfl.ratings import RatingBook
+
+    assert 2020 in env.NO_CROWD_SEASONS
+    assert hfa_suppressed(2020, False) is True        # no crowd
+    assert hfa_suppressed(2019, True) is True         # genuine neutral site
+    assert hfa_suppressed(2019, False) is False
+    assert hfa_suppressed(2021, False) is False       # crowds came back
+
+    # the two causes stay separate as features even though both suppress home field
+    b = RatingBook()
+    assert b.expect(2020, "KC", "BUF", hfa_suppressed(2020, False))["exp_margin"] == 0.0
+    assert b.expect(2021, "KC", "BUF", hfa_suppressed(2021, False))["exp_margin"] > 0
+
+    from nfl.features import build
+    g, ln = synth()
+    tr, _, _ = build(g, lines=ln)
+    if 2020 in set(tr["season"]):
+        assert (tr.loc[tr["season"] == 2020, "no_crowd"] == 1).all()
+        assert (tr.loc[tr["season"] != 2020, "no_crowd"] == 0).all()
+        # a no-crowd game gets no home edge in the rating expectation
+        wk1 = tr[(tr["season"] == 2020) & (tr["week"] == 1)]
+        assert (wk1["exp_margin"].abs() < 1e-9).all()
+
+
 def test_qb_tracker_is_chronological(env):
     from nfl.features import QBTracker
     q = QBTracker()
@@ -358,8 +425,11 @@ def test_ratings_sane(env):
     """A team that wins every game by 20 should end up rated well above average, and NFL
     ratings must regress harder between seasons than the college ones do."""
     from nfl.ratings import SEASON_CARRY, RatingBook
-    from cfb.ratings import SEASON_CARRY as CFB_CARRY
-    assert SEASON_CARRY < CFB_CARRY
+    # Asserted as an absolute range, not against cfb.ratings. NFL rosters churn harder than
+    # college ones so this must stay well below college's ~0.72 - but importing that constant
+    # to say so would mean a tuning change in the college pipeline failing the NFL suite,
+    # which is exactly the coupling this repo keeps the sports separate to avoid.
+    assert 0.45 <= SEASON_CARRY <= 0.65
     b = RatingBook()
     d = date(2024, 9, 8)
     for i in range(17):
@@ -383,9 +453,9 @@ def test_home_field_is_nfl_sized(env):
 
 def test_stake_sizing_is_eighth_kelly(env):
     from nfl.predict import american_payout, kelly
-    from cfb import config as cfb_config
+    # Eighth Kelly, stated absolutely. Kelly sizing assumes you know your edge; against the
+    # NFL close you do not, so this is half the fraction the college pipeline uses.
     assert env.KELLY_FRACTION == pytest.approx(0.125)
-    assert env.KELLY_FRACTION < cfb_config.KELLY_FRACTION
     assert abs(american_payout(-110) - 0.909) < 0.01
     assert kelly(0.50, 0.909) == 0.0
     assert kelly(0.60, 0.909) > 0
@@ -740,9 +810,11 @@ def test_ladder_guards_reject_thin_and_tails(env, monkeypatch):
     from datetime import date as _date
     from nfl import config as C, predict
     from nfl.sources import kalshi, odds
-    from cfb import config as cfb_config
-    assert C.KALSHI_MIN_EV > cfb_config.KALSHI_MIN_EV
-    assert C.KALSHI_MAX_BOOK_GAP < cfb_config.KALSHI_MAX_BOOK_GAP
+    # Absolute bars, not relative to the college pipeline's: the NFL exchange board is more
+    # liquid and more efficiently priced, so a small edge is likelier to be model error.
+    assert C.KALSHI_MIN_EV >= 0.07
+    assert C.KALSHI_MAX_BOOK_GAP <= 6.0
+    assert 0.20 < C.KALSHI_PROB_MIN < C.KALSHI_PROB_MAX < 0.80
 
     day = _date(2026, 9, 13)
     out = pd.DataFrame([{
@@ -813,14 +885,39 @@ def test_source_modules_read_config_at_call_time(env):
     assert "degenpredicts/data/nfl/games.csv" not in str(nflverse.config.GAMES)
 
 
-def test_nfl_thresholds_are_stricter_than_college(env):
-    """Every knob that decides how much we bet must be at least as strict as the college
-    pipeline's. The NFL close is the sharpest number in sports; loosening any of these here
-    would be backwards."""
-    from cfb import config as cfb_config
-    assert env.TOTAL_EDGE_MIN >= cfb_config.TOTAL_EDGE_MIN
-    assert env.SPREAD_EDGE_MIN >= cfb_config.SPREAD_EDGE_MIN
-    assert env.KELLY_FRACTION <= cfb_config.KELLY_FRACTION
-    assert env.DEFAULT_SHRINK <= cfb_config.DEFAULT_SHRINK
+def test_nfl_betting_knobs_are_conservative(env):
+    """Every knob that decides how much we bet, pinned to an absolute floor.
+
+    An earlier version asserted these against `cfb.config` - "stricter than college". That
+    read well and was wrong for this repo: it made a tuning change in the live college
+    pipeline fail the NFL suite, which is the cross-sport breakage the modules are kept
+    separate to prevent. The values below encode the same intent without the coupling.
+    """
+    assert env.TOTAL_EDGE_MIN >= 6.0
+    assert env.SPREAD_EDGE_MIN >= 5.0
+    assert env.KELLY_FRACTION <= 0.125
+    assert env.DEFAULT_SHRINK <= 0.25
+    assert env.MIN_GAMES >= 3          # weeks 1-3 flagged and unstaked
     from nfl.train import SHRINK_CAP
-    assert SHRINK_CAP <= 0.6
+    assert SHRINK_CAP <= 0.45
+    from nfl.ratings import HFA, SEASON_CARRY
+    assert 1.0 <= HFA <= 2.2           # NFL home field, not college's 2.5-3
+    assert 0.45 <= SEASON_CARRY <= 0.65
+
+
+def test_nfl_module_does_not_import_other_sports(env):
+    """nfl/ must not reach into cfb/, ncaab/ or the shared core/ HTTP layer.
+
+    The point of keeping the sports separate is blast radius: a change made for one sport
+    must not be able to break another. That guarantee is only real if it is enforced, so this
+    walks the package and fails on any cross-sport import.
+    """
+    import re
+    from pathlib import Path
+    pkg = Path(__file__).resolve().parent.parent / "nfl"
+    offenders = []
+    for path in sorted(pkg.rglob("*.py")):
+        for i, line in enumerate(path.read_text().splitlines(), 1):
+            if re.match(r"\s*(from|import)\s+(cfb|ncaab|core)\b", line):
+                offenders.append(f"{path.relative_to(pkg.parent)}:{i}: {line.strip()}")
+    assert not offenders, "nfl/ imports another sport or the shared core: " + "; ".join(offenders)

@@ -54,7 +54,7 @@ log = logging.getLogger(__name__)
 
 BASE_FEATURES = [
     # calendar, era-normalised
-    "neutral_site", "div_game", "week_frac", "playoff_round", "is_early_season",
+    "neutral_site", "div_game", "week_frac", "playoff_round", "is_early_season", "no_crowd",
     # ratings
     "exp_margin", "exp_total", "exp_home_points", "exp_away_points",
     "h_margin", "a_margin", "h_off", "a_off", "h_def", "a_def",
@@ -102,6 +102,19 @@ def _rest(last, gdate):
     if last is None or gdate is None:
         return np.nan
     return float(min((gdate - last).days, REST_CAP))
+
+
+def hfa_suppressed(season: int, neutral: bool) -> bool:
+    """True when home-field advantage should be treated as absent for this game.
+
+    Two separate causes, same consequence: an actual neutral-site game, and a game played
+    without a crowd. They are kept apart as *features* - `neutral_site` still means the venue
+    and `no_crowd` still means the season - but both mean the rating engine must not credit a
+    home edge. Applying 1.7 points of home advantage to all 269 games of 2020, when the
+    league's actual home margin that year was +0.14, would push every home team's rating down
+    by an edge that was not there.
+    """
+    return bool(neutral) or int(season) in config.NO_CROWD_SEASONS
 
 
 def week_features(season: int, week: int, playoff_round: int) -> tuple[float, int]:
@@ -242,7 +255,8 @@ def _venue_weather(roof: str, surface: str, temp, wind) -> dict:
 def _row(book, qbs, homes, epa_prev, cont, season, week, playoff_round, home, away, gdate,
          neutral, div_game, rec) -> dict:
     h, a = book.get(season, home), book.get(season, away)
-    e = book.expect(season, home, away, neutral)
+    no_hfa = hfa_suppressed(season, neutral)
+    e = book.expect(season, home, away, no_hfa)
     he, ae = epa_prev.get((season - 1, home), {}), epa_prev.get((season - 1, away), {})
     hc, ac = cont.get((season, home), {}), cont.get((season, away), {})
 
@@ -254,7 +268,7 @@ def _row(book, qbs, homes, epa_prev, cont, season, week, playoff_round, home, aw
     have_epa = not any(x != x for x in (h_off_epa, a_off_epa, h_def_epa, a_def_epa))
     plays = 62.0
     epa_margin = (plays * ((h_off_epa - a_def_epa) - (a_off_epa - h_def_epa))
-                  + (0 if neutral else book.cfg.hfa)) if have_epa else np.nan
+                  + (0 if no_hfa else book.cfg.hfa)) if have_epa else np.nan
     epa_total = (2 * LEAGUE_PPG + plays * ((h_off_epa + a_def_epa) + (a_off_epa + h_def_epa))) \
         if have_epa else np.nan
 
@@ -273,6 +287,7 @@ def _row(book, qbs, homes, epa_prev, cont, season, week, playoff_round, home, aw
         "neutral_site": int(bool(neutral)), "div_game": int(bool(div_game)),
         "week_frac": week_frac, "playoff_round": int(playoff_round),
         "is_early_season": early,
+        "no_crowd": int(int(season) in config.NO_CROWD_SEASONS),
         "exp_margin": e["exp_margin"], "exp_total": e["exp_total"],
         "exp_home_points": e["exp_home_points"], "exp_away_points": e["exp_away_points"],
         "h_margin": h.margin, "a_margin": a.margin,
@@ -318,8 +333,16 @@ def _market(row: dict, total_line, spread_home, home_ml=np.nan, away_ml=np.nan) 
 
 def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
           lines: pd.DataFrame | None = None, epa: pd.DataFrame | None = None,
-          continuity: pd.DataFrame | None = None,
-          cfg: RatingConfig | None = None) -> tuple[pd.DataFrame, pd.DataFrame, RatingBook]:
+          continuity: pd.DataFrame | None = None, cfg: RatingConfig | None = None,
+          first_train_season: int | None = None
+          ) -> tuple[pd.DataFrame, pd.DataFrame, RatingBook]:
+    """Replay the schedule and emit one feature row per completed game.
+
+    Seasons before `first_train_season` are **warm-up**: they advance the ratings and the
+    quarterback tracker but emit no training rows. That is what gives week 1 of the first
+    training season a real regressed prior instead of a league of identically-rated teams.
+    """
+    first_train = config.FIRST_SEASON if first_train_season is None else first_train_season
     games = games.copy()
     games["date"] = pd.to_datetime(games["date"]).dt.date
     games = games.sort_values(["date", "game_id"]).reset_index(drop=True)
@@ -356,6 +379,14 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
         rec = {k: getattr(g, k, np.nan) for k in
                ("home_rest", "away_rest", "roof", "surface", "temp", "wind", "stadium_id",
                 "home_qb", "away_qb")}
+        if season < first_train:
+            # Warm-up: advance the state, emit nothing. Skipping the row build is also the
+            # expensive part, so warm-up seasons are close to free.
+            book.update(season, g.home_team, g.away_team, g.home_points, g.away_points,
+                        g.date, hfa_suppressed(season, neutral))
+            qbs.update(g.home_team, _text(rec.get("home_qb")))
+            qbs.update(g.away_team, _text(rec.get("away_qb")))
+            continue
         r = _row(book, qbs, homes, epa_prev, cont, season, week,
                  int(getattr(g, "playoff_round", 0)), g.home_team, g.away_team, g.date,
                  neutral, bool(getattr(g, "div_game", False)), rec)
@@ -375,7 +406,7 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
         # State advances only AFTER the row is recorded. This ordering is the leak-free
         # guarantee, and test_leak_free rebuilds from a truncated schedule to prove it.
         book.update(season, g.home_team, g.away_team, g.home_points, g.away_points, g.date,
-                    neutral)
+                    hfa_suppressed(season, neutral))
         qbs.update(g.home_team, _text(rec.get("home_qb")))
         qbs.update(g.away_team, _text(rec.get("away_qb")))
 

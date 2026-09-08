@@ -30,7 +30,7 @@ import pandas as pd
 from .. import config
 from ..config import ensure_dirs
 from ..teams import TEAMS, canon, is_known
-from core.http import get
+from ..http import get
 
 log = logging.getLogger(__name__)
 URL = "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds"

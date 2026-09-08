@@ -163,7 +163,8 @@ STADIUMS: dict[str, tuple[float, float, str]] = {
     "MUN01": (48.2188, 11.6247, "Europe/Berlin"),
     "NAS00": (36.1665, -86.7713, "America/Chicago"),
     "NOR00": (29.9511, -90.0812, "America/Chicago"),
-    "NYC01": (40.8135, -74.0745, "America/New_York"),       # MetLife
+    "NYC00": (40.8128, -74.0764, "America/New_York"),       # Giants Stadium, through 2009
+    "NYC01": (40.8135, -74.0745, "America/New_York"),       # MetLife, 2010 on
     "OAK00": (37.7516, -122.2005, "America/Los_Angeles"),
     "PAR00": (48.9245, 2.3601, "Europe/Paris"),
     "PHI00": (39.9008, -75.1675, "America/New_York"),

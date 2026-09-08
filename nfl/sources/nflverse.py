@@ -49,7 +49,7 @@ import pandas as pd
 from .. import config
 from ..config import ensure_dirs, season_of, today_et
 from ..teams import DEFAULT_HOME_STADIUM, UnknownTeam, canon
-from core.http import get
+from ..http import get
 
 log = logging.getLogger(__name__)
 
@@ -235,7 +235,9 @@ def update_games(first_season: int | None = None) -> pd.DataFrame:
     if raw.empty:
         log.warning("keeping cached games: nflverse schedule unavailable")
         return load_games()
-    first = config.FIRST_SEASON if first_season is None else first_season
+    # LOAD_FROM_SEASON, not FIRST_SEASON: the extra season ahead of the training window is
+    # the rating engine's warm-up. features.build() replays it and emits no rows for it.
+    first = config.LOAD_FROM_SEASON if first_season is None else first_season
     raw = raw[raw["season"] >= first]
     games, lines = _explode(raw)
     if games.empty:
