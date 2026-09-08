@@ -280,10 +280,11 @@ def contract_ev(p_win: float, ask: float) -> tuple[float, float]:
     return p_win - cost, (p_win - cost) / cost
 
 
-def _discover() -> None:
+def _discover(keyword: str | None = None) -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-    print("Series matching 'NFL':")
-    for s in list_series("NFL") or [{"ticker": "(none found or API unreachable)", "title": ""}]:
+    keyword = keyword or os.environ.get("DEGEN_KALSHI_KEYWORD", "").strip() or "NFL"
+    print(f"Series matching {keyword!r}:")
+    for s in list_series(keyword) or [{"ticker": "(none found or API unreachable)", "title": ""}]:
         print(f"  {s['ticker']:<24} {s['title']}")
     for label, ticker, kind in (("moneyline", series("moneyline"), None),
                                 ("spread", series("spread"), "spread"),
@@ -303,6 +304,11 @@ def _discover() -> None:
 if __name__ == "__main__":
     import sys
     if "--discover" in sys.argv:
-        _discover()
+        # optional: --keyword FOOTBALL, when the series is not named for the league
+        kw = None
+        if "--keyword" in sys.argv:
+            i = sys.argv.index("--keyword")
+            kw = sys.argv[i + 1] if i + 1 < len(sys.argv) else None
+        _discover(kw)
     else:
         print(__doc__)

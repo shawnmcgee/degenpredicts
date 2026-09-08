@@ -204,6 +204,42 @@ def _model_note() -> dict:
             "shrink": e.get("shrink"), "seasons": e.get("test_seasons")}
 
 
+def _backtest_buckets() -> dict:
+    """The out-of-sample disagreement table from the last training run.
+
+    The page's live "cover rate by model disagreement" table is built from graded picks, so
+    it is empty until games have actually been played and stays thin for months afterwards.
+    Meanwhile the walk-forward already measured the same thing across ~1,700 out-of-sample
+    games, and it was sitting unread in models/meta.json. This surfaces it, clearly labelled
+    as a backtest, with the significance correction attached - a bucket that looks strong
+    here has usually not survived the number of segments the report looked at.
+    """
+    path = config.MODEL_DIR / "meta.json"
+    if not path.exists():
+        return {}
+    try:
+        meta = json.loads(path.read_text())
+    except (ValueError, OSError):
+        return {}
+    ev = (meta.get("eval") or {}).get("margin_market") or {}
+    tot = (meta.get("eval") or {}).get("total_market") or {}
+    if ev.get("skipped") or not ev.get("ats_by_disagreement"):
+        return {}
+    by_total = {b.get("disagreement"): b for b in tot.get("ats_by_disagreement") or []}
+    rows = []
+    for b in ev["ats_by_disagreement"]:
+        rows.append({"bucket": b.get("disagreement"),
+                     "spread": b,
+                     "total": by_total.get(b.get("disagreement"))})
+    sig = ev.get("significance") or {}
+    return {"rows": rows,
+            "seasons": ev.get("test_seasons") or [],
+            "n": ev.get("n_test_total"),
+            "z_required": sig.get("z_required"),
+            "verdict": sig.get("verdict"),
+            "break_even": ev.get("break_even_pct")}
+
+
 def _days(picks: list[dict]) -> list[dict]:
     """Distinct kickoff days in order, for the day tabs."""
     seen: dict[str, str] = {}
@@ -226,6 +262,7 @@ def build() -> None:
         results=_recent_results(), venue=config.VENUE, model=_model_note(),
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL,
         days=_days(picks), updated=metrics.get("updated", ""),
+        backtest=_backtest_buckets(),
         total_min=config.TOTAL_EDGE_MIN, spread_min=config.SPREAD_EDGE_MIN,
     )
     (config.DOCS / "index.html").write_text(html)

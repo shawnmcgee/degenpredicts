@@ -249,6 +249,35 @@
 </section>
 {% endif %}
 
+{% if backtest and backtest.rows and not (m.totals and m.totals.by_edge) %}
+<section>
+  <h2>Cover rate by model disagreement &mdash; backtest</h2>
+  <p class="sub" style="margin-bottom:10px">No games graded this season yet, so this is the
+    walk-forward result over {{ backtest.n }} out-of-sample games from
+    {{ backtest.seasons|first }}&ndash;{{ backtest.seasons|last }} &mdash; not live picks.
+    Break-even is {{ backtest.break_even }}%.</p>
+  <table>
+    <tr><th>|Model &minus; line|</th><th>Spreads</th><th>Cover</th><th>Totals</th><th>Cover</th></tr>
+    {% for r in backtest.rows %}
+    <tr>
+      <td>{{ r.bucket }}</td>
+      <td>{{ r.spread.n }}</td>
+      <td class="{% if r.spread.significant %}up{% endif %}">{{ r.spread.cover_pct }}%
+        <span class="sub">{{ '%+.1f'|format(r.spread.vs_break_even_se) }}&sigma;</span></td>
+      <td>{% if r.total %}{{ r.total.n }}{% endif %}</td>
+      <td>{% if r.total %}{{ r.total.cover_pct }}%
+        <span class="sub">{{ '%+.1f'|format(r.total.vs_break_even_se) }}&sigma;</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% if backtest.z_required %}
+  <p class="sub" style="margin-top:8px">This report looked at many segments, so a bucket needs
+    |&sigma;| &ge; {{ backtest.z_required }} &mdash; not 2 &mdash; before it means anything.
+    {{ backtest.verdict|capitalize }}.</p>
+  {% endif %}
+</section>
+{% endif %}
+
 {% if m.totals and m.totals.by_edge %}
 <section>
   <h2>Cover rate by model disagreement</h2>

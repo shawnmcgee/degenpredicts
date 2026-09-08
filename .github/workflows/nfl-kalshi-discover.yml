@@ -1,0 +1,61 @@
+name: NFL Kalshi discover
+# Run this by hand to confirm Kalshi's NFL series tickers against the live API.
+#
+# It exists as a workflow because the check needs a network that can reach
+# api.elections.kalshi.com, and because a GitHub runner is the one machine you can
+# reach from anywhere - including a phone, via the GitHub mobile app or the web UI.
+# Nothing is written or committed; it reads public market data and prints what it found.
+on:
+  workflow_dispatch:
+    inputs:
+      keyword:
+        description: 'Series keyword to search for (try FOOTBALL if NFL finds nothing)'
+        required: false
+        default: 'NFL'
+permissions:
+  contents: read
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.txt
+      - name: Discover Kalshi series
+        env:
+          DEGEN_KALSHI_KEYWORD: ${{ inputs.keyword }}
+        run: |
+          set -o pipefail
+          python -m nfl.sources.kalshi --discover 2>&1 | tee /tmp/discover.txt || true
+          {
+            echo "## Kalshi series discovery"
+            echo
+            echo "Configured tickers are the defaults unless a repo variable overrides them."
+            echo
+            echo '```'
+            cat /tmp/discover.txt
+            echo '```'
+            echo
+            echo "### What to do with this"
+            echo
+            echo "| If the output shows | Then |"
+            echo "|---|---|"
+            echo "| \`N open markets\` with sensible \`parsed:\` teams and dates | Nothing. The defaults are right. |"
+            echo "| Different NFL tickers listed, and the configured ones at \`0 open markets\` | Set the repo variables below. |"
+            echo "| \`!! markets returned but none parsed\` | The ticker is right but Kalshi reworded its rules; the regexes in \`nfl/sources/kalshi.py\` need updating. |"
+            echo "| Everything \`0\` plus connection warnings | The API was unreachable. Re-run. |"
+            echo
+            echo "Check the \`parsed:\` line: the home team is the **second** name in the matchup"
+            echo "(Kalshi phrases them away-first), and a multi-word club must come through whole"
+            echo "-- \`New York Giants\`, not \`New\`."
+            echo
+            echo "Repo variables live under **Settings -> Secrets and variables -> Actions -> Variables**:"
+            echo
+            echo "| Variable | Default |"
+            echo "|---|---|"
+            echo "| \`DEGEN_KALSHI_ML_SERIES\` | \`KXNFLGAME\` |"
+            echo "| \`DEGEN_KALSHI_SPREAD_SERIES\` | \`KXNFLSPREAD\` |"
+            echo "| \`DEGEN_KALSHI_TOTAL_SERIES\` | \`KXNFLTOTAL\` |"
+          } >> "$GITHUB_STEP_SUMMARY"

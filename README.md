@@ -12,6 +12,7 @@ No server, no manual uploads, no hosting bill.
   nfl-predict.yml   daily 9:30am ET → same, into data/nfl/ → docs/nfl/
   nfl-grade.yml     daily 7:30am ET
   nfl-train.yml     Tuesdays
+  nfl-kalshi-discover.yml  manual  → confirm Kalshi's series tickers, runs from a phone
   test.yml          on push         → offline tests, one job per sport plus the landing page
 cfb/     college football pipeline (live now)
 nfl/     NFL pipeline (live now)
@@ -375,12 +376,20 @@ on. They are environment-overridable, the rules regexes accept several sport wor
 Kalshi path degrades to "no exchange prices" instead of failing — so the pipeline runs correctly
 either way, it just publishes no exchange columns until this is done.
 
-Run it from a machine that can reach `api.elections.kalshi.com` (market data is public — no
-account, no key):
+It needs a network that can reach `api.elections.kalshi.com`. Market data is public — no
+account, no key, nothing is written.
+
+**From anywhere, including a phone: Actions → NFL Kalshi discover → Run workflow.** The result
+is written to the job summary, which the GitHub mobile app renders as a page rather than as raw
+logs, along with a table of what each outcome means and which repo variables to set. That
+workflow is manual-only and read-only; it never commits.
+
+Locally, if you prefer:
 
 ```bash
 pip install -r requirements.txt
 python -m nfl.sources.kalshi --discover
+python -m nfl.sources.kalshi --discover --keyword FOOTBALL   # if NFL finds nothing
 ```
 
 It prints every Kalshi series whose ticker or title mentions the NFL, then tries each of the
