@@ -1,0 +1,27 @@
+name: NFL grade
+on:
+  schedule:
+    # 11:30 UTC = 7:30am ET, after Monday-night finals are in.
+    - cron: '30 11 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: {group: nfl-data, cancel-in-progress: false}
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.txt
+      - run: |
+          python -m nfl.grade
+          python -m nfl.site
+      - run: |
+          git config user.name  "degenbot"
+          git config user.email "actions@github.com"
+          git pull --rebase --autostash || true
+          git add data docs
+          git diff --staged --quiet || git commit -m "nfl grade $(date -u +%Y-%m-%d)"
+          git push

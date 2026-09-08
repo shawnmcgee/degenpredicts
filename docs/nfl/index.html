@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DegenPredicts — NFL</title>
+<style>
+  :root{--bg:#0d0e11;--card:#171a1f;--card2:#1e2229;--line:#2a2e36;--fg:#e9eaec;--dim:#98a0aa;
+        --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:64px}
+  header,main,footer{max-width:960px;margin:0 auto;padding:0 16px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 6px}
+  h1{font-size:21px;font-weight:600}
+  .sub{color:var(--dim);font-size:13px;margin-top:3px}
+  .coffee{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;
+          background:var(--warn);color:#2a1c00;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+  section{margin-top:22px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .stat{background:var(--card);border-radius:10px;padding:13px;text-align:center}
+  .stat .v{font-size:22px;font-weight:600;margin:3px 0}
+  .stat .l{font-size:11px;color:var(--dim);text-transform:uppercase}
+  .up{color:var(--good)} .down{color:var(--bad)}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  input[type=search]{flex:1;min-width:190px;background:var(--card);border:1px solid var(--line);
+    border-radius:8px;color:var(--fg);padding:9px 12px;font-size:14px}
+  input[type=search]::placeholder{color:var(--dim)}
+  .chip{background:var(--card2);color:var(--dim);border:1px solid var(--line);border-radius:999px;
+        padding:7px 14px;font-size:13px;cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  .game{background:var(--card);border-radius:12px;margin-bottom:11px;overflow:hidden;border:1px solid var(--line)}
+  .game.hot{border-color:var(--accent)}
+  .ghead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 14px;
+         background:var(--card2);font-size:12px;color:var(--dim)}
+  .matchup{padding:12px 14px 2px;font-size:17px;font-weight:600}
+  .matchup .at{color:var(--dim);font-weight:400;font-size:14px;margin:0 6px}
+  .ctx{padding:0 14px 6px;font-size:12px;color:var(--warn)}
+  .bets{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 14px 14px}
+  .bet{background:var(--card2);border-radius:9px;padding:11px}
+  .bet .l{font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;display:flex;gap:6px;align-items:center}
+  .bet .p{font-size:18px;font-weight:600;line-height:1.25}
+  .bet .d{font-size:12px;color:var(--dim);margin-top:5px}
+  .exch{margin:0 14px 14px;background:var(--card2);border-radius:9px;padding:10px 12px}
+  .exrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;padding:4px 0}
+  .exrow + .exrow{border-top:1px solid var(--line)}
+  .mult{font-variant-numeric:tabular-nums;font-weight:600}
+  .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  .tag.play,.tag.bold{background:var(--good);color:#052e16}
+  .tag.pass{background:var(--line);color:var(--dim)}
+  .tag.early,.tag.thin{background:var(--warn);color:#2a1c00}
+  .tag.win{background:var(--good);color:#052e16}
+  .tag.loss{background:var(--bad);color:#3f0a0a}
+  .tag.push{background:var(--line);color:var(--dim)}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:10px;overflow:hidden}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--dim);font-weight:500;font-size:11px;text-transform:uppercase}
+  .note{background:var(--card);border-left:3px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
+  .note b{color:var(--fg)}
+  .empty{text-align:center;color:var(--dim);padding:26px 0;font-size:14px}
+  footer{margin-top:36px;color:var(--dim);font-size:12px;text-align:center}
+  a{color:var(--accent)}
+  @media(max-width:560px){.bets{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div>
+      <h1>DegenPredicts — NFL</h1>
+      <div class="sub">NFL spreads and totals &middot; Week 1
+        &middot; updated 2026-09-08</div>
+    </div>
+    
+    <a class="coffee" href="https://buymeacoffee.com/smcgee" rel="noopener">&#9749; Buy me a coffee</a>
+    
+  </div>
+</header>
+
+<main>
+
+
+<section>
+  <div class="note">
+    
+    <b>This model does not beat the NFL closing line.</b> Out of sample across
+    6 seasons its margin error was 9.91 points against
+    the line's 9.77, covering 53.1% of
+    the time on 1660 games — about 1.23 points of standard error,
+    so indistinguishable from a coin flip. The published number is therefore the
+    line nudged 15% of the way toward the model, and the
+    numbers below are worth tracking rather than backing.
+    
+  </div>
+</section>
+
+
+
+
+
+
+<section>
+  <h2>Week 1 board</h2>
+  
+  <div class="controls">
+    <input type="search" id="q" placeholder="Search a team, division or quarterback" aria-label="Search">
+  </div>
+  <div class="controls" role="group" aria-label="Day">
+    <button class="chip" aria-pressed="true" data-day="all">All days</button>
+    <button class="chip" aria-pressed="false" data-day="2026-09-09">Wed Sep 9</button><button class="chip" aria-pressed="false" data-day="2026-09-10">Thu Sep 10</button><button class="chip" aria-pressed="false" data-day="2026-09-13">Sun Sep 13</button><button class="chip" aria-pressed="false" data-day="2026-09-14">Mon Sep 14</button>
+  </div>
+  <div class="controls" role="group" aria-label="Filters">
+    <button class="chip" aria-pressed="false" data-f="plays">Plays only</button>
+    <button class="chip" aria-pressed="false" data-f="div">Divisional</button>
+    <button class="chip" aria-pressed="false" data-f="ctx">Situational</button>
+    <button class="chip" aria-pressed="false" data-f="kick">Sort by kickoff</button>
+  </div>
+  <div id="count" class="sub" style="margin-bottom:10px"></div>
+  
+
+  <div id="list">
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="0" data-ctx="1"
+       data-search="jax cle afc south afc north trevor lawrence deshaun watson" data-kick="Sun Sep 13, 1:00 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 1:00 PM</span>
+      <span>&#916;5.4 &middot; early season</span>
+    </div>
+    <div class="matchup">CLE<span class="at">at</span>JAX</div>
+    <div class="ctx">new CLE QB (Deshaun Watson)</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 40.5</div>
+        <div class="d">model 45.9 &middot; +5.4 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">JAX -8.5</div>
+        <div class="d">model margin 8.8 &middot; +0.3 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="0" data-ctx="1"
+       data-search="ten nyj afc south afc east cam ward geno smith" data-kick="Sun Sep 13, 1:00 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 1:00 PM</span>
+      <span>&#916;5.1 &middot; early season</span>
+    </div>
+    <div class="matchup">NYJ<span class="at">at</span>TEN</div>
+    <div class="ctx">new NYJ QB (Geno Smith)</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 39.5</div>
+        <div class="d">model 42.2 &middot; +2.7 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag early">no play</span></div>
+        <div class="p">NYJ +1.5</div>
+        <div class="d">model margin -3.6 &middot; -5.1 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="1" data-ctx="1"
+       data-search="min gb nfc north nfc north kyler murray jordan love" data-kick="Sun Sep 13, 4:25 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 4:25 PM</span>
+      <span>&#916;3.4 &middot; early season</span>
+    </div>
+    <div class="matchup">GB<span class="at">at</span>MIN</div>
+    <div class="ctx">new MIN QB (Kyler Murray) · divisional</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 46.5</div>
+        <div class="d">model 43.1 &middot; -3.4 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">GB +1.5</div>
+        <div class="d">model margin -1.2 &middot; -2.7 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="0" data-ctx="0"
+       data-search="hou buf afc south afc east c.j. stroud josh allen" data-kick="Sun Sep 13, 1:00 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 1:00 PM</span>
+      <span>&#916;3.3 &middot; early season</span>
+    </div>
+    <div class="matchup">BUF<span class="at">at</span>HOU</div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 44.5</div>
+        <div class="d">model 41.7 &middot; -2.8 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">HOU +1.5</div>
+        <div class="d">model margin 1.8 &middot; +3.3 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="1" data-ctx="1"
+       data-search="nyg dal nfc east nfc east jaxson dart dak prescott" data-kick="Sun Sep 13, 8:20 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 8:20 PM</span>
+      <span>&#916;3.2 &middot; early season</span>
+    </div>
+    <div class="matchup">DAL<span class="at">at</span>NYG</div>
+    <div class="ctx">divisional</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 48.5</div>
+        <div class="d">model 45.3 &middot; -3.2 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">DAL -3.0</div>
+        <div class="d">model margin -4.4 &middot; -1.4 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="0" data-ctx="0"
+       data-search="car chi nfc south nfc north bryce young caleb williams" data-kick="Sun Sep 13, 1:00 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 1:00 PM</span>
+      <span>&#916;3.0 &middot; early season</span>
+    </div>
+    <div class="matchup">CHI<span class="at">at</span>CAR</div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 47.5</div>
+        <div class="d">model 46.9 &middot; -0.6 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">CAR +3.0</div>
+        <div class="d">model margin 0.0 &middot; +3.0 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="0" data-ctx="0"
+       data-search="det no nfc north nfc south jared goff tyler shough" data-kick="Sun Sep 13, 1:00 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 1:00 PM</span>
+      <span>&#916;2.4 &middot; early season</span>
+    </div>
+    <div class="matchup">NO<span class="at">at</span>DET</div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 49.5</div>
+        <div class="d">model 47.1 &middot; -2.4 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">NO +7.0</div>
+        <div class="d">model margin 6.0 &middot; -1.0 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="0" data-ctx="1"
+       data-search="ind bal afc south afc north daniel jones lamar jackson" data-kick="Sun Sep 13, 1:00 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 1:00 PM</span>
+      <span>&#916;2.2 &middot; early season</span>
+    </div>
+    <div class="matchup">BAL<span class="at">at</span>IND</div>
+    <div class="ctx">new IND QB (Daniel Jones)</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 47.5</div>
+        <div class="d">model 46.6 &middot; -0.9 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">BAL -3.5</div>
+        <div class="d">model margin -5.7 &middot; -2.2 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-09" data-play="0"
+       data-div="0" data-ctx="1"
+       data-search="sea ne nfc west afc east sam darnold drake maye" data-kick="Wed Sep 09, 8:20 PM">
+    <div class="ghead">
+      <span>Wed Sep 09, 8:20 PM</span>
+      <span>&#916;1.8 &middot; early season</span>
+    </div>
+    <div class="matchup">NE<span class="at">at</span>SEA</div>
+    <div class="ctx">NE crosses 3 time zones · 3,998 km trip</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 44.5</div>
+        <div class="d">model 42.7 &middot; -1.8 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">NE +3.0</div>
+        <div class="d">model margin 1.3 &middot; -1.7 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="0" data-ctx="1"
+       data-search="pit atl afc north nfc south aaron rodgers tua tagovailoa" data-kick="Sun Sep 13, 1:00 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 1:00 PM</span>
+      <span>&#916;1.6 &middot; early season</span>
+    </div>
+    <div class="matchup">ATL<span class="at">at</span>PIT</div>
+    <div class="ctx">new ATL QB (Tua Tagovailoa)</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 42.5</div>
+        <div class="d">model 40.9 &middot; -1.6 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">ATL +3.5</div>
+        <div class="d">model margin 3.5 &middot; +0.0 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-14" data-play="0"
+       data-div="1" data-ctx="1"
+       data-search="kc den afc west afc west patrick mahomes bo nix" data-kick="Mon Sep 14, 8:15 PM">
+    <div class="ghead">
+      <span>Mon Sep 14, 8:15 PM</span>
+      <span>&#916;1.6 &middot; early season</span>
+    </div>
+    <div class="matchup">DEN<span class="at">at</span>KC</div>
+    <div class="ctx">new KC QB (Patrick Mahomes) · new DEN QB (Bo Nix) · divisional</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 43.5</div>
+        <div class="d">model 43.6 &middot; +0.1 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">DEN +3.0</div>
+        <div class="d">model margin 1.4 &middot; -1.6 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="0" data-ctx="0"
+       data-search="cin tb afc north nfc south joe burrow baker mayfield" data-kick="Sun Sep 13, 1:00 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 1:00 PM</span>
+      <span>&#916;1.4 &middot; early season</span>
+    </div>
+    <div class="matchup">TB<span class="at">at</span>CIN</div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 50.5</div>
+        <div class="d">model 51.9 &middot; +1.4 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">CIN -3.5</div>
+        <div class="d">model margin 4.5 &middot; +1.0 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-10" data-play="0"
+       data-div="1" data-ctx="1"
+       data-search="la sf nfc west nfc west matthew stafford brock purdy" data-kick="Thu Sep 10, 8:35 PM">
+    <div class="ghead">
+      <span>Thu Sep 10, 8:35 PM</span>
+      <span>&#916;1.0 &middot; early season</span>
+    </div>
+    <div class="matchup">SF<span class="at">vs</span>LA</div>
+    <div class="ctx">SF crosses 6 time zones · 12,669 km trip · divisional</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 48.5</div>
+        <div class="d">model 47.9 &middot; -0.6 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">LA -3.5</div>
+        <div class="d">model margin 4.5 &middot; +1.0 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="0" data-ctx="1"
+       data-search="lv mia afc west afc east kirk cousins malik willis" data-kick="Sun Sep 13, 4:25 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 4:25 PM</span>
+      <span>&#916;1.0 &middot; early season</span>
+    </div>
+    <div class="matchup">MIA<span class="at">at</span>LV</div>
+    <div class="ctx">new LV QB (Kirk Cousins) · new MIA QB (Malik Willis) · MIA crosses 3 time zones · 3,493 km trip</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 41.5</div>
+        <div class="d">model 42.5 &middot; +1.0 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">MIA +3.5</div>
+        <div class="d">model margin 3.3 &middot; -0.2 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="0" data-ctx="0"
+       data-search="lac ari afc west nfc west justin herbert jacoby brissett" data-kick="Sun Sep 13, 4:25 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 4:25 PM</span>
+      <span>&#916;0.9 &middot; early season</span>
+    </div>
+    <div class="matchup">ARI<span class="at">at</span>LAC</div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 47.5</div>
+        <div class="d">model 48.4 &middot; +0.9 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">LAC -9.5</div>
+        <div class="d">model margin 10.1 &middot; +0.6 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-09-13" data-play="0"
+       data-div="1" data-ctx="1"
+       data-search="phi was nfc east nfc east jalen hurts jayden daniels" data-kick="Sun Sep 13, 4:25 PM">
+    <div class="ghead">
+      <span>Sun Sep 13, 4:25 PM</span>
+      <span>&#916;0.9 &middot; early season</span>
+    </div>
+    <div class="matchup">WAS<span class="at">at</span>PHI</div>
+    <div class="ctx">new WAS QB (Jayden Daniels) · divisional</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 44.5</div>
+        <div class="d">model 43.6 &middot; -0.9 vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">PHI -5.5</div>
+        <div class="d">model margin 5.9 &middot; +0.4 vs line</div>
+      </div>
+    </div>
+    
+    
+  </div>
+  
+  </div>
+  <div class="empty" id="noresults" style="display:none">No games match those filters.</div>
+  
+  <p class="sub" style="margin-top:10px"><b>pays</b> is what a Kalshi contract returns per unit
+    risked after the taker fee. <b>fair</b> is what our model says it should return. Paying more
+    than fair is the edge. The amber line under a matchup flags the situational facts the model
+    weights and a glance at the line does not show: quarterback changes, rest mismatches, long
+    trips, wind.</p>
+  
+</section>
+
+
+
+
+
+<section>
+  <div class="note">
+    Model output, not advice. NFL spread and total markets are the most efficient in sports —
+    every game is nationally televised, heavily bet and priced by people with better data than
+    this. A public-data model beating those closing numbers is the exception, not the
+    expectation. Bet only what you can afford to lose.
+  </div>
+</section>
+</main>
+
+<footer>
+  Data: nflverse &middot; prices via Kalshi and The Odds API.
+  <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
+  &middot; <a href="../">college football</a>
+  <br><a href="https://buymeacoffee.com/smcgee" rel="noopener">Buy me a coffee</a>
+</footer>
+
+<script>
+(function () {
+  var games = Array.prototype.slice.call(document.querySelectorAll('.game'));
+  if (!games.length) return;
+  var list = document.getElementById('list');
+  var order = games.slice();
+  var q = document.getElementById('q');
+  var count = document.getElementById('count');
+  var none = document.getElementById('noresults');
+  var state = { day: 'all', plays: false, div: false, ctx: false, kick: false, q: '' };
+
+  function apply() {
+    var seq = order.slice();
+    if (state.kick) {
+      seq.sort(function (a, b) { return (a.dataset.kick || '').localeCompare(b.dataset.kick || ''); });
+    }
+    seq.forEach(function (el) { list.appendChild(el); });
+    var shown = 0;
+    games.forEach(function (el) {
+      var ok = true;
+      if (state.day !== 'all' && el.dataset.day !== state.day) ok = false;
+      if (state.plays && el.dataset.play !== '1') ok = false;
+      if (state.div && el.dataset.div !== '1') ok = false;
+      if (state.ctx && el.dataset.ctx !== '1') ok = false;
+      if (state.q && (el.dataset.search || '').indexOf(state.q) === -1) ok = false;
+      el.style.display = ok ? '' : 'none';
+      if (ok) shown++;
+    });
+    count.textContent = shown + ' of ' + games.length + ' games';
+    none.style.display = shown ? 'none' : '';
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-day]'), function (c) {
+    if (c.tagName !== 'BUTTON') return;
+    c.addEventListener('click', function () {
+      state.day = c.dataset.day;
+      Array.prototype.forEach.call(document.querySelectorAll('button[data-day]'), function (o) {
+        o.setAttribute('aria-pressed', String(o === c));
+      });
+      apply();
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-f]'), function (c) {
+    c.addEventListener('click', function () {
+      var k = c.dataset.f;
+      state[k] = !state[k];
+      c.setAttribute('aria-pressed', String(state[k]));
+      apply();
+    });
+  });
+  q.addEventListener('input', function () { state.q = q.value.trim().toLowerCase(); apply(); });
+  apply();
+})();
+</script>
+</body>
+</html>

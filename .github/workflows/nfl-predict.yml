@@ -1,0 +1,43 @@
+name: NFL picks
+on:
+  schedule:
+    # 13:30 UTC = 9:30am ET. After the CFB job, so the two never race for the same commit.
+    - cron: '30 13 * * *'
+  workflow_dispatch:
+    inputs:
+      week:
+        description: 'Force a specific week (blank = auto)'
+        required: false
+permissions:
+  contents: write
+concurrency: {group: nfl-data, cancel-in-progress: false}
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.txt
+      # nflverse needs no key. ODDS_API_KEY is optional: without it the pipeline uses
+      # nflverse's numbers and assumes -110 rather than pricing EV against a real book.
+      - env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          # Kalshi's NFL series tickers, overridable as repo variables (Settings ->
+          # Secrets and variables -> Actions -> Variables). Confirm the defaults once with
+          # `python -m nfl.sources.kalshi --discover`; leave the variables unset to keep
+          # them. An unset repo variable arrives as an empty string, which config._env
+          # treats as unset rather than as a blank ticker.
+          DEGEN_KALSHI_ML_SERIES: ${{ vars.DEGEN_KALSHI_ML_SERIES }}
+          DEGEN_KALSHI_SPREAD_SERIES: ${{ vars.DEGEN_KALSHI_SPREAD_SERIES }}
+          DEGEN_KALSHI_TOTAL_SERIES: ${{ vars.DEGEN_KALSHI_TOTAL_SERIES }}
+        run: |
+          python -m nfl.predict ${{ inputs.week && format('--week {0}', inputs.week) || '' }}
+          python -m nfl.site
+      - run: |
+          git config user.name  "degenbot"
+          git config user.email "actions@github.com"
+          git pull --rebase --autostash || true
+          git add data docs
+          git diff --staged --quiet || git commit -m "nfl picks $(date -u +%Y-%m-%d)"
+          git push

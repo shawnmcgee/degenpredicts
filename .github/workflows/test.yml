@@ -2,10 +2,19 @@ name: Tests
 on: [push, pull_request, workflow_dispatch]
 jobs:
   test:
+    # One job per sport, so a red suite names the sport that broke instead of a single
+    # check going red for the whole repo. fail-fast off: a broken NFL suite must not
+    # cancel the college one.
+    strategy:
+      fail-fast: false
+      matrix:
+        sport: [cfb, nfl]
+    name: ${{ matrix.sport }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: '3.12', cache: pip}
       - run: pip install -r requirements.txt pytest
-      - run: python -m pytest -q tests/test_cfb.py
+      # Both suites are offline: no network, no API keys.
+      - run: python -m pytest -q tests/test_${{ matrix.sport }}.py

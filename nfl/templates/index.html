@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} — NFL</title>
+<style>
+  :root{--bg:#0d0e11;--card:#171a1f;--card2:#1e2229;--line:#2a2e36;--fg:#e9eaec;--dim:#98a0aa;
+        --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:64px}
+  header,main,footer{max-width:960px;margin:0 auto;padding:0 16px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 6px}
+  h1{font-size:21px;font-weight:600}
+  .sub{color:var(--dim);font-size:13px;margin-top:3px}
+  .coffee{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;
+          background:var(--warn);color:#2a1c00;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+  section{margin-top:22px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .stat{background:var(--card);border-radius:10px;padding:13px;text-align:center}
+  .stat .v{font-size:22px;font-weight:600;margin:3px 0}
+  .stat .l{font-size:11px;color:var(--dim);text-transform:uppercase}
+  .up{color:var(--good)} .down{color:var(--bad)}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  input[type=search]{flex:1;min-width:190px;background:var(--card);border:1px solid var(--line);
+    border-radius:8px;color:var(--fg);padding:9px 12px;font-size:14px}
+  input[type=search]::placeholder{color:var(--dim)}
+  .chip{background:var(--card2);color:var(--dim);border:1px solid var(--line);border-radius:999px;
+        padding:7px 14px;font-size:13px;cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  .game{background:var(--card);border-radius:12px;margin-bottom:11px;overflow:hidden;border:1px solid var(--line)}
+  .game.hot{border-color:var(--accent)}
+  .ghead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 14px;
+         background:var(--card2);font-size:12px;color:var(--dim)}
+  .matchup{padding:12px 14px 2px;font-size:17px;font-weight:600}
+  .matchup .at{color:var(--dim);font-weight:400;font-size:14px;margin:0 6px}
+  .ctx{padding:0 14px 6px;font-size:12px;color:var(--warn)}
+  .bets{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 14px 14px}
+  .bet{background:var(--card2);border-radius:9px;padding:11px}
+  .bet .l{font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;display:flex;gap:6px;align-items:center}
+  .bet .p{font-size:18px;font-weight:600;line-height:1.25}
+  .bet .d{font-size:12px;color:var(--dim);margin-top:5px}
+  .exch{margin:0 14px 14px;background:var(--card2);border-radius:9px;padding:10px 12px}
+  .exrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;padding:4px 0}
+  .exrow + .exrow{border-top:1px solid var(--line)}
+  .mult{font-variant-numeric:tabular-nums;font-weight:600}
+  .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  .tag.play,.tag.bold{background:var(--good);color:#052e16}
+  .tag.pass{background:var(--line);color:var(--dim)}
+  .tag.early,.tag.thin{background:var(--warn);color:#2a1c00}
+  .tag.win{background:var(--good);color:#052e16}
+  .tag.loss{background:var(--bad);color:#3f0a0a}
+  .tag.push{background:var(--line);color:var(--dim)}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:10px;overflow:hidden}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--dim);font-weight:500;font-size:11px;text-transform:uppercase}
+  .note{background:var(--card);border-left:3px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
+  .note b{color:var(--fg)}
+  .empty{text-align:center;color:var(--dim);padding:26px 0;font-size:14px}
+  footer{margin-top:36px;color:var(--dim);font-size:12px;text-align:center}
+  a{color:var(--accent)}
+  @media(max-width:560px){.bets{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div>
+      <h1>{{ title }} — NFL</h1>
+      <div class="sub">NFL spreads and totals{% if week %} &middot; Week {{ week }}{% endif %}
+        &middot; updated {{ updated or "—" }}</div>
+    </div>
+    {% if support_url %}
+    <a class="coffee" href="{{ support_url }}" rel="noopener">&#9749; {{ support_label }}</a>
+    {% endif %}
+  </div>
+</header>
+
+<main>
+
+{% if model and model.mae_model %}
+<section>
+  <div class="note">
+    {% if model.beats_market %}
+    Out of sample across {{ model.seasons|length }} seasons the margin model's error was
+    <b>{{ model.mae_model }}</b> points against the closing line's <b>{{ model.mae_market }}</b>.
+    It beat the close on that sample — which is unusual for this market, so treat it as a
+    finding to keep testing rather than a settled edge.
+    {% else %}
+    <b>This model does not beat the NFL closing line.</b> Out of sample across
+    {{ model.seasons|length }} seasons its margin error was {{ model.mae_model }} points against
+    the line's {{ model.mae_market }}{% if model.ats_rate %}, covering {{ model.ats_rate }}% of
+    the time on {{ model.ats_n }} games — about {{ model.ats_stderr }} points of standard error,
+    so indistinguishable from a coin flip{% endif %}. The published number is therefore the
+    line nudged {{ (model.shrink * 100)|round|int }}% of the way toward the model, and the
+    numbers below are worth tracking rather than backing.
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+{% macro record(r, label) %}
+  <div class="stat">
+    <div class="l">{{ label }}</div>
+    <div class="v {% if r.units > 0 %}up{% elif r.units < 0 %}down{% endif %}">{{ r.units|money }}u</div>
+    <div class="l">{{ r.wins }}-{{ r.losses }}{% if r.pushes %}-{{ r.pushes }}{% endif %}
+      &middot; {{ r.win_pct }}% &middot; ROI {{ r.roi }}%</div>
+  </div>
+{% endmacro %}
+
+{% if m.totals and m.totals.all_games and m.totals.all_games.n %}
+<section>
+  <h2>Season</h2>
+  <div class="grid">
+    {{ record(m.totals.all_games, "Totals (all games)") }}
+    {{ record(m.spreads.all_games, "Spreads (all games)") }}
+    <div class="stat"><div class="l">Totals CLV</div>
+      <div class="v {% if m.totals.all_games.clv and m.totals.all_games.clv > 0 %}up{% elif m.totals.all_games.clv and m.totals.all_games.clv < 0 %}down{% endif %}">{% if m.totals.all_games.clv is not none %}{{ '%+.2f'|format(m.totals.all_games.clv) }}{% else %}—{% endif %}</div>
+      <div class="l">line moved our way</div></div>
+    <div class="stat"><div class="l">Spreads CLV</div>
+      <div class="v {% if m.spreads.all_games.clv and m.spreads.all_games.clv > 0 %}up{% elif m.spreads.all_games.clv and m.spreads.all_games.clv < 0 %}down{% endif %}">{% if m.spreads.all_games.clv is not none %}{{ '%+.2f'|format(m.spreads.all_games.clv) }}{% else %}—{% endif %}</div>
+      <div class="l">line moved our way</div></div>
+  </div>
+  <p class="sub">Break-even at {{ m.venue or venue }} is {{ m.break_even }}%. Every game is
+    predicted and graded whether or not it is staked, so CLV accumulates from the whole board —
+    it is the fastest honest read on whether there is an edge, and with only 272 games a season
+    a win rate needs years to say anything.</p>
+</section>
+{% endif %}
+
+<section>
+  <h2>{% if week %}Week {{ week }}{% else %}This week{% endif %} board</h2>
+  {% if picks %}
+  <div class="controls">
+    <input type="search" id="q" placeholder="Search a team, division or quarterback" aria-label="Search">
+  </div>
+  <div class="controls" role="group" aria-label="Day">
+    <button class="chip" aria-pressed="true" data-day="all">All days</button>
+    {% for d in days %}<button class="chip" aria-pressed="false" data-day="{{ d.key }}">{{ d.label }}</button>{% endfor %}
+  </div>
+  <div class="controls" role="group" aria-label="Filters">
+    <button class="chip" aria-pressed="false" data-f="plays">Plays only</button>
+    <button class="chip" aria-pressed="false" data-f="div">Divisional</button>
+    <button class="chip" aria-pressed="false" data-f="ctx">Situational</button>
+    <button class="chip" aria-pressed="false" data-f="kick">Sort by kickoff</button>
+  </div>
+  <div id="count" class="sub" style="margin-bottom:10px"></div>
+  {% else %}
+  <div class="note">No games on the board yet. The pipeline posts the slate each morning once lines are up.</div>
+  {% endif %}
+
+  <div id="list">
+  {% for g in picks %}
+  {% set gap = [(g.total_disagree or 0)|abs, (g.margin_disagree or 0)|abs]|max %}
+  <div class="game {% if g.has_play %}hot{% endif %}"
+       data-day="{{ g.day_key }}" data-play="{{ 1 if g.has_play else 0 }}"
+       data-div="{{ 1 if g.div_game else 0 }}" data-ctx="{{ 1 if g.context else 0 }}"
+       data-search="{{ g.search }}" data-kick="{{ g.tip_et or 'zzz' }}">
+    <div class="ghead">
+      <span>{{ g.time_label }}</span>
+      <span>{% if g.has_play %}<span class="tag play">play</span> {% endif %}&#916;{{ '%.1f'|format(gap) }}{% if g.thin_data %} &middot; early season{% endif %}</span>
+    </div>
+    <div class="matchup">{{ g.away_team }}<span class="at">{% if g.neutral_site %}vs{% else %}at{% endif %}</span>{{ g.home_team }}</div>
+    {% if g.context %}<div class="ctx">{{ g.context }}</div>{% endif %}
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag {{ 'early' if g.total_strength == 'thin' else g.total_strength }}">{{ 'no play' if g.total_strength in ('thin','pass') else g.total_strength }}</span></div>
+        <div class="p">{{ g.total_pick }} {{ g.total_line }}</div>
+        <div class="d">model {{ g.total_raw }} &middot; {{ '%+.1f'|format(g.total_disagree or 0) }} vs line</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag {{ 'early' if g.spread_strength == 'thin' else g.spread_strength }}">{{ 'no play' if g.spread_strength in ('thin','pass') else g.spread_strength }}</span></div>
+        <div class="p">{{ g.spread_pick }}</div>
+        <div class="d">model margin {{ g.margin_raw }} &middot; {{ '%+.1f'|format(g.margin_disagree or 0) }} vs line</div>
+      </div>
+    </div>
+    {% if g.kt_pays or g.ks_pays or g.ml_pays %}
+    <div class="exch">
+      {% if g.kt_pays %}
+      <div class="exrow">
+        <span>{{ g.kt_pick or ('Over ' ~ g.kt_ref_strike) }}</span>
+        <span>pays <b class="mult">{{ '%.2f'|format(g.kt_pays) }}x</b>
+          <span style="color:var(--dim)">fair {{ '%.2f'|format(g.kt_fair) }}x</span>
+          <b class="{% if (g.kt_edge or 0) > 0 %}up{% else %}down{% endif %}">{{ '%+.0f'|format(g.kt_edge or 0) }}%</b></span>
+      </div>
+      {% endif %}
+      {% if g.ks_pays %}
+      <div class="exrow">
+        <span>{{ g.ks_pick or ((g.ks_ref_side or '') ~ ' by over ' ~ g.ks_ref_strike) }}</span>
+        <span>pays <b class="mult">{{ '%.2f'|format(g.ks_pays) }}x</b>
+          <span style="color:var(--dim)">fair {{ '%.2f'|format(g.ks_fair) }}x</span>
+          <b class="{% if (g.ks_edge or 0) > 0 %}up{% else %}down{% endif %}">{{ '%+.0f'|format(g.ks_edge or 0) }}%</b></span>
+      </div>
+      {% endif %}
+      {% if g.ml_pays %}
+      <div class="exrow">
+        <span>{{ g.ml_pick or ((g.ml_ref_side or '') ~ ' to win') }}</span>
+        <span>pays <b class="mult">{{ '%.2f'|format(g.ml_pays) }}x</b>
+          <span style="color:var(--dim)">fair {{ '%.2f'|format(g.ml_fair) }}x</span>
+          <b class="{% if (g.ml_edge or 0) > 0 %}up{% else %}down{% endif %}">{{ '%+.0f'|format(g.ml_edge or 0) }}%</b></span>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% if g.kalshi_incoherent %}
+    <div style="padding:6px 14px 12px;font-size:11px;color:var(--warn)">
+      Ladder quotes contradict each other — at least one price is stale.
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+  </div>
+  <div class="empty" id="noresults" style="display:none">No games match those filters.</div>
+  {% if picks %}
+  <p class="sub" style="margin-top:10px"><b>pays</b> is what a Kalshi contract returns per unit
+    risked after the taker fee. <b>fair</b> is what our model says it should return. Paying more
+    than fair is the edge. The amber line under a matchup flags the situational facts the model
+    weights and a glance at the line does not show: quarterback changes, rest mismatches, long
+    trips, wind.</p>
+  {% endif %}
+</section>
+
+{% if results %}
+<section>
+  <h2>Recent results</h2>
+  <table>
+    <tr><th>Game</th><th>Total</th><th>Spread</th><th>Units</th></tr>
+    {% for r in results %}
+    {% set u = (r.total_units or 0) + (r.spread_units or 0) %}
+    <tr>
+      <td>{{ r.away_team }} at {{ r.home_team }}<br>
+        <span class="sub">{{ r.date }}{% if r.total_points %} &middot; {{ r.total_points|int }} pts{% endif %}</span></td>
+      <td><span class="tag {{ r.total_result }}">{{ r.total_result }}</span></td>
+      <td><span class="tag {{ r.spread_result }}">{{ r.spread_result }}</span></td>
+      <td class="{% if u > 0 %}up{% elif u < 0 %}down{% endif %}">{{ u|money }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</section>
+{% endif %}
+
+{% if m.totals and m.totals.by_edge %}
+<section>
+  <h2>Cover rate by model disagreement</h2>
+  <table>
+    <tr><th>|Model − line|</th><th>Totals</th><th>Win%</th><th>Spreads</th><th>Win%</th></tr>
+    {% for row in m.totals.by_edge %}
+    {% set sp = (m.spreads.by_edge | selectattr('bucket','equalto',row.bucket) | list | first) %}
+    <tr><td>{{ row.bucket }}</td><td>{{ row.wins }}-{{ row.losses }}</td><td>{{ row.win_pct }}%</td>
+      <td>{% if sp %}{{ sp.wins }}-{{ sp.losses }}{% endif %}</td>
+      <td>{% if sp %}{{ sp.win_pct }}%{% endif %}</td></tr>
+    {% endfor %}
+  </table>
+</section>
+{% endif %}
+
+<section>
+  <div class="note">
+    Model output, not advice. NFL spread and total markets are the most efficient in sports —
+    every game is nationally televised, heavily bet and priced by people with better data than
+    this. A public-data model beating those closing numbers is the exception, not the
+    expectation. Bet only what you can afford to lose.
+  </div>
+</section>
+</main>
+
+<footer>
+  Data: nflverse &middot; prices via Kalshi and The Odds API.
+  <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
+  &middot; <a href="../">college football</a>
+  {% if support_url %}<br><a href="{{ support_url }}" rel="noopener">{{ support_label }}</a>{% endif %}
+</footer>
+
+<script>
+(function () {
+  var games = Array.prototype.slice.call(document.querySelectorAll('.game'));
+  if (!games.length) return;
+  var list = document.getElementById('list');
+  var order = games.slice();
+  var q = document.getElementById('q');
+  var count = document.getElementById('count');
+  var none = document.getElementById('noresults');
+  var state = { day: 'all', plays: false, div: false, ctx: false, kick: false, q: '' };
+
+  function apply() {
+    var seq = order.slice();
+    if (state.kick) {
+      seq.sort(function (a, b) { return (a.dataset.kick || '').localeCompare(b.dataset.kick || ''); });
+    }
+    seq.forEach(function (el) { list.appendChild(el); });
+    var shown = 0;
+    games.forEach(function (el) {
+      var ok = true;
+      if (state.day !== 'all' && el.dataset.day !== state.day) ok = false;
+      if (state.plays && el.dataset.play !== '1') ok = false;
+      if (state.div && el.dataset.div !== '1') ok = false;
+      if (state.ctx && el.dataset.ctx !== '1') ok = false;
+      if (state.q && (el.dataset.search || '').indexOf(state.q) === -1) ok = false;
+      el.style.display = ok ? '' : 'none';
+      if (ok) shown++;
+    });
+    count.textContent = shown + ' of ' + games.length + ' games';
+    none.style.display = shown ? 'none' : '';
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-day]'), function (c) {
+    if (c.tagName !== 'BUTTON') return;
+    c.addEventListener('click', function () {
+      state.day = c.dataset.day;
+      Array.prototype.forEach.call(document.querySelectorAll('button[data-day]'), function (o) {
+        o.setAttribute('aria-pressed', String(o === c));
+      });
+      apply();
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-f]'), function (c) {
+    c.addEventListener('click', function () {
+      var k = c.dataset.f;
+      state[k] = !state[k];
+      c.setAttribute('aria-pressed', String(state[k]));
+      apply();
+    });
+  });
+  q.addEventListener('input', function () { state.q = q.value.trim().toLowerCase(); apply(); });
+  apply();
+})();
+</script>
+</body>
+</html>

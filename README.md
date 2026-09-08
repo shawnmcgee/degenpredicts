@@ -6,13 +6,21 @@ No server, no manual uploads, no hosting bill.
 
 ```
 .github/workflows/
-  cfb-predict.yml   daily 9am ET   → lines + schedule → models → data/cfb/picks.csv → docs/
-  cfb-grade.yml     daily 7am ET   → finals → grade → results.csv, metrics.json
-  cfb-train.yml     Tuesdays       → refit models
-  test.yml          on push        → offline end-to-end test
+  cfb-predict.yml   daily 9:00am ET → lines + schedule → models → data/cfb/picks.csv → docs/
+  cfb-grade.yml     daily 7:00am ET → finals → grade → results.csv, metrics.json
+  cfb-train.yml     Tuesdays        → refit models
+  nfl-predict.yml   daily 9:30am ET → same, into data/nfl/ → docs/nfl/
+  nfl-grade.yml     daily 7:30am ET
+  nfl-train.yml     Tuesdays
+  test.yml          on push         → offline end-to-end tests, both sports
 cfb/     college football pipeline (live now)
+nfl/     NFL pipeline (live now)
 ncaab/   basketball pipeline (built, dormant until November)
+core/    shared HTTP session and settings
 ```
+
+Two sports, one Pages deployment: college football serves `docs/index.html`, the NFL serves
+`docs/nfl/index.html`. Neither overwrites the other.
 
 ## Setup — 30 minutes
 
@@ -160,6 +168,236 @@ workflows use roughly 40 minutes/month.
 
 ---
 
+## NFL
+
+`nfl/` is the same architecture pointed at a different sport. Most of it ports over unchanged —
+Actions as scheduler, repo as database, Pages as frontend; online ratings replayed
+chronologically with a leak-free test in CI; four XGBoost models with shrinkage fitted on a
+holdout; EV and Kelly output. Four things genuinely differ.
+
+### 1. Data source: nflverse, no key, no quota
+
+There is no CFBD equivalent, and nflverse is better than one for this design. It is static CSVs
+served from GitHub, so there is no secret to rotate and no monthly call budget.
+
+| Feed | What it gives | Size |
+|---|---|---|
+| `nfldata/games.csv` | schedule and results 1999+, **closing spread, total and moneyline**, rest days, divisional flag, roof, surface, temp, wind, stadium, starting QBs — including for games not yet played | ~2 MB, one request |
+| `stats_team_week_<season>.csv` | team-week offensive EPA and play counts → opponent-adjusted season EPA/play | ~220 KB/season |
+| `snap_counts` + `rosters` + `players` | snap-weighted roster continuity | ~3.4 MB/season, plus a 7 MB crosswalk fetched once |
+
+Because the schedule file carries historical closing lines, the market-aware models train from
+day one rather than after a season of self-logging — the same property that made CFBD work.
+
+**Set up with `Actions → NFL retrain → Run workflow`.** No secrets required. The first run
+backfills EPA and continuity (a few minutes); afterwards it refreshes two seasons.
+
+### 2. Feature analogues, and the NFL-specific ones
+
+SP+ becomes **opponent-adjusted prior-season EPA per play**, offence and defence, computed here
+from team-week data and joined only from season−1 so it cannot leak. Returning production
+becomes **snap-weighted roster continuity** — the share of last season's snaps still on the
+roster, ~0.74 offence and ~0.65 defence league-wide in a typical offseason.
+
+Then the ones with no college analogue worth modelling, which is where this actually diverges:
+
+- **Quarterback** — `qb_new` flags a starter who did not start the team's last game, `qb_starts`
+  counts prior starts. Both replayed chronologically from the schedule, so they are leak-free
+  and available on the board. In the first real training run these were the highest-weighted
+  non-market features in the margin model.
+- **Rest** — rest differential, byes, and short weeks (Thursday off a Sunday game).
+- **Travel** — great-circle distance and time-zone crossings, measured from the stadium each
+  team actually played its home games in that season. Relocations, the Rams' Coliseum years and
+  London "home" games all come out right with no special cases.
+- **Venue and weather** — dome vs outdoors, temperature, wind. Indoor games are stated as 68°F
+  and no wind rather than left blank.
+- **Divisional** games, which are played twice a year between teams that know each other.
+
+Two things the college model uses are deliberately **absent**: line movement (nflverse publishes
+only the closing number, so training on a move feature that is zero historically and non-zero
+live would be a train/serve mismatch) and book count (there is one number, not a panel). The
+de-vigged **moneyline** is added instead — a second, independent market view of the same game.
+
+### 3. Market efficiency: expect no edge, and check that you are told so
+
+NFL closing lines are the sharpest market in sports. The thresholds, the Kelly fraction and the
+Kalshi guards are all strictly tighter than the college pipeline's, and a test asserts they stay
+that way. Here is what the first real training run produced (2010–2025, six-season walk-forward,
+1,693 out-of-sample games):
+
+```json
+"margin_market": {
+  "mae_model": 9.88,
+  "mae_market_baseline": 9.77,   ← the closing line's own error
+  "ats_rate": 52.0,
+  "ats_stderr": 1.23,            ← 1 s.e. at this sample size
+  "beats_market": false,
+  "shrink": 0.2
+}
+```
+
+**The model does not beat the closing line, and no disagreement bucket clears break-even by two
+standard errors.** That is the expected result, not a bug, and the site says so on the page
+rather than burying it in JSON. `shrink` fitting to 0.2 is the same finding stated differently:
+the published number is the line nudged 20% toward the model.
+
+#### Read `market_softness` with the correction, not the raw z-score
+
+Every segment carries `vs_break_even_se`, and reading that number on its own is the single
+easiest way to talk yourself into a bet. Across twenty segments the chance at least one clears
+|z| ≥ 2 by pure chance is about 60%. So each model's `significance` block states how many looks
+were taken and what |z| a segment actually needs:
+
+```json
+"significance": {
+  "comparisons": 20,
+  "z_required": 3.02,
+  "verdict": "no segment survives correction for the number of looks taken"
+}
+```
+
+Each segment also carries `season_cover_pct` and `seasons_above_break_even`, because per-season
+stability is what settles it. A real edge shows up in most seasons; a fluke is two bad years and
+four ordinary ones.
+
+**A worked example, because this table nearly produced a bad model change.** The
+`away better rested` segment came back at 43.4% cover, −2.2 s.e. — the largest deviation in the
+file, and it reads like the model over-crediting away rest. It is not:
+
+- the model's point predictions are the **most accurate** of any rest segment there (mean error
+  −0.07, against +0.60 for even rest and +1.03 for home-rested);
+- it barely deviates from the line at all (−0.38 vs −0.19 for even rest) and takes the home side
+  47.4% of the time against 47.8% — a 0.2-point deviation cannot move a cover rate 11 points;
+- it is **not monotonic** — the most extreme away-rest bucket (≥6 days) covers 53.7%, and the
+  whole effect sits in one middle bucket;
+- it is **not stable** — 53.6 / 57.1 / 50.0 / 34.5 / 33.3 / 38.7 across six seasons of ~30 games.
+
+The market's own error there is −0.45 ± 0.92. The market is slightly off, the model correctly
+followed it, and what remains is a coin flip. Fitting the model to that segment would have been
+overfitting to noise, so the report was changed instead of the model.
+
+Default thresholds (`DEGEN_SPREAD_EDGE=5.0`, `DEGEN_TOTAL_EDGE=6.0`) sit **above every bucket
+that showed anything**, so almost nothing is flagged as a play. Deliberate. Every game is still
+predicted, graded and CLV-tracked whether or not it is staked, so evidence accumulates without
+money at risk. Lower them only when `ats_by_disagreement` gives you a reason.
+
+### 4. Sample size and calibration
+
+272 games a season against college's ~800. So: the walk-forward pools **six** seasons rather
+than four; trees are shallower and more regularised; between-season rating carry-over is **0.55**
+against college's 0.72, because NFL rosters churn harder; and home-field is **1.7 points**, not
+2.5. Stakes are **eighth-Kelly**, not quarter — Kelly sizing assumes you know your edge, and
+against this market you do not. Weeks **1–3** are flagged and unstaked (college unstakes 1–2),
+because NFL roster turnover makes preseason ratings untrustworthy for longer.
+
+Two era corrections that would otherwise be silent:
+
+- **2009 is loaded as a warm-up season.** It advances the ratings and the quarterback tracker
+  but emits no training rows. Without it, every team enters Week 1 of 2010 rated identically —
+  all 16 games shared one `h_margin` value — and the whole first season runs on ratings that
+  started from zero.
+- **2020 carries a `no_crowd` flag, and home-field is suppressed in the rating replay for it.**
+  Mean home margin that season was **+0.14**, against +2.25 across 2010–2019 and +2.06 across
+  2021–2025. The season is kept — it is 269 games of real football — but crediting it a normal
+  home edge would push every 2020 home team's rating down by an advantage that did not exist.
+
+Everything the model sees is a rate or a per-game figure, so the 2021 move from a 16- to a
+17-game season cannot leak in through a season total: EPA is per play, continuity is a ratio,
+form is a mean, and week numbers are normalised.
+
+### Isolation over shared code
+
+Each sport is a **self-contained package** — its own ratings engine, config, sources, HTTP
+session, tests and workflows. `nfl/` imports nothing from `cfb/`, `ncaab/` or `core/`, and a
+test walks the package and fails on any cross-sport import.
+
+This is a deliberate choice against factoring the Elo engine and EV/Kelly math into a shared
+package. The duplication is real and measurable — `cfb/ratings.py` and `nfl/ratings.py` differ
+by 15 logic lines, 12 of which are tuning constants — but the sports are independently
+scheduled jobs committing to `main` on their own crons, and the thing worth optimising is
+blast radius, not line count. One bad edit to a shared rating engine takes down college
+football, the NFL and basketball at once; the same edit in `nfl/ratings.py` takes down one
+sport. `ncaab/` already had its own `http.py`, so this follows the repo's existing grain
+rather than cutting against it.
+
+The same rule applies to the tests: `tests/test_nfl.py` asserts absolute thresholds rather
+than comparing against `cfb.config`, so retuning the college pipeline cannot fail the NFL
+suite. CI runs one job per sport, so a red check names the sport that broke.
+
+### The guardrails that earned their place
+
+Front-loaded because NFL team abbreviations are a minefield, and each of these caught something
+real during the build:
+
+- **`nfl/teams.py` is the only place a team code is translated**, and it *raises* on anything
+  unmapped rather than passing it through — a silently wrong code splits or merges a franchise's
+  rating history and nothing downstream can detect it. It fired on its first run: nflverse
+  spells St. Louis `STL` in the schedule and `SL` in the roster files. Relocations
+  (OAK→LV, SD→LAC, STL→LA) collapse so a franchise's rating carries across the move. CI asserts
+  every code and every stadium in the committed data resolves.
+- **The spread sign is flipped exactly once.** nflverse quotes `+3 = home favoured`; this
+  pipeline uses CFBD's `−3 = home favoured` everywhere downstream. Getting it backwards raises
+  nothing — it just picks the wrong side of every game and lands ATS near 48%.
+- **Week numbers are normalised.** The regular season went from 17 weeks to 18 in 2021, so week
+  18 is the Wild Card round in 2019 and a regular-season game in 2022. The model sees a fraction
+  of that season's regular season plus a separate playoff round.
+- **Time-zone shift wraps across the date line.** A Los Angeles team playing in Melbourne shifts
+  6 hours, not the 18 that plain offset subtraction reports.
+- **Roster continuity joins through the GSIS crosswalk.** Joining snap counts to rosters on
+  `pfr_id` looks like it works and drops nearly every offensive lineman, reporting league-wide
+  offensive continuity of 0.39 instead of 0.74.
+- **Source modules read `config.NAME` at call time.** Importing paths by value froze them at
+  import, which let the test suite train on committed production data while believing it was
+  sandboxed.
+
+### Confirming the Kalshi tickers
+
+`nfl/sources/kalshi.py` is wired for the exchange the same way the college module is, but its
+series tickers could **not** be confirmed against the live API from the machine this was built
+on. They are environment-overridable, the rules regexes accept several sport wordings, and every
+Kalshi path degrades to "no exchange prices" instead of failing — so the pipeline runs correctly
+either way, it just publishes no exchange columns until this is done.
+
+Run it from a machine that can reach `api.elections.kalshi.com` (market data is public — no
+account, no key):
+
+```bash
+pip install -r requirements.txt
+python -m nfl.sources.kalshi --discover
+```
+
+It prints every Kalshi series whose ticker or title mentions the NFL, then tries each of the
+three configured tickers and shows the raw `rules_primary` text next to what the parser made of
+it. Three outcomes:
+
+| What you see | Meaning | What to do |
+|---|---|---|
+| `N open markets` and `parsed:` showing sensible teams, dates and strikes | Defaults are right | Nothing |
+| The listing shows different NFL tickers, and the configured ones return `0 open markets` | Tickers differ | Set the repo variables below |
+| `!! markets returned but none parsed` | Ticker is right, Kalshi reworded its rules | Update the regexes at the top of the module |
+| Everything `0` plus connection warnings | The host is unreachable, not misconfigured | Retry from a network that can reach it |
+
+The parsed line is the part worth reading carefully. Confirm the **home team is the second name**
+in the matchup (Kalshi phrases these away-first) and that a multi-word club comes through whole —
+"New York Giants", not "New". That exact truncation is a bug this module already had once.
+
+If the tickers differ, set them under **Settings → Secrets and variables → Actions → Variables**:
+
+| Variable | Default |
+|---|---|
+| `DEGEN_KALSHI_ML_SERIES` | `KXNFLGAME` |
+| `DEGEN_KALSHI_SPREAD_SERIES` | `KXNFLSPREAD` |
+| `DEGEN_KALSHI_TOTAL_SERIES` | `KXNFLTOTAL` |
+
+`nfl-predict.yml` forwards all three, and leaving them unset keeps the defaults — an unset repo
+variable arrives as an empty string, which `config._env` treats as unset rather than as a blank
+ticker.
+
+To confirm it took, run the picks job and look for `kalshi board: N sides` in the log instead of
+`no markets returned`.
+
+---
+
 ## Basketball
 
 `ncaab/` is a complete parallel pipeline, already written and tested, using ncaa-api for
@@ -173,10 +411,15 @@ scheduled workflows yet. In early November, add workflows mirroring the `cfb-*.y
 
 ```bash
 pip install -r requirements.txt pytest
-pytest -q tests/test_cfb.py     # offline, no network, no API key
+pytest -q tests/test_cfb.py tests/test_nfl.py   # offline, no network, no API key
+
 python -m cfb.train --no-fetch
 python -m cfb.predict --dry-run
 python -m cfb.site && open docs/index.html
+
+python -m nfl.train --no-fetch                  # nflverse needs no key at all
+python -m nfl.predict --dry-run
+python -m nfl.site && open docs/nfl/index.html
 ```
 
 ## Knobs (repo variables or env vars)
@@ -185,10 +428,15 @@ python -m cfb.site && open docs/index.html
 |---|---|---|
 | `DEGEN_TOTAL_EDGE` | 3.5 | min points of edge to publish a totals play |
 | `DEGEN_SPREAD_EDGE` | 2.5 | same for spreads |
-| `DEGEN_MIN_GAMES` | 2 | below this, picks are flagged early-season and not staked |
+| `DEGEN_MIN_GAMES` | 2 (cfb) / 3 (nfl) | below this, picks are flagged early-season and not staked |
 | `DEGEN_KELLY` | 0.25 | Kelly fraction |
 | `DEGEN_BOARD_DAYS` | 7 | how far ahead to post games |
-| `DEGEN_FIRST_SEASON` | 2015 | earliest season to train on |
+| `DEGEN_FIRST_SEASON` | 2015 (cfb) / 2010 (nfl) | earliest season to train on |
+| `DEGEN_WARMUP_SEASONS` | 1 (nfl) | seasons loaded before the training window to warm the ratings up |
+| `DEGEN_WALK_SEASONS` | 6 (nfl) | seasons pooled by the walk-forward evaluation |
+| `DEGEN_NFL_HTTP_TIMEOUT` | 60 | NFL-only HTTP timeout; nflverse serves multi-MB files |
+| `DEGEN_NFL_DOCS` | `docs/nfl` | where the NFL site is written |
+| `DEGEN_KALSHI_ML_SERIES` | `KXNFLGAME` | Kalshi moneyline series (also `..._SPREAD_SERIES`, `..._TOTAL_SERIES`) |
 | `DEGEN_SUPPORT_URL` | (unset) | Buy Me a Coffee link shown at the top; omit and the button hides |
 | `DEGEN_SUPPORT_LABEL` | Buy me a coffee | button text |
 | `DEGEN_THEME` | `ticker` | site look: `ticker`, `scoreboard`, `field` |
