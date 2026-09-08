@@ -10,6 +10,9 @@ concurrency: {group: epl-data, cancel-in-progress: false}
 jobs:
   grade:
     runs-on: ubuntu-latest
+    # A hung upstream must never burn Actions minutes for hours; the
+    # circuit breaker in sources/footballdata.py should make this unreachable.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

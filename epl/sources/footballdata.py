@@ -104,6 +104,46 @@ OU_LINE = 2.5
 # ---------------------------------------------------------------------------------
 # helpers
 # ---------------------------------------------------------------------------------
+# --- primary-host circuit breaker -------------------------------------------------
+# A first backfill fetches ~50 files. If the primary host is not answering - which from a cloud
+# runner is a real possibility, and looks like a packet-level drop rather than an HTTP error -
+# then retrying it once per file spends the whole retry budget fifty times over. That is what
+# turned a six-file schema check into a twenty-five minute job and would have made a first
+# retrain a three-hour one.
+#
+# So the host gets a small number of chances to answer, and after that it is treated as down for
+# the remainder of the process and every later fetch goes straight to the mirror. This is
+# per-process state rather than persisted: a new run always re-tests the host, so an outage
+# heals by itself on the next scheduled job.
+_primary_failures = 0
+_primary_down = False
+
+
+def reset_primary() -> None:
+    """Forget that the primary host was down. Used by the tests, and between CLI invocations."""
+    global _primary_failures, _primary_down
+    _primary_failures, _primary_down = 0, False
+
+
+def primary_is_down() -> bool:
+    return _primary_down
+
+
+def _note_primary(ok: bool) -> None:
+    global _primary_failures, _primary_down
+    if ok:
+        _primary_failures = 0
+        return
+    _primary_failures += 1
+    if not _primary_down and _primary_failures >= config.PRIMARY_FAILURE_LIMIT:
+        _primary_down = True
+        log.error(
+            "football-data.co.uk failed %d times in a row - treating it as DOWN for the rest of "
+            "this run and serving everything from the results-only mirror. The mirror carries "
+            "NO odds columns, so the market-aware models will have no rows. Re-run once the "
+            "host is reachable.", _primary_failures)
+
+
 def _csv(url: str) -> pd.DataFrame:
     r = get(url)
     if r is None or r.status_code != 200:
@@ -325,12 +365,14 @@ def fetch_season(season: int, league: str | None = None) -> pd.DataFrame:
     degradation, which is how it would otherwise present: as a season whose market models
     simply have no rows.
     """
-    raw = _csv(season_url(season, league))
-    if len(raw):
-        return raw
+    if not _primary_down:
+        raw = _csv(season_url(season, league))
+        _note_primary(bool(len(raw)))
+        if len(raw):
+            return raw
     url = mirror_url(season, league)
     if not url:
-        return raw
+        return pd.DataFrame()
     raw = _csv(url)
     if len(raw):
         log.warning("season %s served from the results-only mirror - it carries NO odds "
@@ -610,13 +652,9 @@ def build_strength(games: pd.DataFrame | None = None, fetch: bool = True) -> pd.
         else pd.DataFrame(columns=STRENGTH_COLS)
 
     below = pd.DataFrame(columns=STRENGTH_COLS)
-    if fetch and config.LEAGUE_BELOW:
-        b_frames = []
-        for s in sorted(games["season"].unique()):
-            raw = fetch_season(int(s), config.LEAGUE_BELOW)
-            g, _ = parse_season(raw, int(s), config.LEAGUE_BELOW)
-            if len(g):
-                b_frames.append(_season_strength(g))
+    if config.LEAGUE_BELOW:
+        lower = _lower_division(sorted(int(s) for s in games["season"].unique()), fetch)
+        b_frames = [_season_strength(g) for _, g in lower.groupby("season")] if len(lower) else []
         if b_frames:
             below = pd.concat([f for f in b_frames if len(f)], ignore_index=True)
             # Scale the lower division onto this one's terms. Attack is scaled down and defence
@@ -645,6 +683,37 @@ def build_strength(games: pd.DataFrame | None = None, fetch: bool = True) -> pd.
     return out
 
 
+def _lower_division(seasons: list[int], fetch: bool = True) -> pd.DataFrame:
+    """The division below, cached to disk so a retrain does not refetch a decade of it.
+
+    Only the promoted clubs' single prior season is ever read out of this, but working out which
+    clubs those are needs the whole division. Completed seasons never change, so the first run
+    pays for the backfill and every later one refreshes the current season only - which on a
+    weekly retrain is the difference between ~24 requests and one.
+    """
+    have = _load(config.LOWER_GAMES)
+    cached = set(int(s) for s in have["season"].unique()) if len(have) else set()
+    current = config.season_of(config.today_uk())
+    # Re-fetch anything missing, plus the current season, which is still gaining results.
+    wanted = [s for s in seasons if s not in cached or s >= current]
+    if fetch and wanted:
+        fresh = []
+        for s in wanted:
+            g, _ln = parse_season(fetch_season(s, config.LEAGUE_BELOW), s, config.LEAGUE_BELOW)
+            if len(g):
+                fresh.append(g)
+        if fresh:
+            have = _merge(have, pd.concat(fresh, ignore_index=True))
+            ensure_dirs()
+            have.to_csv(config.LOWER_GAMES, index=False)
+        log.info("%s: fetched %d season(s), cache now holds %d matches",
+                 config.LEAGUE_BELOW, len(fresh), len(have))
+    elif len(have):
+        log.info("%s: served %d matches from cache, no fetch needed",
+                 config.LEAGUE_BELOW, len(have))
+    return have[have["season"].isin(seasons)] if len(have) else have
+
+
 def load_strength() -> pd.DataFrame:
     return _load(config.STRENGTH, dates=())
 
@@ -661,13 +730,18 @@ def _check(seasons: list[int], league: str) -> list[dict]:
     soft book's opening number, is a real failure that otherwise shows up only as market models
     with mysteriously few rows.
     """
+    import time
+
+    reset_primary()
     out = []
     for s in seasons:
+        t0 = time.time()
         raw = fetch_season(s, league)
         g, ln = parse_season(raw, s, league)
         row = {"season": s, "code": config.season_code(s), "raw_rows": len(raw),
                "matches": len(g), "priced": len(ln), "closing": 0, "ah": 0, "ou": 0,
-               "source": "", "columns": len(raw.columns) if len(raw) else 0}
+               "source": "", "columns": len(raw.columns) if len(raw) else 0,
+               "secs": round(time.time() - t0, 1), "mirror": primary_is_down()}
         if len(ln):
             row["closing"] = int(ln["is_closing"].astype(bool).sum())
             row["ah"] = int(ln["ah_home"].notna().sum())
@@ -678,13 +752,25 @@ def _check(seasons: list[int], league: str) -> list[dict]:
 
 
 def _summary(rows: list[dict], league: str) -> str:
-    lines = [f"# football-data.co.uk schema check — {league}", "",
-             "| Season | Matches | Priced | Closing | AH | O/U | Columns resolved |",
-             "|---|---|---|---|---|---|---|"]
+    reachable = any(not r.get("mirror") and r.get("priced") for r in rows)
+    total = sum(r.get("secs", 0) for r in rows)
+    lines = [f"# football-data.co.uk schema check — {league}", ""]
+    if primary_is_down():
+        lines += [
+            "> **football-data.co.uk did not answer.** Everything below was served from the "
+            "results-only GitHub mirror, which carries no odds columns at all. This is a "
+            "reachability problem, not a layout problem — the primary host was tried "
+            f"{config.PRIMARY_FAILURE_LIMIT} times and then skipped for the rest of the run so "
+            "the job could finish rather than hang. Re-run when the host is up.", ""]
+    elif reachable:
+        lines += ["> football-data.co.uk answered and the odds columns resolved.", ""]
+    lines += [f"Checked {len(rows)} season(s) in {total:.0f}s.", "",
+              "| Season | Matches | Priced | Closing | AH | O/U | Secs | Columns resolved |",
+              "|---|---|---|---|---|---|---|---|"]
     for r in rows:
         lines.append(f"| {r['season']}-{(r['season']+1) % 100:02d} | {r['matches']} | "
                      f"{r['priced']} | {r['closing']} | {r['ah']} | {r['ou']} | "
-                     f"`{r['source'] or '—'}` |")
+                     f"{r.get('secs', 0)} | `{r['source'] or '—'}` |")
     lines += ["", "## What this means", "",
               "| What you see | Meaning | What to do |", "|---|---|---|",
               "| Matches and priced both non-zero, `source` naming PSC*/AHCh/PC* | "
@@ -694,8 +780,9 @@ def _summary(rows: list[dict], league: str) -> str:
               "| Matches non-zero, priced 0 | The odds columns were not found at all | "
               "The layout changed — add the new spellings to CLOSING_*/OPENING_* in "
               "`epl/sources/footballdata.py` |",
-              "| Matches 0 with columns 0 | The host was unreachable, not misconfigured | "
-              "Re-run later |", "",
+              "| Matches 0 with columns 0 | Neither host answered | Re-run later |",
+              "| The banner above says the host did not answer | Reachability, not layout | "
+              "Re-run later; the pipeline still works, without market-aware models |", "",
               "The market-aware models train only on rows in the **Priced** column, so a "
               "season showing matches but no prices is contributing nothing to them."]
     return "\n".join(lines)

@@ -59,6 +59,7 @@ LINES = DATA / "lines.csv"          # closing 1X2, Asian handicap and over/under
 SNAPSHOTS = DATA / "snapshots.csv"  # our own live pulls, for closing-line value
 STRENGTH = DATA / "team_strength.csv"   # opponent-adjusted prior-season attack/defence
 FIXTURES = DATA / "fixtures.csv"    # forthcoming matches (football-data publishes these too)
+LOWER_GAMES = DATA / "lower_games.csv"  # the division below, cached so retrains do not refetch it
 PICKS = DATA / "picks.csv"
 RESULTS = DATA / "results.csv"
 METRICS = DATA / "metrics.json"
@@ -70,10 +71,26 @@ MODEL_DIR = DATA / "models"
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")   # optional: live prices for EV/Kelly
 ODDS_BOOKS = ["Pinnacle", "Betfair", "William Hill", "Bet365", "Unibet", "1xBet"]
 
-HTTP_TIMEOUT = float(os.environ.get("DEGEN_EPL_HTTP_TIMEOUT",
-                                    os.environ.get("DEGEN_HTTP_TIMEOUT", "45")))
+# Connect and read timeouts are separate, and both are short. This pipeline makes far more
+# requests per run than the other two - a first backfill is ~50 files - so the per-request
+# budget multiplies. A generous retry policy against a host that is simply not answering turned
+# a 6-file schema check into a 25-minute job and would have made a first retrain a THREE-HOUR
+# one: 5 attempts x 45s plus backoff is 4.1 minutes of dead time per file, spent 50 times over.
+#
+# The connect timeout is the one that matters. A host that refuses or resets answers instantly;
+# a host whose packets are being dropped by a firewall answers never, and the connect timeout is
+# the only thing that bounds it. 8 seconds is far more than a static file host needs to accept
+# a TCP connection and far less than the 45 it was costing.
+HTTP_CONNECT_TIMEOUT = float(os.environ.get("DEGEN_EPL_CONNECT_TIMEOUT", "8"))
+HTTP_READ_TIMEOUT = float(os.environ.get("DEGEN_EPL_HTTP_TIMEOUT",
+                                         os.environ.get("DEGEN_HTTP_TIMEOUT", "25")))
+HTTP_TIMEOUT = (HTTP_CONNECT_TIMEOUT, HTTP_READ_TIMEOUT)
 HTTP_RETRIES = int(os.environ.get("DEGEN_EPL_HTTP_RETRIES",
-                                  os.environ.get("DEGEN_HTTP_RETRIES", "4")))
+                                  os.environ.get("DEGEN_HTTP_RETRIES", "2")))
+# After this many consecutive failures the primary host is treated as down for the rest of the
+# run and every later fetch goes straight to the mirror. Retrying a host that has already failed
+# twice, once per file, for fifty files, is the difference between a slow run and a stuck one.
+PRIMARY_FAILURE_LIMIT = int(os.environ.get("DEGEN_EPL_PRIMARY_FAILURES", "2"))
 
 # --- data source ---------------------------------------------------------------------
 # football-data.co.uk publishes one CSV per league per season, in a stable layout, carrying

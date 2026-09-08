@@ -656,8 +656,33 @@ pipeline runs either way.
 
 **From anywhere, including a phone: Actions → EPL source check → Run workflow.** The result goes
 to the job summary, which the GitHub mobile app renders as a page rather than as raw logs: a row
-per season showing how many matches and prices resolved and from which columns, plus a table of
-what each outcome means.
+per season showing how many matches and prices resolved, how long each took, and from which
+columns, plus a banner saying whether the host answered at all.
+
+#### If the host does not answer
+
+This pipeline fetches far more files per run than the other two — a first backfill is around
+fifty — so the per-request retry budget is multiplied by fifty. That is not hypothetical: the
+first version shipped a 45-second timeout with four retries, which is **4.1 minutes of dead time
+per unreachable file**, and it turned the six-file schema check into a 25-minute job and would
+have made a first retrain a three-hour one.
+
+Three things now bound it, and it is worth knowing which does what:
+
+- **Short timeouts.** A host that refuses or resets answers instantly; one whose packets are
+  being dropped answers never, and the *connect* timeout is the only thing that bounds that
+  case. It is 8 seconds.
+- **A circuit breaker.** After two consecutive failures the primary host is treated as down for
+  the rest of the run and every later fetch goes straight to the mirror. Discovering a dead host
+  once beats discovering it fifty times. The state is per-process and never persisted, so an
+  outage heals by itself on the next scheduled run, and a single success part-way through clears
+  the counter so intermittent failures never trip it.
+- **`timeout-minutes` on every EPL workflow**, so a hung upstream can never burn Actions minutes
+  for hours even if the first two fail.
+
+When the breaker trips, the run still **completes** — served entirely from the results-only
+mirror, with market-aware models skipped and a loud line in the log saying so. A run that
+finishes and tells you it has no odds is worth far more than one that hangs.
 
 Locally:
 
