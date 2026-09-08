@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DegenPredicts</title>
+<title>{{ title }}</title>
 <style>
   :root{--bg:#0d0e11;--card:#171a1f;--card2:#1e2229;--line:#2a2e36;--fg:#e9eaec;--dim:#98a0aa;
         --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;}
@@ -49,63 +49,49 @@
 </head>
 <body>
 <header>
-  <h1>DegenPredicts</h1>
+  <h1>{{ title }}</h1>
   <p class="tag">Spread and total predictions, rebuilt every morning. Pick a sport.</p>
 </header>
 
 <main>
-  
+  {% if sports %}
   <div class="cards">
-    
-    <a class="card" href="cfb/">
-      <div class="name">College Football
-        
+    {% for s in sports %}
+    <a class="card" href="{{ s.href }}">
+      <div class="name">{{ s.name }}
+        {% if s.board.plays %}<span class="pill">{{ s.board.plays }} play{{ '' if s.board.plays == 1 else 's' }}</span>{% endif %}
         <span class="go" aria-hidden="true">&rarr;</span>
       </div>
-      <div class="blurb">Every FBS game, spreads and totals.</div>
+      <div class="blurb">{{ s.blurb }}</div>
 
-      
+      {% if s.has_data %}
       <div class="status">
-        <span><span class="k">Week</span> 2</span>
-        <span><span class="k">On the board</span> 53</span>
-        <span><span class="k">Updated</span> 2026-09-08</span>
+        {% if s.board.week %}<span><span class="k">Week</span> {{ s.board.week }}</span>{% endif %}
+        <span><span class="k">On the board</span> {{ s.board.games }}</span>
+        {% if s.updated %}<span><span class="k">Updated</span> {{ s.updated }}</span>{% endif %}
       </div>
-      
+      {% else %}
+      <div class="status quiet">No games on the board right now.</div>
+      {% endif %}
 
-      
+      {% if s.totals.n or s.spreads.n %}
       <div class="rec">
-        
-        <span>Spreads <b class="up">+0.34u</b>
-          over 105 &middot; CLV <b>+0.00</b></span>
-        
-        
-        <span>Totals <b class="up">+3.26u</b>
-          over 105 &middot; CLV <b>+0.00</b></span>
-        
+        {% if s.spreads.n %}
+        <span>Spreads <b class="{% if s.spreads.units > 0 %}up{% elif s.spreads.units < 0 %}down{% endif %}">{{ s.spreads.units|money }}u</b>
+          over {{ s.spreads.n }}{% if s.spreads.clv is not none %} &middot; CLV <b>{{ '%+.2f'|format(s.spreads.clv) }}</b>{% endif %}</span>
+        {% endif %}
+        {% if s.totals.n %}
+        <span>Totals <b class="{% if s.totals.units > 0 %}up{% elif s.totals.units < 0 %}down{% endif %}">{{ s.totals.units|money }}u</b>
+          over {{ s.totals.n }}{% if s.totals.clv is not none %} &middot; CLV <b>{{ '%+.2f'|format(s.totals.clv) }}</b>{% endif %}</span>
+        {% endif %}
       </div>
-      
+      {% endif %}
     </a>
-    
-    <a class="card" href="nfl/">
-      <div class="name">NFL
-        
-        <span class="go" aria-hidden="true">&rarr;</span>
-      </div>
-      <div class="blurb">Spreads and totals, with quarterback, rest, travel and weather context.</div>
-
-      
-      <div class="status">
-        <span><span class="k">Week</span> 1</span>
-        <span><span class="k">On the board</span> 16</span>
-        <span><span class="k">Updated</span> 2026-09-08</span>
-      </div>
-      
-
-      
-    </a>
-    
+    {% endfor %}
   </div>
-  
+  {% else %}
+  <div class="empty">Nothing published yet. The pipelines post each board the morning of the slate.</div>
+  {% endif %}
 
   <div class="note">
     Model output, not advice. These markets are efficient and any real edge is small and slow
@@ -113,14 +99,14 @@
     usually it does not. Bet only what you can afford to lose.
   </div>
 
-  
-  <a class="coffee" href="https://buymeacoffee.com/smcgee" rel="noopener">&#9749; Buy me a coffee</a>
-  
+  {% if support_url %}
+  <a class="coffee" href="{{ support_url }}" rel="noopener">&#9749; {{ support_label }}</a>
+  {% endif %}
 </main>
 
 <footer>
   Built on GitHub — Actions schedules it, the repo is the database, Pages serves it.
-  Last update 2026-09-08.
+  {% if updated %}Last update {{ updated }}.{% endif %}
 </footer>
 </body>
 </html>

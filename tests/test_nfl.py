@@ -1042,36 +1042,55 @@ def test_empty_env_vars_fall_back_to_defaults(env):
 
 
 def test_the_nfl_page_is_reachable_from_the_site_root(env):
-    """The NFL board must be discoverable, not just built.
+    """The NFL board must be reachable from the front door, not just built.
 
-    Both sports publish into one GitHub Pages deployment: college football at the root and the
-    NFL at /nfl/. The NFL page linked back to college football from day one, but nothing
-    linked forward, so a visitor landing on the site root had no way to find out the NFL board
-    existed at all. It was a one-way door and entirely invisible in testing, because both
-    pages rendered perfectly on their own.
+    All sports publish into one GitHub Pages deployment: a chooser at the root and each board
+    in its own subfolder. The NFL page linked back to college football from day one, but for
+    a while nothing linked forward and the root had no reference to the NFL at all - the board
+    was published and invisible. Both pages rendered perfectly on their own, which is exactly
+    why nothing caught it: the fault was in the relationship between them.
 
-    This reads the college template rather than importing anything from `cfb` - the sports
-    stay separate in code, but they share one published site, and that shared surface needs a
-    guard somewhere. It lives here because being reachable is the NFL page's interest.
+    This reads the college template rather than importing from `cfb` - the sports stay
+    separate in code, but they share one published site, and that surface needs a guard.
     """
     from pathlib import Path
     root = Path(__file__).resolve().parent.parent
 
     nfl_tpl = (root / "nfl" / "templates" / "index.html").read_text()
-    assert 'href="../"' in nfl_tpl, "the NFL page must link back to college football"
+    assert 'href="../"' in nfl_tpl, "the NFL page must link back to the chooser"
+    assert 'href="../cfb/"' in nfl_tpl, "the NFL page must link across to college football"
 
     cfb_tpl = root / "cfb" / "templates" / "index.html"
-    if not cfb_tpl.exists():
-        pytest.skip("no college football template in this checkout")
-    assert 'href="nfl/"' in cfb_tpl.read_text(), (
-        "the college football page must link to nfl/, or the NFL board is published but "
-        "unreachable from the site root")
+    if cfb_tpl.exists():
+        t = cfb_tpl.read_text()
+        assert 'href="../nfl/"' in t, "college football must link across to the NFL"
+        assert 'href="../"' in t, "college football must link back to the chooser"
 
-    # and the rendered pages agree, so a stale docs/ cannot hide a broken link
-    for page, needle in ((root / "docs" / "index.html", 'href="nfl/"'),
-                         (root / "docs" / "nfl" / "index.html", 'href="../"')):
-        if page.exists():
-            assert needle in page.read_text(), f"{page.name} lost its sport switcher"
+    # the rendered pages agree, so a stale docs/ cannot hide a broken link
+    published = root / "docs" / "nfl" / "index.html"
+    if published.exists():
+        html = published.read_text()
+        assert 'href="../"' in html and 'href="../cfb/"' in html
+
+
+def test_landing_page_lists_the_nfl(env):
+    """The chooser must offer the NFL, and must not depend on any sport's code to do it."""
+    import re
+    from pathlib import Path
+    from core import landing
+
+    root = Path(__file__).resolve().parent.parent
+    src = (root / "core" / "landing.py").read_text()
+    for line in src.splitlines():
+        assert not re.match(r"\s*(from|import)\s+(cfb|nfl|ncaab)\b", line), (
+            "the landing page must read published files, not import a sport: " + line)
+
+    assert any(s["slug"] == "nfl" for s in landing.SPORTS)
+    index = root / "docs" / "index.html"
+    if index.exists():
+        html = index.read_text()
+        assert 'href="nfl/"' in html, "the chooser must link to the NFL board"
+        assert "<title>" in html
 
 
 def test_predict_workflow_forwards_the_kalshi_series_vars(env):

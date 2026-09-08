@@ -1,0 +1,127 @@
+"""Tests for the site's front door.
+
+The landing page belongs to no sport, so it gets its own suite rather than living in either
+sport's. Its whole job is to read what the pipelines have published and turn that into a
+chooser, so the things worth pinning are: it never imports a sport, it skips a sport that has
+published nothing, and it degrades rather than raising when a file is missing or malformed.
+"""
+from __future__ import annotations
+
+import json
+import re
+
+import pytest
+
+from core import landing
+
+
+def _publish(docs, slug, *, index=True, metrics=None, picks=None):
+    folder = docs / slug
+    folder.mkdir(parents=True, exist_ok=True)
+    if index:
+        (folder / "index.html").write_text("<html><body>board</body></html>")
+    if metrics is not None:
+        (folder / "metrics.json").write_text(json.dumps(metrics))
+    if picks is not None:
+        (folder / "picks.csv").write_text(picks)
+    return folder
+
+
+HEADER = ("game_id,date,week,total_strength,spread_strength\n")
+
+
+def test_never_imports_a_sport():
+    """The chooser reads published files. Importing a pipeline would couple every sport to
+    the front page and undo the isolation the rest of the repo is built on."""
+    from pathlib import Path
+    src = (Path(landing.__file__)).read_text()
+    for i, line in enumerate(src.splitlines(), 1):
+        assert not re.match(r"\s*(from|import)\s+(cfb|nfl|ncaab)\b", line), \
+            f"core/landing.py:{i} imports a sport: {line.strip()}"
+
+
+def test_only_shows_sports_that_published_something(tmp_path):
+    docs = tmp_path / "docs"
+    _publish(docs, "cfb", metrics={"updated": "2026-09-08"}, picks=HEADER)
+    # nfl folder exists but has no index.html - the pipeline has not published yet
+    (docs / "nfl").mkdir(parents=True, exist_ok=True)
+    cards = landing.collect(docs, today="2026-09-08")
+    assert [c["slug"] for c in cards] == ["cfb"]
+
+    _publish(docs, "nfl", metrics={"updated": "2026-09-08"}, picks=HEADER)
+    cards = landing.collect(docs, today="2026-09-08")
+    # order follows the registry, not the filesystem
+    assert [c["slug"] for c in cards] == ["cfb", "nfl"]
+
+
+def test_counts_only_upcoming_games(tmp_path):
+    """picks.csv accumulates history and can hold several predictions per game."""
+    docs = tmp_path / "docs"
+    picks = HEADER + "\n".join([
+        "g1,2026-09-01,1,pass,pass",       # already played
+        "g2,2026-09-10,2,play,pass",       # upcoming, a play
+        "g3,2026-09-11,2,pass,bold",       # upcoming, a play
+        "g4,2026-09-12,2,pass,pass",       # upcoming, no play
+        "g4,2026-09-12,2,pass,pass",       # duplicate prediction for the same game
+    ]) + "\n"
+    _publish(docs, "nfl", metrics={"updated": "2026-09-08"}, picks=picks)
+    card = landing.collect(docs, today="2026-09-08")[0]
+    assert card["board"]["games"] == 3, "played games and duplicates must not be counted"
+    assert card["board"]["week"] == 2
+    assert card["board"]["plays"] == 2
+    assert card["has_data"] is True
+
+
+def test_survives_missing_and_malformed_files(tmp_path):
+    """One sport publishing something broken must not take the front page down with it."""
+    docs = tmp_path / "docs"
+    _publish(docs, "cfb")                                   # no metrics, no picks at all
+    _publish(docs, "nfl", metrics={"updated": "2026-09-08"},
+             picks="this is not,a valid picks file\n")
+    (docs / "cfb" / "metrics.json").write_text("{not json")
+
+    cards = landing.collect(docs, today="2026-09-08")
+    assert len(cards) == 2
+    cfb = next(c for c in cards if c["slug"] == "cfb")
+    assert cfb["updated"] is None and cfb["has_data"] is False
+    landing.build(docs)                                       # must render regardless
+    assert (docs / "index.html").exists()
+
+
+def test_renders_a_chooser_with_a_link_per_sport(tmp_path):
+    docs = tmp_path / "docs"
+    picks = HEADER + "g1,2026-09-10,2,play,pass\n"
+    _publish(docs, "cfb", metrics={
+        "updated": "2026-09-08",
+        "spreads": {"all_games": {"n": 40, "units": 2.5, "win_pct": 55.0, "clv": 0.31}},
+        "totals": {"all_games": {"n": 40, "units": -1.25, "win_pct": 47.5, "clv": -0.10}},
+    }, picks=picks)
+    _publish(docs, "nfl", metrics={"updated": "2026-09-08"}, picks=HEADER)
+
+    html = landing.build(docs).read_text()
+    assert 'href="cfb/"' in html and 'href="nfl/"' in html
+    assert "College Football" in html and "NFL" in html
+    assert "+2.50u" in html and "-1.25u" in html          # signed units, both directions
+    assert "+0.31" in html                                 # CLV carried through
+    assert "No games on the board right now." in html      # the NFL card, with an empty board
+    assert "1 play" in html and "1 plays" not in html      # singular, not "1 plays"
+    # a pandas-style NaN must never reach the page
+    body = re.sub(r"<(script|style)\b.*?</\1>", "", html, flags=re.S | re.I).lower()
+    assert "nan" not in body
+
+
+def test_renders_with_nothing_published(tmp_path):
+    docs = tmp_path / "docs"
+    docs.mkdir(parents=True)
+    html = landing.build(docs).read_text()
+    assert "Nothing published yet" in html
+    assert (docs / ".nojekyll").exists()
+
+
+def test_every_publishing_workflow_rebuilds_the_front_page():
+    """A sport that publishes without refreshing the chooser leaves the front page stale."""
+    from pathlib import Path
+    wf = Path(__file__).resolve().parent.parent / ".github" / "workflows"
+    for name in ("cfb-predict", "cfb-grade", "nfl-predict", "nfl-grade"):
+        text = (wf / f"{name}.yml").read_text()
+        assert "python -m core.landing" in text, f"{name}.yml does not rebuild the chooser"

@@ -24,6 +24,8 @@ jobs:
         run: |
           python -m cfb.predict ${{ inputs.week && format('--week {0}', inputs.week) || '' }}
           python -m cfb.site
+          # the front page is a chooser over whatever each sport has published
+          python -m core.landing
       - run: |
           git config user.name  "degenbot"
           git config user.email "actions@github.com"

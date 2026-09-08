@@ -12,15 +12,32 @@ No server, no manual uploads, no hosting bill.
   nfl-predict.yml   daily 9:30am ET → same, into data/nfl/ → docs/nfl/
   nfl-grade.yml     daily 7:30am ET
   nfl-train.yml     Tuesdays
-  test.yml          on push         → offline end-to-end tests, both sports
+  test.yml          on push         → offline tests, one job per sport plus the landing page
 cfb/     college football pipeline (live now)
 nfl/     NFL pipeline (live now)
 ncaab/   basketball pipeline (built, dormant until November)
-core/    shared HTTP session and settings
+core/    sport-neutral bits only: the landing page, shared settings
 ```
 
-Two sports, one Pages deployment: college football serves `docs/index.html`, the NFL serves
-`docs/nfl/index.html`. Neither overwrites the other.
+One Pages deployment, one folder per sport. `docs/index.html` is a **chooser** rendered by
+`core.landing`; each board lives in its own subfolder (`docs/cfb/`, `docs/nfl/`) so no sport
+can overwrite another and adding one needs no coordination.
+
+```
+docs/
+  index.html      ← the chooser: a card per sport, with week, board size and season record
+  cfb/index.html  ← college football board
+  nfl/index.html  ← NFL board
+```
+
+`core/landing.py` imports nothing from `cfb`, `nfl` or `ncaab` — it reads the files those
+pipelines have already published and renders a card for each. A sport that has published
+nothing simply has no card, so `ncaab/` will appear on its own the first time it runs. Every
+publishing workflow rebuilds the chooser after its own board, so the front page refreshes
+whenever any sport does and self-heals if a run is skipped.
+
+Note the college football board moved from `docs/` to `docs/cfb/` when the chooser was added,
+so its `picks.csv`, `results.csv` and `metrics.json` moved with it.
 
 ## Setup — 30 minutes
 
@@ -411,15 +428,17 @@ scheduled workflows yet. In early November, add workflows mirroring the `cfb-*.y
 
 ```bash
 pip install -r requirements.txt pytest
-pytest -q tests/test_cfb.py tests/test_nfl.py   # offline, no network, no API key
+pytest -q tests/                                # offline, no network, no API key
 
 python -m cfb.train --no-fetch
 python -m cfb.predict --dry-run
-python -m cfb.site && open docs/index.html
+python -m cfb.site && open docs/cfb/index.html
 
 python -m nfl.train --no-fetch                  # nflverse needs no key at all
 python -m nfl.predict --dry-run
 python -m nfl.site && open docs/nfl/index.html
+
+python -m core.landing && open docs/index.html  # the chooser, built from what is published
 ```
 
 ## Knobs (repo variables or env vars)
@@ -435,7 +454,8 @@ python -m nfl.site && open docs/nfl/index.html
 | `DEGEN_WARMUP_SEASONS` | 1 (nfl) | seasons loaded before the training window to warm the ratings up |
 | `DEGEN_WALK_SEASONS` | 6 (nfl) | seasons pooled by the walk-forward evaluation |
 | `DEGEN_NFL_HTTP_TIMEOUT` | 60 | NFL-only HTTP timeout; nflverse serves multi-MB files |
-| `DEGEN_NFL_DOCS` | `docs/nfl` | where the NFL site is written |
+| `DEGEN_NFL_DOCS` | `docs/nfl` | where the NFL board is written |
+| `DEGEN_CFB_DOCS` | `docs/cfb` | where the college football board is written |
 | `DEGEN_KALSHI_ML_SERIES` | `KXNFLGAME` | Kalshi moneyline series (also `..._SPREAD_SERIES`, `..._TOTAL_SERIES`) |
 | `DEGEN_SUPPORT_URL` | (unset) | Buy Me a Coffee link shown at the top; omit and the button hides |
 | `DEGEN_SUPPORT_LABEL` | Buy me a coffee | button text |
