@@ -1,0 +1,856 @@
+{
+  "trained_at": "2026-09-08T16:51:03",
+  "sport": "nfl",
+  "base_features": [
+    "neutral_site",
+    "div_game",
+    "week_frac",
+    "playoff_round",
+    "is_early_season",
+    "exp_margin",
+    "exp_total",
+    "exp_home_points",
+    "exp_away_points",
+    "h_margin",
+    "a_margin",
+    "h_off",
+    "a_off",
+    "h_def",
+    "a_def",
+    "h_games",
+    "a_games",
+    "h_form_margin",
+    "a_form_margin",
+    "h_form_total",
+    "a_form_total",
+    "h_rest",
+    "a_rest",
+    "rest_diff",
+    "h_bye",
+    "a_bye",
+    "h_short_week",
+    "a_short_week",
+    "h_prev_off_epa",
+    "a_prev_off_epa",
+    "h_prev_def_epa",
+    "a_prev_def_epa",
+    "epa_margin_est",
+    "epa_total_est",
+    "h_cont_off",
+    "a_cont_off",
+    "h_cont_def",
+    "a_cont_def",
+    "h_qb_new",
+    "a_qb_new",
+    "h_qb_starts",
+    "a_qb_starts",
+    "h_travel_km",
+    "a_travel_km",
+    "travel_diff_km",
+    "h_tz_shift",
+    "a_tz_shift",
+    "is_indoor",
+    "is_grass",
+    "temp",
+    "wind"
+  ],
+  "market_features": [
+    "total_line",
+    "spread_home",
+    "total_vs_model",
+    "spread_vs_model",
+    "ml_prob_home"
+  ],
+  "n_rows": 4363,
+  "seasons": [
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "eval": {
+    "total_nomarket": {
+      "test_seasons": [
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n_test_total": 1693,
+      "mae_model": 10.61,
+      "mae_rating_baseline": 10.99,
+      "sigma": 13.35,
+      "bias": -0.15,
+      "per_season": [
+        {
+          "season": 2020,
+          "n": 269,
+          "mae_model": 10.68,
+          "ats_rate": null
+        },
+        {
+          "season": 2021,
+          "n": 285,
+          "mae_model": 11.13,
+          "ats_rate": null
+        },
+        {
+          "season": 2022,
+          "n": 284,
+          "mae_model": 10.78,
+          "ats_rate": null
+        },
+        {
+          "season": 2023,
+          "n": 285,
+          "mae_model": 10.54,
+          "ats_rate": null
+        },
+        {
+          "season": 2024,
+          "n": 285,
+          "mae_model": 9.87,
+          "ats_rate": null
+        },
+        {
+          "season": 2025,
+          "n": 285,
+          "mae_model": 10.67,
+          "ats_rate": null
+        }
+      ]
+    },
+    "total_market": {
+      "test_seasons": [
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n_test_total": 1693,
+      "mae_model": 10.45,
+      "mae_rating_baseline": 10.99,
+      "sigma": 13.2,
+      "bias": 0.15,
+      "per_season": [
+        {
+          "season": 2020,
+          "n": 269,
+          "mae_model": 10.3,
+          "ats_rate": 51.5
+        },
+        {
+          "season": 2021,
+          "n": 285,
+          "mae_model": 11.07,
+          "ats_rate": 47.5
+        },
+        {
+          "season": 2022,
+          "n": 284,
+          "mae_model": 10.53,
+          "ats_rate": 55.9
+        },
+        {
+          "season": 2023,
+          "n": 285,
+          "mae_model": 10.37,
+          "ats_rate": 48.8
+        },
+        {
+          "season": 2024,
+          "n": 285,
+          "mae_model": 9.87,
+          "ats_rate": 56.4
+        },
+        {
+          "season": 2025,
+          "n": 285,
+          "mae_model": 10.52,
+          "ats_rate": 51.2
+        }
+      ],
+      "mae_market_baseline": 10.31,
+      "ats_rate": 51.9,
+      "ats_n": 1675,
+      "ats_stderr": 1.22,
+      "beats_market": false,
+      "shrink_raw": 0.2,
+      "shrink": 0.2,
+      "ats_by_disagreement": [
+        {
+          "disagreement": "0-1",
+          "n": 481,
+          "cover_pct": 53.4,
+          "stderr": 2.27,
+          "roi_pct": 3.25,
+          "vs_break_even_se": 0.74
+        },
+        {
+          "disagreement": "1-2",
+          "n": 418,
+          "cover_pct": 49.5,
+          "stderr": 2.45,
+          "roi_pct": -4.31,
+          "vs_break_even_se": -0.91
+        },
+        {
+          "disagreement": "2-3",
+          "n": 296,
+          "cover_pct": 52.7,
+          "stderr": 2.9,
+          "roi_pct": 1.84,
+          "vs_break_even_se": 0.33
+        },
+        {
+          "disagreement": "3-5",
+          "n": 375,
+          "cover_pct": 51.5,
+          "stderr": 2.58,
+          "roi_pct": -0.55,
+          "vs_break_even_se": -0.11
+        },
+        {
+          "disagreement": "5-7",
+          "n": 87,
+          "cover_pct": 51.7,
+          "stderr": 5.36,
+          "roi_pct": -0.05,
+          "vs_break_even_se": -0.0
+        }
+      ],
+      "break_even_pct": 51.75,
+      "venue": "kalshi_taker",
+      "market_softness": {
+        "by_tv_window": [
+          {
+            "segment": "Sunday afternoon (split attention)",
+            "n": 1256,
+            "cover_pct": 52.0,
+            "stderr": 1.41,
+            "vs_break_even_se": 0.17,
+            "roi_pct": 0.46
+          },
+          {
+            "segment": "standalone national game",
+            "n": 419,
+            "cover_pct": 51.6,
+            "stderr": 2.44,
+            "vs_break_even_se": -0.08,
+            "roi_pct": -0.38
+          }
+        ],
+        "by_stage": [
+          {
+            "segment": "regular season",
+            "n": 1599,
+            "cover_pct": 51.9,
+            "stderr": 1.25,
+            "vs_break_even_se": 0.13,
+            "roi_pct": 0.3
+          },
+          {
+            "segment": "playoffs",
+            "n": 76,
+            "cover_pct": 51.3,
+            "stderr": 5.73,
+            "vs_break_even_se": -0.08,
+            "roi_pct": -0.84
+          }
+        ],
+        "by_week": [
+          {
+            "segment": "weeks 1-4",
+            "n": 381,
+            "cover_pct": 53.5,
+            "stderr": 2.56,
+            "vs_break_even_se": 0.7,
+            "roi_pct": 3.47
+          },
+          {
+            "segment": "weeks 5-9",
+            "n": 425,
+            "cover_pct": 51.8,
+            "stderr": 2.42,
+            "vs_break_even_se": 0.01,
+            "roi_pct": 0.03
+          },
+          {
+            "segment": "weeks 10-14",
+            "n": 427,
+            "cover_pct": 53.2,
+            "stderr": 2.41,
+            "vs_break_even_se": 0.58,
+            "roi_pct": 2.73
+          },
+          {
+            "segment": "weeks 15+",
+            "n": 442,
+            "cover_pct": 49.3,
+            "stderr": 2.38,
+            "vs_break_even_se": -1.02,
+            "roi_pct": -4.69
+          }
+        ],
+        "by_divisional": [
+          {
+            "segment": "divisional",
+            "n": 586,
+            "cover_pct": 51.4,
+            "stderr": 2.06,
+            "vs_break_even_se": -0.19,
+            "roi_pct": -0.74
+          },
+          {
+            "segment": "non-divisional",
+            "n": 1089,
+            "cover_pct": 52.2,
+            "stderr": 1.51,
+            "vs_break_even_se": 0.27,
+            "roi_pct": 0.79
+          }
+        ],
+        "by_conditions": [
+          {
+            "segment": "indoors",
+            "n": 533,
+            "cover_pct": 52.0,
+            "stderr": 2.16,
+            "vs_break_even_se": 0.1,
+            "roi_pct": 0.43
+          },
+          {
+            "segment": "outdoors, calm (<10mph)",
+            "n": 643,
+            "cover_pct": 51.8,
+            "stderr": 1.97,
+            "vs_break_even_se": 0.02,
+            "roi_pct": 0.07
+          }
+        ],
+        "by_rest": [
+          {
+            "segment": "even rest",
+            "n": 1300,
+            "cover_pct": 51.0,
+            "stderr": 1.39,
+            "vs_break_even_se": -0.54,
+            "roi_pct": -1.45
+          },
+          {
+            "segment": "home better rested",
+            "n": 174,
+            "cover_pct": 54.6,
+            "stderr": 3.77,
+            "vs_break_even_se": 0.75,
+            "roi_pct": 5.5
+          },
+          {
+            "segment": "away better rested",
+            "n": 175,
+            "cover_pct": 55.4,
+            "stderr": 3.76,
+            "vs_break_even_se": 0.98,
+            "roi_pct": 7.11
+          }
+        ],
+        "by_spread_size": [
+          {
+            "segment": "pick'em (<=3)",
+            "n": 633,
+            "cover_pct": 48.2,
+            "stderr": 1.99,
+            "vs_break_even_se": -1.8,
+            "roi_pct": -6.89
+          },
+          {
+            "segment": "3.5-7",
+            "n": 648,
+            "cover_pct": 55.4,
+            "stderr": 1.95,
+            "vs_break_even_se": 1.87,
+            "roi_pct": 7.06
+          },
+          {
+            "segment": "7.5-10",
+            "n": 226,
+            "cover_pct": 50.4,
+            "stderr": 3.33,
+            "vs_break_even_se": -0.39,
+            "roi_pct": -2.53
+          },
+          {
+            "segment": "10+",
+            "n": 168,
+            "cover_pct": 54.2,
+            "stderr": 3.84,
+            "vs_break_even_se": 0.63,
+            "roi_pct": 4.67
+          }
+        ],
+        "soft_and_loud": [
+          {
+            "segment": "afternoon game & disagree 3+",
+            "n": 359,
+            "cover_pct": 51.8,
+            "stderr": 2.64,
+            "vs_break_even_se": 0.02,
+            "roi_pct": 0.12
+          },
+          {
+            "segment": "national game & disagree 3+",
+            "n": 121,
+            "cover_pct": 52.1,
+            "stderr": 4.54,
+            "vs_break_even_se": 0.07,
+            "roi_pct": 0.61
+          }
+        ]
+      }
+    },
+    "margin_nomarket": {
+      "test_seasons": [
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n_test_total": 1693,
+      "mae_model": 10.23,
+      "mae_rating_baseline": 10.6,
+      "sigma": 13.17,
+      "bias": 0.24,
+      "per_season": [
+        {
+          "season": 2020,
+          "n": 269,
+          "mae_model": 10.11,
+          "ats_rate": null
+        },
+        {
+          "season": 2021,
+          "n": 285,
+          "mae_model": 11.31,
+          "ats_rate": null
+        },
+        {
+          "season": 2022,
+          "n": 284,
+          "mae_model": 8.98,
+          "ats_rate": null
+        },
+        {
+          "season": 2023,
+          "n": 285,
+          "mae_model": 10.56,
+          "ats_rate": null
+        },
+        {
+          "season": 2024,
+          "n": 285,
+          "mae_model": 10.37,
+          "ats_rate": null
+        },
+        {
+          "season": 2025,
+          "n": 285,
+          "mae_model": 10.02,
+          "ats_rate": null
+        }
+      ]
+    },
+    "margin_market": {
+      "test_seasons": [
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n_test_total": 1693,
+      "mae_model": 9.88,
+      "mae_rating_baseline": 10.6,
+      "sigma": 12.76,
+      "bias": 0.65,
+      "per_season": [
+        {
+          "season": 2020,
+          "n": 269,
+          "mae_model": 9.76,
+          "ats_rate": 53.2
+        },
+        {
+          "season": 2021,
+          "n": 285,
+          "mae_model": 10.82,
+          "ats_rate": 53.0
+        },
+        {
+          "season": 2022,
+          "n": 284,
+          "mae_model": 8.86,
+          "ats_rate": 51.8
+        },
+        {
+          "season": 2023,
+          "n": 285,
+          "mae_model": 10.3,
+          "ats_rate": 47.6
+        },
+        {
+          "season": 2024,
+          "n": 285,
+          "mae_model": 9.94,
+          "ats_rate": 51.6
+        },
+        {
+          "season": 2025,
+          "n": 285,
+          "mae_model": 9.6,
+          "ats_rate": 54.9
+        }
+      ],
+      "mae_market_baseline": 9.77,
+      "ats_rate": 52.0,
+      "ats_n": 1660,
+      "ats_stderr": 1.23,
+      "beats_market": false,
+      "shrink_raw": 0.2,
+      "shrink": 0.2,
+      "ats_by_disagreement": [
+        {
+          "disagreement": "0-1",
+          "n": 550,
+          "cover_pct": 48.7,
+          "stderr": 2.13,
+          "roi_pct": -5.84,
+          "vs_break_even_se": -1.42
+        },
+        {
+          "disagreement": "1-2",
+          "n": 427,
+          "cover_pct": 54.1,
+          "stderr": 2.41,
+          "roi_pct": 4.54,
+          "vs_break_even_se": 0.97
+        },
+        {
+          "disagreement": "2-3",
+          "n": 299,
+          "cover_pct": 52.8,
+          "stderr": 2.89,
+          "roi_pct": 2.11,
+          "vs_break_even_se": 0.38
+        },
+        {
+          "disagreement": "3-5",
+          "n": 284,
+          "cover_pct": 55.3,
+          "stderr": 2.95,
+          "roi_pct": 6.82,
+          "vs_break_even_se": 1.2
+        },
+        {
+          "disagreement": "5-7",
+          "n": 79,
+          "cover_pct": 50.6,
+          "stderr": 5.62,
+          "roi_pct": -2.16,
+          "vs_break_even_se": -0.2
+        }
+      ],
+      "break_even_pct": 51.75,
+      "venue": "kalshi_taker",
+      "market_softness": {
+        "by_tv_window": [
+          {
+            "segment": "Sunday afternoon (split attention)",
+            "n": 1244,
+            "cover_pct": 52.7,
+            "stderr": 1.42,
+            "vs_break_even_se": 0.69,
+            "roi_pct": 1.9
+          },
+          {
+            "segment": "standalone national game",
+            "n": 416,
+            "cover_pct": 50.0,
+            "stderr": 2.45,
+            "vs_break_even_se": -0.71,
+            "roi_pct": -3.38
+          }
+        ],
+        "by_stage": [
+          {
+            "segment": "regular season",
+            "n": 1582,
+            "cover_pct": 51.7,
+            "stderr": 1.26,
+            "vs_break_even_se": -0.03,
+            "roi_pct": -0.08
+          },
+          {
+            "segment": "playoffs",
+            "n": 78,
+            "cover_pct": 59.0,
+            "stderr": 5.57,
+            "vs_break_even_se": 1.3,
+            "roi_pct": 13.96
+          }
+        ],
+        "by_week": [
+          {
+            "segment": "weeks 1-4",
+            "n": 374,
+            "cover_pct": 52.9,
+            "stderr": 2.58,
+            "vs_break_even_se": 0.46,
+            "roi_pct": 2.3
+          },
+          {
+            "segment": "weeks 5-9",
+            "n": 424,
+            "cover_pct": 49.3,
+            "stderr": 2.43,
+            "vs_break_even_se": -1.01,
+            "roi_pct": -4.75
+          },
+          {
+            "segment": "weeks 10-14",
+            "n": 426,
+            "cover_pct": 51.9,
+            "stderr": 2.42,
+            "vs_break_even_se": 0.05,
+            "roi_pct": 0.25
+          },
+          {
+            "segment": "weeks 15+",
+            "n": 436,
+            "cover_pct": 54.1,
+            "stderr": 2.39,
+            "vs_break_even_se": 1.0,
+            "roi_pct": 4.6
+          }
+        ],
+        "by_divisional": [
+          {
+            "segment": "divisional",
+            "n": 582,
+            "cover_pct": 53.1,
+            "stderr": 2.07,
+            "vs_break_even_se": 0.65,
+            "roi_pct": 2.59
+          },
+          {
+            "segment": "non-divisional",
+            "n": 1078,
+            "cover_pct": 51.5,
+            "stderr": 1.52,
+            "vs_break_even_se": -0.17,
+            "roi_pct": -0.51
+          }
+        ],
+        "by_conditions": [
+          {
+            "segment": "indoors",
+            "n": 531,
+            "cover_pct": 53.1,
+            "stderr": 2.17,
+            "vs_break_even_se": 0.63,
+            "roi_pct": 2.62
+          },
+          {
+            "segment": "outdoors, calm (<10mph)",
+            "n": 635,
+            "cover_pct": 53.4,
+            "stderr": 1.98,
+            "vs_break_even_se": 0.83,
+            "roi_pct": 3.16
+          },
+          {
+            "segment": "outdoors, windy (15mph+)",
+            "n": 120,
+            "cover_pct": 51.7,
+            "stderr": 4.56,
+            "vs_break_even_se": -0.02,
+            "roi_pct": -0.16
+          }
+        ],
+        "by_rest": [
+          {
+            "segment": "even rest",
+            "n": 1283,
+            "cover_pct": 52.8,
+            "stderr": 1.39,
+            "vs_break_even_se": 0.79,
+            "roi_pct": 2.12
+          },
+          {
+            "segment": "home better rested",
+            "n": 176,
+            "cover_pct": 56.2,
+            "stderr": 3.74,
+            "vs_break_even_se": 1.2,
+            "roi_pct": 8.7
+          },
+          {
+            "segment": "away better rested",
+            "n": 175,
+            "cover_pct": 42.9,
+            "stderr": 3.74,
+            "vs_break_even_se": -2.38,
+            "roi_pct": -17.18
+          }
+        ],
+        "by_spread_size": [
+          {
+            "segment": "pick'em (<=3)",
+            "n": 620,
+            "cover_pct": 52.6,
+            "stderr": 2.01,
+            "vs_break_even_se": 0.41,
+            "roi_pct": 1.61
+          },
+          {
+            "segment": "3.5-7",
+            "n": 649,
+            "cover_pct": 51.5,
+            "stderr": 1.96,
+            "vs_break_even_se": -0.15,
+            "roi_pct": -0.55
+          },
+          {
+            "segment": "7.5-10",
+            "n": 225,
+            "cover_pct": 48.9,
+            "stderr": 3.33,
+            "vs_break_even_se": -0.86,
+            "roi_pct": -5.53
+          },
+          {
+            "segment": "10+",
+            "n": 166,
+            "cover_pct": 56.6,
+            "stderr": 3.85,
+            "vs_break_even_se": 1.27,
+            "roi_pct": 9.42
+          }
+        ],
+        "soft_and_loud": [
+          {
+            "segment": "afternoon game & disagree 3+",
+            "n": 284,
+            "cover_pct": 54.2,
+            "stderr": 2.96,
+            "vs_break_even_se": 0.84,
+            "roi_pct": 4.78
+          },
+          {
+            "segment": "national game & disagree 3+",
+            "n": 100,
+            "cover_pct": 53.0,
+            "stderr": 4.99,
+            "vs_break_even_se": 0.25,
+            "roi_pct": 2.42
+          }
+        ]
+      }
+    }
+  },
+  "models": [
+    "total_nomarket",
+    "total_market",
+    "margin_nomarket",
+    "margin_market"
+  ],
+  "sigma": {
+    "total_nomarket": 13.35,
+    "total_market": 13.2,
+    "margin_nomarket": 13.17,
+    "margin_market": 12.76
+  },
+  "shrink": {
+    "total_nomarket": 0.25,
+    "total_market": 0.2,
+    "margin_nomarket": 0.25,
+    "margin_market": 0.2
+  },
+  "top_features": {
+    "total_nomarket": {
+      "exp_total": 0.0637274831533432,
+      "h_qb_new": 0.040242750197649,
+      "h_qb_starts": 0.03654710575938225,
+      "h_off": 0.03460616618394852,
+      "is_grass": 0.032813556492328644,
+      "wind": 0.03173220902681351,
+      "exp_home_points": 0.029354402795433998,
+      "is_indoor": 0.028691627085208893,
+      "a_bye": 0.026046670973300934,
+      "div_game": 0.026046093553304672,
+      "h_margin": 0.023401208221912384,
+      "a_off": 0.023368339985609055
+    },
+    "total_market": {
+      "total_line": 0.08242078870534897,
+      "exp_total": 0.03812825679779053,
+      "h_qb_new": 0.027693981304764748,
+      "a_bye": 0.025889189913868904,
+      "is_grass": 0.025732608512043953,
+      "wind": 0.025654379278421402,
+      "h_qb_starts": 0.025507692247629166,
+      "exp_home_points": 0.024390270933508873,
+      "h_off": 0.02124229446053505,
+      "total_vs_model": 0.020491017028689384,
+      "div_game": 0.02031809650361538,
+      "travel_diff_km": 0.01955513469874859
+    },
+    "margin_nomarket": {
+      "exp_margin": 0.14239226281642914,
+      "h_margin": 0.04610757529735565,
+      "exp_away_points": 0.03746350482106209,
+      "a_margin": 0.03410274162888527,
+      "exp_home_points": 0.03004123456776142,
+      "h_off": 0.028602682054042816,
+      "is_indoor": 0.02661285363137722,
+      "a_qb_starts": 0.024296458810567856,
+      "h_qb_starts": 0.02379266917705536,
+      "a_form_margin": 0.02177376113831997,
+      "a_prev_off_epa": 0.020845457911491394,
+      "a_qb_new": 0.020787831395864487
+    },
+    "margin_market": {
+      "spread_home": 0.173940509557724,
+      "ml_prob_home": 0.10517358779907227,
+      "exp_margin": 0.03855733945965767,
+      "h_qb_new": 0.02149258367717266,
+      "h_margin": 0.0211429912596941,
+      "a_margin": 0.018533093854784966,
+      "a_qb_new": 0.017692171037197113,
+      "spread_vs_model": 0.01749739609658718,
+      "a_tz_shift": 0.016754841431975365,
+      "a_form_margin": 0.01668350212275982,
+      "total_vs_model": 0.01640068180859089,
+      "h_def": 0.016397055238485336
+    }
+  },
+  "backend": "xgboost"
+}
