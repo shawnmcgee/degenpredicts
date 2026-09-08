@@ -1,9 +1,13 @@
 """Kalshi event-contract prices for the NFL.
 
-The college module in ``cfb/sources/kalshi.py`` was written against live payloads captured
-from the NCAAF series. **These NFL series tickers and rules wordings are not confirmed the
-same way** - the exchange was unreachable from the machine this was written on - so this
-module is built to be wrong safely rather than to assume it is right:
+Series tickers and rules wordings were confirmed against the live API on 2026-09-08. That run
+also corrected a real assumption: Kalshi names NFL teams by CITY in the spread ladder
+("If Kansas City wins by more than 7.5 points") and with a one-letter disambiguator in the
+moneyline subtitle ("New York G"), not by full club name. The matcher in ``sources/odds.py``
+carries all those forms; without them the ladder matched nothing.
+
+The module is still built to be wrong safely rather than to assume it is right, because a
+series can be renamed at any time:
 
 * series tickers come from :mod:`nfl.config` and are environment-overridable;
 * the rules regexes accept the wordings Kalshi is known to use across leagues
@@ -36,7 +40,7 @@ from __future__ import annotations
 import logging
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pandas as pd
 
@@ -170,7 +174,7 @@ def parse_ladder(m: dict, kind: str) -> dict | None:
         "away_raw": hit.group("a").strip(), "home_raw": hit.group("b").strip(),
         "date": _date_from(hit.group("date")),
         **_liquidity(m),
-        "pulled_at": datetime.utcnow().isoformat(timespec="seconds"),
+        "pulled_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
 
 
@@ -236,7 +240,7 @@ def parse_market(m: dict) -> dict | None:
         "kalshi_team": team, "away_raw": away, "home_raw": home, "date": gdate,
         "last_price": _f(m.get("last_price_dollars")),
         **_liquidity(m),
-        "pulled_at": datetime.utcnow().isoformat(timespec="seconds"),
+        "pulled_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
 
 

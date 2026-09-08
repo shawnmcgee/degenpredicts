@@ -370,11 +370,19 @@ real during the build:
 
 ### Confirming the Kalshi tickers
 
-`nfl/sources/kalshi.py` is wired for the exchange the same way the college module is, but its
-series tickers could **not** be confirmed against the live API from the machine this was built
-on. They are environment-overridable, the rules regexes accept several sport wordings, and every
-Kalshi path degrades to "no exchange prices" instead of failing — so the pipeline runs correctly
-either way, it just publishes no exchange columns until this is done.
+**Confirmed against the live API on 2026-09-08.** `KXNFLGAME` returned 64 open moneyline
+markets, `KXNFLSPREAD` 404 ladder rungs and `KXNFLTOTAL` 304, and all three parsed. The
+defaults are correct; they stay environment-overridable because a series can be renamed, and
+every Kalshi path still degrades to "no exchange prices" rather than failing.
+
+That run also corrected a real assumption. **Kalshi does not use full club names.** The spread
+ladder names the favourite by city ("If Kansas City wins by more than 7.5 points"), the
+moneyline subtitle uses a one-letter disambiguator ("New York G"), and the rules matchup uses a
+short city form ("NY Giants vs LA Rams") — three styles in one payload. The matcher had been
+built for "Kansas City Chiefs" and resolved none of the city-only or truncated forms, so every
+spread rung would have failed to join, visible only as `matched 0/16` in a log. All three forms
+are now mapped, with bare "New York" and "Los Angeles" refused rather than guessed, and the
+tests use the real payloads verbatim.
 
 It needs a network that can reach `api.elections.kalshi.com`. Market data is public — no
 account, no key, nothing is written.
