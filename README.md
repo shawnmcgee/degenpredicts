@@ -109,6 +109,15 @@ last year's SP+, and returning production. The numbers are shown so you can see 
 them; they just aren't staked. The flag clears once teams have `DEGEN_MIN_GAMES` games in the
 book (default 2, so it lifts in week 3).
 
+"Staked at zero" now means it. Until recently `_strength` was computed *after* the Kelly
+numbers were already in the frame and nothing ever zeroed them, so week 1 of 2026 graded 105
+games that were all `pass` or `thin` and still carried 13.01 units of totals stake — and the
+front page quoted a 25% ROI on bets the system had declined. Stakes are now gated on strength
+in all three sports, and the landing card shows units only where something was actually
+staked; where nothing cleared the threshold it shows the model's side record, labelled
+unstaked. Those 105 rows have had their stakes and units zeroed retroactively, because they
+were the output of a bug rather than a decision.
+
 If you want week 1–2 staked anyway, set repo variable `DEGEN_MIN_GAMES` to `0`. I'd let the
 first two weeks grade themselves first.
 
@@ -173,6 +182,47 @@ you, publish the line" — which is the correct answer more often than not.
 Watch **CLV** (on the site, and in `results.csv`). If the line moves toward your side after you
 pick, that's real evidence of an edge and it shows up in weeks rather than the seasons a win
 rate would need.
+
+CLV is measured against `first_seen_spread` / `first_seen_total` — the number we *first*
+published for a game, which survives every later overwrite of that row — and against a
+closing line refetched at grade time. Both halves matter: `cfb.grade` used to read the close
+out of the same cached snapshot the pick was built from, which is subtraction of a number
+from itself, and all 105 graded games came back with CLV of exactly 0.00 and zero variance.
+A test now fails if graded CLV has no variance across a synthetic line move. The 105 historic
+rows carry CLV of `null` rather than `0.00`: it is genuinely unrecoverable for them, and
+unknown is the honest value.
+
+---
+
+## What is in `games.csv`, and what the board publishes
+
+`cfb/sources/cfbd.py` asks CFBD for FBS games. It asks with `classification` *and* `division`,
+because the parameter was renamed and unknown parameters are silently ignored rather than
+rejected — which is how a request for FBS quietly returned 699 teams in 2025, Kenyon, Sewanee
+and Wayland Baptist among them. Only 32% of the 26,381 completed training rows are FBS vs FBS.
+
+So the question is not trusted. `features.fbs_membership` resolves the FBS roster for each
+season from `sp_ratings.csv` (SP+ only rates FBS, so its roster *is* the membership list) and
+from a `classification` column now carried on each game, and `cfbd.update_games` warns when a
+season falls outside 700–1200 games or 110–160 teams.
+
+What that flag gates is deliberately asymmetric, and the asymmetry was measured rather than
+assumed:
+
+- **The board is filtered.** 36 of one week's 85 published games were FBS vs FCS — Miami −56.5
+  against Florida A&M, priced off a rating Florida A&M does not have, on a site that says it
+  covers FBS. Those are gone.
+- **Training and the rating replay are not filtered.** The obvious fix is to drop the ~68%
+  non-FBS rows. Measured on FBS-vs-FBS holdout games across five seeds, that costs
+  **0.05–0.10 points of MAE and 0.5–1.8 points of ATS** — well outside the ±0.02 seed noise.
+  Two reasons. Eleven seasons of replay rates the repeat FCS visitors properly (2025: non-FBS
+  mean margin −2.0 against FBS +10.8), so they are not "an average FBS team" by the time they
+  matter; and the extra 18k rows are worth more than the contamination costs. Dropping them
+  would have been a plausible-sounding change that made the model worse.
+
+One consequence worth knowing when reading the record: 66 of the 105 games graded so far were
+FBS vs FCS, so the season-to-date numbers describe a different population from the one the
+board will publish from here.
 
 ---
 

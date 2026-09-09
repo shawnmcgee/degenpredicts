@@ -1035,8 +1035,14 @@ def test_the_epl_page_is_reachable_from_the_site_root(tmp_path):
     (docs / "epl" / "index.html").write_text("<html></html>")
     (docs / "epl" / "metrics.json").write_text(json.dumps({
         "updated": "2026-09-08", "sport": "epl",
-        "spreads": {"all_games": {"n": 40, "units": 1.5, "win_pct": 52.5, "clv": 0.02}},
-        "totals": {"all_games": {"n": 40, "units": -0.5, "win_pct": 48.0, "clv": -0.01}},
+        # `season` is the staked record the card reports units from; `all_games` is the
+        # wider side record it falls back to when nothing cleared the threshold.
+        "spreads": {"season": {"n": 40, "units": 1.5, "win_pct": 52.5},
+                    "all_games": {"n": 40, "wins": 21, "losses": 19, "units": 1.5,
+                                  "win_pct": 52.5, "clv": 0.02}},
+        "totals": {"season": {"n": 40, "units": -0.5, "win_pct": 48.0},
+                   "all_games": {"n": 40, "wins": 19, "losses": 21, "units": -0.5,
+                                 "win_pct": 48.0, "clv": -0.01}},
     }))
     (docs / "epl" / "picks.csv").write_text(
         "game_id,date,week,matchweek,total_strength,spread_strength\n"
@@ -1096,3 +1102,51 @@ def test_epl_workflows_are_time_capped():
         assert "timeout-minutes:" in text, f"{name} has no timeout-minutes"
         mins = int(text.split("timeout-minutes:")[1].split()[0])
         assert 0 < mins <= 30, f"{name} allows {mins} minutes"
+
+
+# --------------------------------------------------------------------------------------
+# 1X2 guards. This market had none: no EV floor, no thin-data check, no strength gate,
+# and it staked the best of three every single match.
+# --------------------------------------------------------------------------------------
+def _x2_row(**over):
+    row = {"game_id": "1", "home_team": "Arsenal", "away_team": "Chelsea",
+           "sup_pred": 0.4, "total_pred": 2.7, "h_games": 20, "a_games": 20,
+           "thin_data": False, "ah_strength": "pass", "total_strength": "pass",
+           "ah_home": np.nan, "total_line": np.nan,
+           "price_home": 2.00, "price_draw": 3.50, "price_away": 4.00,
+           "sup_side_val": 0.0, "total_side_val": 0.0}
+    row.update(over)
+    return pd.DataFrame([row])
+
+
+def test_1x2_needs_an_edge_before_it_stakes_anything():
+    """Best-of-three over noisy estimates returns a positive EV nearly every time. With the
+    fitted 1X2 shrink at 0.00 that is a systematic loser, so it needs an EV floor."""
+    from epl import config, predict
+
+    got = predict._price_from_grid(_x2_row()).iloc[0]
+    assert got["x2_pick"] is not None, "the pick is still published"
+    if got["x2_ev"] < config.X2_MIN_EV:
+        assert got["x2_strength"] == "pass"
+        assert not (got["x2_stake"] > 0), "a sub-threshold 1X2 edge must stake nothing"
+    else:
+        assert got["x2_strength"] in ("play", "bold") and got["x2_stake"] > 0
+
+
+def test_1x2_does_not_stake_a_thin_match():
+    from epl import predict
+
+    got = predict._price_from_grid(_x2_row(thin_data=True, price_home=6.0)).iloc[0]
+    assert got["x2_strength"] == "thin"
+    assert not (got["x2_stake"] > 0), "a promoted club with no rating must stake nothing"
+
+
+def test_1x2_stakes_a_real_edge():
+    """The guard must not be a blanket refusal: a genuinely mispriced side still gets sized."""
+    from epl import predict
+
+    got = predict._price_from_grid(_x2_row(price_home=6.0, price_draw=6.0,
+                                           price_away=6.0)).iloc[0]
+    assert got["x2_ev"] > 0
+    assert got["x2_strength"] in ("play", "bold")
+    assert got["x2_stake"] > 0

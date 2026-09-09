@@ -8,8 +8,18 @@ exists, and which are both legitimately known before kickoff:
 * ``ret_*``       - returning production (share of last year's PPA coming back). Published
                     in the offseason, so it's known at week 1.
 
-FCS opponents are not in the FBS game file. Games against them are dropped from training and
-from rating updates rather than silently treated as games against an average FBS team.
+FCS opponents *are* in the raw CFBD game file whatever classification the request asked for,
+so :func:`fbs_membership` resolves which teams played FBS football in each season and every
+row carries an ``fbs`` flag. What that flag is used for is deliberately asymmetric:
+
+* **The board is filtered by it** (see ``predict.build_board``). We do not publish a number on
+  a game the model has no business pricing, and the site claims FBS coverage.
+* **Training and the rating replay are not.** That was measured rather than assumed: dropping
+  the ~68% non-FBS rows costs 0.05-0.10 points of holdout MAE and 0.5-1.8 points of ATS on
+  FBS-vs-FBS games, stable across seeds. Replaying eleven seasons rates the repeat FCS
+  visitors properly (2025: non-FBS mean margin -2.0 vs FBS +10.8), so they are not
+  "average FBS" by the time they matter, and the extra 18k rows are worth more than the
+  contamination costs.
 """
 from __future__ import annotations
 
@@ -19,7 +29,7 @@ import numpy as np
 import pandas as pd
 
 from . import config
-from .ratings import LEAGUE_PPG, RatingBook, RatingConfig
+from .ratings import RatingBook, RatingConfig
 
 log = logging.getLogger(__name__)
 
@@ -40,22 +50,74 @@ REST_CAP = 21
 EARLY_WEEKS = 4
 
 
+def fbs_membership(games: pd.DataFrame | None = None,
+                   sp: pd.DataFrame | None = None) -> dict[int, set[str]]:
+    """Which teams played FBS football in each season.
+
+    Two independent sources, unioned because each is positive evidence on its own:
+
+    * ``sp_ratings.csv`` - SP+ only rates FBS teams, so its roster *is* the FBS membership
+      list for that season (129-139 teams). This is membership, not performance, and it is
+      known before a ball is snapped, so using the current season's roster leaks nothing.
+    * a ``home_classification`` / ``away_classification`` column, when the games cache
+      carries one. Older caches predate it; newer ones get it straight from CFBD.
+
+    A season with neither source resolves to an empty set, which :func:`is_fbs_game` reads as
+    "don't filter" - a missing roster must not silently delete a whole season.
+    """
+    out: dict[int, set[str]] = {}
+    if sp is not None and len(sp):
+        for r in sp.itertuples():
+            out.setdefault(int(r.season), set()).add(r.team)
+    if games is not None and len(games):
+        for side in ("home", "away"):
+            col = f"{side}_classification"
+            if col not in games.columns:
+                continue
+            m = games[col].astype(str).str.lower().eq("fbs")
+            for s, t in zip(games.loc[m, "season"], games.loc[m, f"{side}_team"]):
+                out.setdefault(int(s), set()).add(t)
+    return out
+
+
+def is_fbs_game(members: dict[int, set[str]], season, home, away) -> bool:
+    """True when both sides were FBS that season, or when we hold no roster to judge by."""
+    roster = members.get(int(season))
+    if not roster:
+        return True
+    return home in roster and away in roster
+
+
+def hfa_suppressed(season, neutral) -> bool:
+    """True when home-field advantage should be treated as absent for this game.
+
+    Two separate causes, one consequence: an actual neutral site, and a season played without
+    crowds. ``neutral_site`` stays a feature in its own right - this only governs what the
+    rating engine credits.
+    """
+    return bool(neutral) or int(season) in config.NO_CROWD_SEASONS
+
+
 def _rest(last, gdate):
     if last is None or gdate is None:
         return np.nan
     return float(min((gdate - last).days, REST_CAP))
 
 
-def _row(book, sp_prev, ret, season, home, away, gdate, week, neutral, conf_game) -> dict:
+def _row(book, sp_prev, ret, season, home, away, gdate, week, no_hfa, conf_game,
+         neutral=None) -> dict:
+    """`no_hfa` governs the rating maths; `neutral` is the venue as a feature. They differ
+    only in a no-crowd season, where the game was at a real home venue with no home edge."""
+    neutral = no_hfa if neutral is None else neutral
     h, a = book.get(season, home), book.get(season, away)
-    e = book.expect(season, home, away, neutral)
+    e = book.expect(season, home, away, no_hfa)
     hs, as_ = sp_prev.get((season - 1, home), {}), sp_prev.get((season - 1, away), {})
     hr, ar = ret.get((season, home), {}), ret.get((season, away), {})
 
     h_sp, a_sp = hs.get("sp_overall", np.nan), as_.get("sp_overall", np.nan)
     h_spo, a_spo = hs.get("sp_off", np.nan), as_.get("sp_off", np.nan)
     h_spd, a_spd = hs.get("sp_def", np.nan), as_.get("sp_def", np.nan)
-    sp_margin = (h_sp - a_sp) + (0 if neutral else book.cfg.hfa) if h_sp == h_sp and a_sp == a_sp else np.nan
+    sp_margin = (h_sp - a_sp) + (0 if no_hfa else book.cfg.hfa) if h_sp == h_sp and a_sp == a_sp else np.nan
     sp_total = (h_spo + a_spd) / 2 + (a_spo + h_spd) / 2 \
         if not any(x != x for x in (h_spo, a_spd, a_spo, h_spd)) else np.nan
 
@@ -92,8 +154,13 @@ def _market(row: dict, total_line, spread_home, total_open=np.nan, spread_open=n
     row["total_vs_model"] = row["exp_total"] - tl
     # CFBD quotes spreads from the home side: -6.5 means home favoured by 6.5
     row["spread_vs_model"] = row["exp_margin"] - (-sh)
-    row["total_move"] = tl - total_open if total_open == total_open else 0.0
-    row["spread_move"] = sh - spread_open if spread_open == spread_open else 0.0
+    # NaN, never 0.0. `spread_open` is absent for 100% of 2015-2020 and ~45% of 2022-2025 but
+    # present on 96% of live rows, so filling the gap with a real number teaches the model that
+    # "the line has not moved" describes six whole seasons - a train/serve mismatch, and the
+    # same one NFL was deliberately built to avoid. XGBoost handles missing natively, which is
+    # what the rest of these features already rely on.
+    row["total_move"] = tl - total_open if total_open == total_open else np.nan
+    row["spread_move"] = sh - spread_open if spread_open == spread_open else np.nan
     return row
 
 
@@ -121,6 +188,8 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
                                         getattr(r, "total_open", np.nan))
             n_prov[str(r.game_id)] = getattr(r, "n_providers", np.nan)
 
+    members = fbs_membership(games, sp)
+
     book = RatingBook(cfg)
     rows = []
     for g in games.itertuples(index=False):
@@ -128,8 +197,9 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
             continue  # scheduled-but-unplayed rows live in `upcoming`, not training
         season, week = int(g.season), int(g.week)
         neutral = bool(getattr(g, "neutral_site", False))
+        no_hfa = hfa_suppressed(season, neutral)
         r = _row(book, sp_prev, ret, season, g.home_team, g.away_team, g.date, week,
-                 neutral, bool(getattr(g, "conference_game", False)))
+                 no_hfa, bool(getattr(g, "conference_game", False)), neutral=neutral)
         sh, tl, so, to = line_map.get(str(g.game_id), (np.nan, np.nan, np.nan, np.nan))
         r = _market(r, tl, sh, to, so)
         r.update({"game_id": g.game_id, "date": g.date, "season": season, "week": week,
@@ -138,25 +208,44 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
                   "home_conf": getattr(g, "home_conf", ""), "away_conf": getattr(g, "away_conf", ""),
                   "n_providers": n_prov.get(str(g.game_id), np.nan)})
         rows.append(r)
-        book.update(season, g.home_team, g.away_team, g.home_points, g.away_points, g.date, neutral)
+        book.update(season, g.home_team, g.away_team, g.home_points, g.away_points, g.date, no_hfa)
 
     train_rows = pd.DataFrame(rows)
+    if len(train_rows):
+        train_rows["fbs"] = [is_fbs_game(members, s, h, a) for s, h, a in
+                             zip(train_rows.season, train_rows.home_team, train_rows.away_team)]
+        log.info("%d training rows, %d of them FBS vs FBS",
+                 len(train_rows), int(train_rows["fbs"].sum()))
 
     up_rows = []
     if upcoming is not None and len(upcoming):
         for rec in upcoming.to_dict("records"):
             gdate = pd.Timestamp(rec["date"]).date()
             season = int(rec.get("season") or config.season_of(gdate))
+            neutral = bool(rec.get("neutral_site", False))
             r = _row(book, sp_prev, ret, season, rec["home_team"], rec["away_team"], gdate,
-                     int(rec.get("week", 1)), bool(rec.get("neutral_site", False)),
-                     bool(rec.get("conference_game", False)))
+                     int(rec.get("week", 1)), hfa_suppressed(season, neutral),
+                     bool(rec.get("conference_game", False)), neutral=neutral)
             r = _market(r, rec.get("total_line", np.nan), rec.get("spread_home", np.nan),
                         rec.get("total_open", np.nan), rec.get("spread_open", np.nan))
             r.update(rec)
+            r["fbs"] = is_fbs_game(members, season, rec["home_team"], rec["away_team"])
             up_rows.append(r)
     return train_rows, pd.DataFrame(up_rows), book
 
 
-def fbs_teams(games: pd.DataFrame, season: int) -> set[str]:
+def fbs_teams(games: pd.DataFrame, season: int, sp: pd.DataFrame | None = None) -> set[str]:
+    """The name list the odds and Kalshi matchers resolve feed spellings against.
+
+    Built from the FBS roster when one is available. Taking every name in the games file
+    instead put 699 teams in the 2025 table, which is not belt-and-braces: ``difflib`` at
+    cutoff 0.80 gets hundreds of extra collision targets to mis-resolve a name onto.
+    """
+    members = fbs_membership(games, sp)
+    named = members.get(int(season), set()) | members.get(int(season) - 1, set())
+    if named:
+        return named
+    if games is None or not len(games) or "season" not in games.columns:
+        return set()
     m = games["season"].isin([season, season - 1])
     return set(games.loc[m, "home_team"]) | set(games.loc[m, "away_team"])

@@ -203,7 +203,10 @@ def metrics(done: pd.DataFrame) -> dict:
     for key, kind, edge_col, err_col, strength_col in (
             ("spreads", "ah", "sup_disagree", "sup_abs_err", "ah_strength"),
             ("totals", "total", "total_disagree", "total_abs_err", "total_strength"),
-            ("x2", "x2", "sup_disagree", "sup_abs_err", "ah_strength")):
+            # 1X2 is gated on its own EV floor, not on the handicap's disagreement, so its
+            # record is reported against x2_strength - otherwise a losing 1X2 book hides
+            # inside whatever the Asian handicap happened to be doing.
+            ("x2", "x2", "x2_ev", "sup_abs_err", "x2_strength")):
         played = season[season[strength_col].isin(["play", "bold"])] \
             if strength_col in season else season.iloc[0:0]
         out[key] = {

@@ -74,16 +74,22 @@
       <div class="status quiet">No games on the board right now.</div>
       {% endif %}
 
-      {% if s.totals.n or s.spreads.n %}
+      {% if s.totals.model_n or s.spreads.model_n %}
       <div class="rec">
-        {% if s.spreads.n %}
-        <span>Spreads <b class="{% if s.spreads.units > 0 %}up{% elif s.spreads.units < 0 %}down{% endif %}">{{ s.spreads.units|money }}u</b>
-          over {{ s.spreads.n }}{% if s.spreads.clv is not none %} &middot; CLV <b>{{ '%+.2f'|format(s.spreads.clv) }}</b>{% endif %}</span>
+        {# Units are shown only where something was actually staked. Where nothing cleared the
+           threshold the model's side record is shown instead, labelled as unstaked, rather
+           than an ROI computed against a stake that was supposed to be zero. #}
+        {% for m in [('Spreads', s.spreads), ('Totals', s.totals)] %}
+        {% if m[1].model_n %}
+        <span>{{ m[0] }}
+          {% if m[1].n %}<b class="{% if m[1].units > 0 %}up{% elif m[1].units < 0 %}down{% endif %}">{{ m[1].units|money }}u</b>
+            over {{ m[1].n }}
+          {% else %}<b>{{ m[1].model_wins }}-{{ m[1].model_losses }}</b>
+            model side, unstaked
+          {% endif %}
+          {%- if m[1].clv is not none %} &middot; CLV <b>{{ '%+.2f'|format(m[1].clv) }}</b>{% endif %}</span>
         {% endif %}
-        {% if s.totals.n %}
-        <span>Totals <b class="{% if s.totals.units > 0 %}up{% elif s.totals.units < 0 %}down{% endif %}">{{ s.totals.units|money }}u</b>
-          over {{ s.totals.n }}{% if s.totals.clv is not none %} &middot; CLV <b>{{ '%+.2f'|format(s.totals.clv) }}</b>{% endif %}</span>
-        {% endif %}
+        {% endfor %}
       </div>
       {% endif %}
     </a>

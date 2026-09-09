@@ -73,14 +73,30 @@ def grade() -> pd.DataFrame:
     m["total_abs_err"] = (m["total_pred"] - m["total_points"]).abs()
     m["margin_abs_err"] = (m["margin_pred"] - m["home_margin"]).abs()
 
-    # closing-line value: our number vs the last line we saw before kickoff
-    closing = cfbd.load_lines()[["game_id", "spread_home", "total_line"]].rename(
+    # --- closing-line value ---------------------------------------------------------------
+    # Two bugs used to make this identically zero on all 105 graded games, and a CLV that is
+    # exactly 0.00 with zero variance is not a result, it is a broken measurement:
+    #
+    #   1. the closing number was read from the cached lines.csv, which `grade` never
+    #      refreshed - so it was the same snapshot the pick was built from, and we were
+    #      subtracting a number from itself. `update_lines()` below fixes that.
+    #   2. `predict.run` overwrites a game's pick row every morning, so even a fresh close
+    #      was being compared against Saturday-9am rather than against the number we first
+    #      published. `first_seen_*` is written once and never overwritten, so CLV now
+    #      measures the movement we actually captured.
+    closing = cfbd.update_lines()[["game_id", "spread_home", "total_line"]].rename(
         columns={"spread_home": "close_spread", "total_line": "close_total"})
     m = m.merge(closing, on="game_id", how="left")
+    # fall back to the pick's own number for rows published before first_seen_* existed
+    blank = pd.Series(np.nan, index=m.index)
+    first_total = (m["first_seen_total"] if "first_seen_total" in m else blank)
+    first_spread = (m["first_seen_spread"] if "first_seen_spread" in m else blank)
+    first_total = first_total.fillna(m["total_line"])
+    first_spread = first_spread.fillna(m["spread_home"])
     m["total_clv"] = np.where(m.total_pick == "Over",
-                              m.close_total - m.total_line, m.total_line - m.close_total)
-    m["spread_clv"] = np.where(took_home, m.close_spread - m.spread_home,
-                               m.spread_home - m.close_spread)
+                              m.close_total - first_total, first_total - m.close_total)
+    m["spread_clv"] = np.where(took_home, m.close_spread - first_spread,
+                               first_spread - m.close_spread)
     m["graded_at"] = str(config.today_et())
 
     done = pd.concat([done, m], ignore_index=True) if len(done) else m

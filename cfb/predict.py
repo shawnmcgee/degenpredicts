@@ -19,7 +19,8 @@ import pandas as pd
 from scipy.stats import norm
 
 from . import config
-from .features import BASE_FEATURES, MARKET_FEATURES, build, fbs_teams
+from .features import (BASE_FEATURES, MARKET_FEATURES, build, fbs_membership,
+                       fbs_teams, is_fbs_game)
 from .sources import cfbd, kalshi, odds
 from .train import load_models
 
@@ -40,6 +41,20 @@ def kelly(p_win, payout) -> float:
     return max(0.0, f) * config.KELLY_FRACTION
 
 
+PLAYABLE = ("play", "bold")
+
+
+def _stakes(p_win, payout, strength):
+    """Kelly stake, but only on the markets we actually said we were playing.
+
+    ``_strength`` returning "pass" or "thin" is the system declining the bet. Sizing one
+    anyway - which is what happened for every graded game so far - makes the units and ROI on
+    the front page describe wagers that were never supposed to exist.
+    """
+    return [round(kelly(p, b) * config.BANKROLL_UNITS, 2) if st in PLAYABLE else 0.0
+            for p, b, st in zip(p_win, payout, strength)]
+
+
 def _strength(edge, minimum, thin) -> str:
     e = abs(edge) if edge == edge else 0.0
     if e < minimum:
@@ -49,7 +64,8 @@ def _strength(edge, minimum, thin) -> str:
     return "bold" if e >= minimum * config.BOLD_MULT else "play"
 
 
-def build_board(games: pd.DataFrame, lines: pd.DataFrame, week: int | None = None) -> pd.DataFrame:
+def build_board(games: pd.DataFrame, lines: pd.DataFrame, week: int | None = None,
+                sp: pd.DataFrame | None = None) -> pd.DataFrame:
     today = config.today_et()
     season = config.season_of(today)
     sched = games[(games["season"] == season) & (~games["completed"])].copy()
@@ -58,6 +74,17 @@ def build_board(games: pd.DataFrame, lines: pd.DataFrame, week: int | None = Non
     else:
         sched = sched[(sched["date"] >= today) &
                       (sched["date"] <= today + timedelta(days=config.BOARD_DAYS))]
+    if sched.empty:
+        return sched
+    # FBS vs FBS only. The schedule feed carries every classification, so without this the
+    # board publishes a spread and a total on Miami -56.5 vs Florida A&M: a number the model
+    # has no basis for (the visitor has no rating and no SP+ row), on a game the site says it
+    # does not cover. 36 of last week's 85 board games were of exactly that shape.
+    members = fbs_membership(games, sp)
+    keep = [is_fbs_game(members, r.season, r.home_team, r.away_team) for r in sched.itertuples()]
+    if not all(keep):
+        log.info("board: dropped %d non-FBS games, %d remain", len(keep) - sum(keep), sum(keep))
+    sched = sched[keep]
     if sched.empty:
         return sched
     cols = ["game_id", "spread_home", "spread_open", "total_line", "total_open",
@@ -77,14 +104,15 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     lines = cfbd.update_lines()
     cfbd.update_sp()
     cfbd.update_returning()
+    sp = cfbd.load_sp()
 
-    board = build_board(games, lines, week)
+    board = build_board(games, lines, week, sp)
     if board.empty:
         log.info("no upcoming games on the board")
         return board
 
     # optional live prices, joined on team names
-    live = odds.snapshot(odds.build_matcher(sorted(fbs_teams(games, config.season_of(today)))))
+    live = odds.snapshot(odds.build_matcher(sorted(fbs_teams(games, config.season_of(today), sp))))
     if not dry_run:
         odds.append_snapshot(live)
     if len(live):
@@ -107,8 +135,7 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         return board.iloc[0:0]
     board = board[priced].copy()
 
-    _, up, _ = build(games, board, lines=lines, sp=cfbd.load_sp(),
-                     returning=cfbd.load_returning())
+    _, up, _ = build(games, board, lines=lines, sp=sp, returning=cfbd.load_returning())
 
     keep = ["game_id", "season", "week", "date", "tip_et", "kickoff_utc", "start_time_tbd",
             "home_team", "away_team",
@@ -152,47 +179,57 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         out[f"{kind}_model"] = name
         out[f"{kind}_p_over"] = np.round(norm.cdf((blended - line) / sigma), 4)
 
+    # Strength is decided BEFORE anything is staked, because it is what decides whether
+    # anything is staked at all. It used to be computed at the very end, after the Kelly
+    # numbers were already in the frame, which is how a week where all 105 games graded
+    # `pass` or `thin` still carried 13.01 units of totals stake and produced an 86% ROI on
+    # the front page.
+    thin = (out["h_games"] < config.MIN_GAMES) | (out["a_games"] < config.MIN_GAMES)
+    out["thin_data"] = thin
+    out["total_strength"] = [_strength(d, config.TOTAL_EDGE_MIN, t)
+                             for d, t in zip(out["total_disagree"], thin)]
+    out["spread_strength"] = [_strength(d, config.SPREAD_EDGE_MIN, t)
+                              for d, t in zip(out["margin_disagree"], thin)]
+
     out["total_pick"] = np.where(out["total_edge"] > 0, "Over", "Under")
+    # No line, no pick label. `np.where(NaN > 0, ...)` is False, so an unpriced total used to
+    # publish the word "Under" against a market that has no number.
+    out.loc[out["total_line"].isna(), "total_pick"] = ""
     out["total_p_win"] = np.where(out["total_edge"] > 0, out["total_p_over"], 1 - out["total_p_over"])
     out["total_price"] = np.where(out["total_edge"] > 0, out["over_price"], out["under_price"])
     out["total_payout"] = out["total_price"].apply(american_payout)
     out["total_ev"] = (out["total_p_win"] * out["total_payout"] - (1 - out["total_p_win"])).round(3)
-    out["total_stake"] = [round(kelly(p, b) * config.BANKROLL_UNITS, 2)
-                          for p, b in zip(out["total_p_win"], out["total_payout"])]
+    out["total_stake"] = _stakes(out["total_p_win"], out["total_payout"], out["total_strength"])
 
     took_home = out["margin_edge"] > 0
     out["spread_side"] = np.where(took_home, out["home_team"], out["away_team"])
     out["spread_number"] = np.where(took_home, out["spread_home"], -out["spread_home"])
     out["spread_pick"] = out["spread_side"] + " " + out["spread_number"].map(
         lambda x: f"{x:+.1f}" if x == x else "")
+    out.loc[out["spread_home"].isna(), "spread_pick"] = ""
     out["spread_p_win"] = np.where(took_home, out["margin_p_over"], 1 - out["margin_p_over"])
     out["spread_price"] = np.where(took_home, out["spread_home_price"], out["spread_away_price"])
     out["spread_payout"] = out["spread_price"].apply(american_payout)
     out["spread_ev"] = (out["spread_p_win"] * out["spread_payout"] - (1 - out["spread_p_win"])).round(3)
-    out["spread_stake"] = [round(kelly(p, b) * config.BANKROLL_UNITS, 2)
-                           for p, b in zip(out["spread_p_win"], out["spread_payout"])]
+    out["spread_stake"] = _stakes(out["spread_p_win"], out["spread_payout"], out["spread_strength"])
 
     # --- moneyline: margin distribution -> P(home wins), compared to Kalshi's ask ----------
     # A margin prediction plus its fitted residual sigma is a full distribution, so
     # P(home wins) = P(margin > 0). Kalshi's binary contract prices exactly that event, which
     # makes it directly comparable in a way the spread and total series are not.
-    # The thin-data flag must exist BEFORE the exchange pricing runs: _price_ladders refuses to
-    # publish a pick on a game the model itself considers unplayable.
-    thin = (out["h_games"] < config.MIN_GAMES) | (out["a_games"] < config.MIN_GAMES)
-    out["thin_data"] = thin
-
+    # `thin_data` is already set above, which it must be: _price_ladders refuses to publish a
+    # pick on a game the model itself considers unplayable.
     if "margin_pred" in out:
         sig = out["margin_sigma"].replace(0, np.nan)
         out["p_home_win"] = np.round(norm.cdf(out["margin_pred"] / sig), 4)
         out["p_away_win"] = (1 - out["p_home_win"]).round(4)
-        out = _attach_kalshi(out, games)
-        out = _price_ladders(out, games)
+        out = _attach_kalshi(out, games, sp)
+        out = _price_ladders(out, games, sp)
 
-    out["total_strength"] = [_strength(d, config.TOTAL_EDGE_MIN, t)
-                             for d, t in zip(out["total_disagree"], thin)]
-    out["spread_strength"] = [_strength(d, config.SPREAD_EDGE_MIN, t)
-                              for d, t in zip(out["margin_disagree"], thin)]
     out["prediction_date"] = str(today)
+    # Which retrain produced this row. Without it a good or bad stretch cannot be attributed
+    # to a specific model.
+    out["model_trained_at"] = meta.get("trained_at", "")
     out = out.sort_values(["date", "tip_et"]).reset_index(drop=True)
 
     log.info("week %s: %d games | totals %s | spreads %s",
@@ -209,17 +246,47 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         return out
 
     config.ensure_dirs()
+    out["first_seen_spread"] = out["spread_home"]
+    out["first_seen_total"] = out["total_line"]
+    out["first_seen_at"] = str(today)
     if config.PICKS.exists():
-        old = pd.read_csv(config.PICKS, dtype={"game_id": str})
-        old = old[~old["game_id"].isin(out["game_id"])]
-        pd.concat([old, out], ignore_index=True).to_csv(config.PICKS, index=False)
+        prev = pd.read_csv(config.PICKS, dtype={"game_id": str})
+        out = _carry_first_seen(prev, out)
+        prev = prev[~prev["game_id"].isin(out["game_id"])]
+        pd.concat([prev, out], ignore_index=True).to_csv(config.PICKS, index=False)
     else:
         out.to_csv(config.PICKS, index=False)
     log.info("wrote %d picks to %s", len(out), config.PICKS)
     return out
 
 
-def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
+FIRST_SEEN = ("first_seen_spread", "first_seen_total", "first_seen_at")
+
+
+def _carry_first_seen(prev: pd.DataFrame, out: pd.DataFrame) -> pd.DataFrame:
+    """Keep the number we FIRST published for a game, across every later overwrite.
+
+    A game's row is rewritten every morning it stays on the board, so without this the only
+    surviving record is the last one - and closing-line value measured against Saturday 9am
+    answers a question nobody asked. The display fields still refresh; only these three are
+    sticky, and only where the earlier run actually had a number.
+    """
+    if not len(prev) or "first_seen_at" not in prev.columns:
+        return out
+    seen = (prev.dropna(subset=["first_seen_at"])
+                .drop_duplicates("game_id", keep="first")
+                .set_index("game_id"))
+    for col in FIRST_SEEN:
+        if col not in seen.columns:
+            continue
+        earlier = out["game_id"].map(seen[col])
+        out[col] = earlier.combine_first(out[col]) if col != "first_seen_at" else \
+            earlier.fillna(out[col])
+    return out
+
+
+def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame,
+                   sp: pd.DataFrame | None = None) -> pd.DataFrame:
     """Join live Kalshi moneyline quotes and price our probability against the actual ask.
 
     We compare against the **ask**, never the mid. Games listed early can quote absurdly wide
@@ -241,7 +308,7 @@ def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
         out[c] = np.nan
     out["ml_ref_side"] = pd.Series([None] * len(out), index=out.index, dtype="object")
     try:
-        matcher = odds.build_matcher(sorted(fbs_teams(games, config.season_of(config.today_et()))))
+        matcher = odds.build_matcher(sorted(fbs_teams(games, config.season_of(config.today_et()), sp)))
         board = kalshi.moneyline_board(matcher)
     except Exception as e:                    # a third-party outage must not kill the run
         log.warning("kalshi unavailable (%s) - continuing without exchange prices", e)
@@ -268,10 +335,15 @@ def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
             if ev == ev:
                 out.at[i, f"kalshi_{side}_ev"] = round(ev, 4)
                 if ev > best_ev:
-                    best_ev, best = ev, (side, rec)
+                    # `prob` travels WITH the side. Capturing only (side, rec) left `prob` and
+                    # `ev` holding whatever the final loop iteration set them to, so picking
+                    # home wrote the home ask beside the AWAY probability - and then applied
+                    # the 0.20-0.80 playability band to the wrong side of the game.
+                    best_ev, best = ev, (side, rec, prob)
         if best:
-            side, rec = best
+            side, rec, prob = best
             team = g[f"{side}_team"]
+            ev, roi = kalshi.contract_ev(prob, rec.yes_ask)
             out.at[i, "kalshi_side"] = team
             out.at[i, "kalshi_ticker"] = rec.ticker
             out.at[i, "kalshi_tradeable"] = bool(rec.tradeable)
@@ -285,14 +357,12 @@ def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
             # Only surface a playable moneyline where the book is genuinely tradeable and the
             # edge survives the fee. Everything else stays visible in the raw CSV but off the
             # site, because an edge against an untraded 81c ask is not an edge.
-            ev, roi = kalshi.contract_ev(
-                g.get("p_home_win") if side == "home" else g.get("p_away_win"), rec.yes_ask)
             if (rec.tradeable and ev == ev and ev >= config.KALSHI_MIN_EV
                     and not bool(g.get("thin_data", False))
-                    and config.KALSHI_PROB_MIN <= (prob or 0) <= config.KALSHI_PROB_MAX):
+                    and prob == prob
+                    and config.KALSHI_PROB_MIN <= prob <= config.KALSHI_PROB_MAX):
                 cost = rec.yes_ask + kalshi.fee(rec.yes_ask)
                 payout = (1 - cost) / cost if 0 < cost < 1 else 0.0
-                prob = g.get("p_home_win") if side == "home" else g.get("p_away_win")
                 out.at[i, "ml_pick"] = f"{team} to win"
                 out.at[i, "ml_ask"] = rec.yes_ask
                 out.at[i, "ml_ev"] = round(ev, 4)
@@ -330,7 +400,8 @@ def _multiplier(ask, prob):
     return round(pays, 3), round(fair, 3), round(edge, 1)
 
 
-def _price_ladders(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
+def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
+                   sp: pd.DataFrame | None = None) -> pd.DataFrame:
     """Price every rung of Kalshi's spread and total ladders against the model distribution.
 
     Both series expose ``floor_strike`` with ``strike_type: "greater"``, so each contract pays
@@ -360,7 +431,7 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
     out["kalshi_incoherent"] = False
 
     try:
-        matcher = odds.build_matcher(sorted(fbs_teams(games, config.season_of(config.today_et()))))
+        matcher = odds.build_matcher(sorted(fbs_teams(games, config.season_of(config.today_et()), sp)))
         tot = kalshi.ladder_board("total", matcher)
         spr = kalshi.ladder_board("spread", matcher)
     except Exception as e:

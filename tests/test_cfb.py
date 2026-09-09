@@ -537,3 +537,232 @@ def _rendered_text(html: str) -> str:
     import re
     body = re.sub(r"<script\b.*?</script>", "", html, flags=re.S | re.I)
     return re.sub(r"<style\b.*?</style>", "", body, flags=re.S | re.I).lower()
+
+
+# --------------------------------------------------------------------------------------
+# Guardrails for the failures that were live in production, each one written so that it
+# fails again if the fix is reverted.
+# --------------------------------------------------------------------------------------
+def _sp_table(teams, seasons):
+    return pd.DataFrame([{"season": s, "team": t, "sp_overall": 5.0, "sp_off": 30.0,
+                          "sp_def": 25.0} for s in seasons for t in teams])
+
+
+def test_fbs_membership_prefers_the_roster_over_whatever_the_feed_returned(env):
+    """The CFBD `division`/`classification` filter is silently ignored when misnamed, so the
+    games file is not proof of anything. Membership has to come from a roster we hold."""
+    from cfb.features import fbs_membership, is_fbs_game
+
+    games = pd.DataFrame([
+        {"season": 2024, "home_team": "Team 001", "away_team": "Kenyon",
+         "home_classification": "fbs", "away_classification": "iii"},
+    ])
+    sp = _sp_table(["Team 001", "Team 002"], [2024])
+    members = fbs_membership(games, sp)
+    assert members[2024] == {"Team 001", "Team 002"}
+    assert is_fbs_game(members, 2024, "Team 001", "Team 002")
+    assert not is_fbs_game(members, 2024, "Team 001", "Kenyon")
+    # a season we hold no roster for must not be silently deleted
+    assert is_fbs_game(members, 1999, "Anyone", "Anyone Else")
+
+
+def test_season_roster_stays_in_a_sane_band(env):
+    """FBS has run 129-139 teams and ~800 FBS-vs-FBS games a season. A roster or a game count
+    far outside that means the feed changed shape, which is exactly how 699 teams including
+    Sewanee and Wayland Baptist got into the training data unnoticed."""
+    from cfb.features import fbs_membership, is_fbs_game
+
+    g, _ = synth()
+    sp = _sp_table(sorted(set(g.home_team) | set(g.away_team)), SEASONS)
+    members = fbs_membership(g, sp)
+    for season in SEASONS:
+        assert 100 <= len(members[season]) <= 145, f"{season}: {len(members[season])} teams"
+        played = g[g.season == season]
+        fbs = sum(is_fbs_game(members, season, r.home_team, r.away_team)
+                  for r in played.itertuples())
+        assert fbs / len(played) > 0.9, f"{season}: only {fbs}/{len(played)} FBS vs FBS"
+
+
+def test_the_board_drops_games_the_model_cannot_price(env):
+    """36 of one week's 85 published games were FBS vs FCS, priced off a rating the visitor
+    does not have, on a site that says it covers FBS."""
+    from cfb.predict import build_board
+
+    today = env.today_et()
+    season = env.season_of(today)
+    sched = pd.DataFrame([
+        {"game_id": "1", "season": season, "week": 2, "date": today + timedelta(days=1),
+         "home_team": "Team 001", "away_team": "Team 002", "completed": False},
+        {"game_id": "2", "season": season, "week": 2, "date": today + timedelta(days=1),
+         "home_team": "Team 001", "away_team": "Florida A&M", "completed": False},
+    ])
+    lines = pd.DataFrame([{"game_id": "1", "spread_home": -3.5, "total_line": 55.5},
+                          {"game_id": "2", "spread_home": -56.5, "total_line": 62.5}])
+    board = build_board(sched, lines, sp=_sp_table(["Team 001", "Team 002"], [season]))
+    assert list(board["game_id"]) == ["1"]
+
+
+def test_nothing_is_staked_on_a_market_we_declined(env):
+    from cfb.predict import _stakes
+
+    p_win = [0.99, 0.99, 0.99, 0.99]
+    payout = [1.0, 1.0, 1.0, 1.0]
+    stakes = _stakes(p_win, payout, ["play", "bold", "pass", "thin"])
+    assert stakes[0] > 0 and stakes[1] > 0
+    assert stakes[2] == 0.0 and stakes[3] == 0.0, "a pass or a thin game must stake nothing"
+
+
+def test_clv_moves_when_the_line_moves(env, monkeypatch):
+    """CLV was identically 0.00 across all 105 graded games because `grade` compared the
+    cached line against itself. This fails if the close is ever read from the same snapshot
+    the pick was built from, or if it is measured against the last overwrite."""
+    from cfb import grade as G
+    from cfb.sources import cfbd
+
+    picks = pd.DataFrame([{
+        "game_id": "1", "season": 2024, "week": 3, "date": date(2024, 9, 14),
+        "home_team": "Team 001", "away_team": "Team 002",
+        "total_line": 55.5, "spread_home": -3.5,
+        "first_seen_total": 55.5, "first_seen_spread": -3.5, "first_seen_at": "2024-09-10",
+        "total_pick": "Over", "margin_edge": 1.0,
+        "total_pred": 57.0, "margin_pred": 5.0,
+        "total_payout": 0.91, "spread_payout": 0.91,
+        "total_stake": 0.0, "spread_stake": 0.0,
+        "total_disagree": 1.0, "margin_disagree": 1.0,
+        "total_strength": "pass", "spread_strength": "pass",
+    }])
+    finals = pd.DataFrame([{"game_id": "1", "season": 2024, "week": 3,
+                            "date": date(2024, 9, 14), "completed": True,
+                            "home_points": 30.0, "away_points": 24.0,
+                            "total_points": 54.0, "home_margin": 6.0}])
+    # the close moved two points on the total and a point and a half on the spread
+    closed = pd.DataFrame([{"game_id": "1", "spread_home": -5.0, "total_line": 57.5}])
+
+    picks.to_csv(env.PICKS, index=False)
+    if env.RESULTS.exists():
+        env.RESULTS.unlink()
+    monkeypatch.setattr(cfbd, "update_games", lambda *a, **k: finals)
+    monkeypatch.setattr(cfbd, "update_lines", lambda *a, **k: closed)
+    # if grade ever falls back to the cached file, this poisoned copy makes CLV zero again
+    monkeypatch.setattr(cfbd, "load_lines",
+                        lambda *a, **k: pd.DataFrame([{"game_id": "1", "spread_home": -3.5,
+                                                       "total_line": 55.5}]))
+    done = G.grade()
+    assert done["total_clv"].iloc[0] == pytest.approx(2.0)    # Over 55.5, closed 57.5
+    assert done["spread_clv"].iloc[0] == pytest.approx(-1.5)  # took home -3.5, closed -5.0
+    assert done[["total_clv", "spread_clv"]].abs().to_numpy().sum() > 0
+
+
+def test_first_published_number_survives_the_daily_overwrite(env):
+    from cfb.predict import _carry_first_seen
+
+    prev = pd.DataFrame([{"game_id": "1", "first_seen_spread": -3.5,
+                          "first_seen_total": 55.5, "first_seen_at": "2024-09-10"}])
+    out = pd.DataFrame([{"game_id": "1", "spread_home": -5.0, "total_line": 57.5,
+                         "first_seen_spread": -5.0, "first_seen_total": 57.5,
+                         "first_seen_at": "2024-09-14"},
+                        {"game_id": "2", "spread_home": -7.0, "total_line": 44.5,
+                         "first_seen_spread": -7.0, "first_seen_total": 44.5,
+                         "first_seen_at": "2024-09-14"}])
+    got = _carry_first_seen(prev, out).set_index("game_id")
+    assert got.loc["1", "first_seen_spread"] == -3.5      # Tuesday's number, not Saturday's
+    assert got.loc["1", "first_seen_at"] == "2024-09-10"
+    assert got.loc["1", "spread_home"] == -5.0            # display fields still refresh
+    assert got.loc["2", "first_seen_spread"] == -7.0      # a new game keeps today's
+
+
+def test_missing_opening_line_is_missing_not_zero(env):
+    """`spread_move` is absent for every pre-2021 row and present on 96% of live rows.
+    Filling the gap with 0.0 teaches the model that six seasons of football never moved."""
+    from cfb.features import _market
+
+    row = {"exp_total": 50.0, "exp_margin": 3.0}
+    got = _market(dict(row), total_line=55.5, spread_home=-3.5)
+    assert np.isnan(got["total_move"]) and np.isnan(got["spread_move"])
+    got = _market(dict(row), total_line=55.5, spread_home=-3.5,
+                  total_open=53.5, spread_open=-2.5)
+    assert got["total_move"] == pytest.approx(2.0)
+    assert got["spread_move"] == pytest.approx(-1.0)
+
+
+def test_a_live_score_is_not_a_final(env, monkeypatch):
+    """CFBD returns a `completed` flag. Treating "has points" as final grades a pick and
+    permanently moves the rating book on a game that is still being played."""
+    from cfb.sources import cfbd
+
+    payload = [
+        {"id": 1, "season": 2024, "week": 3, "startDate": "2024-09-14T20:00:00.000Z",
+         "homeTeam": "Team 001", "awayTeam": "Team 002",
+         "homePoints": 21, "awayPoints": 17, "completed": False},
+        {"id": 2, "season": 2024, "week": 3, "startDate": "2024-09-14T20:00:00.000Z",
+         "homeTeam": "Team 003", "awayTeam": "Team 004",
+         "homePoints": 31, "awayPoints": 10, "completed": True},
+    ]
+    monkeypatch.setattr(cfbd, "get_json", lambda *a, **k: payload)
+    got = cfbd.fetch_games(2024, season_type="regular").set_index("game_id")
+    assert not got.loc["1", "completed"], "a live game with a score is not final"
+    assert got.loc["2", "completed"]
+    assert np.isnan(got.loc["1", "home_margin"])
+
+
+def test_consensus_resolves_each_market_independently(env):
+    """A provider listed with a total but no spread used to win the whole row and hand back
+    a NaN spread, dropping a game other books had priced."""
+    from cfb.sources import cfbd
+
+    lines = pd.DataFrame([
+        {"game_id": "1", "season": 2024, "week": 3, "date": date(2024, 9, 14),
+         "home_team": "H", "away_team": "A", "provider": "Bovada",
+         "spread_home": np.nan, "spread_open": np.nan,
+         "total_line": 55.5, "total_open": 54.5, "home_ml": np.nan, "away_ml": np.nan},
+        {"game_id": "1", "season": 2024, "week": 3, "date": date(2024, 9, 14),
+         "home_team": "H", "away_team": "A", "provider": "DraftKings",
+         "spread_home": -3.5, "spread_open": -3.0,
+         "total_line": 56.0, "total_open": 55.0, "home_ml": np.nan, "away_ml": np.nan},
+    ])
+    got = cfbd.consensus(lines).iloc[0]
+    assert got["total_line"] == 55.5      # Bovada is preferred and priced the total
+    assert got["spread_home"] == -3.5     # but DraftKings is the only one with a spread
+
+
+def test_moneyline_probability_belongs_to_the_side_that_won(env, monkeypatch):
+    """`prob` and `ev` used to survive from the final loop iteration, so choosing the home
+    side wrote the home ask beside the AWAY probability - and then applied the 0.20-0.80
+    playability band to the wrong side of the game."""
+    from cfb import predict as P
+    from cfb.sources import kalshi
+
+    today = env.today_et()
+    board = pd.DataFrame([
+        {"date": today, "home_team": "Team 001", "away_team": "Team 002", "team": "Team 001",
+         "yes_ask": 0.40, "ticker": "H", "tradeable": True, "quote_spread": 0.02},
+        {"date": today, "home_team": "Team 001", "away_team": "Team 002", "team": "Team 002",
+         "yes_ask": 0.95, "ticker": "A", "tradeable": True, "quote_spread": 0.02},
+    ])
+    monkeypatch.setattr(kalshi, "moneyline_board", lambda *a, **k: board)
+    monkeypatch.setattr(P.odds, "build_matcher", lambda *a, **k: object())
+
+    out = pd.DataFrame([{"date": today, "home_team": "Team 001", "away_team": "Team 002",
+                         "p_home_win": 0.70, "p_away_win": 0.30, "thin_data": False}])
+    sp = _sp_table(["Team 001", "Team 002"], [env.season_of(today)])
+    got = P._attach_kalshi(out, pd.DataFrame(), sp).iloc[0]
+
+    # home is the better buy at 40c against a 70% model, so home must be the side taken
+    assert got["ml_ref_side"] == "Team 001"
+    assert got["ml_ref_prob"] == pytest.approx(0.70), "the away probability leaked across"
+    assert got["ml_ref_ev"] == pytest.approx(got["kalshi_home_ev"])
+    assert got["ml_pick"] == "Team 001 to win"
+
+
+def test_missing_completed_field_falls_back_to_the_score(env, monkeypatch):
+    """Guarding against a live score must not turn into "nothing is ever final" if CFBD stops
+    sending the flag - that failure is far worse than the one it prevents."""
+    from cfb.sources import cfbd
+
+    payload = [{"id": 1, "season": 2024, "week": 3,
+                "startDate": "2024-09-14T20:00:00.000Z",
+                "homeTeam": "Team 001", "awayTeam": "Team 002",
+                "homePoints": 21, "awayPoints": 17}]
+    monkeypatch.setattr(cfbd, "get_json", lambda *a, **k: payload)
+    got = cfbd.fetch_games(2024, season_type="regular")
+    assert bool(got["completed"].iloc[0])

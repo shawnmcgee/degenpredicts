@@ -27,7 +27,7 @@ import argparse
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
@@ -176,7 +176,11 @@ def walk_forward(df: pd.DataFrame, kind: str, market: bool, params=None,
         # 1 s.e. on a coin flip, so you can see whether ats_rate means anything
         out["ats_stderr"] = round(float(100 * (0.25 / max(n_dec, 1)) ** 0.5), 2)
         out["beats_market"] = bool(out["mae_model"] < out["mae_market_baseline"])
-        shrink = _best_shrink(pool.pred.values, pool.line.values, pool.actual.values)
+        # One sweep, two readings: `shrink_raw` is what the fit asked for, `shrink` is what we
+        # allow ourselves to use. Calling _best_shrink twice on the same arrays did the whole
+        # sweep again to arrive at the same number.
+        shrink_raw = _best_shrink(pool.pred.values, pool.line.values, pool.actual.values)
+        shrink = shrink_raw
         # Never let a thin sample talk us into abandoning the line.
         if n_dec < 500:
             log.warning("%s/%s: only %d decided games - clamping shrink to the default",
@@ -187,8 +191,7 @@ def walk_forward(df: pd.DataFrame, kind: str, market: bool, params=None,
         out["break_even_pct"] = round(config.BREAK_EVEN, 2)
         out["venue"] = config.VENUE
         out["market_softness"] = _softness(pool, d)
-        out["shrink_raw"] = round(float(_best_shrink(pool.pred.values, pool.line.values,
-                                                     pool.actual.values)), 2)
+        out["shrink_raw"] = round(float(shrink_raw), 2)
     return out
 
 
@@ -276,12 +279,16 @@ def _softness(pool: pd.DataFrame, meta: pd.DataFrame) -> dict:
     ])
 
     # 4. did the line move since it opened? (movement = money = sharper number)
+    # Only rows with a real opening number. `spread_move` is NaN wherever the open is
+    # unknown - which is every game before 2021 - and counting those as "barely moved" is
+    # how a segment about market attention filled up with games nobody has an open for.
     if "spread_move" in p:
-        mv = p.spread_move.abs()
+        moved = p[p.spread_move.notna()]
+        mv = moved.spread_move.abs()
         add("by_line_movement", [
-            _seg(p[mv < 0.5], "line barely moved"),
-            _seg(p[(mv >= 0.5) & (mv < 2)], "moved 0.5-2"),
-            _seg(p[mv >= 2], "moved 2+"),
+            _seg(moved[mv < 0.5], "line barely moved"),
+            _seg(moved[(mv >= 0.5) & (mv < 2)], "moved 0.5-2"),
+            _seg(moved[mv >= 2], "moved 2+"),
         ])
 
     # 5. favourite size - big mismatches are priced by formula more than by opinion
@@ -381,6 +388,18 @@ def search(df, kind, market, n_iter=15):
     return best
 
 
+def _coverage(df: pd.DataFrame) -> dict:
+    """Share of rows per season carrying a real opening line.
+
+    `spread_move` is trained on ~23% coverage and served on ~96%, which is the sort of
+    train/serve gap that is invisible until it is written down.
+    """
+    if "spread_move" not in df:
+        return {}
+    return {str(int(s)): round(float(g["spread_move"].notna().mean()), 3)
+            for s, g in df.groupby("season")}
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-fetch", action="store_true")
@@ -388,9 +407,15 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     df = assemble(fetch=not args.no_fetch)
-    meta = {"trained_at": datetime.utcnow().isoformat(timespec="seconds"),
+    meta = {"trained_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "base_features": BASE_FEATURES, "market_features": MARKET_FEATURES,
             "n_rows": int(len(df)), "seasons": [int(s) for s in sorted(df.season.unique())],
+            # `search` picks hyper-parameters by minimising MAE on the very pool whose MAE and
+            # ats_rate are then reported below, so those numbers come out optimistic. Stamped
+            # rather than corrected, so a later reader knows to discount them.
+            "hyperparams_searched": bool(args.search),
+            "fbs_rows": int(df["fbs"].sum()) if "fbs" in df else None,
+            "open_line_coverage": _coverage(df),
             "eval": {}, "models": [], "sigma": {}, "shrink": {}}
     backend = "xgboost"
 

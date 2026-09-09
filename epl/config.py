@@ -280,6 +280,13 @@ GOALS_EDGE_MIN = _env_float("DEGEN_GOALS_EDGE", 0.70)   # over/under total goals
 SPREAD_EDGE_MIN = SUP_EDGE_MIN
 TOTAL_EDGE_MIN = GOALS_EDGE_MIN
 BOLD_MULT = 2.0
+# 1X2 has no disagreement threshold to gate on - it is a max over three probabilities rather
+# than a distance from one number - so it gets an EV floor instead. Taking the best of three
+# noisy estimates returns a positive EV nearly every time even with no edge at all (the same
+# winner's curse the Kalshi ladder guards exist for), and with the fitted 1X2 shrink at 0.00
+# and a negative log_loss_edge, staking best-of-three every match is a systematic loser.
+# In profit-multiple units: 0.05 means a nickel of edge per unit risked.
+X2_MIN_EV = _env_float("DEGEN_X2_EDGE", 0.05)
 # Eighth Kelly, matching the NFL rather than college. Pinnacle's closing Asian handicap is
 # generally reckoned the most efficient price in any sport; against it, an overestimated edge
 # is the expensive direction to be wrong in.
