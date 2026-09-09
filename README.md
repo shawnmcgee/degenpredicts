@@ -449,10 +449,11 @@ object**. That is the section worth reading.
 ### 1. Data source: a match archive on GitHub, no key, no quota
 
 `football-data.co.uk` is the canonical archive for this sport and the pipeline was built on it.
-**It could not be reached from a GitHub Actions runner.** Three separate runs returned zero
-bytes: it accepts the TCP connection and then stalls, so nothing built on it could train. The
-module is kept working and tested and can be re-selected with `DEGEN_EPL_SOURCE=footballdata`
-if it ever comes back.
+**It refuses a GitHub Actions runner.** It is not down and it is not slow — it answers with
+HTTP **503**, consistently, from every runner tried. The module is kept working and tested and
+can be re-selected with `DEGEN_EPL_SOURCE=footballdata` if that ever changes; from a residential
+IP it serves normally, so a manual fetch committed to the repo is also a viable path if you
+ever want the true closing columns.
 
 The primary is now a GitHub-hosted aggregate of those same archives, served from
 `raw.githubusercontent.com` — the host nflverse is served from, which this repo has been using
@@ -736,18 +737,23 @@ have made a first retrain a three-hour one.
 
 Three things now bound it, and it is worth knowing which does what:
 
-- **A wall-clock budget on the primary host — this is the bound that actually holds.** Thirty
-  seconds of *wasted* time and the host is abandoned for the rest of the run. Tuning retry counts
-  and socket timeouts assumes you know how a host will fail, and you do not: this one turned out
-  to accept the TCP connection and then stall, so the connect timeout never fired and the read
-  timeout did, at three times the cost. Worse, `read` in requests is a per-socket-read timeout
-  rather than a deadline for the whole response, so a host trickling one byte at a time can
-  exceed any value of it indefinitely and no retry setting will save you. Wall-clock is
-  invariant to all of it. Only time from *failed* requests counts, so a merely slow-but-working
-  host is never abandoned — it is still the only source of odds columns.
+- **`Retry-After` is not honoured.** This is the one that actually bit. The host answers 503,
+  which is in the retry list, and a 503 may carry a `Retry-After` header. urllib3 honours that
+  header by default, and a `Retry-After` sleep is **not** capped by `backoff_max` — that cap
+  applies only to computed exponential backoff. So a single file fetch was parked for **288
+  seconds**, which no amount of tuning `backoff_factor`, `backoff_max` or the retry count could
+  have prevented. Declining to honour the header is the only thing that bounds it, and against a
+  static archive it costs nothing: if the host wants us gone it keeps saying 503, and the
+  breaker notices.
+- **A wall-clock budget on the primary host.** Thirty seconds of *wasted* time and the host is
+  abandoned for the rest of the run. Note what this could and could not do: it correctly tripped
+  on that 288-second fetch and let the job finish — but it is checked *after* a request returns,
+  so it cannot interrupt one that is already asleep. It bounds the run, not the request. Only
+  time from *failed* requests counts, so a merely slow-but-working host is never abandoned.
 - **Short timeouts**, as a first line rather than the defence: 8s to connect, 15s to read, two
   attempts. Both failure paths are bounded under 45 seconds, and a test asserts both, because
-  which one fires is not ours to choose.
+  which one fires is not ours to choose — the diagnosis here was wrong twice before the logs
+  settled it, first as a packet drop and then as a stall, when it was neither.
 - **A circuit breaker.** Once either bound is hit the primary host is treated as down for the
   rest of the run and every later fetch goes straight to the mirror. Discovering a dead host
   once beats discovering it fifty times. The state is per-process and never persisted, so an

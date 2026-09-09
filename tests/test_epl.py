@@ -358,6 +358,27 @@ def test_per_request_budget_is_bounded():
     assert attempts * read < 45, "read path unbounded"
 
 
+def test_retry_after_header_is_not_honoured():
+    """The bound the wall-clock budget could not provide.
+
+    football-data.co.uk answers a GitHub runner with HTTP 503 - actively refusing, not stalling
+    - and a 503 may carry Retry-After. urllib3 honours that header by default and a Retry-After
+    sleep is NOT capped by backoff_max, which applies only to computed exponential backoff. One
+    file fetch was parked for 288 seconds. The wall-clock budget cannot help, because it is
+    checked after a request returns and cannot interrupt one already asleep.
+    """
+    from epl.http import session
+
+    adapter = session().get_adapter("https://example.invalid")
+    retry = adapter.max_retries
+    assert retry.respect_retry_after_header is False, (
+        "a hostile Retry-After can park a single fetch for minutes, past every other bound")
+    assert retry.total <= 2
+    assert retry.backoff_max <= 8
+    # the computed backoff is what is left, and it is small
+    assert retry.backoff_factor <= 1.0
+
+
 def test_wall_clock_budget_bounds_a_host_that_stalls():
     """The bound that actually holds. Retry counts and socket timeouts assume you know HOW a
     host will fail; this one accepted the connection and then stalled, so the connect timeout
