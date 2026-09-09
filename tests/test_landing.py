@@ -8,11 +8,21 @@ published nothing, and it degrades rather than raising when a file is missing or
 from __future__ import annotations
 
 import json
+import pathlib
 import re
 
 import pytest
 
 from core import landing
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+# Every sport with a live board. ncaab is deliberately absent: it has no workflows yet, so it
+# publishes nothing and correctly has no card and no tab.
+LIVE_SPORTS = {
+    "cfb": ("cfb/templates/index.html", "College football"),
+    "nfl": ("nfl/templates/index.html", "NFL"),
+    "epl": ("epl/templates/index.html", "Premier League"),
+}
 
 
 def _publish(docs, slug, *, index=True, metrics=None, picks=None):
@@ -125,3 +135,85 @@ def test_every_publishing_workflow_rebuilds_the_front_page():
     for name in ("cfb-predict", "cfb-grade", "nfl-predict", "nfl-grade"):
         text = (wf / f"{name}.yml").read_text()
         assert "python -m core.landing" in text, f"{name}.yml does not rebuild the chooser"
+
+
+# ---------------------------------------------------------------------------------
+# Cross-sport navigation
+# ---------------------------------------------------------------------------------
+def test_every_board_links_back_to_the_chooser():
+    """Each board is its own page under docs/<slug>/, so without a link up there is no way back
+    to the other sports except the browser's back button."""
+    for slug, (tpl, _label) in LIVE_SPORTS.items():
+        html = (ROOT / tpl).read_text()
+        assert 'href="../"' in html, f"{slug} has no link back to the chooser"
+        assert 'nav class="sports"' in html, f"{slug} has no sport tabs"
+
+
+def test_sport_tabs_are_reciprocal():
+    """Every live board must link to every other one.
+
+    The tabs were added to cfb and nfl before the Premier League existed, so those two pages
+    linked only to each other. The chooser could reach the EPL board but neither sport page
+    could, which makes it a dead end from anywhere except the front door. A new sport has to
+    update the others, and this is what says so.
+    """
+    missing = []
+    for slug, (tpl, _label) in LIVE_SPORTS.items():
+        html = (ROOT / tpl).read_text()
+        for other in LIVE_SPORTS:
+            if other == slug:
+                continue
+            if f'href="../{other}/"' not in html:
+                missing.append(f"{slug} does not link to {other}")
+    assert not missing, "sport tabs are not reciprocal: " + "; ".join(missing)
+
+
+def test_each_board_marks_itself_as_the_current_tab():
+    """Without aria-current the tab row gives no indication of which page you are on, and it is
+    also what the stylesheet keys the highlight off."""
+    for slug, (tpl, label) in LIVE_SPORTS.items():
+        html = (ROOT / tpl).read_text()
+        assert 'aria-current="page" href="./"' in html, f"{slug} marks no current tab"
+        nav = re.search(r'<nav class="sports".*?</nav>', html, re.S).group(0)
+        current = re.search(r'aria-current="page" href="\./">([^<]+)<', nav).group(1)
+        assert current == label, f"{slug} labels its own tab {current!r}, expected {label!r}"
+
+
+def test_every_live_sport_has_a_card_on_the_chooser():
+    """A board that publishes but has no entry in core.landing.SPORTS is unreachable from the
+    front page."""
+    slugs = {s["slug"] for s in landing.SPORTS}
+    for slug in LIVE_SPORTS:
+        assert slug in slugs, f"{slug} publishes a board but has no card on the chooser"
+
+
+def test_every_committing_workflow_commits_before_pulling():
+    """The ordering bug that lost the first EPL board, checked across all three sports.
+
+    `python -m <sport>.site` writes docs/<sport>/index.html as an UNTRACKED file. If the remote
+    has gained a commit that also creates it, git refuses to clobber it and aborts the pull -
+    and a trailing `|| true` swallows that abort, so the commit lands on a stale base and the
+    push is rejected non-fast-forward.
+
+    This lives in the sport-neutral suite on purpose: it is a property of every publishing
+    workflow, and pinning it per sport is how it came to be fixed in one place and left broken
+    in six others.
+    """
+    wf = ROOT / ".github" / "workflows"
+    jobs = sorted(p.name for p in wf.glob("*.yml")
+                  if any(k in p.name for k in ("-predict", "-grade", "-train")))
+    assert len(jobs) >= 9, f"expected every sport's three jobs, found {jobs}"
+    for name in jobs:
+        text = (wf / name).read_text()
+        if "git push" not in text:
+            continue
+        add, commit = text.index("git add "), text.index("git commit -m")
+        pull, push = text.index("git pull"), text.index("git push")
+        assert add < pull, f"{name}: pulls before staging"
+        assert commit < pull, f"{name}: commits after pulling"
+        assert pull < push, f"{name}: pushes before rebasing"
+        # Strip comments first: the explanation of this very bug quotes `|| true`.
+        commands = [ln for ln in text.split("git config user.name")[1].splitlines()
+                    if not ln.strip().startswith("#")]
+        assert not any("|| true" in ln for ln in commands), \
+            f"{name}: swallows a failed git command, which hides a doomed push"

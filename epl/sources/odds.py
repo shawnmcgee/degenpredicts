@@ -83,6 +83,29 @@ def _h2h(bm, home, away):
     return None
 
 
+def _spreads(bm, home, away):
+    """(handicap on the home team, home price, away price) from a spreads market.
+
+    For football, The Odds API's ``spreads`` market IS the Asian handicap, and it quotes the
+    handicap from each side: a home outcome of -1.5 means the home team gives 1.5 goals. That
+    is already the convention this repo uses everywhere (negative = home favoured), so no sign
+    flip happens here - the same property the football-data feed has, and pinned by a test for
+    the same reason.
+
+    Without this the board carries no handicap at all, which leaves the model's HEADLINE market
+    blank on every match: `ah_home` is NaN, so predict skips the handicap pick entirely and the
+    card renders "-". The first live board shipped exactly that way.
+    """
+    for m in bm.get("markets", []):
+        if m.get("key") != "spreads":
+            continue
+        got = {o.get("name"): o for o in m.get("outcomes", [])}
+        h, a = got.get(home), got.get(away)
+        if h and a and h.get("point") is not None and h.get("price") and a.get("price"):
+            return float(h["point"]), float(h["price"]), float(a["price"])
+    return None
+
+
 def _totals(bm):
     """(line, over price, under price) from a totals market."""
     for m in bm.get("markets", []):
@@ -101,7 +124,7 @@ def snapshot(matcher=None) -> pd.DataFrame:
         log.info("config.ODDS_API_KEY unset - skipping live prices, using football-data's")
         return pd.DataFrame()
     r = get(URL, params={"apiKey": config.ODDS_API_KEY, "regions": "uk,eu",
-                         "markets": "h2h,totals", "oddsFormat": "decimal",
+                         "markets": "h2h,totals,spreads", "oddsFormat": "decimal",
                          "dateFormat": "iso"})
     if r is None or r.status_code != 200:
         log.warning("Odds API unavailable: %s", getattr(r, "status_code", "no response"))
@@ -114,8 +137,11 @@ def snapshot(matcher=None) -> pd.DataFrame:
         h2h = {bm["title"]: _h2h(bm, ev["home_team"], ev["away_team"])
                for bm in ev.get("bookmakers", [])}
         tot = {bm["title"]: _totals(bm) for bm in ev.get("bookmakers", [])}
+        spr = {bm["title"]: _spreads(bm, ev["home_team"], ev["away_team"])
+               for bm in ev.get("bookmakers", [])}
         h2h = {k: v for k, v in h2h.items() if v}
         tot = {k: v for k, v in tot.items() if v}
+        spr = {k: v for k, v in spr.items() if v}
         if not h2h and not tot:
             continue
 
@@ -137,6 +163,7 @@ def snapshot(matcher=None) -> pd.DataFrame:
 
         ph, pdw, pa, b1, n1 = choose(h2h, 3)
         tl, po, pu, b2, n2 = choose(tot, 3)
+        ah, pah_h, pah_a, b3, n3 = choose(spr, 3)
         ts = pd.Timestamp(ev["commence_time"])
         ts = ts.tz_localize("UTC") if ts.tzinfo is None else ts
         uk = ts.tz_convert(config.UK)
@@ -153,6 +180,8 @@ def snapshot(matcher=None) -> pd.DataFrame:
                      "book_1x2": b1, "n_books_1x2": n1,
                      "live_total_line": tl, "live_price_over": po, "live_price_under": pu,
                      "book_ou": b2, "n_books_ou": n2,
+                     "live_ah_home": ah, "live_price_ah_home": pah_h,
+                     "live_price_ah_away": pah_a, "book_ah": b3, "n_books_ah": n3,
                      "p_home_mkt": mh, "p_draw_mkt": md, "p_away_mkt": ma,
                      "p_over_mkt": p_o, "p_under_mkt": p_u})
     df = pd.DataFrame(rows)
@@ -190,7 +219,15 @@ def board(matcher=None) -> pd.DataFrame:
         ph, pdw, pa = r.get("live_price_home"), r.get("live_price_draw"), r.get("live_price_away")
         po, pu = r.get("live_price_over"), r.get("live_price_under")
         tl = r.get("live_total_line")
-        sup = supremacy_from_prices(ph, pdw, pa)
+        # A feed that quotes no handicap yields None here, and `None == None` is True - so a
+        # bare NaN check would store None and every downstream `!= x` test would silently pass.
+        ah = r.get("live_ah_home")
+        ah = float(ah) if ah is not None and ah == ah else float("nan")
+        # The handicap is the sharpest supremacy number when it exists, because that is the
+        # market books actually manage risk on. Inverting the 1X2 price is the fallback - the
+        # same precedence sources/footballdata.py applies to the historical rows, so the live
+        # board and the training data mean the same thing by `mkt_sup`.
+        sup = -ah if ah == ah else supremacy_from_prices(ph, pdw, pa)
         tot = total_from_prices(po, pu, tl)
         rows.append({
             "game_id": _game_id(season, r["home_team"], r["away_team"]),
@@ -201,16 +238,20 @@ def board(matcher=None) -> pd.DataFrame:
             "completed": False, "no_crowd": 0,
             "odds_source": f"odds-api:{r.get('book_1x2') or 'consensus'}", "is_closing": False,
             "price_home": ph, "price_draw": pdw, "price_away": pa,
-            "ah_home": np.nan, "price_ah_home": np.nan, "price_ah_away": np.nan,
+            "ah_home": ah,
+            "price_ah_home": r.get("live_price_ah_home"),
+            "price_ah_away": r.get("live_price_ah_away"),
             "total_line": tl, "price_over": po, "price_under": pu,
             "mkt_p_home": r.get("p_home_mkt"), "mkt_p_draw": r.get("p_draw_mkt"),
             "mkt_p_away": r.get("p_away_mkt"),
             "mkt_sup": sup, "mkt_total": tot,
             "book_1x2": r.get("book_1x2"), "book_ou": r.get("book_ou"),
+            "book_ah": r.get("book_ah"),
         })
     df = pd.DataFrame(rows)
-    log.info("board: %d fixtures from the live price feed, %d with a market supremacy",
-             len(df), int(df["mkt_sup"].notna().sum()))
+    log.info("board: %d fixtures from the live price feed, %d with a handicap, "
+             "%d with a market supremacy", len(df), int(df["ah_home"].notna().sum()),
+             int(df["mkt_sup"].notna().sum()))
     return df
 
 

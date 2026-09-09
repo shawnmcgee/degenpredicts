@@ -1083,27 +1083,10 @@ def test_source_check_follows_the_configured_backend():
     from epl.sources import check
     assert callable(check.run)
 
-def test_workflows_commit_before_pulling():
-    """The ordering bug that broke the first real picks run.
-
-    `python -m epl.site` writes docs/epl/index.html as an UNTRACKED file. If the remote has
-    gained a commit that also creates it, git refuses to clobber it and aborts the pull - and
-    the old `|| true` swallowed that abort, so the commit landed on a stale base and the push
-    was rejected non-fast-forward. Committing first leaves nothing untracked for the rebase to
-    collide with.
-    """
-    wf = ROOT / ".github" / "workflows"
-    for name in ("epl-train.yml", "epl-predict.yml", "epl-grade.yml"):
-        text = (wf / name).read_text()
-        add, pull = text.index("git add data"), text.index("git pull")
-        assert add < pull, f"{name} pulls before staging - the bug this test exists for"
-        commit = text.index("git commit -m")
-        assert commit < pull, f"{name} commits after pulling"
-        assert "git pull --rebase --autostash || true" not in text, \
-            f"{name} still swallows a failed pull, which guarantees a doomed push"
-        assert text.index("git push") > pull, f"{name} pushes before rebasing"
-
-
+# The commit-before-pull ordering is asserted across ALL sports in
+# tests/test_landing.py::test_every_committing_workflow_commits_before_pulling -
+# pinning it per sport is how it came to be fixed here and left broken in six
+# other workflows.
 def test_epl_workflows_are_time_capped():
     """A hung upstream must never burn Actions minutes for hours. The circuit breaker should
     make this unreachable; the cap is what makes it impossible."""

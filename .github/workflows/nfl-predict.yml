@@ -39,7 +39,19 @@ jobs:
       - run: |
           git config user.name  "degenbot"
           git config user.email "actions@github.com"
-          git pull --rebase --autostash || true
+          # Stage and commit BEFORE pulling. Pulling first is what broke the first EPL picks
+          # run: `python -m <sport>.site` writes docs/<sport>/index.html as an UNTRACKED file,
+          # and if the remote has gained a commit that also creates it, git refuses to clobber
+          # it and aborts the pull. The old `|| true` then swallowed that abort, the commit
+          # landed on a stale base, and the push was rejected non-fast-forward. Committing
+          # first leaves nothing untracked for the rebase to collide with.
           git add data docs
-          git diff --staged --quiet || git commit -m "nfl picks $(date -u +%Y-%m-%d)"
-          git push
+          if git diff --staged --quiet; then
+            echo "nothing to commit"
+            exit 0
+          fi
+          git commit -m "nfl picks $(date -u +%Y-%m-%d)"
+          # No `|| true`: after committing, a failed rebase is a real conflict worth failing on
+          # rather than something to hide behind a push that cannot succeed.
+          git pull --rebase origin main
+          git push origin HEAD:main
