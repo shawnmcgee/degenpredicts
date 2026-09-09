@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DegenPredicts — Premier League</title>
+<style>
+  :root{--bg:#0d0e11;--card:#171a1f;--card2:#1e2229;--line:#2a2e36;--fg:#e9eaec;--dim:#98a0aa;
+        --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;--draw:#a78bfa;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:64px}
+  header,main,footer{max-width:960px;margin:0 auto;padding:0 16px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 6px}
+  h1{font-size:21px;font-weight:600}
+  .sub{color:var(--dim);font-size:13px;margin-top:3px}
+  .coffee{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;
+          background:var(--warn);color:#2a1c00;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+  section{margin-top:22px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .stat{background:var(--card);border-radius:10px;padding:13px;text-align:center}
+  .stat .v{font-size:22px;font-weight:600;margin:3px 0}
+  .stat .l{font-size:11px;color:var(--dim);text-transform:uppercase}
+  .up{color:var(--good)} .down{color:var(--bad)}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  input[type=search]{flex:1;min-width:190px;background:var(--card);border:1px solid var(--line);
+    border-radius:8px;color:var(--fg);padding:9px 12px;font-size:14px}
+  input[type=search]::placeholder{color:var(--dim)}
+  .chip{background:var(--card2);color:var(--dim);border:1px solid var(--line);border-radius:999px;
+        padding:7px 14px;font-size:13px;cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  .game{background:var(--card);border-radius:12px;margin-bottom:11px;overflow:hidden;border:1px solid var(--line)}
+  .game.hot{border-color:var(--accent)}
+  .ghead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 14px;
+         background:var(--card2);font-size:12px;color:var(--dim)}
+  .matchup{padding:12px 14px 2px;font-size:17px;font-weight:600}
+  .matchup .at{color:var(--dim);font-weight:400;font-size:14px;margin:0 7px}
+  .ctx{padding:0 14px 8px;font-size:12px;color:var(--warn)}
+  /* the probability strip: what we think, before what it is worth */
+  .probs{display:flex;align-items:stretch;gap:2px;margin:4px 14px 10px;border-radius:7px;overflow:hidden;height:34px}
+  .probs div{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;
+             color:#06121f;min-width:34px;white-space:nowrap;padding:0 4px}
+  .probs .ph{background:var(--accent)} .probs .pd{background:var(--draw)} .probs .pa{background:#f0abfc}
+  .scoreline{display:flex;justify-content:space-between;gap:8px;padding:0 14px 10px;font-size:12px;color:var(--dim)}
+  .scoreline b{color:var(--fg);font-variant-numeric:tabular-nums}
+  .bets{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;padding:2px 14px 14px}
+  .bet{background:var(--card2);border-radius:9px;padding:11px}
+  .bet .l{font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .bet .p{font-size:16px;font-weight:600;line-height:1.3}
+  .bet .d{font-size:12px;color:var(--dim);margin-top:5px;font-variant-numeric:tabular-nums}
+  .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  .tag.play,.tag.bold{background:var(--good);color:#052e16}
+  .tag.pass{background:var(--line);color:var(--dim)}
+  .tag.thin{background:var(--warn);color:#2a1c00}
+  .tag.win{background:var(--good);color:#052e16}
+  .tag.loss{background:var(--bad);color:#3f0a0a}
+  .tag.push{background:var(--line);color:var(--dim)}
+  .tag.ev{background:var(--good);color:#052e16}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:10px;overflow:hidden}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--dim);font-weight:500;font-size:11px;text-transform:uppercase}
+  .wrap{overflow-x:auto}
+  .note{background:var(--card);border-left:3px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
+  .note b{color:var(--fg)}
+  .note.bad{border-left-color:var(--bad)}
+  .note.ok{border-left-color:var(--good)}
+  footer{color:var(--dim);font-size:12px;margin-top:30px;text-align:center}
+  a{color:var(--accent)}
+  .empty{background:var(--card);border-radius:10px;padding:24px;text-align:center;color:var(--dim)}
+</style>
+</head>
+<body>
+<header>
+  <div class="topbar">
+    <div>
+      <h1>DegenPredicts — Premier League</h1>
+      <div class="sub">
+        0 fixtures
+        
+        
+      </div>
+    </div>
+    <a class="coffee" href="https://buymeacoffee.com/smcgee" rel="noopener">☕ Buy me a coffee</a>
+  </div>
+</header>
+
+<main>
+  
+  <section>
+    <div class="note bad">
+      
+        <b>This model does not beat the market's number.</b> Out of sample it errs by
+        1.305 goals against the market's 1.295, over
+        5 seasons.
+        It landed 50.1% of handicaps
+        (± 1.19 on 1779 matches).
+        That is the expected result against a closing Asian handicap, not a bug — the numbers
+        below are published so the evidence accumulates, not because they are edges.
+      
+      
+      <br><br>
+      <b>1X2 probabilities:</b> log loss 0.9604 against the de-vigged
+      market's 0.9598
+      (-0.0006 — worse).
+      Draws predicted at 23.1% against an actual
+      23.9%.
+      
+      
+      <br><br>Published numbers sit <b>0%</b> of the way from
+      the market to the model — the rest is the market, because that is what the backtest says
+      it is worth.
+      
+    </div>
+  </section>
+  
+
+  
+
+  <section>
+    <h2>The board</h2>
+    
+    <div class="empty">No fixtures on the board. The next round will appear once prices are posted.</div>
+    
+  </section>
+
+  
+  <section>
+    <h2>Backtest — cover rate by how far we disagree</h2>
+    <div class="wrap">
+    <table>
+      <tr><th>Disagreement (goals)</th><th>Handicap n</th><th>Cover</th><th>vs break-even</th>
+          <th>Totals n</th><th>Cover</th><th>vs break-even</th></tr>
+      
+      <tr>
+        <td>0-0.15</td>
+        <td>858</td>
+        <td>47.2%</td>
+        <td class="down">-2.39 s.e.</td>
+        <td>—</td>
+        <td>—</td>
+        <td class="down">—</td>
+      </tr>
+      
+      <tr>
+        <td>0.15-0.3</td>
+        <td>543</td>
+        <td>52.1%</td>
+        <td class="up">0.39 s.e.</td>
+        <td>—</td>
+        <td>—</td>
+        <td class="down">—</td>
+      </tr>
+      
+      <tr>
+        <td>0.3-0.5</td>
+        <td>267</td>
+        <td>52.4%</td>
+        <td class="up">0.38 s.e.</td>
+        <td>—</td>
+        <td>—</td>
+        <td class="down">—</td>
+      </tr>
+      
+      <tr>
+        <td>0.5-0.75</td>
+        <td>87</td>
+        <td>56.3%</td>
+        <td class="up">0.95 s.e.</td>
+        <td>—</td>
+        <td>—</td>
+        <td class="down">—</td>
+      </tr>
+      
+    </table>
+    </div>
+    <p class="sub" style="margin-top:8px">
+      Out of sample across 1900 matches, seasons 2021, 2022, 2023, 2024, 2025.
+      Break-even is 51.28%.
+      Because several segments were examined, a bucket needs
+      |z| ≥ 3.04 — not 2.0 — before it means anything.
+      <b>no segment survives correction for the number of looks taken.</b>
+    </p>
+  </section>
+  
+
+  
+  <section>
+    <h2>Are the probabilities honest?</h2>
+    <div class="wrap">
+    <table>
+      <tr><th>We said</th><th>Outcomes</th><th>Predicted</th><th>Actual</th></tr>
+      
+      <tr><td>0.00-0.10</td><td>180</td><td>7.1%</td>
+          <td class="down">5.6%</td></tr>
+      
+      <tr><td>0.10-0.20</td><td>921</td><td>15.9%</td>
+          <td class="down">14.8%</td></tr>
+      
+      <tr><td>0.20-0.30</td><td>2217</td><td>25.1%</td>
+          <td class="up">25.4%</td></tr>
+      
+      <tr><td>0.30-0.40</td><td>700</td><td>34.5%</td>
+          <td class="down">33.7%</td></tr>
+      
+      <tr><td>0.40-0.50</td><td>759</td><td>45.6%</td>
+          <td class="down">44.7%</td></tr>
+      
+      <tr><td>0.50-0.65</td><td>480</td><td>57.5%</td>
+          <td class="up">59.2%</td></tr>
+      
+      <tr><td>0.65-1.01</td><td>443</td><td>72.5%</td>
+          <td class="up">74.9%</td></tr>
+      
+    </table>
+    </div>
+    <p class="sub" style="margin-top:8px">Every home, draw and away probability from the
+      out-of-sample backtest, bucketed. A well-calibrated model has these two columns matching —
+      which is a different and more basic question than whether it beats the price.</p>
+  </section>
+  
+
+  
+
+  <section>
+    <div class="note">
+      <b>How to read this.</b> The coloured bar is our probability of a home win, draw and away
+      win — read off one scoreline distribution, so the three markets below it cannot contradict
+      each other. A pick is flagged <span class="tag play">play</span> only when the model
+      disagrees with the market by more than 0.6 goals on the handicap or
+      0.7 on the total; those thresholds sit deliberately above every bucket the
+      backtest could prove, so most matches show <span class="tag pass">pass</span>. Every match
+      is still predicted, graded and CLV-tracked whether or not it is staked.
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p><a href="../">← all sports</a> · <a href="picks.csv">picks.csv</a> ·
+     <a href="metrics.json">metrics.json</a></p>
+  <p style="margin-top:6px">Model output, not advice. Football markets are efficient; size small.</p>
+</footer>
+
+<script>
+(function(){
+  var q=document.getElementById('q'), board=document.getElementById('board');
+  if(!board) return;
+  var cards=[].slice.call(board.querySelectorAll('.game'));
+  var onlyPlays=document.getElementById('only-plays'), byKick=document.getElementById('by-kick');
+  var day=null;
+  function apply(){
+    var t=(q&&q.value||'').toLowerCase().trim();
+    var plays=onlyPlays&&onlyPlays.getAttribute('aria-pressed')==='true';
+    cards.forEach(function(c){
+      var ok=(!t||c.dataset.search.indexOf(t)>-1)
+           &&(!plays||c.dataset.play==='1')
+           &&(!day||c.dataset.day===day);
+      c.hidden=!ok;
+    });
+  }
+  if(q) q.addEventListener('input',apply);
+  function toggle(btn,fn){
+    if(!btn) return;
+    btn.addEventListener('click',function(){
+      var on=btn.getAttribute('aria-pressed')==='true';
+      btn.setAttribute('aria-pressed',String(!on));
+      if(fn) fn(!on);
+      apply();
+    });
+  }
+  toggle(onlyPlays);
+  toggle(byKick,function(on){
+    var sorted=cards.slice();
+    if(on){
+      // Sort on the ISO-ish "YYYY-MM-DD HH:MM" key, never on the display label: that would
+      // sort by weekday NAME and put a 10:00 kick-off ahead of a 12:30 one.
+      sorted.sort(function(a,b){
+        var x=a.dataset.kick||'￿', y=b.dataset.kick||'￿';
+        return x<y?-1:x>y?1:0;
+      });
+    }
+    sorted.forEach(function(c){board.appendChild(c);});
+  });
+  [].slice.call(document.querySelectorAll('.chip.day')).forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var on=btn.getAttribute('aria-pressed')==='true';
+      document.querySelectorAll('.chip.day').forEach(function(b){b.setAttribute('aria-pressed','false');});
+      btn.setAttribute('aria-pressed',String(!on));
+      day=on?null:btn.dataset.day;
+      apply();
+    });
+  });
+})();
+</script>
+</body>
+</html>
