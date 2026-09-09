@@ -31,6 +31,9 @@ def env(tmp_path_factory):
     os.environ["DEGEN_DOCS"] = str(root / "docs")
     os.environ.pop("DEGEN_NFL_DOCS", None)
     os.environ["DEGEN_FIRST_SEASON"] = "2018"
+    # Every suite here is offline. Pinning the venue list keeps the exchange tests
+    # exercising the venue they monkeypatch instead of reaching for the other one.
+    os.environ["DEGEN_VENUES"] = "kalshi"
     import importlib
     from nfl import config
     importlib.reload(config)
@@ -1328,3 +1331,91 @@ def _rendered_text(html: str) -> str:
     import re
     body = re.sub(r"<script\b.*?</script>", "", html, flags=re.S | re.I)
     return re.sub(r"<style\b.*?</style>", "", body, flags=re.S | re.I).lower()
+
+
+# --------------------------------------------------------------------------------------
+# Two venues. Same contract as the college suite; see cfb/sources/venues.py for why the fee
+# coefficient has to travel with the quote rather than being read off a global setting.
+# --------------------------------------------------------------------------------------
+PM_MONEYLINE = [{
+    "id": "901", "conditionId": "0xcond-nfl-ml", "eventSlug": "nfl-kc-buf-2026-09-20",
+    "question": "Kansas City Chiefs vs. Buffalo Bills", "sportsMarketType": "moneyline",
+    "gameStartTime": "2026-09-20T20:00:00Z",
+    "outcomes": "[\"Kansas City Chiefs\", \"Buffalo Bills\"]",
+    "outcomePrices": "[\"0.48\", \"0.52\"]",
+    "clobTokenIds": "[\"tok-kc\", \"tok-buf\"]",
+    "volumeNum": 900000, "liquidityNum": 120000,
+}]
+
+
+def test_polymarket_parses_the_documented_gamma_shape(env, monkeypatch):
+    from nfl.sources import polymarket as pm
+
+    monkeypatch.setattr(pm, "fetch_markets", lambda *a, **k: PM_MONEYLINE)
+    monkeypatch.setattr(pm, "fetch_books", lambda ids: {
+        "tok-kc": {"asset_id": "tok-kc", "bids": [{"price": "0.46", "size": "8000"}],
+                   "asks": [{"price": "0.48", "size": "8000"}]},
+        "tok-buf": {"asset_id": "tok-buf", "bids": [{"price": "0.50", "size": "8000"}],
+                    "asks": [{"price": "0.52", "size": "8000"}]}})
+    df = pm.moneyline_board().set_index("pm_team")
+    assert set(df.index) == {"Kansas City Chiefs", "Buffalo Bills"}
+    assert df.loc["Kansas City Chiefs", "yes_ask"] == pytest.approx(0.48)
+    assert bool(df.loc["Kansas City Chiefs", "tradeable"])
+
+
+def test_polymarket_without_a_confirmed_ask_is_not_tradeable(env, monkeypatch):
+    """Gamma's outcomePrices is a mid, and this pipeline never prices off a mid."""
+    from nfl.sources import polymarket as pm
+
+    monkeypatch.setattr(pm, "fetch_markets", lambda *a, **k: PM_MONEYLINE)
+    monkeypatch.setattr(pm, "fetch_books", lambda ids: {})
+    df = pm.moneyline_board()
+    assert not df["tradeable"].any() and df["yes_ask"].isna().all()
+
+
+def test_the_cheaper_venue_wins_the_moneyline(env, monkeypatch):
+    from nfl import predict as P
+    from nfl.sources import kalshi, polymarket as pm, venues
+
+    monkeypatch.setenv("DEGEN_VENUES", "kalshi,polymarket")
+    today = env.today_et()
+    row = dict(date=today, home_team="KC", away_team="BUF", quote_spread=0.02,
+               tradeable=True, event_ticker="E", yes_bid=0.40)
+    monkeypatch.setattr(kalshi, "moneyline_board", lambda *a, **k: pd.DataFrame([
+        {**row, "team": "KC", "yes_ask": 0.55, "ticker": "K-H"}]))
+    monkeypatch.setattr(pm, "moneyline_board", lambda *a, **k: pd.DataFrame([
+        {**row, "team": "KC", "yes_ask": 0.50, "ticker": "P-H"}]))
+    monkeypatch.setattr(P.odds, "build_matcher", lambda *a, **k: object())
+
+    out = pd.DataFrame([{"date": today, "home_team": "KC", "away_team": "BUF",
+                         "p_home_win": 0.70, "p_away_win": 0.30, "thin_data": False}])
+    got = P._attach_moneyline(out, pd.DataFrame()).iloc[0]
+    assert got["ml_venue"] == "polymarket"
+    assert got["kalshi_home_ask"] == pytest.approx(0.55)
+    assert got["pm_home_ask"] == pytest.approx(0.50)
+    assert got["ml_ask_gap_c"] == pytest.approx(5.0)
+
+
+def test_a_venues_fee_is_never_charged_at_the_other_venues_rate(env):
+    from nfl.sources import venues
+
+    assert venues.fee(0.50, "kalshi") == pytest.approx(0.0175)
+    assert venues.fee(0.50, "polymarket") == pytest.approx(0.0125)
+    assert venues.contract_ev(0.6, 0.5, "polymarket")[0] > venues.contract_ev(0.6, 0.5, "kalshi")[0]
+    assert venues.fee_coef("mystery-exchange") == max(
+        v for v in env.FEE_COEF.values() if v is not None)
+
+
+def test_a_dead_venue_does_not_take_the_run_down(env, monkeypatch):
+    from nfl.sources import kalshi, polymarket as pm, venues
+
+    monkeypatch.setenv("DEGEN_VENUES", "kalshi,polymarket")
+    today = env.today_et()
+    good = pd.DataFrame([{"date": today, "home_team": "KC", "away_team": "BUF", "team": "KC",
+                          "ticker": "K", "yes_ask": 0.5, "quote_spread": 0.01,
+                          "tradeable": True}])
+    monkeypatch.setattr(kalshi, "moneyline_board", lambda *a, **k: good)
+    monkeypatch.setattr(pm, "moneyline_board",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("502")))
+    board = venues.moneyline_board()
+    assert list(board["venue"].unique()) == ["kalshi"] and len(board) == 1

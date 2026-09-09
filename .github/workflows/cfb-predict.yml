@@ -21,6 +21,11 @@ jobs:
       - env:
           CFBD_API_KEY: ${{ secrets.CFBD_API_KEY }}
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          # Which exchanges to price against. Blank reads both; set the repo
+          # variable to `kalshi` to fall back to one. See the Polymarket discover
+          # workflow before trusting Polymarket quotes.
+          DEGEN_VENUES: ${{ vars.DEGEN_VENUES }}
+          DEGEN_POLYMARKET_CFB_TAG: ${{ vars.DEGEN_POLYMARKET_CFB_TAG }}
         run: |
           python -m cfb.predict ${{ inputs.week && format('--week {0}', inputs.week) || '' }}
           python -m cfb.site

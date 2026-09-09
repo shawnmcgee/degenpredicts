@@ -1,0 +1,98 @@
+name: Polymarket discover
+# Run this by hand to confirm Polymarket's market shapes against the live API.
+#
+# This matters more than the Kalshi equivalent. `sources/kalshi.py` was written against a
+# captured live response; `sources/polymarket.py` was written against Polymarket's published
+# docs WITHOUT a live call, because the environment it was authored in could not reach
+# gamma-api.polymarket.com. Its field names are therefore expected rather than confirmed.
+#
+# A GitHub runner can reach those hosts, so this is the cheapest way to find out what is
+# actually true. Nothing is written or committed - it reads public market data and prints it.
+#
+# The module fails closed, so until this run confirms the shapes the practical effect of a
+# wrong guess is that Polymarket contributes no quotes and the pipeline runs on Kalshi alone.
+# It cannot invent an edge.
+on:
+  workflow_dispatch:
+    inputs:
+      sport:
+        description: 'Which pipeline to probe'
+        type: choice
+        options: [cfb, nfl, both]
+        default: both
+      cfb_tag:
+        description: 'Gamma tag slug for college football (try college-football, ncaaf)'
+        required: false
+        default: 'cfb'
+      nfl_tag:
+        description: 'Gamma tag slug for the NFL'
+        required: false
+        default: 'nfl'
+permissions:
+  contents: read
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.txt
+      - name: Probe Polymarket
+        env:
+          DEGEN_POLYMARKET_CFB_TAG: ${{ inputs.cfb_tag }}
+          DEGEN_POLYMARKET_NFL_TAG: ${{ inputs.nfl_tag }}
+        run: |
+          set -o pipefail
+          : > /tmp/pm.txt
+          for s in cfb nfl; do
+            if [ "${{ inputs.sport }}" = "both" ] || [ "${{ inputs.sport }}" = "$s" ]; then
+              echo "===== $s =====" >> /tmp/pm.txt
+              python -m "$s.sources.polymarket" --discover 2>&1 | tee -a /tmp/pm.txt || true
+            fi
+          done
+          # What tags exist at all, so a wrong slug is one glance away from being fixed.
+          # Kept to a single line: a multi-line `python -c` does not survive a YAML block
+          # scalar, and an indented heredoc terminator does not survive bash.
+          echo "===== available tags =====" >> /tmp/pm.txt
+          python -c "import json,urllib.request as u; t=json.load(u.urlopen('https://gamma-api.polymarket.com/tags?limit=500',timeout=25)); t=t if isinstance(t,list) else t.get('data',[]); k=('football','nfl','ncaa','cfb','college'); h=[x for x in t if any(w in str(x.get('slug','')).lower() or w in str(x.get('label','')).lower() for w in k)]; [print('  %-32s %s'%(x.get('slug'),x.get('label'))) for x in h[:60]]; print('  (%d football-ish of %d tags)'%(len(h),len(t)))" >> /tmp/pm.txt 2>&1 || true
+          {
+            echo "## Polymarket shape discovery"
+            echo
+            echo '```'
+            cat /tmp/pm.txt
+            echo '```'
+            echo
+            echo "### What to do with this"
+            echo
+            echo "| If the output shows | Then |"
+            echo "|---|---|"
+            echo "| \`N open markets\` and \`parsed:\` rows with sensible teams, dates and strikes | Nothing. The readers are right. |"
+            echo "| \`0 open markets\` but football tags listed below | Set \`DEGEN_POLYMARKET_CFB_TAG\` / \`DEGEN_POLYMARKET_NFL_TAG\` to a slug that exists. |"
+            echo "| \`sportsMarketType breakdown: {'None': N}\` | The market-type field is named something else. Take the key list printed under \`first market's keys\` and add the real spelling to \`MARKET_TYPES\` / \`_kind_of\`. |"
+            echo "| markets returned but \`none parsed\` | The readers need the real field names -- again, use \`first market's keys\`. |"
+            echo "| No \`spread\`/\`total\` markets for college football | Expected risk. CFB ladder depth on Polymarket is the one thing this repo could not verify; moneyline alone still works. |"
+            echo "| \`tradeable\` False everywhere with asks present | The liquidity gate is too strict for Polymarket's depth units -- tune \`DEGEN_PM_MIN_SIZE\` / \`DEGEN_PM_MIN_VOLUME\`. |"
+            echo
+            echo "Two things worth reading carefully:"
+            echo
+            echo "1. **\`fee coefficient in use\`** against what \`/fee-rate-bps\` reports. Their docs and"
+            echo "   that endpoint have disagreed per sport (Polymarket/py-clob-client#326), and the"
+            echo "   coefficient feeds EV, ROI and every Kelly stake. Set \`DEGEN_VENUES=kalshi\` until"
+            echo "   you are happy with it if it looks wrong."
+            echo "2. **The \`date\`** on a parsed row is the **ET calendar date**, not the UTC one. A"
+            echo "   Saturday 8pm ET kickoff is 00:00 UTC Sunday; if the dates look a day late the"
+            echo "   timezone conversion is the thing to check, and nothing will match the board."
+            echo
+            echo "Repo variables live under **Settings -> Secrets and variables -> Actions -> Variables**:"
+            echo
+            echo "| Variable | Default | Purpose |"
+            echo "|---|---|---|"
+            echo "| \`DEGEN_VENUES\` | *(blank = all)* | \`kalshi\`, \`polymarket\`, or \`kalshi,polymarket\` |"
+            echo "| \`DEGEN_POLYMARKET_CFB_TAG\` | \`cfb\` | Gamma tag slug for college football |"
+            echo "| \`DEGEN_POLYMARKET_NFL_TAG\` | \`nfl\` | Gamma tag slug for the NFL |"
+            echo "| \`DEGEN_PM_MIN_SIZE\` | \`100\` | USDC at the best ask before a market is tradeable |"
+            echo "| \`DEGEN_PM_MIN_VOLUME\` | \`1000\` | USDC traded before a market is tradeable |"
+            echo "| \`DEGEN_PM_MAX_SPREAD\` | \`0.06\` | Widest bid/ask that still counts as a quote |"
+          } >> "$GITHUB_STEP_SUMMARY"

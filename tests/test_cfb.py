@@ -22,6 +22,9 @@ def env(tmp_path_factory):
     os.environ["DEGEN_DOCS"] = str(root / "docs")
     os.environ["DEGEN_FIRST_SEASON"] = "2022"
     os.environ["CFBD_API_KEY"] = "test"
+    # Every suite here is offline. Pinning the venue list keeps the exchange tests
+    # exercising the venue they monkeypatch instead of reaching for the other one.
+    os.environ["DEGEN_VENUES"] = "kalshi"
     import importlib
     from cfb import config
     importlib.reload(config)
@@ -739,13 +742,14 @@ def test_moneyline_probability_belongs_to_the_side_that_won(env, monkeypatch):
         {"date": today, "home_team": "Team 001", "away_team": "Team 002", "team": "Team 002",
          "yes_ask": 0.95, "ticker": "A", "tradeable": True, "quote_spread": 0.02},
     ])
+    monkeypatch.setenv("DEGEN_VENUES", "kalshi")
     monkeypatch.setattr(kalshi, "moneyline_board", lambda *a, **k: board)
     monkeypatch.setattr(P.odds, "build_matcher", lambda *a, **k: object())
 
     out = pd.DataFrame([{"date": today, "home_team": "Team 001", "away_team": "Team 002",
                          "p_home_win": 0.70, "p_away_win": 0.30, "thin_data": False}])
     sp = _sp_table(["Team 001", "Team 002"], [env.season_of(today)])
-    got = P._attach_kalshi(out, pd.DataFrame(), sp).iloc[0]
+    got = P._attach_moneyline(out, pd.DataFrame(), sp).iloc[0]
 
     # home is the better buy at 40c against a 70% model, so home must be the side taken
     assert got["ml_ref_side"] == "Team 001"
@@ -766,3 +770,184 @@ def test_missing_completed_field_falls_back_to_the_score(env, monkeypatch):
     monkeypatch.setattr(cfbd, "get_json", lambda *a, **k: payload)
     got = cfbd.fetch_games(2024, season_type="regular")
     assert bool(got["completed"].iloc[0])
+
+
+# --------------------------------------------------------------------------------------
+# Two venues. Gamma payloads below are in the shape Polymarket's docs describe - notably
+# the stringified-JSON-inside-JSON arrays - and are the fixture the parser is written to.
+# Confirm against the live API with `python -m cfb.sources.polymarket --discover`.
+# --------------------------------------------------------------------------------------
+PM_MONEYLINE = [{
+    "id": "512", "conditionId": "0xcond-ml", "eventSlug": "cfb-syr-pitt-2026-09-17",
+    "question": "Syracuse vs. Pittsburgh", "sportsMarketType": "moneyline",
+    "gameStartTime": "2026-09-17T23:30:00Z",
+    "outcomes": "[\"Syracuse\", \"Pittsburgh\"]",
+    "outcomePrices": "[\"0.42\", \"0.58\"]",
+    "clobTokenIds": "[\"tok-syr\", \"tok-pitt\"]",
+    "volumeNum": 250000, "liquidityNum": 40000,
+}]
+
+PM_TOTAL = [{
+    "id": "513", "conditionId": "0xcond-tot", "eventSlug": "cfb-syr-pitt-2026-09-17",
+    "question": "Syracuse vs. Pittsburgh", "groupItemTitle": "Over 55.5",
+    "sportsMarketType": "totals", "line": 55.5,
+    "gameStartTime": "2026-09-17T23:30:00Z",
+    "outcomes": "[\"Over\", \"Under\"]",
+    "clobTokenIds": "[\"tok-over\", \"tok-under\"]",
+    "volumeNum": 120000, "liquidityNum": 30000,
+}]
+
+
+def _pm_book(token, bid, ask, size=5000.0):
+    return {"asset_id": token,
+            "bids": [{"price": str(bid), "size": str(size)}],
+            "asks": [{"price": str(ask), "size": str(size)}]}
+
+
+def test_polymarket_parses_the_documented_gamma_shape(env, monkeypatch):
+    from cfb.sources import polymarket as pm
+
+    monkeypatch.setattr(pm, "fetch_markets", lambda *a, **k: PM_MONEYLINE)
+    monkeypatch.setattr(pm, "fetch_books", lambda ids: {
+        "tok-syr": _pm_book("tok-syr", 0.40, 0.42),
+        "tok-pitt": _pm_book("tok-pitt", 0.56, 0.58)})
+    df = pm.moneyline_board().set_index("pm_team")
+
+    assert set(df.index) == {"Syracuse", "Pittsburgh"}
+    # away-first phrasing, and the ET calendar date rather than the UTC one: a 7:30pm ET
+    # Thursday kickoff is 23:30 UTC the same day, but a 8pm ET Saturday is 00:00 UTC Sunday
+    assert df.loc["Syracuse", "away_raw"] == "Syracuse"
+    assert df.loc["Syracuse", "home_raw"] == "Pittsburgh"
+    assert df.loc["Syracuse", "date"] == date(2026, 9, 17)
+    assert df.loc["Syracuse", "yes_ask"] == pytest.approx(0.42)
+    assert bool(df.loc["Syracuse", "tradeable"])
+
+
+def test_polymarket_late_night_kickoff_keeps_the_et_date(env, monkeypatch):
+    """00:30 UTC Sunday is Saturday night in ET. Keying on the UTC date would file the game
+    a day late and it would match nothing on the board."""
+    from cfb.sources import polymarket as pm
+
+    late = [{**PM_MONEYLINE[0], "gameStartTime": "2026-09-20T00:30:00Z"}]
+    monkeypatch.setattr(pm, "fetch_markets", lambda *a, **k: late)
+    monkeypatch.setattr(pm, "fetch_books", lambda ids: {})
+    assert pm.moneyline_board()["date"].iloc[0] == date(2026, 9, 19)
+
+
+def test_polymarket_without_a_confirmed_ask_is_not_tradeable(env, monkeypatch):
+    """Gamma's outcomePrices is a mid. This module must never treat one as something you can
+    pay - an unverified shape has to cost visibility, not produce a phantom edge."""
+    from cfb.sources import polymarket as pm
+
+    bare = [{k: v for k, v in PM_MONEYLINE[0].items()}]
+    monkeypatch.setattr(pm, "fetch_markets", lambda *a, **k: bare)
+    monkeypatch.setattr(pm, "fetch_books", lambda ids: {})     # CLOB unreachable
+    df = pm.moneyline_board()
+    assert not df["tradeable"].any()
+    assert df["yes_ask"].isna().all()
+
+
+def test_polymarket_ladder_prices_only_the_above_side(env, monkeypatch):
+    from cfb.sources import polymarket as pm
+
+    monkeypatch.setattr(pm, "fetch_markets", lambda *a, **k: PM_TOTAL)
+    monkeypatch.setattr(pm, "fetch_books", lambda ids: {
+        "tok-over": _pm_book("tok-over", 0.48, 0.51),
+        "tok-under": _pm_book("tok-under", 0.47, 0.50)})
+    df = pm.ladder_board("total")
+    # "Under" is 1 - P(Over); pricing both would double-count the same game
+    assert len(df) == 1
+    assert df["strike"].iloc[0] == pytest.approx(55.5)
+    assert df["yes_ask"].iloc[0] == pytest.approx(0.51)
+
+
+def test_the_cheaper_venue_wins_the_moneyline(env, monkeypatch):
+    """The whole point of running both. Same side, same model probability, two asks - the
+    published pick must be the one that is actually cheaper after ITS OWN fee."""
+    from cfb import predict as P
+    from cfb.sources import kalshi, polymarket as pm, venues
+
+    monkeypatch.setenv("DEGEN_VENUES", "kalshi,polymarket")
+    today = env.today_et()
+    row = dict(date=today, home_team="Team 001", away_team="Team 002",
+               quote_spread=0.02, tradeable=True, event_ticker="E", yes_bid=0.40)
+    monkeypatch.setattr(kalshi, "moneyline_board", lambda *a, **k: pd.DataFrame([
+        {**row, "team": "Team 001", "yes_ask": 0.55, "ticker": "K-H"}]))
+    monkeypatch.setattr(pm, "moneyline_board", lambda *a, **k: pd.DataFrame([
+        {**row, "team": "Team 001", "yes_ask": 0.50, "ticker": "P-H"}]))
+    monkeypatch.setattr(P.odds, "build_matcher", lambda *a, **k: object())
+
+    out = pd.DataFrame([{"date": today, "home_team": "Team 001", "away_team": "Team 002",
+                         "p_home_win": 0.70, "p_away_win": 0.30, "thin_data": False}])
+    got = P._attach_moneyline(out, pd.DataFrame(), _sp_table(
+        ["Team 001", "Team 002"], [env.season_of(today)])).iloc[0]
+
+    assert got["ml_venue"] == "polymarket", "50c beats 55c"
+    assert got["ml_ref_ask"] == pytest.approx(0.50)
+    # both books' asks stay in the row, so the comparison is auditable
+    assert got["kalshi_home_ask"] == pytest.approx(0.55)
+    assert got["pm_home_ask"] == pytest.approx(0.50)
+    assert got["ml_ask_gap_c"] == pytest.approx(5.0)
+    # and the EV is computed at Polymarket's 0.05 coefficient, not Kalshi's 0.07
+    assert got["ml_ref_ev"] == pytest.approx(venues.contract_ev(0.70, 0.50, "polymarket")[0], abs=1e-4)
+
+
+def test_a_venues_fee_is_never_charged_at_the_other_venues_rate(env):
+    """The silent-mispricing guard. A global VENUE made every quote cost 0.07 * p * (1-p)
+    whichever book it came from; at the money that overstates a Polymarket ask by ~0.5c,
+    which is enough to hand the pick to the wrong exchange."""
+    from cfb.sources import venues
+
+    k_fee = venues.fee(0.50, "kalshi")
+    p_fee = venues.fee(0.50, "polymarket")
+    assert k_fee == pytest.approx(0.0175)
+    assert p_fee == pytest.approx(0.0125)
+    assert venues.contract_ev(0.6, 0.5, "polymarket")[0] > venues.contract_ev(0.6, 0.5, "kalshi")[0]
+    # an unrecognised venue must fail expensive, never free
+    assert venues.fee_coef("mystery-exchange") == max(
+        v for v in env.FEE_COEF.values() if v is not None)
+
+
+def test_a_dead_venue_does_not_take_the_run_down(env, monkeypatch):
+    from cfb.sources import kalshi, polymarket as pm, venues
+
+    monkeypatch.setenv("DEGEN_VENUES", "kalshi,polymarket")
+    today = env.today_et()
+    good = pd.DataFrame([{"date": today, "home_team": "H", "away_team": "A", "team": "H",
+                          "ticker": "K", "yes_ask": 0.5, "quote_spread": 0.01,
+                          "tradeable": True}])
+    monkeypatch.setattr(kalshi, "moneyline_board", lambda *a, **k: good)
+    monkeypatch.setattr(pm, "moneyline_board",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("502 Bad Gateway")))
+    board = venues.moneyline_board()
+    assert list(board["venue"].unique()) == ["kalshi"]
+    assert len(board) == 1
+
+
+def test_a_venue_missing_a_required_column_is_dropped_not_half_merged(env, monkeypatch):
+    from cfb.sources import kalshi, polymarket as pm, venues
+
+    monkeypatch.setenv("DEGEN_VENUES", "kalshi,polymarket")
+    today = env.today_et()
+    full = pd.DataFrame([{"date": today, "home_team": "H", "away_team": "A", "team": "H",
+                          "ticker": "K", "yes_ask": 0.5, "quote_spread": 0.01,
+                          "tradeable": True}])
+    monkeypatch.setattr(kalshi, "moneyline_board", lambda *a, **k: full)
+    monkeypatch.setattr(pm, "moneyline_board",
+                        lambda *a, **k: full.drop(columns=["yes_ask"]))
+    board = venues.moneyline_board()
+    assert list(board["venue"].unique()) == ["kalshi"], \
+        "a venue that cannot price must be dropped, not merged as NaN"
+
+
+def test_venue_list_is_configurable_and_rejects_nonsense(env, monkeypatch):
+    from cfb.sources import venues
+
+    monkeypatch.setenv("DEGEN_VENUES", "polymarket")
+    assert venues.enabled() == ("polymarket",)
+    monkeypatch.setenv("DEGEN_VENUES", "kalshi, polymarket")
+    assert venues.enabled() == ("kalshi", "polymarket")
+    monkeypatch.setenv("DEGEN_VENUES", "")            # blank, as an unset CI variable arrives
+    assert venues.enabled() == venues.DEFAULT_VENUES
+    monkeypatch.setenv("DEGEN_VENUES", "betfair")     # unknown falls back rather than crashing
+    assert venues.enabled() == venues.DEFAULT_VENUES

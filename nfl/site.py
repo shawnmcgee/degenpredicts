@@ -22,14 +22,28 @@ log = logging.getLogger("nfl.site")
 TEMPLATES = Path(__file__).resolve().parent / "templates"  # ships with the package
 
 
-def _mult(ask, prob):
+VENUE_LABELS = {"kalshi": "Kalshi", "polymarket": "Polymarket"}
+
+
+def _venues_enabled() -> tuple[str, ...]:
+    from .sources.venues import enabled
+    return enabled()
+
+
+def _venue_label(v) -> str:
+    """Which exchange a quote came from, for the card. Blank rather than "None" when unknown -
+    a row published before the second venue existed simply does not say."""
+    return VENUE_LABELS.get(str(v), "") if v and str(v) != "nan" else ""
+
+
+def _mult(ask, prob, venue=None):
     """Turn an exchange ask into what a punter actually reads: a payout multiple.
 
     You pay `ask` plus the taker fee for a contract that settles at $1, so the return per unit
     risked is 1/(ask+fee). "Fair" is 1/prob - what the multiple would have to be for the bet to
     break even at our estimated probability. Edge is the ratio, i.e. the ROI.
     """
-    from .sources.kalshi import fee
+    from .sources.venues import fee
     try:
         ask = float(ask)
         prob = float(prob)
@@ -37,7 +51,7 @@ def _mult(ask, prob):
         return None, None, None
     if not (0 < ask < 1) or not (0 < prob < 1):
         return None, None, None
-    cost = ask + fee(ask)
+    cost = ask + fee(ask, venue)
     if cost <= 0 or cost >= 1:
         return None, None, None
     return round(1.0 / cost, 2), round(1.0 / prob, 2), round(100 * (prob / cost - 1), 1)
@@ -143,10 +157,14 @@ def _board() -> tuple[list[dict], int | None]:
             prob = df[ref_prob] if prob is None else prob.fillna(df[ref_prob])
         if ask is None or prob is None:
             continue
-        trio = [_mult(a, p) for a, p in zip(ask, prob)]
+        # which exchange quoted it decides the fee, and therefore what it pays
+        vcol = f"{pre}_ref_venue" if f"{pre}_ref_venue" in df else "ml_venue"
+        vs = df[vcol] if vcol in df else [None] * len(df)
+        trio = [_mult(a, p, v) for a, p, v in zip(ask, prob, vs)]
         df[f"{pre}_pays"] = [t[0] for t in trio]
         df[f"{pre}_fair"] = [t[1] for t in trio]
         df[f"{pre}_edge"] = [t[2] for t in trio]
+        df[f"{pre}_venue_label"] = [_venue_label(v) for v in vs]
 
     df["day"] = pd.to_datetime(df["date"]).dt.strftime("%a %b %-d")
     df["day_key"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
@@ -259,7 +277,11 @@ def build() -> None:
     metrics = _metrics()
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, m=metrics, week=week,
-        results=_recent_results(), venue=config.VENUE, model=_model_note(),
+        results=_recent_results(), venue=config.VENUE,
+        # Credit the exchanges actually read this run rather than a hardcoded list: a venue
+        # that is disabled, unreachable, or whose shapes have changed contributes nothing, and
+        # naming it in the footer anyway would overstate where the numbers came from.
+        venue_names=[VENUE_LABELS.get(v, v) for v in _venues_enabled()], model=_model_note(),
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL,
         days=_days(picks), updated=metrics.get("updated", ""),
         backtest=_backtest_buckets(),

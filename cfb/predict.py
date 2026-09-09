@@ -21,7 +21,7 @@ from scipy.stats import norm
 from . import config
 from .features import (BASE_FEATURES, MARKET_FEATURES, build, fbs_membership,
                        fbs_teams, is_fbs_game)
-from .sources import cfbd, kalshi, odds
+from .sources import cfbd, odds, venues
 from .train import load_models
 
 log = logging.getLogger("cfb.predict")
@@ -223,7 +223,7 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         sig = out["margin_sigma"].replace(0, np.nan)
         out["p_home_win"] = np.round(norm.cdf(out["margin_pred"] / sig), 4)
         out["p_away_win"] = (1 - out["p_home_win"]).round(4)
-        out = _attach_kalshi(out, games, sp)
+        out = _attach_moneyline(out, games, sp)
         out = _price_ladders(out, games, sp)
 
     out["prediction_date"] = str(today)
@@ -285,70 +285,95 @@ def _carry_first_seen(prev: pd.DataFrame, out: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame,
-                   sp: pd.DataFrame | None = None) -> pd.DataFrame:
-    """Join live Kalshi moneyline quotes and price our probability against the actual ask.
+def _attach_moneyline(out: pd.DataFrame, games: pd.DataFrame,
+                      sp: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Join live exchange moneyline quotes and price our probability against the actual ask.
+
+    Every enabled venue is read (see `sources/venues.py`) and each game keeps both books'
+    asks - `kalshi_*_ask` and `pm_*_ask` - so the comparison is visible in the CSV rather than
+    collapsed. The published pick is the best EV across venues and sides, tagged with
+    `ml_venue`, and `ml_ask_gap_c` records what the other exchange wanted for the same side.
 
     We compare against the **ask**, never the mid. Games listed early can quote absurdly wide
     (0.08 x 0.81 two weeks out, zero volume); an edge measured off that mid is fiction.
-    `kalshi_tradeable` folds together quote width, resting size and traded volume.
+    `kalshi_tradeable` folds together quote width, resting size and traded volume, and keeps
+    its historic name because `results.csv` has been grading against it since week 1.
     """
     # numeric and text columns need different dtypes up front, or assigning a team name into a
     # float64 column raises on pandas >= 2.2
-    for c in ("kalshi_home_ask", "kalshi_away_ask", "kalshi_home_ev", "kalshi_away_ev",
-              "kalshi_spread_c"):
-        out[c] = np.nan
+    for venue in ("kalshi", "pm"):
+        for c in (f"{venue}_home_ask", f"{venue}_away_ask",
+                  f"{venue}_home_ev", f"{venue}_away_ev", f"{venue}_spread_c"):
+            out[c] = np.nan
     for c in ("kalshi_side", "kalshi_ticker"):
         out[c] = pd.Series([None] * len(out), index=out.index, dtype="object")
     out["kalshi_tradeable"] = False
     # fields the site template renders
     out["ml_pick"] = pd.Series([None] * len(out), index=out.index, dtype="object")
     for c in ("ml_ask", "ml_p_home", "ml_ev", "ml_roi", "ml_stake", "ml_model_cents",
-              "ml_ref_ask", "ml_ref_prob", "ml_ref_ev"):
+              "ml_ref_ask", "ml_ref_prob", "ml_ref_ev", "ml_ask_gap_c"):
         out[c] = np.nan
-    out["ml_ref_side"] = pd.Series([None] * len(out), index=out.index, dtype="object")
+    for c in ("ml_ref_side", "ml_venue"):
+        out[c] = pd.Series([None] * len(out), index=out.index, dtype="object")
     try:
         matcher = odds.build_matcher(sorted(fbs_teams(games, config.season_of(config.today_et()), sp)))
-        board = kalshi.moneyline_board(matcher)
+        board = venues.moneyline_board(matcher)
     except Exception as e:                    # a third-party outage must not kill the run
-        log.warning("kalshi unavailable (%s) - continuing without exchange prices", e)
+        log.warning("exchanges unavailable (%s) - continuing without exchange prices", e)
         return out
     if board.empty:
         return out
 
-    idx = {(r.date, r.home_team, r.away_team, r.team): r for r in board.itertuples()}
+    # (venue, date, home, away, team) -> quote. Two venues quote the same event, so the venue
+    # is part of the key rather than something to resolve later.
+    idx = {(r.venue, r.date, r.home_team, r.away_team, r.team): r for r in board.itertuples()}
+    seen = sorted({r.venue for r in board.itertuples()})
     hits = 0
     for i, g in out.iterrows():
         key = (g["date"], g["home_team"], g["away_team"])
-        h = idx.get((*key, g["home_team"]))
-        a = idx.get((*key, g["away_team"]))
-        if h is None and a is None:
+        quotes = {(v, side): idx.get((v, *key, g[f"{side}_team"]))
+                  for v in seen for side in ("home", "away")}
+        if not any(q is not None for q in quotes.values()):
             continue
         hits += 1
         best_ev, best = -np.inf, None
-        for side, rec, prob in (("home", h, g.get("p_home_win")),
-                                ("away", a, g.get("p_away_win"))):
+        asks: dict[str, dict[str, float]] = {}
+        for (venue, side), rec in quotes.items():
             if rec is None:
                 continue
-            out.at[i, f"kalshi_{side}_ask"] = rec.yes_ask
-            ev, _ = kalshi.contract_ev(prob, rec.yes_ask)
+            prob = g.get(f"p_{side}_win")
+            col = "kalshi" if venue == "kalshi" else "pm"
+            out.at[i, f"{col}_{side}_ask"] = rec.yes_ask
+            # The fee coefficient travels with the venue. Pricing a Polymarket ask at Kalshi's
+            # rate overstates its cost by ~0.5c at the money, which is enough to hand the pick
+            # to the wrong exchange.
+            ev, _ = venues.contract_ev(prob, rec.yes_ask, venue)
             if ev == ev:
-                out.at[i, f"kalshi_{side}_ev"] = round(ev, 4)
+                out.at[i, f"{col}_{side}_ev"] = round(ev, 4)
+                asks.setdefault(side, {})[venue] = rec.yes_ask
                 if ev > best_ev:
-                    # `prob` travels WITH the side. Capturing only (side, rec) left `prob` and
-                    # `ev` holding whatever the final loop iteration set them to, so picking
-                    # home wrote the home ask beside the AWAY probability - and then applied
-                    # the 0.20-0.80 playability band to the wrong side of the game.
-                    best_ev, best = ev, (side, rec, prob)
+                    # `prob` and the venue both travel WITH the choice. Capturing only
+                    # (side, rec) once left `prob` holding the final iteration's value, so
+                    # picking home wrote the home ask beside the AWAY probability.
+                    best_ev, best = ev, (venue, side, rec, prob)
         if best:
-            side, rec, prob = best
+            venue, side, rec, prob = best
             team = g[f"{side}_team"]
-            ev, roi = kalshi.contract_ev(prob, rec.yes_ask)
-            out.at[i, "kalshi_side"] = team
+            ev, roi = venues.contract_ev(prob, rec.yes_ask, venue)
+            col = "kalshi" if venue == "kalshi" else "pm"
+            out.at[i, "ml_venue"] = venue
+            out.at[i, "kalshi_side"] = team        # the chosen side, under its historic name
             out.at[i, "kalshi_ticker"] = rec.ticker
             out.at[i, "kalshi_tradeable"] = bool(rec.tradeable)
             if rec.quote_spread == rec.quote_spread:
-                out.at[i, "kalshi_spread_c"] = round(rec.quote_spread * 100, 1)
+                out.at[i, f"{col}_spread_c"] = round(rec.quote_spread * 100, 1)
+            # What the other exchange wanted for the SAME side, in cents. This is the number
+            # that makes running both venues worth it: a persistent gap is either a real
+            # arbitrage or a warning that one book's quote is stale.
+            same_side = asks.get(side, {})
+            if len(same_side) > 1:
+                out.at[i, "ml_ask_gap_c"] = round(
+                    (max(same_side.values()) - min(same_side.values())) * 100, 1)
             out.at[i, "ml_p_home"] = g.get("p_home_win")
             out.at[i, "ml_ref_ask"] = rec.yes_ask
             out.at[i, "ml_ref_prob"] = round(prob, 4) if prob == prob else np.nan
@@ -356,12 +381,14 @@ def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame,
             out.at[i, "ml_ref_side"] = team
             # Only surface a playable moneyline where the book is genuinely tradeable and the
             # edge survives the fee. Everything else stays visible in the raw CSV but off the
-            # site, because an edge against an untraded 81c ask is not an edge.
+            # site, because an edge against an untraded 81c ask is not an edge. With two venues
+            # this gate does MORE work, not less: the cheapest ask across two books is often
+            # cheapest because it is stale.
             if (rec.tradeable and ev == ev and ev >= config.KALSHI_MIN_EV
                     and not bool(g.get("thin_data", False))
                     and prob == prob
                     and config.KALSHI_PROB_MIN <= prob <= config.KALSHI_PROB_MAX):
-                cost = rec.yes_ask + kalshi.fee(rec.yes_ask)
+                cost = rec.yes_ask + venues.fee(rec.yes_ask, venue)
                 payout = (1 - cost) / cost if 0 < cost < 1 else 0.0
                 out.at[i, "ml_pick"] = f"{team} to win"
                 out.at[i, "ml_ask"] = rec.yes_ask
@@ -369,21 +396,38 @@ def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame,
                 out.at[i, "ml_roi"] = round(roi, 4)
                 out.at[i, "ml_stake"] = round(kelly(prob, payout) * config.BANKROLL_UNITS, 2)
                 out.at[i, "ml_model_cents"] = int(round(prob * 100))
-    log.info("kalshi: matched %d/%d board games", hits, len(out))
+    log.info("exchanges (%s): matched %d/%d board games", ", ".join(seen), hits, len(out))
+    gaps = out["ml_ask_gap_c"].dropna()
+    if len(gaps):
+        log.info("cross-venue ask gap on the chosen side: median %.1fc, max %.1fc over %d games",
+                 float(gaps.median()), float(gaps.max()), len(gaps))
     if hits < len(out):
         # Report the names the matcher could not resolve, i.e. the raw feed spellings - those
         # are what need a mapping rule, not our own canonical names.
         stuck = sorted(getattr(matcher, "unmatched", set()))
         if stuck:
-            log.warning("kalshi names the matcher could not resolve (%d): %s",
+            log.warning("exchange names the matcher could not resolve (%d): %s",
                         len(stuck), stuck[:40])
         else:
-            log.info("kalshi: %d board games had no listed market (likely FCS or not yet posted)",
+            log.info("%d board games had no listed market (likely FCS or not yet posted)",
                      len(out) - hits)
     return out
 
 
-def _multiplier(ask, prob):
+def _nearest(rungs: pd.DataFrame, target: float) -> pd.Series:
+    """The rung closest to `target`, preferring a tradeable one.
+
+    With two venues quoting the same ladder there are now two rungs equally near the book
+    number, and "whichever sorted first" would silently prefer one exchange. A quote you can
+    actually pay is the better reference, and ties fall to the venue order in `venues.enabled`.
+    """
+    d = (rungs["strike"] - target).abs()
+    if "tradeable" in rungs.columns:
+        d = d + (~rungs["tradeable"].astype(bool)) * 1000.0
+    return rungs.iloc[d.argsort().iloc[0]]
+
+
+def _multiplier(ask, prob, venue=None):
     """What the contract pays per unit risked, and what it *should* pay.
 
     Buying YES costs ask + fee and returns 1.00, so the payout multiple is 1/(ask+fee). The
@@ -391,13 +435,7 @@ def _multiplier(ask, prob):
     the ratio between them is exactly the ROI - it's the same number as EV/cost, just in a
     form that reads like odds instead of cents.
     """
-    if ask is None or ask != ask or ask <= 0:
-        return np.nan, np.nan, np.nan
-    cost = ask + kalshi.fee(ask)
-    pays = 1.0 / cost if cost > 0 else np.nan
-    fair = 1.0 / prob if prob and prob == prob and prob > 0 else np.nan
-    edge = (pays / fair - 1.0) * 100 if pays == pays and fair == fair else np.nan
-    return round(pays, 3), round(fair, 3), round(edge, 1)
+    return venues.multiplier(ask, prob, venue)
 
 
 def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
@@ -421,7 +459,8 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
                 # whether or not it is playable, so the exchange price is always visible
                 "kt_ref_strike", "kt_ref_ask", "kt_ref_prob", "kt_ref_ev", "kt_ref_spread_c",
                 "ks_ref_strike", "ks_ref_ask", "ks_ref_prob", "ks_ref_ev", "ks_ref_spread_c"]
-    text_cols = text_cols + ["ks_ref_side"]
+    text_cols = text_cols + ["ks_ref_side", "kt_venue", "ks_venue",
+                             "kt_ref_venue", "ks_ref_venue"]
     for c in text_cols:
         out[c] = pd.Series([None] * len(out), index=out.index, dtype="object")
     out["kt_ref_tradeable"] = False
@@ -432,16 +471,18 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
 
     try:
         matcher = odds.build_matcher(sorted(fbs_teams(games, config.season_of(config.today_et()), sp)))
-        tot = kalshi.ladder_board("total", matcher)
-        spr = kalshi.ladder_board("spread", matcher)
+        tot = venues.ladder_board("total", matcher)
+        spr = venues.ladder_board("spread", matcher)
     except Exception as e:
-        log.warning("kalshi ladders unavailable (%s)", e)
+        log.warning("exchange ladders unavailable (%s)", e)
         return out
 
+    # Incoherence is per (venue, event): one venue's ladder contradicting itself says nothing
+    # about the other's, so a break must not poison a rung we took from a different exchange.
     breaks = set()
     for lad in (tot, spr):
         if len(lad):
-            breaks |= {b["event_ticker"] for b in kalshi.monotonicity_breaks(lad)}
+            breaks |= {(b["venue"], b["event_ticker"]) for b in venues.monotonicity_breaks(lad)}
 
     for i, g in out.iterrows():
         key = (g["date"], g["home_team"], g["away_team"])
@@ -458,9 +499,10 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
             # Reference quote: the rung closest to the sportsbook total. Always recorded, even
             # when nothing is playable, so the page can show what Kalshi is actually charging.
             if len(rungs) and book_total == book_total:
-                ref = rungs.iloc[(rungs["strike"] - book_total).abs().argsort().iloc[0]]
+                ref = _nearest(rungs, book_total)
                 p_ref = float(norm.sf(ref["strike"], loc=g["total_pred"], scale=g["total_sigma"]))
-                ev_ref, _ = kalshi.contract_ev(p_ref, ref["yes_ask"])
+                ev_ref, _ = venues.contract_ev(p_ref, ref["yes_ask"], ref.get("venue"))
+                out.at[i, "kt_ref_venue"] = ref.get("venue")
                 out.at[i, "kt_ref_strike"] = ref["strike"]
                 out.at[i, "kt_ref_ask"] = ref["yes_ask"]
                 out.at[i, "kt_ref_prob"] = round(p_ref, 4)
@@ -481,12 +523,13 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
                     if not (config.KALSHI_PROB_MIN <= prob <= config.KALSHI_PROB_MAX):
                         continue
                     considered += 1
-                    ev, _ = kalshi.contract_ev(prob, ask)
+                    ev, _ = venues.contract_ev(prob, ask, getattr(r, "venue", None))
                     if ev == ev and (best is None or ev > best[0]):
                         best = (ev, r, prob, ask, label)
             out.at[i, "kt_rungs"] = considered
             if best and best[0] >= config.KALSHI_MIN_EV:
                 ev, r, prob, ask, label = best
+                out.at[i, "kt_venue"] = getattr(r, "venue", None)
                 out.at[i, "kt_pick"] = label
                 out.at[i, "kt_strike"] = r.strike
                 out.at[i, "kt_ask"] = round(ask, 2)
@@ -494,7 +537,7 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
                 out.at[i, "kt_ev"] = round(ev, 4)
                 out.at[i, "kt_book_gap"] = round(r.strike - g["total_line"], 1) \
                     if g.get("total_line") == g.get("total_line") else np.nan
-                if r.event_ticker in breaks:
+                if (getattr(r, "venue", None), r.event_ticker) in breaks:
                     out.at[i, "kalshi_incoherent"] = True
 
         # ---- spread ladder -------------------------------------------------------
@@ -503,12 +546,13 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
                         & (spr["away_team"] == key[2])]
             if len(rungs) and g.get("spread_home") == g.get("spread_home"):
                 fav_margin = abs(g["spread_home"])
-                ref = rungs.iloc[(rungs["strike"] - fav_margin).abs().argsort().iloc[0]]
+                ref = _nearest(rungs, fav_margin)
                 if ref["team"] == g["home_team"]:
                     p_ref = float(norm.sf(ref["strike"], loc=g["margin_pred"], scale=g["margin_sigma"]))
                 else:
                     p_ref = float(norm.cdf(-ref["strike"], loc=g["margin_pred"], scale=g["margin_sigma"]))
-                ev_ref, _ = kalshi.contract_ev(p_ref, ref["yes_ask"])
+                ev_ref, _ = venues.contract_ev(p_ref, ref["yes_ask"], ref.get("venue"))
+                out.at[i, "ks_ref_venue"] = ref.get("venue")
                 out.at[i, "ks_ref_side"] = ref["team"]
                 out.at[i, "ks_ref_strike"] = ref["strike"]
                 out.at[i, "ks_ref_ask"] = ref["yes_ask"]
@@ -534,12 +578,13 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
                 if not (config.KALSHI_PROB_MIN <= prob <= config.KALSHI_PROB_MAX):
                     continue
                 considered += 1
-                ev, _ = kalshi.contract_ev(prob, r.yes_ask)
+                ev, _ = venues.contract_ev(prob, r.yes_ask, getattr(r, "venue", None))
                 if ev == ev and (best is None or ev > best[0]):
                     best = (ev, r, prob)
             out.at[i, "ks_rungs"] = considered
             if best and best[0] >= config.KALSHI_MIN_EV:
                 ev, r, prob = best
+                out.at[i, "ks_venue"] = getattr(r, "venue", None)
                 out.at[i, "ks_pick"] = f"{r.team} by over {r.strike}"
                 out.at[i, "ks_strike"] = r.strike
                 out.at[i, "ks_ask"] = r.yes_ask
@@ -551,7 +596,7 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
                 if g.get("spread_home") == g.get("spread_home"):
                     book_fav_margin = -g["spread_home"] if r.team == g["home_team"] else g["spread_home"]
                     out.at[i, "ks_book_gap"] = round(r.strike - book_fav_margin, 1)
-                if r.event_ticker in breaks:
+                if (getattr(r, "venue", None), r.event_ticker) in breaks:
                     out.at[i, "kalshi_incoherent"] = True
 
     for pre in ("kt", "ks", "ml"):
@@ -559,15 +604,18 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
         prob_col = f"{pre}_ref_prob"
         if ask_col not in out or prob_col not in out:
             continue
-        trio = [_multiplier(a, p) for a, p in zip(out[ask_col], out[prob_col])]
+        # the fee, and therefore what the contract pays, depends on which exchange quoted it
+        venue_col = f"{pre}_ref_venue" if f"{pre}_ref_venue" in out else "ml_venue"
+        vs = out[venue_col] if venue_col in out else [None] * len(out)
+        trio = [_multiplier(a, p, v) for a, p, v in zip(out[ask_col], out[prob_col], vs)]
         out[f"{pre}_pays"] = [t[0] for t in trio]
         out[f"{pre}_fair"] = [t[1] for t in trio]
         out[f"{pre}_edge_pct"] = [t[2] for t in trio]
 
-    log.info("kalshi quotes recorded: %d totals, %d spreads (reference rung nearest the book "
+    log.info("exchange quotes recorded: %d totals, %d spreads (reference rung nearest the book "
              "number, shown regardless of playability)",
              int(out["kt_ref_ask"].notna().sum()), int(out["ks_ref_ask"].notna().sum()))
-    log.info("kalshi ladders: %d total picks, %d spread picks "
+    log.info("exchange ladders: %d total picks, %d spread picks "
              "(from %d/%d eligible rungs after guards; min EV %.0fc, prob band %.2f-%.2f)",
              int(out["kt_pick"].notna().sum()), int(out["ks_pick"].notna().sum()),
              int(out["kt_rungs"].fillna(0).sum() + out["ks_rungs"].fillna(0).sum()),

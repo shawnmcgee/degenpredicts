@@ -163,7 +163,7 @@
       {% if g.kt_pays %}
       <div class="exrow">
         <span>{{ g.kt_pick or ('Over ' ~ g.kt_ref_strike) }}</span>
-        <span>pays <b class="mult">{{ '%.2f'|format(g.kt_pays) }}x</b>
+        <span>{% if g.kt_venue_label %}<span style="color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.04em">{{ g.kt_venue_label }}</span> {% endif %}pays <b class="mult">{{ '%.2f'|format(g.kt_pays) }}x</b>
           <span style="color:var(--dim)">fair {{ '%.2f'|format(g.kt_fair) }}x</span>
           <b class="{% if (g.kt_edge or 0) > 0 %}up{% else %}down{% endif %}">{{ '%+.0f'|format(g.kt_edge or 0) }}%</b></span>
       </div>
@@ -171,7 +171,7 @@
       {% if g.ks_pays %}
       <div class="exrow">
         <span>{{ g.ks_pick or ((g.ks_ref_side or '') ~ ' by over ' ~ g.ks_ref_strike) }}</span>
-        <span>pays <b class="mult">{{ '%.2f'|format(g.ks_pays) }}x</b>
+        <span>{% if g.ks_venue_label %}<span style="color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.04em">{{ g.ks_venue_label }}</span> {% endif %}pays <b class="mult">{{ '%.2f'|format(g.ks_pays) }}x</b>
           <span style="color:var(--dim)">fair {{ '%.2f'|format(g.ks_fair) }}x</span>
           <b class="{% if (g.ks_edge or 0) > 0 %}up{% else %}down{% endif %}">{{ '%+.0f'|format(g.ks_edge or 0) }}%</b></span>
       </div>
@@ -179,7 +179,7 @@
       {% if g.ml_pays %}
       <div class="exrow">
         <span>{{ g.ml_pick or ((g.ml_ref_side or '') ~ ' to win') }}</span>
-        <span>pays <b class="mult">{{ '%.2f'|format(g.ml_pays) }}x</b>
+        <span>{% if g.ml_venue_label %}<span style="color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:.04em">{{ g.ml_venue_label }}</span> {% endif %}pays <b class="mult">{{ '%.2f'|format(g.ml_pays) }}x</b>
           <span style="color:var(--dim)">fair {{ '%.2f'|format(g.ml_fair) }}x</span>
           <b class="{% if (g.ml_edge or 0) > 0 %}up{% else %}down{% endif %}">{{ '%+.0f'|format(g.ml_edge or 0) }}%</b></span>
       </div>
@@ -196,8 +196,8 @@
   </div>
   <div class="empty" id="noresults" style="display:none">No games match those filters.</div>
   {% if picks %}
-  <p class="sub" style="margin-top:10px"><b>pays</b> is what a Kalshi contract returns per unit
-    risked after the taker fee. <b>fair</b> is what our model says it should return. Paying more
+  <p class="sub" style="margin-top:10px"><b>pays</b> is what the exchange contract returns per unit
+    risked after that venue's own taker fee. <b>fair</b> is what our model says it should return. Paying more
     than fair is the edge.</p>
   {% endif %}
 </section>
@@ -246,7 +246,7 @@
 </main>
 
 <footer>
-  Data: CollegeFootballData.com &middot; prices via Kalshi.
+  Data: CollegeFootballData.com &middot; prices via {{ venue_names|join(' and ') }}.
   <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
   {% if support_url %}<br><a href="{{ support_url }}" rel="noopener">{{ support_label }}</a>{% endif %}
 </footer>

@@ -23,6 +23,11 @@ jobs:
       # nflverse's numbers and assumes -110 rather than pricing EV against a real book.
       - env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          # Which exchanges to price against. Blank reads both; set the repo
+          # variable to `kalshi` to fall back to one. See the Polymarket discover
+          # workflow before trusting Polymarket quotes.
+          DEGEN_VENUES: ${{ vars.DEGEN_VENUES }}
+          DEGEN_POLYMARKET_NFL_TAG: ${{ vars.DEGEN_POLYMARKET_NFL_TAG }}
           # Kalshi's NFL series tickers, overridable as repo variables (Settings ->
           # Secrets and variables -> Actions -> Variables). Confirm the defaults once with
           # `python -m nfl.sources.kalshi --discover`; leave the variables unset to keep

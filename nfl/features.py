@@ -429,5 +429,13 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
 
 
 def nfl_teams(games: pd.DataFrame, season: int) -> set[str]:
+    """The name list the odds and exchange matchers resolve feed spellings against.
+
+    Returns an empty set rather than raising on a frame with no schedule in it. The callers
+    wrap this in a try/except that logs "exchange unavailable", so a KeyError here used to
+    look like a third-party outage and silently cost every exchange column.
+    """
+    if games is None or not len(games) or "season" not in games.columns:
+        return set()
     m = games["season"].isin([season, season - 1])
     return set(games.loc[m, "home_team"]) | set(games.loc[m, "away_team"])

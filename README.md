@@ -861,6 +861,18 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 
 ## Knobs (repo variables or env vars)
 
+Exchange venues:
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `DEGEN_VENUES` | *(blank = both)* | `kalshi`, `polymarket`, or `kalshi,polymarket` |
+| `DEGEN_POLYMARKET_CFB_TAG` | `cfb` | Gamma tag slug for college football |
+| `DEGEN_POLYMARKET_NFL_TAG` | `nfl` | Gamma tag slug for the NFL |
+| `DEGEN_PM_MAX_SPREAD` | `0.06` | widest bid/ask that still counts as a quote |
+| `DEGEN_PM_MIN_SIZE` | `100` | USDC at the best ask before a market is tradeable |
+| `DEGEN_PM_MIN_VOLUME` | `1000` | USDC traded before a market is tradeable |
+
+
 | Var | Default | Meaning |
 |---|---|---|
 | `DEGEN_TOTAL_EDGE` | 3.5 | min points of edge to publish a totals play |
@@ -974,12 +986,81 @@ Break-even win rate by venue, for a contract priced near 50c:
 |---|---|
 | Sportsbook at −110 | 52.38% |
 | Kalshi taker fee (0.07 formula) | 51.75% |
+| Polymarket sports taker (0.05 formula) | 51.25% |
 | Kalshi maker fee (quarter rate, some series) | 50.44% |
+| Polymarket maker | 50.00% |
 | Zero-fee exchange | 50.00% |
 
 Kalshi's published taker fee is `roundup(0.07 × contracts × P × (1−P))`, which peaks at 1.75c
 per contract at 50c and falls toward the wings. **Verify the current schedule at
 kalshi.com/fee-schedule before sizing anything** — they revise it periodically.
+
+## Two exchanges, not one
+
+Both Kalshi and Polymarket are read on every run, and each game keeps **both** books' asks.
+This turned out to be a small change rather than a rewrite because of a coincidence: the two
+fee schedules have the *same shape*, `coefficient × P × (1−P)`, differing only in the
+coefficient. So the cost model, EV, ROI and Kelly sizing are shared, and the pipeline's five-
+function exchange seam (`moneyline_board`, `ladder_board`, `monotonicity_breaks`,
+`contract_ev`, `fee`) is all that a venue has to implement — see `sources/venues.py`.
+
+**The fee coefficient travels with the quote, not with a global setting.** `fee()` used to read
+one `DEGEN_VENUE`, which was correct with one exchange and a silent mispricing with two:
+charging a Polymarket ask at Kalshi's 0.07 overstates its cost by about half a cent at the
+money, which is enough to hand the pick to the wrong exchange. A test fails if that regresses.
+
+What you get per game:
+
+| Column | Meaning |
+|---|---|
+| `kalshi_home_ask` / `pm_home_ask` | both books' asks, side by side, for the same event |
+| `ml_venue`, `kt_venue`, `ks_venue` | which exchange the published pick came from |
+| `ml_ask_gap_c` | **what the other book wanted for the same side, in cents** |
+
+`ml_ask_gap_c` is the column worth watching. Two independent order books pricing one event is
+the closest thing to a free lunch here: a persistent gap is either genuine arbitrage or a sign
+that one book's quote is stale, and both are more actionable than a model tweak.
+
+Choosing the cheaper of two asks is **not** the winner's curse the ladder guards exist for —
+the model probability is held fixed and only the price varies, so a cheaper ask is genuinely
+better. But a stale quote also looks cheap, and there are now two books' worth of them, so the
+liquidity gate does *more* work than before. Both venues fail closed: no confirmed ask with
+real size behind it means `tradeable` is False. Ladder coherence is checked per venue, so two
+exchanges pricing the same strike differently reads as disagreement rather than as one book
+contradicting itself.
+
+Set `DEGEN_VENUES` to `kalshi` to go back to one exchange; blank reads both. A venue that is
+unreachable or whose shapes have changed contributes nothing and is logged — it cannot take the
+run down, because the exchange columns are a garnish on a pipeline that works without them.
+
+### Polymarket's shapes are unconfirmed — run the discover workflow first
+
+An honest caveat, because it changes how much to trust those columns. `sources/kalshi.py` was
+written against a captured live response. `sources/polymarket.py` was written against
+Polymarket's published API docs **without a live call**, because the environment it was authored
+in could not reach `gamma-api.polymarket.com`. Its field names are expected, not confirmed.
+
+Run **Actions → Polymarket discover** before trusting a Polymarket quote. It probes the live API
+from a GitHub runner, prints the real market shapes and the available tag slugs, and tells you
+what to change if a reader is wrong. Until it passes, the practical effect of a bad guess is
+that Polymarket contributes no quotes and the pipeline runs on Kalshi alone — the module cannot
+invent an edge.
+
+Two things to read carefully in that output:
+
+* **The fee coefficient.** Polymarket's fees are per-category and their docs have disagreed with
+  the CLOB `/fee-rate` endpoint ([py-clob-client#326](https://github.com/Polymarket/py-clob-client/issues/326)).
+  The coefficient feeds EV, ROI and every stake.
+* **The dates.** Games are keyed on the **ET calendar date**. A Saturday 8pm ET kickoff is
+  00:00 UTC Sunday, so keying on UTC would file it a day late and it would match nothing.
+
+The known unknown is **college football ladder depth**. Polymarket lists NFL moneyline, spread
+and totals; whether it carries NCAAF spread and total markets at Kalshi's ~20-rung density is
+the one thing this could not verify. If it does not, `_price_ladders` still works — it just
+scores fewer rungs — and the moneyline path is unaffected.
+
+Polymarket is USDC on Polygon with a different funding and KYC path from Kalshi. That is not a
+code problem, but it decides whether these numbers are actionable for you.
 
 This is not a rounding difference. A 51.9% cover rate loses ~0.9% at −110 and gains ~0.3% at
 Kalshi taker fees. `train.py` computes ROI and "standard errors above break-even" at whatever

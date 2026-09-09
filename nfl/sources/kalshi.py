@@ -199,22 +199,15 @@ def ladder_board(kind: str, matcher=None) -> pd.DataFrame:
 def monotonicity_breaks(ladder: pd.DataFrame) -> list[dict]:
     """Find rungs that contradict each other.
 
-    P(X > 10) can never exceed P(X > 6). When the asks say otherwise, at least one quote is
-    stale or a placeholder. With real liquidity behind it that is either a mispricing or a
-    warning that the whole event's quotes are junk - either way, worth surfacing.
+    P(win by >10) can never exceed P(win by >6). When the asks say otherwise at least one
+    quote is stale, and the whole event's ladder is suspect.
+
+    The check itself is venue-agnostic and lives in `venues`, which groups by venue so that
+    two exchanges quoting the same strike differently reads as cross-venue disagreement rather
+    than as one book contradicting itself.
     """
-    out = []
-    for (ev, team), grp in ladder.groupby(["event_ticker", ladder["team"].fillna("")]):
-        g = grp.dropna(subset=["yes_ask"]).sort_values("strike")
-        asks = g["yes_ask"].tolist()
-        for i in range(len(asks) - 1):
-            if asks[i + 1] > asks[i] + 0.01:      # a higher strike should not cost more
-                out.append({"event_ticker": ev, "team": team or None,
-                            "lower_strike": g["strike"].iloc[i], "lower_ask": asks[i],
-                            "higher_strike": g["strike"].iloc[i + 1], "higher_ask": asks[i + 1]})
-    if out:
-        log.info("kalshi: %d monotonicity breaks across ladders", len(out))
-    return out
+    from . import venues
+    return venues.monotonicity_breaks(ladder)
 
 
 def parse_market(m: dict) -> dict | None:
@@ -262,15 +255,19 @@ def moneyline_board(matcher=None) -> pd.DataFrame:
     return df
 
 
+VENUE = "kalshi"          # the name this venue is known by in `venues.py` and the fee table
+
+
 def fee(price: float, coef: float | None = None) -> float:
     """Kalshi's published taker fee per contract: 0.07 * P * (1-P) (maker is a quarter of it).
 
-    Verify at kalshi.com/fee-schedule - they revise it periodically.
+    Verify at kalshi.com/fee-schedule - they revise it periodically. The maths lives in
+    `venues.fee`, shared with Polymarket because both schedules have this same shape; this
+    wrapper pins the venue so a bare `kalshi.fee(ask)` can never be charged at another
+    exchange's rate.
     """
-    coef = config.FEE_COEF.get(config.VENUE, 0.07) if coef is None else coef
-    if coef is None:
-        return 0.0
-    return coef * price * (1 - price)
+    from . import venues
+    return venues.fee(price, VENUE, coef)
 
 
 def contract_ev(p_win: float, ask: float) -> tuple[float, float]:
@@ -278,10 +275,8 @@ def contract_ev(p_win: float, ask: float) -> tuple[float, float]:
 
     Returns (ev_per_contract, roi_fraction).
     """
-    if p_win is None or p_win != p_win or ask != ask or ask <= 0 or ask >= 1:
-        return float("nan"), float("nan")
-    cost = ask + fee(ask)
-    return p_win - cost, (p_win - cost) / cost
+    from . import venues
+    return venues.contract_ev(p_win, ask, VENUE)
 
 
 def _discover(keyword: str | None = None) -> None:

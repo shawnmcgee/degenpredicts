@@ -194,9 +194,21 @@ KELLY_FRACTION = _env_float("DEGEN_KELLY", 0.125)
 # Same machinery as CFB: sportsbooks bake margin into the price (-110 => 52.38% break-even),
 # exchanges charge an explicit fee instead. Fee schedules change - verify at
 # kalshi.com/fee-schedule before sizing anything.
+# VENUE selects the fee SIDE (taker vs maker) and whether we are pricing an exchange at all.
+# WHICH exchange a given quote came from is a property of the quote - see DEGEN_VENUES below
+# and `sources/venues.py`. Charging a Polymarket ask at Kalshi's 0.07 overstates cost by ~0.5c
+# at the money, enough to flip a marginal pick, so the schedules are kept apart.
 VENUE = os.environ.get("DEGEN_VENUE", "kalshi_taker")
+# Both venues charge coef * P * (1-P) per contract; only the coefficient differs.
+#   Kalshi:     0.07 taker, a quarter of that for a resting order.
+#   Polymarket: 0.05 on sports, 0.00 maker. Per-category, and their docs have disagreed with
+#               the CLOB /fee-rate endpoint (Polymarket/py-clob-client#326), so confirm with
+#               `python -m nfl.sources.polymarket --discover` before sizing anything.
 FEE_COEF = {"sportsbook": None, "kalshi_taker": 0.07, "kalshi_maker": 0.0175,
+            "polymarket_taker": 0.05, "polymarket_maker": 0.0,
             "exchange_zero": 0.0}
+# Which exchanges to read. Blank means all of them; set DEGEN_VENUES=kalshi to go back to one.
+VENUES = os.environ.get("DEGEN_VENUES", "")
 
 
 def break_even_pct(venue: str | None = None, price: float = 0.50) -> float:
