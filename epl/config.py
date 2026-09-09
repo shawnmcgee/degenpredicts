@@ -82,15 +82,31 @@ ODDS_BOOKS = ["Pinnacle", "Betfair", "William Hill", "Bet365", "Unibet", "1xBet"
 # the only thing that bounds it. 8 seconds is far more than a static file host needs to accept
 # a TCP connection and far less than the 45 it was costing.
 HTTP_CONNECT_TIMEOUT = float(os.environ.get("DEGEN_EPL_CONNECT_TIMEOUT", "8"))
+# 15 seconds is already generous for a 30 KB static file. It is deliberately NOT the main
+# defence, though - see PRIMARY_TIME_BUDGET below for why a socket timeout cannot be one.
 HTTP_READ_TIMEOUT = float(os.environ.get("DEGEN_EPL_HTTP_TIMEOUT",
-                                         os.environ.get("DEGEN_HTTP_TIMEOUT", "25")))
+                                         os.environ.get("DEGEN_HTTP_TIMEOUT", "15")))
 HTTP_TIMEOUT = (HTTP_CONNECT_TIMEOUT, HTTP_READ_TIMEOUT)
 HTTP_RETRIES = int(os.environ.get("DEGEN_EPL_HTTP_RETRIES",
-                                  os.environ.get("DEGEN_HTTP_RETRIES", "2")))
+                                  os.environ.get("DEGEN_HTTP_RETRIES", "1")))
 # After this many consecutive failures the primary host is treated as down for the rest of the
 # run and every later fetch goes straight to the mirror. Retrying a host that has already failed
 # twice, once per file, for fifty files, is the difference between a slow run and a stuck one.
 PRIMARY_FAILURE_LIMIT = int(os.environ.get("DEGEN_EPL_PRIMARY_FAILURES", "2"))
+# ...and this many seconds of WASTED wall-clock against the primary host, whichever comes first.
+#
+# This is the bound that actually holds, and the failure count is the weaker of the two. Tuning
+# retry counts and socket timeouts assumes you know HOW a host will fail, and you do not: this
+# one turned out to accept the TCP connection and then stall, so the connect timeout never fired
+# and the read timeout did - three attempts at 25s was 75 seconds per file, not the 24 the
+# connect path would have cost. Worse, `read` in requests is a per-socket-read timeout rather
+# than a deadline for the whole response, so a host trickling one byte at a time can exceed any
+# value of it indefinitely and no retry setting will save you.
+#
+# Wall-clock is invariant to all of that. Thirty seconds of nothing from a static file host is
+# all the evidence needed. Only time from FAILED requests counts, so a merely slow-but-working
+# host is never abandoned.
+PRIMARY_TIME_BUDGET = float(os.environ.get("DEGEN_EPL_PRIMARY_BUDGET", "30"))
 
 # --- data source ---------------------------------------------------------------------
 # football-data.co.uk publishes one CSV per league per season, in a stable layout, carrying
