@@ -105,9 +105,9 @@ OU_LINE = 2.5
 # helpers
 # ---------------------------------------------------------------------------------
 # --- primary-host circuit breaker -------------------------------------------------
-# A first backfill fetches ~50 files. If the primary host is not answering - which from a cloud
-# runner is a real possibility, and looks like a packet-level drop rather than an HTTP error -
-# then retrying it once per file spends the whole retry budget fifty times over. That is what
+# A first backfill fetches ~50 files. If the primary host refuses - which is exactly what
+# football-data.co.uk does from a cloud runner, answering HTTP 503 - then retrying it once per
+# file spends the whole retry budget fifty times over. That is what
 # turned a six-file schema check into a twenty-five minute job and would have made a first
 # retrain a three-hour one.
 #

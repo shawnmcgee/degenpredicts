@@ -77,10 +77,13 @@ ODDS_BOOKS = ["Pinnacle", "Betfair", "William Hill", "Bet365", "Unibet", "1xBet"
 # a 6-file schema check into a 25-minute job and would have made a first retrain a THREE-HOUR
 # one: 5 attempts x 45s plus backoff is 4.1 minutes of dead time per file, spent 50 times over.
 #
-# The connect timeout is the one that matters. A host that refuses or resets answers instantly;
-# a host whose packets are being dropped by a firewall answers never, and the connect timeout is
-# the only thing that bounds it. 8 seconds is far more than a static file host needs to accept
-# a TCP connection and far less than the 45 it was costing.
+# Neither of these is the real defence, and it is worth saying why rather than leaving a reader
+# to tune them. Which timeout fires depends on HOW a host fails, and that is not ours to choose:
+# a dropped-packet host trips the connect timeout, one that accepts and stalls trips the read
+# timeout, and this host does neither - it answers 503 and the retry machinery takes over. Both
+# are short so that each failure path stays bounded, and a test asserts both. What actually
+# bounds the request is respect_retry_after_header=False in http.py; what bounds the run is
+# PRIMARY_TIME_BUDGET below.
 HTTP_CONNECT_TIMEOUT = float(os.environ.get("DEGEN_EPL_CONNECT_TIMEOUT", "8"))
 # 15 seconds is already generous for a 30 KB static file. It is deliberately NOT the main
 # defence, though - see PRIMARY_TIME_BUDGET below for why a socket timeout cannot be one.
@@ -95,32 +98,32 @@ HTTP_RETRIES = int(os.environ.get("DEGEN_EPL_HTTP_RETRIES",
 PRIMARY_FAILURE_LIMIT = int(os.environ.get("DEGEN_EPL_PRIMARY_FAILURES", "2"))
 # ...and this many seconds of WASTED wall-clock against the primary host, whichever comes first.
 #
-# This is the bound that actually holds, and the failure count is the weaker of the two. Tuning
-# retry counts and socket timeouts assumes you know HOW a host will fail, and you do not: this
-# one turned out to accept the TCP connection and then stall, so the connect timeout never fired
-# and the read timeout did - three attempts at 25s was 75 seconds per file, not the 24 the
-# connect path would have cost. Worse, `read` in requests is a per-socket-read timeout rather
-# than a deadline for the whole response, so a host trickling one byte at a time can exceed any
-# value of it indefinitely and no retry setting will save you.
+# Tuning retry counts and socket timeouts assumes you know HOW a host will fail, and you do not.
+# This one was misdiagnosed twice - first as a packet drop, then as a stall - before a job ran
+# long enough to log it. It answers HTTP 503, which is in the retry list, and a 503 may carry
+# Retry-After, which urllib3 honours by default and which backoff_max does NOT cap. One file
+# fetch was parked for 288 seconds.
 #
-# Wall-clock is invariant to all of that. Thirty seconds of nothing from a static file host is
-# all the evidence needed. Only time from FAILED requests counts, so a merely slow-but-working
-# host is never abandoned.
+# Wall-clock is invariant to all of that, which is why it is here. Note what it can and cannot
+# do: it is checked AFTER a request returns, so it bounds the run, not the request - it cannot
+# interrupt one already asleep. `respect_retry_after_header=False` in http.py is what bounds the
+# request. Only time from FAILED requests counts, so a merely slow-but-working host is never
+# abandoned.
 PRIMARY_TIME_BUDGET = float(os.environ.get("DEGEN_EPL_PRIMARY_BUDGET", "30"))
 
 # --- data source ---------------------------------------------------------------------
-# football-data.co.uk publishes one CSV per league per season, in a stable layout, carrying
-# results AND the bookmakers' closing prices. That second half is the whole reason it is the
-# spine here rather than a scores feed: it is what lets the market-aware models train from day
-# one instead of after a season of self-logging.
-# Which backend supplies match history and prices.
+# Which backend supplies match history and prices. Both emit the identical games/lines schema,
+# so everything downstream is written against the schema and never against a source.
 #
-# "matchdata" is the default because football-data.co.uk, the canonical archive for this sport,
-# could not be reached from a GitHub Actions runner across three separate runs - it accepts the
-# TCP connection and then stalls, returning zero bytes. The replacement is a GitHub-hosted
-# aggregate of the same archives on raw.githubusercontent.com, which is the host nflverse is
-# served from and which this repo has been using reliably for months. Set this to "footballdata"
-# to go back to the original once it is reachable; that module is kept working and tested.
+# "matchdata" is the default because football-data.co.uk - the canonical archive for this sport,
+# and what this pipeline was built on - REFUSES a GitHub Actions runner. It is not down and not
+# slow: it answers HTTP 503, consistently, from every runner tried. From a residential IP it
+# serves normally, so a manual fetch committed to the repo remains a path to its true closing
+# columns if those are ever wanted.
+#
+# The replacement is a GitHub-hosted aggregate of the same archives on raw.githubusercontent.com,
+# the host nflverse is served from and which this repo has used reliably for months. Set this to
+# "footballdata" to go back to the original if that ever changes; that module is kept tested.
 SOURCE = _env("DEGEN_EPL_SOURCE", "matchdata")
 # One CSV: every division, every season since 2000, with 1X2, over/under and Asian handicap
 # prices. ~45 MB, one request, replacing ~50 requests to a host that does not answer.

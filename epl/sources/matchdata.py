@@ -1,10 +1,11 @@
 """Match history with prices, from a GitHub-hosted aggregate of the football-data archives.
 
-This is the pipeline's primary source, and it exists because the original one could not be
-reached. ``football-data.co.uk`` is the canonical archive for this sport, but from a GitHub
-Actions runner it accepts the TCP connection and then stalls - three separate runs returned zero
-bytes - so nothing built on it can train. See ``sources/footballdata.py``, which is kept working
-and can be re-selected with ``DEGEN_EPL_SOURCE=footballdata`` if the host ever comes back.
+This is the pipeline's primary source, and it exists because the original one refuses us.
+``football-data.co.uk`` is the canonical archive for this sport, but it answers a GitHub Actions
+runner with HTTP 503 - consistently, across every run tried - so nothing built on it can train.
+It is not down and not slow; from a residential IP it serves normally. See
+``sources/footballdata.py``, which is kept working and tested and can be re-selected with
+``DEGEN_EPL_SOURCE=footballdata`` if that ever changes.
 
 The replacement is one CSV on ``raw.githubusercontent.com`` - the same host nflverse is served
 from, which the NFL pipeline has been using reliably for months. It carries every division this
