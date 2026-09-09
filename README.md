@@ -669,11 +669,20 @@ have made a first retrain a three-hour one.
 
 Three things now bound it, and it is worth knowing which does what:
 
-- **Short timeouts.** A host that refuses or resets answers instantly; one whose packets are
-  being dropped answers never, and the *connect* timeout is the only thing that bounds that
-  case. It is 8 seconds.
-- **A circuit breaker.** After two consecutive failures the primary host is treated as down for
-  the rest of the run and every later fetch goes straight to the mirror. Discovering a dead host
+- **A wall-clock budget on the primary host — this is the bound that actually holds.** Thirty
+  seconds of *wasted* time and the host is abandoned for the rest of the run. Tuning retry counts
+  and socket timeouts assumes you know how a host will fail, and you do not: this one turned out
+  to accept the TCP connection and then stall, so the connect timeout never fired and the read
+  timeout did, at three times the cost. Worse, `read` in requests is a per-socket-read timeout
+  rather than a deadline for the whole response, so a host trickling one byte at a time can
+  exceed any value of it indefinitely and no retry setting will save you. Wall-clock is
+  invariant to all of it. Only time from *failed* requests counts, so a merely slow-but-working
+  host is never abandoned — it is still the only source of odds columns.
+- **Short timeouts**, as a first line rather than the defence: 8s to connect, 15s to read, two
+  attempts. Both failure paths are bounded under 45 seconds, and a test asserts both, because
+  which one fires is not ours to choose.
+- **A circuit breaker.** Once either bound is hit the primary host is treated as down for the
+  rest of the run and every later fetch goes straight to the mirror. Discovering a dead host
   once beats discovering it fifty times. The state is per-process and never persisted, so an
   outage heals by itself on the next scheduled run, and a single success part-way through clears
   the counter so intermittent failures never trip it.

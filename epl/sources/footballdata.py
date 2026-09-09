@@ -116,32 +116,49 @@ OU_LINE = 2.5
 # per-process state rather than persisted: a new run always re-tests the host, so an outage
 # heals by itself on the next scheduled job.
 _primary_failures = 0
+_primary_wasted = 0.0
 _primary_down = False
 
 
 def reset_primary() -> None:
     """Forget that the primary host was down. Used by the tests, and between CLI invocations."""
-    global _primary_failures, _primary_down
-    _primary_failures, _primary_down = 0, False
+    global _primary_failures, _primary_wasted, _primary_down
+    _primary_failures, _primary_wasted, _primary_down = 0, 0.0, False
 
 
 def primary_is_down() -> bool:
     return _primary_down
 
 
-def _note_primary(ok: bool) -> None:
-    global _primary_failures, _primary_down
+def primary_wasted() -> float:
+    return round(_primary_wasted, 1)
+
+
+def _note_primary(ok: bool, elapsed: float = 0.0) -> None:
+    """Record the outcome of one primary-host fetch, and trip the breaker if either bound is hit.
+
+    Time from SUCCESSFUL requests is deliberately not counted: a host that is merely slow but
+    working is still the only source of odds columns, and abandoning it would silently downgrade
+    every market-aware model to nothing.
+    """
+    global _primary_failures, _primary_wasted, _primary_down
     if ok:
         _primary_failures = 0
         return
     _primary_failures += 1
-    if not _primary_down and _primary_failures >= config.PRIMARY_FAILURE_LIMIT:
+    _primary_wasted += max(elapsed, 0.0)
+    if _primary_down:
+        return
+    over_budget = _primary_wasted >= config.PRIMARY_TIME_BUDGET
+    if _primary_failures >= config.PRIMARY_FAILURE_LIMIT or over_budget:
         _primary_down = True
         log.error(
-            "football-data.co.uk failed %d times in a row - treating it as DOWN for the rest of "
-            "this run and serving everything from the results-only mirror. The mirror carries "
-            "NO odds columns, so the market-aware models will have no rows. Re-run once the "
-            "host is reachable.", _primary_failures)
+            "football-data.co.uk: %d consecutive failures, %.0fs wasted (%s) - treating it as "
+            "DOWN for the rest of this run and serving everything from the results-only mirror. "
+            "The mirror carries NO odds columns, so the market-aware models will have no rows. "
+            "Re-run once the host is reachable.",
+            _primary_failures, _primary_wasted,
+            "time budget exceeded" if over_budget else "failure limit reached")
 
 
 def _csv(url: str) -> pd.DataFrame:
@@ -366,8 +383,10 @@ def fetch_season(season: int, league: str | None = None) -> pd.DataFrame:
     simply have no rows.
     """
     if not _primary_down:
+        import time
+        t0 = time.monotonic()
         raw = _csv(season_url(season, league))
-        _note_primary(bool(len(raw)))
+        _note_primary(bool(len(raw)), time.monotonic() - t0)
         if len(raw):
             return raw
     url = mirror_url(season, league)

@@ -347,11 +347,59 @@ def test_per_request_budget_is_bounded():
     from epl import config
 
     connect, read = config.HTTP_TIMEOUT
-    assert connect <= 10, "a blackholed host is bounded only by the CONNECT timeout"
-    assert read <= 30
+    assert connect <= 10
+    assert read <= 20
     assert config.HTTP_RETRIES <= 2
-    worst = (config.HTTP_RETRIES + 1) * connect + 8      # attempts plus capped backoff
-    assert worst < 60, f"{worst}s per dead URL is too much when a run fetches ~50 of them"
+    # BOTH failure paths have to be bounded, because which one fires is not ours to choose:
+    # a host that drops packets trips the connect timeout, one that accepts and stalls trips
+    # the read timeout - and the second cost 3x the first before this was fixed.
+    attempts = config.HTTP_RETRIES + 1
+    assert attempts * connect < 45, "connect path unbounded"
+    assert attempts * read < 45, "read path unbounded"
+
+
+def test_wall_clock_budget_bounds_a_host_that_stalls():
+    """The bound that actually holds. Retry counts and socket timeouts assume you know HOW a
+    host will fail; this one accepted the connection and then stalled, so the connect timeout
+    never fired. `read` is also per-socket-read rather than a deadline for the whole response,
+    so a host trickling bytes can exceed any value of it indefinitely."""
+    from epl import config
+    from epl.sources import footballdata as F
+
+    assert config.PRIMARY_TIME_BUDGET <= 45
+
+    # a single failure that burns the budget is enough evidence on its own
+    F.reset_primary()
+    F._note_primary(False, config.PRIMARY_TIME_BUDGET + 1)
+    assert F.primary_is_down()
+    assert F.primary_wasted() >= config.PRIMARY_TIME_BUDGET
+
+    # and the failure count still trips it when failures are individually fast
+    F.reset_primary()
+    for _ in range(config.PRIMARY_FAILURE_LIMIT):
+        F._note_primary(False, 0.2)
+    assert F.primary_is_down()
+    F.reset_primary()
+
+
+def test_a_slow_but_working_host_is_never_abandoned():
+    """Only time from FAILED requests counts toward the budget. A host that is merely slow is
+    still the only source of odds columns, and abandoning it would silently downgrade every
+    market-aware model to nothing."""
+    from epl import config
+    from epl.sources import footballdata as F
+
+    F.reset_primary()
+    for _ in range(50):
+        F._note_primary(True, config.PRIMARY_TIME_BUDGET)
+    assert not F.primary_is_down()
+    assert F.primary_wasted() == 0.0
+
+    # a failure followed by a success must not accumulate toward the trip either
+    F._note_primary(False, 1.0)
+    F._note_primary(True, 1.0)
+    assert not F.primary_is_down()
+    F.reset_primary()
 
 
 def test_primary_host_is_abandoned_after_repeated_failure(monkeypatch):
