@@ -1,0 +1,1452 @@
+{
+  "trained_at": "2026-09-09T00:33:44",
+  "sport": "epl",
+  "league": "E0",
+  "league_name": "Premier League",
+  "base_features": [
+    "no_crowd",
+    "is_derby",
+    "season_frac",
+    "h_games",
+    "a_games",
+    "is_early_season",
+    "exp_sup",
+    "exp_total",
+    "exp_home_goals",
+    "exp_away_goals",
+    "h_att",
+    "a_att",
+    "h_def",
+    "a_def",
+    "h_form_sup",
+    "a_form_sup",
+    "h_form_total",
+    "a_form_total",
+    "h_rest",
+    "a_rest",
+    "rest_diff",
+    "h_short_rest",
+    "a_short_rest",
+    "h_prev_att",
+    "a_prev_att",
+    "h_prev_def",
+    "a_prev_def",
+    "h_prev_att_shots",
+    "a_prev_att_shots",
+    "h_prev_def_shots",
+    "a_prev_def_shots",
+    "h_prev_ppg",
+    "a_prev_ppg",
+    "h_prev_pos",
+    "a_prev_pos",
+    "prior_sup_est",
+    "prior_total_est",
+    "h_promoted",
+    "a_promoted",
+    "h_in_europe",
+    "a_in_europe",
+    "travel_km"
+  ],
+  "market_features": [
+    "ah_home",
+    "total_line",
+    "mkt_sup",
+    "mkt_total",
+    "sup_vs_model",
+    "total_vs_model",
+    "mkt_p_home",
+    "mkt_p_draw",
+    "mkt_p_away"
+  ],
+  "n_rows": 8000,
+  "seasons": [
+    2005,
+    2006,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "odds_coverage": [
+    {
+      "season": 2003,
+      "matches": 335,
+      "priced": 335,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway",
+        "OddHome/OddDraw/OddAway,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 326,
+      "ou": 0
+    },
+    {
+      "season": 2004,
+      "matches": 335,
+      "priced": 335,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway",
+        "OddHome/OddDraw/OddAway,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 334,
+      "ou": 0
+    },
+    {
+      "season": 2005,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2006,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2007,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2008,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2009,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2010,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2011,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2012,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2013,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25",
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 370,
+      "ou": 380
+    },
+    {
+      "season": 2014,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2015,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2016,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2017,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2018,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2019,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2020,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2021,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2022,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2023,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2024,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 380,
+      "ou": 380
+    },
+    {
+      "season": 2025,
+      "matches": 380,
+      "priced": 380,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25",
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 379,
+      "ou": 380
+    },
+    {
+      "season": 2026,
+      "matches": 20,
+      "priced": 20,
+      "closing": 0,
+      "sources": [
+        "OddHome/OddDraw/OddAway,Over25/Under25,HandiSize/HandiHome/HandiAway"
+      ],
+      "ah": 20,
+      "ou": 20
+    }
+  ],
+  "dc_rho": -0.04,
+  "eval": {
+    "total_nomarket": {
+      "test_seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n_test_total": 1900,
+      "mae_model": 1.329,
+      "mae_rating_baseline": 1.339,
+      "sigma": 1.661,
+      "bias": 0.152,
+      "per_season": [
+        {
+          "season": 2021,
+          "n": 380,
+          "mae_model": 1.306,
+          "cover_rate": null
+        },
+        {
+          "season": 2022,
+          "n": 380,
+          "mae_model": 1.393,
+          "cover_rate": null
+        },
+        {
+          "season": 2023,
+          "n": 380,
+          "mae_model": 1.41,
+          "cover_rate": null
+        },
+        {
+          "season": 2024,
+          "n": 380,
+          "mae_model": 1.293,
+          "cover_rate": null
+        },
+        {
+          "season": 2025,
+          "n": 380,
+          "mae_model": 1.241,
+          "cover_rate": null
+        }
+      ]
+    },
+    "total_market": {
+      "test_seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n_test_total": 1900,
+      "mae_model": 1.324,
+      "mae_rating_baseline": 1.339,
+      "sigma": 1.655,
+      "bias": 0.04,
+      "per_season": [
+        {
+          "season": 2021,
+          "n": 380,
+          "mae_model": 1.307,
+          "cover_rate": 51.1
+        },
+        {
+          "season": 2022,
+          "n": 380,
+          "mae_model": 1.405,
+          "cover_rate": 47.4
+        },
+        {
+          "season": 2023,
+          "n": 380,
+          "mae_model": 1.354,
+          "cover_rate": 48.9
+        },
+        {
+          "season": 2024,
+          "n": 380,
+          "mae_model": 1.308,
+          "cover_rate": 49.5
+        },
+        {
+          "season": 2025,
+          "n": 380,
+          "mae_model": 1.246,
+          "cover_rate": 55.3
+        }
+      ],
+      "mae_market_baseline": 1.314,
+      "cover_rate": 50.4,
+      "cover_n": 1900,
+      "cover_stderr": 1.15,
+      "beats_market": false,
+      "shrink_raw": 0.2,
+      "shrink": 0.2,
+      "cover_by_disagreement": [
+        {
+          "n": 1210,
+          "cover_pct": 50.4,
+          "stderr": 1.44,
+          "vs_break_even_se": -0.6,
+          "roi_pct": -1.69,
+          "season_cover_pct": {
+            "2021": 51.0,
+            "2022": 45.1,
+            "2023": 49.1,
+            "2024": 48.2,
+            "2025": 56.4
+          },
+          "seasons_measured": 5,
+          "seasons_above_break_even": 1,
+          "disagreement": "0-0.2",
+          "significant": false
+        },
+        {
+          "n": 462,
+          "cover_pct": 49.1,
+          "stderr": 2.33,
+          "vs_break_even_se": -0.92,
+          "roi_pct": -4.19,
+          "season_cover_pct": {
+            "2021": 49.5,
+            "2022": 49.5,
+            "2023": 48.7,
+            "2024": 49.5,
+            "2025": 48.3
+          },
+          "seasons_measured": 5,
+          "seasons_above_break_even": 0,
+          "disagreement": "0.2-0.4",
+          "significant": false
+        },
+        {
+          "n": 159,
+          "cover_pct": 50.9,
+          "stderr": 3.96,
+          "vs_break_even_se": -0.09,
+          "roi_pct": -0.66,
+          "season_cover_pct": {
+            "2023": 46.3
+          },
+          "seasons_measured": 1,
+          "seasons_above_break_even": 0,
+          "disagreement": "0.4-0.6",
+          "significant": false
+        }
+      ],
+      "break_even_pct": 51.28,
+      "venue": "sportsbook",
+      "market_softness": {
+        "by_promotion": [
+          {
+            "segment": "a promoted club involved",
+            "n": 540,
+            "cover_pct": 50.7,
+            "stderr": 2.15,
+            "vs_break_even_se": -0.25,
+            "roi_pct": -1.06,
+            "season_cover_pct": {
+              "2021": 48.1,
+              "2022": 47.2,
+              "2023": 55.6,
+              "2024": 49.1,
+              "2025": 53.7
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          },
+          {
+            "segment": "no promoted club",
+            "n": 1360,
+            "cover_pct": 50.3,
+            "stderr": 1.36,
+            "vs_break_even_se": -0.73,
+            "roi_pct": -1.93,
+            "season_cover_pct": {
+              "2021": 52.2,
+              "2022": 47.4,
+              "2023": 46.3,
+              "2024": 49.6,
+              "2025": 55.9
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          }
+        ],
+        "by_european_load": [
+          {
+            "segment": "a European club involved",
+            "n": 1350,
+            "cover_pct": 51.3,
+            "stderr": 1.36,
+            "vs_break_even_se": -0.02,
+            "roi_pct": -0.04,
+            "season_cover_pct": {
+              "2021": 52.2,
+              "2022": 48.1,
+              "2023": 47.8,
+              "2024": 51.1,
+              "2025": 57.0
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          },
+          {
+            "segment": "neither club in Europe",
+            "n": 550,
+            "cover_pct": 48.4,
+            "stderr": 2.13,
+            "vs_break_even_se": -1.37,
+            "roi_pct": -5.69,
+            "season_cover_pct": {
+              "2021": 48.2,
+              "2022": 45.5,
+              "2023": 51.8,
+              "2024": 45.5,
+              "2025": 50.9
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 1,
+            "significant": false
+          }
+        ],
+        "by_crowd": [
+          {
+            "segment": "normal crowd",
+            "n": 1900,
+            "cover_pct": 50.4,
+            "stderr": 1.15,
+            "vs_break_even_se": -0.75,
+            "roi_pct": -1.68,
+            "season_cover_pct": {
+              "2021": 51.1,
+              "2022": 47.4,
+              "2023": 48.9,
+              "2024": 49.5,
+              "2025": 55.3
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 1,
+            "significant": false
+          }
+        ],
+        "by_derby": [
+          {
+            "segment": "local derby",
+            "n": 222,
+            "cover_pct": 50.0,
+            "stderr": 3.36,
+            "vs_break_even_se": -0.38,
+            "roi_pct": -2.5,
+            "season_cover_pct": {
+              "2022": 47.8,
+              "2023": 52.2,
+              "2024": 54.3,
+              "2025": 52.1
+            },
+            "seasons_measured": 4,
+            "seasons_above_break_even": 3,
+            "significant": false
+          },
+          {
+            "segment": "not a derby",
+            "n": 1678,
+            "cover_pct": 50.5,
+            "stderr": 1.22,
+            "vs_break_even_se": -0.66,
+            "roi_pct": -1.57,
+            "season_cover_pct": {
+              "2021": 52.0,
+              "2022": 47.3,
+              "2023": 48.5,
+              "2024": 48.8,
+              "2025": 55.7
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          }
+        ],
+        "by_stage": [
+          {
+            "segment": "first six matches",
+            "n": 301,
+            "cover_pct": 47.8,
+            "stderr": 2.88,
+            "vs_break_even_se": -1.2,
+            "roi_pct": -6.71,
+            "season_cover_pct": {
+              "2021": 41.7,
+              "2022": 41.7,
+              "2023": 47.5,
+              "2024": 51.7,
+              "2025": 56.7
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          },
+          {
+            "segment": "matches 6-19",
+            "n": 658,
+            "cover_pct": 49.5,
+            "stderr": 1.95,
+            "vs_break_even_se": -0.89,
+            "roi_pct": -3.39,
+            "season_cover_pct": {
+              "2021": 48.9,
+              "2022": 53.4,
+              "2023": 51.1,
+              "2024": 43.5,
+              "2025": 50.8
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 1,
+            "significant": false
+          },
+          {
+            "segment": "second half of the season",
+            "n": 941,
+            "cover_pct": 51.9,
+            "stderr": 1.63,
+            "vs_break_even_se": 0.35,
+            "roi_pct": 1.13,
+            "season_cover_pct": {
+              "2021": 55.6,
+              "2022": 44.9,
+              "2023": 47.9,
+              "2024": 52.9,
+              "2025": 57.9
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 3,
+            "significant": false
+          }
+        ],
+        "by_favourite_size": [
+          {
+            "segment": "near level",
+            "n": 307,
+            "cover_pct": 49.2,
+            "stderr": 2.85,
+            "vs_break_even_se": -0.73,
+            "roi_pct": -4.09,
+            "season_cover_pct": {
+              "2021": 45.7,
+              "2022": 50.0,
+              "2024": 53.5,
+              "2025": 50.7
+            },
+            "seasons_measured": 4,
+            "seasons_above_break_even": 1,
+            "significant": false
+          },
+          {
+            "segment": "0.25-0.75 goals",
+            "n": 733,
+            "cover_pct": 50.5,
+            "stderr": 1.85,
+            "vs_break_even_se": -0.44,
+            "roi_pct": -1.57,
+            "season_cover_pct": {
+              "2021": 47.0,
+              "2022": 46.5,
+              "2023": 50.7,
+              "2024": 50.0,
+              "2025": 58.7
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 1,
+            "significant": false
+          },
+          {
+            "segment": "0.75-1.5 goals",
+            "n": 695,
+            "cover_pct": 49.5,
+            "stderr": 1.9,
+            "vs_break_even_se": -0.94,
+            "roi_pct": -3.48,
+            "season_cover_pct": {
+              "2021": 56.6,
+              "2022": 46.9,
+              "2023": 46.5,
+              "2024": 46.1,
+              "2025": 54.2
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          },
+          {
+            "segment": "1.5+ goals",
+            "n": 165,
+            "cover_pct": 56.4,
+            "stderr": 3.86,
+            "vs_break_even_se": 1.32,
+            "roi_pct": 9.91,
+            "season_cover_pct": {
+              "2021": 52.4,
+              "2023": 57.8
+            },
+            "seasons_measured": 2,
+            "seasons_above_break_even": 2,
+            "significant": false
+          }
+        ],
+        "by_rest": [
+          {
+            "segment": "a side on short rest",
+            "n": 506,
+            "cover_pct": 52.0,
+            "stderr": 2.22,
+            "vs_break_even_se": 0.31,
+            "roi_pct": 1.35,
+            "season_cover_pct": {
+              "2021": 51.9,
+              "2022": 52.0,
+              "2023": 48.4,
+              "2024": 56.6,
+              "2025": 51.9
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 4,
+            "significant": false
+          },
+          {
+            "segment": "normal rest",
+            "n": 1394,
+            "cover_pct": 49.9,
+            "stderr": 1.34,
+            "vs_break_even_se": -1.06,
+            "roi_pct": -2.78,
+            "season_cover_pct": {
+              "2021": 50.6,
+              "2022": 45.1,
+              "2023": 49.1,
+              "2024": 47.7,
+              "2025": 56.1
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 1,
+            "significant": false
+          }
+        ]
+      },
+      "significance": {
+        "comparisons": 19,
+        "family_alpha": 0.05,
+        "z_required": 3.0,
+        "z_required_note": "19 segments were looked at, so a segment needs |z| >= 3.00 - not 2.0 - before it means anything",
+        "significant_segments": [],
+        "verdict": "no segment survives correction for the number of looks taken"
+      }
+    },
+    "sup_nomarket": {
+      "test_seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n_test_total": 1900,
+      "mae_model": 1.339,
+      "mae_rating_baseline": 1.338,
+      "sigma": 1.712,
+      "bias": -0.071,
+      "per_season": [
+        {
+          "season": 2021,
+          "n": 380,
+          "mae_model": 1.379,
+          "cover_rate": null
+        },
+        {
+          "season": 2022,
+          "n": 380,
+          "mae_model": 1.35,
+          "cover_rate": null
+        },
+        {
+          "season": 2023,
+          "n": 380,
+          "mae_model": 1.408,
+          "cover_rate": null
+        },
+        {
+          "season": 2024,
+          "n": 380,
+          "mae_model": 1.342,
+          "cover_rate": null
+        },
+        {
+          "season": 2025,
+          "n": 380,
+          "mae_model": 1.215,
+          "cover_rate": null
+        }
+      ]
+    },
+    "sup_market": {
+      "test_seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n_test_total": 1900,
+      "mae_model": 1.305,
+      "mae_rating_baseline": 1.338,
+      "sigma": 1.674,
+      "bias": -0.028,
+      "per_season": [
+        {
+          "season": 2021,
+          "n": 380,
+          "mae_model": 1.325,
+          "cover_rate": 49.4
+        },
+        {
+          "season": 2022,
+          "n": 380,
+          "mae_model": 1.333,
+          "cover_rate": 52.1
+        },
+        {
+          "season": 2023,
+          "n": 380,
+          "mae_model": 1.36,
+          "cover_rate": 50.3
+        },
+        {
+          "season": 2024,
+          "n": 380,
+          "mae_model": 1.299,
+          "cover_rate": 53.4
+        },
+        {
+          "season": 2025,
+          "n": 380,
+          "mae_model": 1.209,
+          "cover_rate": 45.2
+        }
+      ],
+      "mae_market_baseline": 1.295,
+      "cover_rate": 50.1,
+      "cover_n": 1779,
+      "cover_stderr": 1.19,
+      "beats_market": false,
+      "shrink_raw": 0.0,
+      "shrink": 0.0,
+      "cover_by_disagreement": [
+        {
+          "n": 858,
+          "cover_pct": 47.2,
+          "stderr": 1.7,
+          "vs_break_even_se": -2.39,
+          "roi_pct": -7.95,
+          "season_cover_pct": {
+            "2021": 49.2,
+            "2022": 48.5,
+            "2023": 49.7,
+            "2024": 50.9,
+            "2025": 38.5
+          },
+          "seasons_measured": 5,
+          "seasons_above_break_even": 0,
+          "disagreement": "0-0.15",
+          "significant": false
+        },
+        {
+          "n": 543,
+          "cover_pct": 52.1,
+          "stderr": 2.14,
+          "vs_break_even_se": 0.39,
+          "roi_pct": 1.63,
+          "season_cover_pct": {
+            "2021": 46.4,
+            "2022": 55.3,
+            "2023": 49.5,
+            "2024": 53.5,
+            "2025": 56.1
+          },
+          "seasons_measured": 5,
+          "seasons_above_break_even": 3,
+          "disagreement": "0.15-0.3",
+          "significant": false
+        },
+        {
+          "n": 267,
+          "cover_pct": 52.4,
+          "stderr": 3.06,
+          "vs_break_even_se": 0.38,
+          "roi_pct": 2.25,
+          "season_cover_pct": {
+            "2021": 56.1,
+            "2022": 56.4,
+            "2023": 50.8,
+            "2024": 54.4,
+            "2025": 45.5
+          },
+          "seasons_measured": 5,
+          "seasons_above_break_even": 3,
+          "disagreement": "0.3-0.5",
+          "significant": false
+        },
+        {
+          "n": 87,
+          "cover_pct": 56.3,
+          "stderr": 5.32,
+          "vs_break_even_se": 0.95,
+          "roi_pct": 9.83,
+          "disagreement": "0.5-0.75",
+          "significant": false
+        }
+      ],
+      "break_even_pct": 51.28,
+      "venue": "sportsbook",
+      "market_softness": {
+        "by_promotion": [
+          {
+            "segment": "a promoted club involved",
+            "n": 503,
+            "cover_pct": 49.1,
+            "stderr": 2.23,
+            "vs_break_even_se": -0.98,
+            "roi_pct": -4.24,
+            "season_cover_pct": {
+              "2021": 48.5,
+              "2022": 44.0,
+              "2023": 51.0,
+              "2024": 57.4,
+              "2025": 44.6
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 1,
+            "significant": false
+          },
+          {
+            "segment": "no promoted club",
+            "n": 1276,
+            "cover_pct": 50.5,
+            "stderr": 1.4,
+            "vs_break_even_se": -0.58,
+            "roi_pct": -1.58,
+            "season_cover_pct": {
+              "2021": 49.8,
+              "2022": 55.2,
+              "2023": 50.0,
+              "2024": 51.8,
+              "2025": 45.5
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          }
+        ],
+        "by_european_load": [
+          {
+            "segment": "a European club involved",
+            "n": 1261,
+            "cover_pct": 49.6,
+            "stderr": 1.41,
+            "vs_break_even_se": -1.22,
+            "roi_pct": -3.35,
+            "season_cover_pct": {
+              "2021": 48.6,
+              "2022": 52.2,
+              "2023": 48.6,
+              "2024": 53.2,
+              "2025": 45.2
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          },
+          {
+            "segment": "neither club in Europe",
+            "n": 518,
+            "cover_pct": 51.4,
+            "stderr": 2.2,
+            "vs_break_even_se": 0.03,
+            "roi_pct": 0.14,
+            "season_cover_pct": {
+              "2021": 51.4,
+              "2022": 51.9,
+              "2023": 54.3,
+              "2024": 53.9,
+              "2025": 45.1
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 4,
+            "significant": false
+          }
+        ],
+        "by_crowd": [
+          {
+            "segment": "normal crowd",
+            "n": 1779,
+            "cover_pct": 50.1,
+            "stderr": 1.19,
+            "vs_break_even_se": -1.01,
+            "roi_pct": -2.34,
+            "season_cover_pct": {
+              "2021": 49.4,
+              "2022": 52.1,
+              "2023": 50.3,
+              "2024": 53.4,
+              "2025": 45.2
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          }
+        ],
+        "by_derby": [
+          {
+            "segment": "local derby",
+            "n": 206,
+            "cover_pct": 46.6,
+            "stderr": 3.48,
+            "vs_break_even_se": -1.35,
+            "roi_pct": -9.13,
+            "season_cover_pct": {
+              "2022": 64.4,
+              "2023": 44.2,
+              "2024": 51.2,
+              "2025": 43.2
+            },
+            "seasons_measured": 4,
+            "seasons_above_break_even": 1,
+            "significant": false
+          },
+          {
+            "segment": "not a derby",
+            "n": 1573,
+            "cover_pct": 50.5,
+            "stderr": 1.26,
+            "vs_break_even_se": -0.59,
+            "roi_pct": -1.45,
+            "season_cover_pct": {
+              "2021": 52.0,
+              "2022": 50.3,
+              "2023": 51.1,
+              "2024": 53.7,
+              "2025": 45.5
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          }
+        ],
+        "by_stage": [
+          {
+            "segment": "first six matches",
+            "n": 276,
+            "cover_pct": 51.4,
+            "stderr": 3.01,
+            "vs_break_even_se": 0.06,
+            "roi_pct": 0.33,
+            "season_cover_pct": {
+              "2021": 36.5,
+              "2022": 47.4,
+              "2023": 53.7,
+              "2024": 59.3,
+              "2025": 59.3
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 3,
+            "significant": false
+          },
+          {
+            "segment": "matches 6-19",
+            "n": 621,
+            "cover_pct": 49.6,
+            "stderr": 2.01,
+            "vs_break_even_se": -0.84,
+            "roi_pct": -3.29,
+            "season_cover_pct": {
+              "2021": 46.8,
+              "2022": 52.4,
+              "2023": 47.6,
+              "2024": 52.8,
+              "2025": 48.3
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          },
+          {
+            "segment": "second half of the season",
+            "n": 882,
+            "cover_pct": 50.0,
+            "stderr": 1.68,
+            "vs_break_even_se": -0.76,
+            "roi_pct": -2.5,
+            "season_cover_pct": {
+              "2021": 55.1,
+              "2022": 53.4,
+              "2023": 51.1,
+              "2024": 52.0,
+              "2025": 38.3
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 3,
+            "significant": false
+          }
+        ],
+        "by_favourite_size": [
+          {
+            "segment": "near level",
+            "n": 247,
+            "cover_pct": 48.6,
+            "stderr": 3.18,
+            "vs_break_even_se": -0.85,
+            "roi_pct": -5.26,
+            "season_cover_pct": {
+              "2025": 43.0
+            },
+            "seasons_measured": 1,
+            "seasons_above_break_even": 0,
+            "significant": false
+          },
+          {
+            "segment": "0.25-0.75 goals",
+            "n": 733,
+            "cover_pct": 49.7,
+            "stderr": 1.85,
+            "vs_break_even_se": -0.88,
+            "roi_pct": -3.17,
+            "season_cover_pct": {
+              "2021": 47.0,
+              "2022": 52.2,
+              "2023": 52.1,
+              "2024": 53.5,
+              "2025": 43.4
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 3,
+            "significant": false
+          },
+          {
+            "segment": "0.75-1.5 goals",
+            "n": 649,
+            "cover_pct": 50.7,
+            "stderr": 1.96,
+            "vs_break_even_se": -0.3,
+            "roi_pct": -1.15,
+            "season_cover_pct": {
+              "2021": 49.3,
+              "2022": 54.0,
+              "2023": 48.3,
+              "2024": 50.6,
+              "2025": 52.1
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          },
+          {
+            "segment": "1.5+ goals",
+            "n": 150,
+            "cover_pct": 52.0,
+            "stderr": 4.08,
+            "vs_break_even_se": 0.18,
+            "roi_pct": 1.4,
+            "season_cover_pct": {
+              "2023": 58.5
+            },
+            "seasons_measured": 1,
+            "seasons_above_break_even": 1,
+            "significant": false
+          }
+        ],
+        "by_rest": [
+          {
+            "segment": "a side on short rest",
+            "n": 475,
+            "cover_pct": 48.8,
+            "stderr": 2.29,
+            "vs_break_even_se": -1.06,
+            "roi_pct": -4.76,
+            "season_cover_pct": {
+              "2021": 56.6,
+              "2022": 50.4,
+              "2023": 42.2,
+              "2024": 54.8,
+              "2025": 36.0
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 2,
+            "significant": false
+          },
+          {
+            "segment": "normal rest",
+            "n": 1304,
+            "cover_pct": 50.5,
+            "stderr": 1.38,
+            "vs_break_even_se": -0.54,
+            "roi_pct": -1.45,
+            "season_cover_pct": {
+              "2021": 45.7,
+              "2022": 52.9,
+              "2023": 53.0,
+              "2024": 53.0,
+              "2025": 47.7
+            },
+            "seasons_measured": 5,
+            "seasons_above_break_even": 3,
+            "significant": false
+          }
+        ],
+        "soft_and_loud": [
+          {
+            "segment": "promoted club & big disagreement",
+            "n": 84,
+            "cover_pct": 56.0,
+            "stderr": 5.42,
+            "vs_break_even_se": 0.86,
+            "roi_pct": 9.11,
+            "significant": false
+          },
+          {
+            "segment": "established clubs & big disagreement",
+            "n": 122,
+            "cover_pct": 55.7,
+            "stderr": 4.5,
+            "vs_break_even_se": 0.99,
+            "roi_pct": 8.69,
+            "significant": false
+          }
+        ]
+      },
+      "significance": {
+        "comparisons": 22,
+        "family_alpha": 0.05,
+        "z_required": 3.04,
+        "z_required_note": "22 segments were looked at, so a segment needs |z| >= 3.04 - not 2.0 - before it means anything",
+        "significant_segments": [],
+        "verdict": "no segment survives correction for the number of looks taken"
+      }
+    }
+  },
+  "models": [
+    "total_nomarket",
+    "total_market",
+    "sup_nomarket",
+    "sup_market"
+  ],
+  "sigma": {
+    "total_nomarket": 1.661,
+    "total_market": 1.655,
+    "sup_nomarket": 1.712,
+    "sup_market": 1.674
+  },
+  "shrink": {
+    "total_nomarket": 0.25,
+    "total_market": 0.2,
+    "sup_nomarket": 0.25,
+    "sup_market": 0.0
+  },
+  "top_features": {
+    "total_nomarket": {
+      "exp_total": 0.04497935250401497,
+      "no_crowd": 0.042058221995830536,
+      "exp_sup": 0.039449937641620636,
+      "h_prev_att": 0.03594689816236496,
+      "h_promoted": 0.0343170240521431,
+      "exp_home_goals": 0.032992664724588394,
+      "a_prev_att_shots": 0.02875007688999176,
+      "h_prev_att_shots": 0.0285483431071043,
+      "prior_total_est": 0.026732062920928,
+      "h_att": 0.026583965867757797,
+      "exp_away_goals": 0.02644282393157482,
+      "h_games": 0.026203982532024384
+    },
+    "total_market": {
+      "mkt_total": 0.05963876098394394,
+      "mkt_p_draw": 0.049008749425411224,
+      "a_in_europe": 0.03572116792201996,
+      "is_derby": 0.032919593155384064,
+      "a_promoted": 0.025908665731549263,
+      "a_short_rest": 0.023017922416329384,
+      "mkt_p_away": 0.02116299793124199,
+      "h_att": 0.02060091495513916,
+      "h_in_europe": 0.02030845172703266,
+      "ah_home": 0.020153101533651352,
+      "a_prev_att_shots": 0.019964244216680527,
+      "exp_away_goals": 0.019533514976501465
+    },
+    "sup_nomarket": {
+      "exp_sup": 0.24180911481380463,
+      "exp_away_goals": 0.06611470878124237,
+      "exp_home_goals": 0.0594368502497673,
+      "h_prev_att_shots": 0.03117416799068451,
+      "prior_sup_est": 0.030864344909787178,
+      "a_promoted": 0.02732153795659542,
+      "h_prev_att": 0.02396855503320694,
+      "is_derby": 0.022838255390524864,
+      "h_prev_def_shots": 0.01997322216629982,
+      "h_att": 0.01876360923051834,
+      "a_prev_att_shots": 0.01823807694017887,
+      "travel_km": 0.016963865607976913
+    },
+    "sup_market": {
+      "mkt_p_home": 0.2077895551919937,
+      "mkt_p_away": 0.1073259711265564,
+      "ah_home": 0.06662444770336151,
+      "mkt_sup": 0.05187724903225899,
+      "exp_sup": 0.04255954176187515,
+      "mkt_p_draw": 0.02060864306986332,
+      "exp_home_goals": 0.015514573082327843,
+      "h_prev_att_shots": 0.014619385823607445,
+      "is_early_season": 0.014502929523587227,
+      "exp_away_goals": 0.014313734136521816,
+      "prior_sup_est": 0.014113890938460827,
+      "is_derby": 0.013679510913789272
+    }
+  },
+  "probability": {
+    "n": 1900,
+    "seasons": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "log_loss_model": 0.9604,
+    "brier_model": 0.5704,
+    "log_loss_market": 0.9598,
+    "brier_market": 0.5702,
+    "log_loss_edge": -0.0006,
+    "beats_market_log_loss": false,
+    "draw": {
+      "actual_pct": 23.9,
+      "model_pct": 23.1,
+      "market_pct": 23.3,
+      "note": "the draw is the outcome a Gaussian margin model cannot express at all, which is why this pipeline models scorelines instead"
+    },
+    "calibration": [
+      {
+        "bucket": "0.00-0.10",
+        "n": 180,
+        "predicted_pct": 7.1,
+        "actual_pct": 5.6
+      },
+      {
+        "bucket": "0.10-0.20",
+        "n": 921,
+        "predicted_pct": 15.9,
+        "actual_pct": 14.8
+      },
+      {
+        "bucket": "0.20-0.30",
+        "n": 2217,
+        "predicted_pct": 25.1,
+        "actual_pct": 25.4
+      },
+      {
+        "bucket": "0.30-0.40",
+        "n": 700,
+        "predicted_pct": 34.5,
+        "actual_pct": 33.7
+      },
+      {
+        "bucket": "0.40-0.50",
+        "n": 759,
+        "predicted_pct": 45.6,
+        "actual_pct": 44.7
+      },
+      {
+        "bucket": "0.50-0.65",
+        "n": 480,
+        "predicted_pct": 57.5,
+        "actual_pct": 59.2
+      },
+      {
+        "bucket": "0.65-1.01",
+        "n": 443,
+        "predicted_pct": 72.5,
+        "actual_pct": 74.9
+      }
+    ],
+    "interpretation": "log_loss_edge > 0 means the model's probabilities scored better than the de-vigged market's. Expect it to be negative; a small positive number on one walk-forward is not evidence of anything on its own."
+  },
+  "backend": "xgboost"
+}
