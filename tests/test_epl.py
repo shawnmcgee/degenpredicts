@@ -1071,6 +1071,19 @@ def test_workflows_exist_and_are_wired():
     assert "epl" in test_wf, "CI must run the EPL suite as its own job"
 
 
+def test_source_check_follows_the_configured_backend():
+    """A check hardcoded to one backend kept reporting 503s from a host the pipeline no longer
+    reads, which looks like a broken pipeline when nothing is wrong. A check that does not
+    follow the configuration is worse than no check."""
+    wf = (ROOT / ".github" / "workflows" / "epl-source-check.yml").read_text()
+    assert "epl.sources.check" in wf
+    assert "epl.sources.footballdata --check" not in wf, \
+        "the check must not be pinned to a backend that may not be active"
+
+    from epl.sources import check
+    assert callable(check.run)
+
+
 def test_epl_workflows_are_time_capped():
     """A hung upstream must never burn Actions minutes for hours. The circuit breaker should
     make this unreachable; the cap is what makes it impossible."""
