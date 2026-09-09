@@ -62,6 +62,9 @@ def kelly(p_win, mult) -> float:
     return max(0.0, f) * config.KELLY_FRACTION
 
 
+PLAYABLE = ("play", "bold")
+
+
 def _strength(edge, minimum, thin) -> str:
     e = abs(edge) if edge == edge else 0.0
     if e < minimum:
@@ -202,15 +205,17 @@ def run(dry_run: bool = False, days: int | None = None) -> pd.DataFrame:
         log.warning("need both a supremacy and a total model to price anything")
         return out
 
-    # ---- one scoreline grid per match, and every market read off it -----------------
-    out = _price_from_grid(out)
-
+    # Strength before pricing, because strength is what decides whether a price gets staked.
+    # Both gates read the raw disagreement, which is already in the frame at this point.
     thin = (out["h_games"] < config.MIN_GAMES) | (out["a_games"] < config.MIN_GAMES)
     out["thin_data"] = thin
     out["ah_strength"] = [_strength(d, config.SUP_EDGE_MIN, t)
                           for d, t in zip(out["sup_disagree"], thin)]
     out["total_strength"] = [_strength(d, config.GOALS_EDGE_MIN, t)
                              for d, t in zip(out["total_disagree"], thin)]
+
+    # ---- one scoreline grid per match, and every market read off it -----------------
+    out = _price_from_grid(out)
     # Kept under the other pipelines' column names so core.landing, which reads every sport's
     # picks.csv with the csv module and no knowledge of any of them, counts EPL plays too.
     out["spread_strength"] = out["ah_strength"]
@@ -273,7 +278,7 @@ def _price_from_grid(out: pd.DataFrame) -> pd.DataFrame:
     is quoting is not an edge.
     """
     n = len(out)
-    text = ["ah_pick", "total_pick", "x2_pick", "x2_side", "score"]
+    text = ["ah_pick", "total_pick", "x2_pick", "x2_side", "x2_strength", "score"]
     num = ["p_home", "p_draw", "p_away", "p_btts", "score_prob", "fair_ah",
            "ah_p_win", "ah_p_push", "ah_price", "ah_ev", "ah_stake",
            "total_p_win", "total_p_push", "total_price", "total_ev", "total_stake",
@@ -317,8 +322,9 @@ def _price_from_grid(out: pd.DataFrame) -> pd.DataFrame:
                 mult = payout(price)
                 out.at[i, "ah_price"] = price
                 out.at[i, "ah_ev"] = _ev(w, pu_, mult)
-                out.at[i, "ah_stake"] = round(
-                    kelly(w / max(1 - pu_, 1e-9), mult) * config.BANKROLL_UNITS, 2)
+                if g.get("ah_strength") in PLAYABLE:
+                    out.at[i, "ah_stake"] = round(
+                        kelly(w / max(1 - pu_, 1e-9), mult) * config.BANKROLL_UNITS, 2)
 
         # ---- over / under ----------------------------------------------------------
         tl = g.get("total_line")
@@ -334,8 +340,9 @@ def _price_from_grid(out: pd.DataFrame) -> pd.DataFrame:
                 mult = payout(price)
                 out.at[i, "total_price"] = price
                 out.at[i, "total_ev"] = _ev(w, pp, mult)
-                out.at[i, "total_stake"] = round(
-                    kelly(w / max(1 - pp, 1e-9), mult) * config.BANKROLL_UNITS, 2)
+                if g.get("total_strength") in PLAYABLE:
+                    out.at[i, "total_stake"] = round(
+                        kelly(w / max(1 - pp, 1e-9), mult) * config.BANKROLL_UNITS, 2)
 
         # ---- 1X2: the market with a third outcome ----------------------------------
         prices = (g.get("price_home"), g.get("price_draw"), g.get("price_away"))
@@ -359,7 +366,15 @@ def _price_from_grid(out: pd.DataFrame) -> pd.DataFrame:
                 out.at[i, "x2_mkt_p"] = round(mkt[k], 4) if mkt[k] == mkt[k] else np.nan
                 out.at[i, "x2_price"] = prices[k]
                 out.at[i, "x2_ev"] = ev
-                out.at[i, "x2_stake"] = round(kelly(ours[k], mult) * config.BANKROLL_UNITS, 2)
+                # The only market here with no guards at all. It is a maximum over three
+                # noisy estimates, which is exactly the structure the Kalshi ladder guards
+                # exist to stop, so it gets the same two: an EV floor and the thin-data gate.
+                strength = ("pass" if ev < config.X2_MIN_EV else
+                            "thin" if bool(g.get("thin_data", False)) else
+                            "bold" if ev >= config.X2_MIN_EV * config.BOLD_MULT else "play")
+                out.at[i, "x2_strength"] = strength
+                if strength in PLAYABLE:
+                    out.at[i, "x2_stake"] = round(kelly(ours[k], mult) * config.BANKROLL_UNITS, 2)
                 if mkt[k] == mkt[k] and mkt[k] > 0:
                     out.at[i, "x2_edge_pct"] = round(100 * (ours[k] / mkt[k] - 1), 1)
     return out

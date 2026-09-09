@@ -27,7 +27,15 @@ log = logging.getLogger(__name__)
 GAME_COLS = ["game_id", "season", "week", "season_type", "date", "start_time_tbd", "day", "kickoff_utc",
              "home_team", "away_team", "home_points", "away_points", "total_points",
              "home_margin", "neutral_site", "conference_game", "home_conf", "away_conf",
-             "completed"]
+             "home_classification", "away_classification", "completed"]
+
+# The parameter that actually filters /games by division. It has been renamed once already
+# (`division` -> `classification`) and unknown parameters are silently IGNORED rather than
+# rejected, which is how a request for FBS quietly returned 699 teams including Kenyon and
+# Wayland Baptist. Both spellings are sent, and the classification each game comes back with
+# is stored so that features.fbs_membership can filter on the answer rather than trust the
+# question. Never rely on this alone.
+FBS_PARAMS = {"classification": "fbs", "division": "fbs"}
 
 
 def _headers() -> dict:
@@ -51,6 +59,19 @@ def _num(v):
         return float("nan")
 
 
+def _flag(v) -> bool:
+    """Bool that treats a missing value as False.
+
+    ``bool(np.nan)`` is True, so a NaN ``conference_game`` read back out of the CSV would
+    become 1 - the wrong direction to fail in for a field CFBD may simply omit.
+    """
+    if v is None or v != v:
+        return False
+    if isinstance(v, str):
+        return v.strip().lower() in {"true", "1", "yes", "t"}
+    return bool(v)
+
+
 def _parse_dt(s):
     if not s:
         return None, None
@@ -71,7 +92,7 @@ def fetch_games(season: int, season_type: str = "both") -> pd.DataFrame:
     types = ["regular", "postseason"] if season_type == "both" else [season_type]
     for st in types:
         data = get_json(f"{CFBD_BASE}/games",
-                        params={"year": season, "seasonType": st, "division": "fbs"},
+                        params={"year": season, "seasonType": st, **FBS_PARAMS},
                         headers=_headers())
         if not data:
             log.warning("no games returned for %s %s", season, st)
@@ -86,7 +107,13 @@ def fetch_games(season: int, season_type: str = "both") -> pd.DataFrame:
             away = pick(g, "awayTeam", "away_team")
             if not home or not away or gdate is None:
                 continue
-            done = hp == hp and ap == ap
+            # A live game already has points. Treating that as final grades a pick and
+            # permanently moves the rating book on a score that is still changing, and
+            # results.csv has no way back, so CFBD's own flag has to agree. If the field is
+            # missing entirely we fall back to the score, because "nothing is ever final" is a
+            # far worse failure than the one this guards against.
+            flag = pick(g, "completed", "isCompleted")
+            done = (hp == hp and ap == ap) and (_flag(flag) if flag is not None else True)
             rows.append({
                 "game_id": str(pick(g, "id", "gameId")),
                 "season": int(pick(g, "season", default=season)),
@@ -105,13 +132,39 @@ def fetch_games(season: int, season_type: str = "both") -> pd.DataFrame:
                 "home_points": hp, "away_points": ap,
                 "total_points": hp + ap if done else float("nan"),
                 "home_margin": hp - ap if done else float("nan"),
-                "neutral_site": bool(pick(g, "neutralSite", "neutral_site", default=False)),
-                "conference_game": bool(pick(g, "conferenceGame", "conference_game", default=False)),
+                "neutral_site": _flag(pick(g, "neutralSite", "neutral_site")),
+                "conference_game": _flag(pick(g, "conferenceGame", "conference_game")),
                 "home_conf": pick(g, "homeConference", "home_conference", default=""),
                 "away_conf": pick(g, "awayConference", "away_conference", default=""),
+                "home_classification": str(pick(g, "homeClassification", "home_classification",
+                                                default="") or "").lower(),
+                "away_classification": str(pick(g, "awayClassification", "away_classification",
+                                                default="") or "").lower(),
                 "completed": done,
             })
     return pd.DataFrame(rows)
+
+
+# An FBS season is ~135 teams playing ~800-950 games including bowls. Numbers far outside
+# that band mean the classification filter stopped working again rather than that college
+# football changed shape overnight - which is the failure that put 699 teams, Kenyon and
+# Wayland Baptist among them, into eleven seasons of training data unnoticed.
+FBS_GAMES_BAND = (700, 1200)
+FBS_TEAMS_BAND = (110, 160)
+
+
+def _warn_if_not_fbs(season: int, f: pd.DataFrame) -> None:
+    if not len(f):
+        return
+    teams = pd.concat([f["home_team"], f["away_team"]]).nunique()
+    lo, hi = FBS_GAMES_BAND
+    tlo, thi = FBS_TEAMS_BAND
+    if not (lo <= len(f) <= hi) or not (tlo <= teams <= thi):
+        log.warning("%s: %d games across %d teams is outside the FBS band "
+                    "(%d-%d games, %d-%d teams). The classification filter is probably being "
+                    "ignored; features.fbs_membership will still filter the board, but the "
+                    "cache is carrying non-FBS rows.",
+                    season, len(f), teams, lo, hi, tlo, thi)
 
 
 def load_games() -> pd.DataFrame:
@@ -144,6 +197,7 @@ def update_games(seasons: list[int] | None = None) -> pd.DataFrame:
     for s in seasons:
         f = fetch_games(s)
         log.info("  %s: %d games (%d final)", s, len(f), int(f["completed"].sum()))
+        _warn_if_not_fbs(s, f)
         if len(f):
             frames.append(f)
     out = pd.concat(frames, ignore_index=True)
@@ -192,25 +246,34 @@ def fetch_lines(season: int, week: int | None = None, season_type: str = "regula
 
 
 def consensus(lines: pd.DataFrame) -> pd.DataFrame:
-    """Collapse many providers per game into one row: preferred provider, else median."""
+    """Collapse many providers per game into one row: preferred provider, else median.
+
+    Resolved **per market**, not per game. Being listed is not the same as having priced the
+    thing you want: a provider that posts a total but no spread used to win the whole row and
+    hand back a NaN spread, dropping a game that three other books had priced. Spread and
+    total therefore pick their own best provider, and fall back to the median of the books
+    that did quote that market.
+    """
     if lines.empty:
         return lines
+    markets = {"spread": ("spread_home", "spread_open"), "total": ("total_line", "total_open")}
     out = []
     for gid, grp in lines.groupby("game_id"):
         have = {r.provider: r for r in grp.itertuples()}
-        chosen = next((p for p in PREFERRED_PROVIDERS if p in have), None)
         row = grp.iloc[0][["game_id", "season", "week", "date", "home_team", "away_team"]].to_dict()
-        if chosen:
-            r = have[chosen]
-            row.update({"spread_home": r.spread_home, "spread_open": r.spread_open,
-                        "total_line": r.total_line, "total_open": r.total_open,
-                        "provider": chosen})
-        else:
-            row.update({"spread_home": grp["spread_home"].median(),
-                        "spread_open": grp["spread_open"].median(),
-                        "total_line": grp["total_line"].median(),
-                        "total_open": grp["total_open"].median(),
-                        "provider": "median"})
+        chosen = {}
+        for market, (main, open_) in markets.items():
+            src = next((p for p in PREFERRED_PROVIDERS
+                        if p in have and getattr(have[p], main) == getattr(have[p], main)), None)
+            if src:
+                row[main] = getattr(have[src], main)
+                row[open_] = getattr(have[src], open_)
+            else:
+                row[main] = grp[main].median()
+                row[open_] = grp[open_].median()
+            chosen[market] = src or "median"
+        row["provider"] = (chosen["spread"] if chosen["spread"] == chosen["total"]
+                           else f"{chosen['spread']}/{chosen['total']}")
         row["n_providers"] = len(grp)
         out.append(row)
     return pd.DataFrame(out)
@@ -224,7 +287,9 @@ def load_lines() -> pd.DataFrame:
     return pd.DataFrame(columns=LINE_COLS + ["n_providers"])
 
 
-def update_lines(seasons: list[int] | None = None, refresh_current: bool = True) -> pd.DataFrame:
+def update_lines(seasons: list[int] | None = None) -> pd.DataFrame:
+    """Refresh the line cache. The current season is always re-fetched, so a run late on
+    Saturday sees numbers that moved since the morning - which is what makes CLV measurable."""
     from ..config import FIRST_SEASON, today_et
     cache = load_lines()
     this = season_of(today_et())

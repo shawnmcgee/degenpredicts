@@ -84,14 +84,21 @@ def grade() -> pd.DataFrame:
     m["total_abs_err"] = (m["total_pred"] - m["total_points"]).abs()
     m["margin_abs_err"] = (m["margin_pred"] - m["home_margin"]).abs()
 
-    # Closing-line value: the number we picked at, against the number the game closed at.
+    # Closing-line value: the number we FIRST published, against the number the game closed
+    # at. `predict.run` rewrites a game's row every morning it stays on the board, so using
+    # the row's own line measured the close against a number taken hours before it rather
+    # than against what we actually put our name to. `first_seen_*` is written once.
     closing = nflverse.load_lines()[["game_id", "spread_home", "total_line"]].rename(
         columns={"spread_home": "close_spread", "total_line": "close_total"})
     m = m.merge(closing, on="game_id", how="left")
+    first_total = (m["first_seen_total"] if "first_seen_total" in m
+                   else pd.Series(np.nan, index=m.index)).fillna(m["total_line"])
+    first_spread = (m["first_seen_spread"] if "first_seen_spread" in m
+                    else pd.Series(np.nan, index=m.index)).fillna(m["spread_home"])
     m["total_clv"] = np.where(m.total_pick == "Over",
-                              m.close_total - m.total_line, m.total_line - m.close_total)
-    m["spread_clv"] = np.where(took_home, m.close_spread - m.spread_home,
-                               m.spread_home - m.close_spread)
+                              m.close_total - first_total, first_total - m.close_total)
+    m["spread_clv"] = np.where(took_home, m.close_spread - first_spread,
+                               first_spread - m.close_spread)
     m["graded_at"] = str(config.today_et())
 
     done = pd.concat([done, m], ignore_index=True) if len(done) else m

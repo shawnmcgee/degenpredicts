@@ -90,17 +90,28 @@ def _board_summary(picks: Path, today: str) -> dict:
 
 
 def _record(metrics: dict, key: str) -> dict:
-    """Season record for one market, preferring the all-games figure.
+    """Season record for one market.
 
-    `all_games` rather than `season`: the staked-only record is empty by design whenever the
-    edge thresholds sit above what the model can prove, and an empty card reads as broken
-    rather than as honest.
+    Units and ROI come from the **staked** record only. They are the outcome of bets, and
+    reporting them over every graded game described bets that were never placed: week 1 of
+    CFB graded 105 games that all came back `pass` or `thin`, and the card advertised
+    "+0.34u, ROI 86.2%" off 0.39 units of stake that should have been zero.
+
+    The model's raw side record is still worth showing while the thresholds sit above
+    anything the backtest can prove - it is evidence, it just isn't a bankroll - so it is
+    carried separately as `model_n`/`model_win_pct` and the template labels it as unstaked.
+    CLV is a property of the number we published, not of the stake, so it comes from the
+    wider set.
     """
-    block = (metrics.get(key) or {}).get("all_games") or {}
-    if not block.get("n"):
+    block = metrics.get(key) or {}
+    staked, allg = block.get("season") or {}, block.get("all_games") or {}
+    if not (staked.get("n") or allg.get("n")):
         return {}
-    return {"n": block.get("n"), "units": block.get("units"),
-            "win_pct": block.get("win_pct"), "clv": block.get("clv")}
+    return {"n": staked.get("n", 0), "units": staked.get("units", 0.0),
+            "win_pct": staked.get("win_pct"), "roi": staked.get("roi"),
+            "model_n": allg.get("n", 0), "model_wins": allg.get("wins", 0),
+            "model_losses": allg.get("losses", 0), "model_win_pct": allg.get("win_pct"),
+            "clv": allg.get("clv") if allg.get("clv") is not None else staked.get("clv")}
 
 
 def collect(docs: Path | None = None, today: str | None = None) -> list[dict]:

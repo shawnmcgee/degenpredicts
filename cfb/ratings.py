@@ -6,9 +6,17 @@ Football differs from basketball in ways that matter here:
   evidence, so the update step is bigger and the prior-season carry-over matters far more.
 * Scoring margins are heavy-tailed (blowouts). Margin is capped before it updates the rating
   so a 63-0 result doesn't overstate the winner.
-* Home-field advantage is ~2.5 points and is zero at neutral sites.
-* FBS-vs-FCS games exist. FCS opponents aren't in our data at all, so those games are
-  excluded from training and rating updates rather than being treated as normal.
+* Home-field advantage is ~2.5 points, zero at neutral sites, and suppressed entirely for a
+  season played without crowds (see ``config.NO_CROWD_SEASONS``).
+* FBS-vs-FCS games exist and the CFBD feed carries them whatever classification was asked
+  for. They are replayed here rather than dropped - eleven seasons of replay rates the
+  repeat FCS visitors properly, and measuring says the extra rows help - but the published
+  board is filtered to FBS vs FBS in ``predict.build_board``.
+* Scoring drifts (28.5 points per team per game in 2015, 26.2 in 2025) but `LEAGUE_PPG`
+  stays fixed, and that is deliberate rather than an oversight: `expect` reads
+  ``h.off + (a.deff - LEAGUE_PPG)``, so the anchor very nearly cancels, and `SCORE_K`
+  re-converges what is left within a couple of games. Replacing it with a prior-season
+  average was measured and moved the week 1-3 total bias by 0.03 points.
 """
 from __future__ import annotations
 
@@ -19,7 +27,7 @@ MARGIN_CAP = 28.0          # diminishing returns past four scores
 MARGIN_K = 0.22
 SCORE_K = 0.16
 SEASON_CARRY = 0.72        # CFB rosters are stickier than CBB, but coaching/portal churn is real
-LEAGUE_PPG = 28.0          # points per team per game, FBS
+LEAGUE_PPG = 28.0          # points per team per game, FBS (see the module docstring)
 
 
 @dataclass

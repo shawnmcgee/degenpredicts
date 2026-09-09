@@ -75,6 +75,13 @@ def current_week(games, today: date | None = None) -> tuple[int, int]:
     return season, int(upcoming.sort_values("date")["week"].iloc[0])
 
 
+# Seasons played to empty or near-empty stadiums. Non-neutral FBS home margin was +2.13 in
+# 2020 against +4.62 the year before and +3.68 the year after, so crediting those 499 games
+# the usual 2.5-point home edge pushes every 2020 home team's rating down by an advantage
+# that was not there. `nfl` and `epl` both already suppress it; this is the same rule.
+NO_CROWD_SEASONS = {int(s) for s in os.environ.get("DEGEN_NO_CROWD", "2020").split(",")
+                    if s.strip()}
+
 FIRST_SEASON = int(os.environ.get("DEGEN_FIRST_SEASON", "2015"))
 # Games this many days ahead go on the board. CFB weeks run Thu-Mon.
 BOARD_DAYS = int(os.environ.get("DEGEN_BOARD_DAYS", "7"))
@@ -111,7 +118,10 @@ def break_even_pct(venue: str | None = None, price: float = 0.50) -> float:
         return 52.38
     fee = coef * price * (1 - price)
     cost = price + fee
-    return 100 * cost / ((1 - cost) + cost)
+    # A 0/100 contract costs `cost` and returns 1.00, so you break even at a win rate of
+    # exactly `cost`. The old expression divided by ((1 - cost) + cost), which is 1 - the
+    # right answer, but written as though it were doing something.
+    return 100 * cost
 
 
 BREAK_EVEN = float(os.environ.get("DEGEN_BREAK_EVEN", "0")) or break_even_pct()

@@ -19,9 +19,9 @@
       "losses": 43,
       "pushes": 0,
       "win_pct": 59.0,
-      "units": 3.26,
-      "roi": 25.0,
-      "clv": 0.0
+      "units": 0.0,
+      "roi": 0.0,
+      "clv": null
     },
     "last2weeks": {
       "n": 0,
@@ -44,7 +44,7 @@
         "win_pct": 51.9,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.0
+        "clv": null
       },
       {
         "bucket": "1-2",
@@ -55,7 +55,7 @@
         "win_pct": 45.5,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.0
+        "clv": null
       },
       {
         "bucket": "2-3",
@@ -66,7 +66,7 @@
         "win_pct": 71.4,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.0
+        "clv": null
       },
       {
         "bucket": "3-5",
@@ -75,9 +75,9 @@
         "losses": 7,
         "pushes": 0,
         "win_pct": 66.7,
-        "units": 0.01,
-        "roi": 1.0,
-        "clv": 0.0
+        "units": 0.0,
+        "roi": 0.0,
+        "clv": null
       },
       {
         "bucket": "5-7",
@@ -86,9 +86,9 @@
         "losses": 5,
         "pushes": 0,
         "win_pct": 54.5,
-        "units": -0.42,
-        "roi": -5.6,
-        "clv": 0.0
+        "units": 0.0,
+        "roi": 0.0,
+        "clv": null
       },
       {
         "bucket": "7-+",
@@ -97,9 +97,9 @@
         "losses": 0,
         "pushes": 0,
         "win_pct": 100.0,
-        "units": 3.67,
-        "roi": 90.9,
-        "clv": 0.0
+        "units": 0.0,
+        "roi": 0.0,
+        "clv": null
       }
     ]
   },
@@ -120,9 +120,9 @@
       "losses": 64,
       "pushes": 0,
       "win_pct": 39.0,
-      "units": 0.34,
-      "roi": 86.2,
-      "clv": 0.0
+      "units": 0.0,
+      "roi": 0.0,
+      "clv": null
     },
     "last2weeks": {
       "n": 0,
@@ -145,7 +145,7 @@
         "win_pct": 22.9,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.0
+        "clv": null
       },
       {
         "bucket": "1-2",
@@ -156,7 +156,7 @@
         "win_pct": 43.8,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.0
+        "clv": null
       },
       {
         "bucket": "2-3",
@@ -167,7 +167,7 @@
         "win_pct": 55.6,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.0
+        "clv": null
       },
       {
         "bucket": "3-5",
@@ -178,7 +178,7 @@
         "win_pct": 50.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.0
+        "clv": null
       },
       {
         "bucket": "5-7",
@@ -187,9 +187,9 @@
         "losses": 4,
         "pushes": 0,
         "win_pct": 0.0,
-        "units": -0.01,
-        "roi": -100.0,
-        "clv": 0.0
+        "units": 0.0,
+        "roi": 0.0,
+        "clv": null
       },
       {
         "bucket": "7-+",
@@ -198,9 +198,9 @@
         "losses": 0,
         "pushes": 0,
         "win_pct": 100.0,
-        "units": 0.35,
-        "roi": 91.1,
-        "clv": 0.0
+        "units": 0.0,
+        "roi": 0.0,
+        "clv": null
       }
     ]
   },
@@ -208,11 +208,11 @@
     {
       "week": 1,
       "games": 105,
-      "total_units": 3.26,
-      "spread_units": 0.34,
+      "total_units": 0.0,
+      "spread_units": 0.0,
       "played": 0,
-      "cum_total": 3.26,
-      "cum_spread": 0.34
+      "cum_total": 0.0,
+      "cum_spread": 0.0
     }
   ]
 }

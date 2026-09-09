@@ -103,21 +103,53 @@ def test_renders_a_chooser_with_a_link_per_sport(tmp_path):
     picks = HEADER + "g1,2026-09-10,2,play,pass\n"
     _publish(docs, "cfb", metrics={
         "updated": "2026-09-08",
-        "spreads": {"all_games": {"n": 40, "units": 2.5, "win_pct": 55.0, "clv": 0.31}},
-        "totals": {"all_games": {"n": 40, "units": -1.25, "win_pct": 47.5, "clv": -0.10}},
+        "spreads": {"season": {"n": 12, "units": 2.5, "win_pct": 58.0, "roi": 6.1},
+                    "all_games": {"n": 40, "wins": 22, "losses": 18, "units": 9.9,
+                                  "win_pct": 55.0, "clv": 0.31}},
+        "totals": {"season": {"n": 8, "units": -1.25, "win_pct": 44.0, "roi": -9.0},
+                   "all_games": {"n": 40, "wins": 19, "losses": 21, "units": -4.0,
+                                 "win_pct": 47.5, "clv": -0.10}},
     }, picks=picks)
     _publish(docs, "nfl", metrics={"updated": "2026-09-08"}, picks=HEADER)
 
     html = landing.build(docs).read_text()
     assert 'href="cfb/"' in html and 'href="nfl/"' in html
     assert "College Football" in html and "NFL" in html
+    # units come from the STAKED record, never from all_games
     assert "+2.50u" in html and "-1.25u" in html          # signed units, both directions
+    assert "+9.90u" not in html and "-4.00u" not in html  # the all-games units must not leak
     assert "+0.31" in html                                 # CLV carried through
     assert "No games on the board right now." in html      # the NFL card, with an empty board
     assert "1 play" in html and "1 plays" not in html      # singular, not "1 plays"
     # a pandas-style NaN must never reach the page
     body = re.sub(r"<(script|style)\b.*?</\1>", "", html, flags=re.S | re.I).lower()
     assert "nan" not in body
+
+
+def test_unstaked_weeks_show_a_record_not_a_fabricated_roi(tmp_path):
+    """Nothing cleared the threshold, so there are no units to report - only a side record.
+
+    This is the shape week 1 of CFB actually had: 105 graded games, every one `pass` or
+    `thin`, and a front page quoting "+0.34u, ROI 86.2%" off stakes that were supposed to be
+    zero. An empty staked record must read as an unstaked model record, not as a bankroll.
+    """
+    docs = tmp_path / "docs"
+    _publish(docs, "cfb", metrics={
+        "updated": "2026-09-08",
+        "spreads": {"season": {"n": 0, "units": 0.0, "win_pct": 0.0, "roi": 0.0},
+                    "all_games": {"n": 105, "wins": 41, "losses": 64, "units": 0.34,
+                                  "win_pct": 39.0, "clv": -0.12}},
+        "totals": {"season": {"n": 0, "units": 0.0, "win_pct": 0.0, "roi": 0.0},
+                   "all_games": {"n": 105, "wins": 62, "losses": 43, "units": 3.26,
+                                 "win_pct": 59.0, "clv": 0.21}},
+    }, picks=HEADER + "g1,2026-09-10,2,pass,pass\n")
+
+    html = landing.build(docs).read_text()
+    assert "model side, unstaked" in html
+    assert "62-43" in html and "41-64" in html      # the side record is still shown
+    assert "u<" not in html and "0.34u" not in html and "3.26u" not in html
+    assert "86.2" not in html                        # no ROI off a stake that should be zero
+    assert "+0.21" in html                           # CLV is a property of the number, not the stake
 
 
 def test_renders_with_nothing_published(tmp_path):

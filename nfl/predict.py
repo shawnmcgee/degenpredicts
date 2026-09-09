@@ -47,6 +47,19 @@ def kelly(p_win, payout) -> float:
     return max(0.0, f) * config.KELLY_FRACTION
 
 
+PLAYABLE = ("play", "bold")
+
+
+def _stakes(p_win, payout, strength):
+    """Kelly stake, but only where `_strength` said we were playing.
+
+    "pass" and "thin" are the system declining the bet; sizing one anyway makes the published
+    units and ROI describe wagers that were never supposed to exist.
+    """
+    return [round(kelly(p, b) * config.BANKROLL_UNITS, 2) if st in PLAYABLE else 0.0
+            for p, b, st in zip(p_win, payout, strength)]
+
+
 def _strength(edge, minimum, thin) -> str:
     e = abs(edge) if edge == edge else 0.0
     if e < minimum:
@@ -173,14 +186,24 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         out[f"{kind}_model"] = name
         out[f"{kind}_p_over"] = np.round(norm.cdf((blended - line) / sigma), 4)
 
+    # Strength decides whether anything is staked, so it is settled before the Kelly numbers
+    # are computed rather than after them. The thin-data flag also has to exist before the
+    # exchange pricing runs: the Kalshi path refuses to publish a pick on a game the model
+    # itself considers unplayable.
+    thin = (out["h_games"] < config.MIN_GAMES) | (out["a_games"] < config.MIN_GAMES)
+    out["thin_data"] = thin
+    out["total_strength"] = [_strength(d, config.TOTAL_EDGE_MIN, t)
+                             for d, t in zip(out["total_disagree"], thin)]
+    out["spread_strength"] = [_strength(d, config.SPREAD_EDGE_MIN, t)
+                              for d, t in zip(out["margin_disagree"], thin)]
+
     took_over = out["total_side_val"] > 0
     out["total_pick"] = np.where(took_over, "Over", "Under")
     out["total_p_win"] = np.where(took_over, out["total_p_over"], 1 - out["total_p_over"])
     out["total_price"] = np.where(took_over, out["over_price"], out["under_price"])
     out["total_payout"] = out["total_price"].apply(american_payout)
     out["total_ev"] = (out["total_p_win"] * out["total_payout"] - (1 - out["total_p_win"])).round(3)
-    out["total_stake"] = [round(kelly(p, b) * config.BANKROLL_UNITS, 2)
-                          for p, b in zip(out["total_p_win"], out["total_payout"])]
+    out["total_stake"] = _stakes(out["total_p_win"], out["total_payout"], out["total_strength"])
 
     took_home = out["margin_side_val"] > 0
     out["spread_side"] = np.where(took_home, out["home_team"], out["away_team"])
@@ -191,13 +214,7 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     out["spread_price"] = np.where(took_home, out["spread_home_price"], out["spread_away_price"])
     out["spread_payout"] = out["spread_price"].apply(american_payout)
     out["spread_ev"] = (out["spread_p_win"] * out["spread_payout"] - (1 - out["spread_p_win"])).round(3)
-    out["spread_stake"] = [round(kelly(p, b) * config.BANKROLL_UNITS, 2)
-                           for p, b in zip(out["spread_p_win"], out["spread_payout"])]
-
-    # The thin-data flag must exist BEFORE the exchange pricing runs: the Kalshi path refuses
-    # to publish a pick on a game the model itself considers unplayable.
-    thin = (out["h_games"] < config.MIN_GAMES) | (out["a_games"] < config.MIN_GAMES)
-    out["thin_data"] = thin
+    out["spread_stake"] = _stakes(out["spread_p_win"], out["spread_payout"], out["spread_strength"])
 
     if "margin_pred" in out:
         sig = out["margin_sigma"].replace(0, np.nan)
@@ -206,11 +223,8 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         out = _attach_kalshi(out, games)
         out = _price_ladders(out, games)
 
-    out["total_strength"] = [_strength(d, config.TOTAL_EDGE_MIN, t)
-                             for d, t in zip(out["total_disagree"], thin)]
-    out["spread_strength"] = [_strength(d, config.SPREAD_EDGE_MIN, t)
-                              for d, t in zip(out["margin_disagree"], thin)]
     out["prediction_date"] = str(today)
+    out["model_trained_at"] = meta.get("trained_at", "")
     out = out.sort_values(["date", "tip_et"]).reset_index(drop=True)
 
     log.info("week %s: %d games | totals %s | spreads %s",
@@ -227,13 +241,41 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         return out
 
     config.ensure_dirs()
+    out["first_seen_spread"] = out["spread_home"]
+    out["first_seen_total"] = out["total_line"]
+    out["first_seen_at"] = str(today)
     if config.PICKS.exists():
-        old = pd.read_csv(config.PICKS, dtype={"game_id": str})
-        old = old[~old["game_id"].isin(out["game_id"])]
-        pd.concat([old, out], ignore_index=True).to_csv(config.PICKS, index=False)
+        prev = pd.read_csv(config.PICKS, dtype={"game_id": str})
+        out = _carry_first_seen(prev, out)
+        prev = prev[~prev["game_id"].isin(out["game_id"])]
+        pd.concat([prev, out], ignore_index=True).to_csv(config.PICKS, index=False)
     else:
         out.to_csv(config.PICKS, index=False)
     log.info("wrote %d picks to %s", len(out), config.PICKS)
+    return out
+
+
+FIRST_SEEN = ("first_seen_spread", "first_seen_total", "first_seen_at")
+
+
+def _carry_first_seen(prev: pd.DataFrame, out: pd.DataFrame) -> pd.DataFrame:
+    """Keep the number we FIRST published for a game, across every later overwrite.
+
+    A game's row is rewritten every morning it stays on the board, so without this the only
+    surviving record is the last one, and closing-line value measured against that answers a
+    question nobody asked: it compares the close against a number taken hours before it.
+    """
+    if not len(prev) or "first_seen_at" not in prev.columns:
+        return out
+    seen = (prev.dropna(subset=["first_seen_at"])
+                .drop_duplicates("game_id", keep="first")
+                .set_index("game_id"))
+    for col in FIRST_SEEN:
+        if col not in seen.columns:
+            continue
+        earlier = out["game_id"].map(seen[col])
+        out[col] = earlier.combine_first(out[col]) if col != "first_seen_at" else \
+            earlier.fillna(out[col])
     return out
 
 
