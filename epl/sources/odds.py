@@ -25,6 +25,7 @@ import logging
 import statistics
 from datetime import datetime
 
+import numpy as np
 import pandas as pd
 
 # Settings are read as ``config.NAME`` at call time, never bound at import - see the note in
@@ -159,6 +160,63 @@ def snapshot(matcher=None) -> pd.DataFrame:
         log.warning("%d Odds API club names unmatched: %s",
                     len(matcher.unmatched), sorted(matcher.unmatched))
     return df
+
+
+def board(matcher=None) -> pd.DataFrame:
+    """Upcoming fixtures WITH prices, shaped like a source's fixtures table.
+
+    The match archive holds played matches only, so this is where the board comes from. That is
+    not a workaround: a live price feed is the only thing in the project that knows about a
+    match before it is played, and it happens to carry the prices too, so one call supplies both
+    the schedule and the market.
+
+    The Asian handicap is not quoted by this feed's ``h2h``/``totals`` markets, so ``ah_home`` is
+    left empty and the market's supremacy is inverted out of the 1X2 price instead - through the
+    same scoreline model the predictions come out of, so it lands on the model's own scale and
+    "we differ by 0.4 goals" stays a meaningful sentence.
+    """
+    from .. import config as _cfg
+    from ..odds_math import supremacy_from_prices, total_from_prices
+
+    snap = snapshot(matcher)
+    if snap.empty:
+        log.warning("no live prices - the board cannot be built without a fixtures feed. "
+                    "Set ODDS_API_KEY, or DEGEN_EPL_SOURCE=footballdata if that host is back.")
+        return pd.DataFrame()
+    rows = []
+    for r in snap.to_dict("records"):
+        gdate = r["date"]
+        season = _cfg.season_of(gdate)
+        ph, pdw, pa = r.get("live_price_home"), r.get("live_price_draw"), r.get("live_price_away")
+        po, pu = r.get("live_price_over"), r.get("live_price_under")
+        tl = r.get("live_total_line")
+        sup = supremacy_from_prices(ph, pdw, pa)
+        tot = total_from_prices(po, pu, tl)
+        rows.append({
+            "game_id": _game_id(season, r["home_team"], r["away_team"]),
+            "season": season, "league": _cfg.LEAGUE, "date": gdate,
+            "kickoff": r.get("kickoff", ""), "kickoff_uk": r.get("kickoff_uk", ""),
+            "matchweek": _cfg.matchweek(gdate, season),
+            "home_team": r["home_team"], "away_team": r["away_team"],
+            "completed": False, "no_crowd": 0,
+            "odds_source": f"odds-api:{r.get('book_1x2') or 'consensus'}", "is_closing": False,
+            "price_home": ph, "price_draw": pdw, "price_away": pa,
+            "ah_home": np.nan, "price_ah_home": np.nan, "price_ah_away": np.nan,
+            "total_line": tl, "price_over": po, "price_under": pu,
+            "mkt_p_home": r.get("p_home_mkt"), "mkt_p_draw": r.get("p_draw_mkt"),
+            "mkt_p_away": r.get("p_away_mkt"),
+            "mkt_sup": sup, "mkt_total": tot,
+            "book_1x2": r.get("book_1x2"), "book_ou": r.get("book_ou"),
+        })
+    df = pd.DataFrame(rows)
+    log.info("board: %d fixtures from the live price feed, %d with a market supremacy",
+             len(df), int(df["mkt_sup"].notna().sum()))
+    return df
+
+
+def _game_id(season, home, away):
+    from .footballdata import make_game_id
+    return make_game_id(season, home, away)
 
 
 def append_snapshot(df: pd.DataFrame) -> None:

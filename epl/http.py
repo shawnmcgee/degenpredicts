@@ -29,8 +29,23 @@ def session() -> requests.Session:
         s = requests.Session()
         # backoff_factor is deliberately small and the total is capped: this pipeline fetches
         # ~50 files on a first backfill, so any per-request slack is paid fifty times over.
+        #
+        # respect_retry_after_header=False is the important one, and it was learned the hard
+        # way. football-data.co.uk answers a GitHub runner with HTTP 503 - it is neither
+        # stalling nor dropping packets, it is actively refusing - and a 503 may carry a
+        # Retry-After header. urllib3 honours that header by DEFAULT, and a Retry-After sleep
+        # is NOT capped by backoff_max: the cap applies only to the computed exponential
+        # backoff. So a hostile Retry-After parked a single file fetch for 288 seconds, which
+        # no amount of tuning backoff_factor or backoff_max could have prevented.
+        #
+        # Nor could the wall-clock budget, which is checked after a request returns and so
+        # cannot interrupt one that is already asleep. Declining to honour the header is the
+        # only thing that bounds this, and for a static file archive it costs nothing: if the
+        # host wants us gone it will keep saying 503, and the breaker will notice.
         retry = Retry(total=config.HTTP_RETRIES, connect=config.HTTP_RETRIES,
-                      read=config.HTTP_RETRIES, backoff_factor=0.5, backoff_max=4,
+                      read=config.HTTP_RETRIES, status=config.HTTP_RETRIES,
+                      backoff_factor=0.5, backoff_max=4,
+                      respect_retry_after_header=False,
                       status_forcelist=(429, 500, 502, 503, 504), allowed_methods=("GET",))
         s.mount("https://", HTTPAdapter(max_retries=retry, pool_maxsize=8))
         s.mount("http://", HTTPAdapter(max_retries=retry, pool_maxsize=8))

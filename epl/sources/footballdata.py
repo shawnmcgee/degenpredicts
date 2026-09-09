@@ -651,7 +651,8 @@ def _season_strength(g: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def build_strength(games: pd.DataFrame | None = None, fetch: bool = True) -> pd.DataFrame:
+def build_strength(games: pd.DataFrame | None = None, fetch: bool = True,
+                   lower: pd.DataFrame | None = None) -> pd.DataFrame:
     """Prior-season strength for every club, including clubs promoted from the division below.
 
     The promoted half is the piece with no NFL analogue. Three of twenty clubs each season have
@@ -672,7 +673,11 @@ def build_strength(games: pd.DataFrame | None = None, fetch: bool = True) -> pd.
 
     below = pd.DataFrame(columns=STRENGTH_COLS)
     if config.LEAGUE_BELOW:
-        lower = _lower_division(sorted(int(s) for s in games["season"].unique()), fetch)
+        # `lower` is injected by the matchdata backend, which already holds the whole archive in
+        # memory and can slice the division below for free. Only the football-data backend has
+        # to go and fetch it a season at a time.
+        if lower is None:
+            lower = _lower_division(sorted(int(s) for s in games["season"].unique()), fetch)
         b_frames = [_season_strength(g) for _, g in lower.groupby("season")] if len(lower) else []
         if b_frames:
             below = pd.concat([f for f in b_frames if len(f)], ignore_index=True)

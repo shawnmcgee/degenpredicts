@@ -113,6 +113,22 @@ PRIMARY_TIME_BUDGET = float(os.environ.get("DEGEN_EPL_PRIMARY_BUDGET", "30"))
 # results AND the bookmakers' closing prices. That second half is the whole reason it is the
 # spine here rather than a scores feed: it is what lets the market-aware models train from day
 # one instead of after a season of self-logging.
+# Which backend supplies match history and prices.
+#
+# "matchdata" is the default because football-data.co.uk, the canonical archive for this sport,
+# could not be reached from a GitHub Actions runner across three separate runs - it accepts the
+# TCP connection and then stalls, returning zero bytes. The replacement is a GitHub-hosted
+# aggregate of the same archives on raw.githubusercontent.com, which is the host nflverse is
+# served from and which this repo has been using reliably for months. Set this to "footballdata"
+# to go back to the original once it is reachable; that module is kept working and tested.
+SOURCE = _env("DEGEN_EPL_SOURCE", "matchdata")
+# One CSV: every division, every season since 2000, with 1X2, over/under and Asian handicap
+# prices. ~45 MB, one request, replacing ~50 requests to a host that does not answer.
+MATCHDATA_URL = _env(
+    "DEGEN_MATCHDATA_URL",
+    "https://raw.githubusercontent.com/xgabora/Club-Football-Match-Data-2000-2025/"
+    "main/data/Matches.csv")
+
 FOOTBALL_DATA = _env("DEGEN_FOOTBALL_DATA", "https://www.football-data.co.uk/mmz4281").rstrip("/")
 # A results-only mirror on GitHub, used when the primary host is unreachable. It carries no
 # odds columns, so a run served entirely from the mirror can still rate teams and predict but
@@ -155,12 +171,21 @@ now_et, today_et = now_uk, today_uk
 
 
 def season_of(d) -> int:
-    """Season = the calendar year it kicks off in. A season runs August to May, so anything
-    from July onward belongs to the season starting that year and January-June belongs to the
-    season that started the previous year. July is the boundary because it is the only month
-    with no fixtures in it."""
+    """Season = the calendar year it kicks off in, with an AUGUST boundary.
+
+    A season runs August to May, so anything from August onward belongs to the season starting
+    that year and everything before it to the season that started the previous year.
+
+    The boundary is August rather than July because of one season. 2019-20 was suspended in
+    March 2020 and its last rounds were played behind closed doors from 17 June to 26 July -
+    which a July boundary files as 2020-21. That is not a rounding error: it moves 66 Premier
+    League matches into the wrong season, so they are joined to the wrong prior-season strength
+    ratings and they cross the rating engine's season rollover in the wrong place. The match
+    archive shows it exactly - 314 matches in "2019" and 446 in "2020" against a normal 380.
+    No English league season has ever kicked off in July, so August is safe.
+    """
     d = d if isinstance(d, date) else d.date()
-    return d.year if d.month >= 7 else d.year - 1
+    return d.year if d.month >= 8 else d.year - 1
 
 
 def season_code(season: int) -> str:

@@ -446,19 +446,50 @@ models with shrinkage fitted on a holdout; EV and Kelly output. But this is the 
 this repo that is not gridiron, and the **model at the centre of it is a different kind of
 object**. That is the section worth reading.
 
-### 1. Data source: football-data.co.uk, no key, no quota
+### 1. Data source: a match archive on GitHub, no key, no quota
 
-The same property that made CFBD and nflverse work: static CSVs, one per league per season,
-carrying results **and the bookmakers' closing prices**. So the market-aware models train from
-day one rather than after a season of self-logging.
+`football-data.co.uk` is the canonical archive for this sport and the pipeline was built on it.
+**It refuses a GitHub Actions runner.** It is not down and it is not slow — it answers with
+HTTP **503**, consistently, from every runner tried. The module is kept working and tested and
+can be re-selected with `DEGEN_EPL_SOURCE=footballdata` if that ever changes; from a residential
+IP it serves normally, so a manual fetch committed to the repo is also a viable path if you
+ever want the true closing columns.
 
-| Feed | What it gives | Size |
-|---|---|---|
-| `mmz4281/<season>/E0.csv` | one season: results, shots, shots on target, corners, cards, referee, **1X2 / Asian handicap / over-under 2.5 prices** from a panel of books | ~30 KB |
-| `fixtures.csv` | every forthcoming match across all divisions, with current prices — this is the board | ~50 KB |
-| `mmz4281/<season>/E1.csv` | the Championship, fetched only to give newly promoted clubs a prior | ~35 KB |
+The primary is now a GitHub-hosted aggregate of those same archives, served from
+`raw.githubusercontent.com` — the host nflverse is served from, which this repo has been using
+reliably for months.
 
-**Set up with `Actions → EPL retrain → Run workflow`.** No secrets required.
+| What | Detail |
+|---|---|
+| One CSV, all divisions | E0, E1, E2, E3, EC, plus the continental leagues, 2000 → present |
+| Prices | `OddHome/Draw/Away`, `Over25/Under25`, **`HandiSize/HandiHome/HandiAway`** |
+| Size | ~45 MB, **one request** — replacing ~50 requests to a host that does not answer |
+| Naming | football-data's own spelling, so `epl/teams.py` resolves every E0 and E1 club with no new aliases |
+| Handicap sign | the same convention — negative means the home side gives goals — verified on the data, not assumed |
+
+**Set up with `Actions → EPL retrain → Run workflow`.** No secrets required. The whole assemble
+step — fetch, parse 8,670 matches, opponent-adjust two divisions — takes about 15 seconds.
+
+**The one real downgrade, stated plainly.** football-data.co.uk publishes explicit *closing*
+columns (`PSCH`, `AHCh`, `PC>2.5`); this aggregate does not distinguish opening from closing. So
+`mae_market_baseline` is measured against a number that may be softer than the true close, and a
+model that appears to beat it may only be beating an opening price. Every row is marked
+`is_closing: false`, the training metadata records it per season, and any edge this source
+appears to show deserves more suspicion than the same edge measured against a close.
+
+#### The board comes from the live price feed
+
+The archive holds played matches only, so it cannot supply fixtures. `epl/sources/odds.py`
+builds the board from The Odds API instead — the only feed in the project that knows about a
+match before it is played, and it carries the prices too, so one call supplies both halves.
+
+That feed quotes no Asian handicap, so `ah_home` is empty on the board and the market's
+supremacy is inverted out of the 1X2 price through the same scoreline model the predictions come
+out of. It therefore lands on the model's own scale, and "we differ by 0.4 goals" stays a
+meaningful sentence rather than a comparison of two different quantities.
+
+**Without `ODDS_API_KEY` there is no board.** Training, grading and the ratings all work; there
+is simply nothing to publish. The job says so and exits cleanly rather than failing.
 
 ### 2. The model is a scoreline distribution, not a margin
 
@@ -549,21 +580,52 @@ price in world sport: enormous limits, sharp money, and twenty clubs that thousa
 model full-time. The realistic outcome is `beats_market: false` and a fitted `shrink` near zero,
 and the site says so on the page rather than burying it in JSON.
 
+Here is what the first real training run produced — 8,000 matches from 2005 to 2026, evaluated
+walk-forward across five seasons and 1,900 out-of-sample matches:
+
+```json
+"sup_market": {
+  "mae_model": 1.309,
+  "mae_market_baseline": 1.295,   ← the market's own error, in goals
+  "cover_rate": 50.3,
+  "cover_stderr": 1.19,
+  "break_even_pct": 51.28,
+  "beats_market": false,
+  "shrink": 0.00                  ← publish the market's number; the model adds nothing
+}
+```
+
+**The model does not beat the market, no disagreement bucket clears break-even, and no segment
+survives correction for the twenty looks taken** (a segment needs |z| ≥ 3.02, and the best one
+manages −0.54). The fitted shrink of exactly **0.00** is the same finding stated as bluntly as
+the fitter can state it: every published number is the market's number.
+
+Note the largest disagreements are the *worst* bucket, at 47.3% — when this model departs
+furthest from the price, it is most often simply wrong. That is the ordinary result for a
+public-data model against a mature football market, and it is why the default thresholds sit
+above every bucket in the table.
+
 **But point error is not the whole test here**, and that is genuinely new in this repo. Two
 models can have identical mean absolute error on supremacy while disagreeing completely about
 how often matches are drawn. So `models/meta.json` carries a `probability` block that scores the
-implied 1X2 probabilities directly (shape shown; your first run fills in the numbers):
+implied 1X2 probabilities directly. From the same run:
 
 ```json
 "probability": {
-  "log_loss_model": 0.9971,
-  "log_loss_market": 0.9903,     ← the de-vigged closing price's own log loss
-  "log_loss_edge": -0.0068,      ← negative means the market's probabilities were better
+  "log_loss_model": 0.9605,
+  "log_loss_market": 0.9598,     ← the de-vigged market's own log loss
+  "log_loss_edge": -0.0007,      ← negative means the market's probabilities were better
   "beats_market_log_loss": false,
-  "draw": { "actual_pct": 24.1, "model_pct": 24.6, "market_pct": 24.3 },
-  "calibration": [ ... ]
+  "draw": { "model_pct": 23.2, "market_pct": 23.3, "actual_pct": 23.9 }
 }
 ```
+
+A log-loss gap of 0.0007 is a dead heat — the model's probabilities are about as good as the
+market's, and not better. **The draw line is the one genuinely encouraging number in this
+report**: 23.2% predicted against 23.9% actual, within a point of both reality and the market's
+own view. That is the outcome a Gaussian margin model cannot express at all, and getting it
+right is the whole reason this pipeline models scorelines. It does not amount to an edge. It
+does mean the probabilities are honest, which is the precondition for ever finding one.
 
 Read it in this order:
 
@@ -638,6 +700,12 @@ Front-loaded, because football naming and football dates are both worse than the
 - **Push legs are returned, not lost.** A whole-number handicap or goal line pushes on an exact
   hit — on a level handicap that is the ~24% of matches that end drawn. Folding those into the
   loss column would understate EV by more than any edge being measured.
+- **The season boundary is August, not July.** 2019-20 was suspended in March 2020 and its last
+  rounds were played behind closed doors from 17 June to 26 July. A July boundary files those as
+  2020-21 — 66 Premier League matches joined to the wrong prior-season strength ratings and
+  crossing the rating engine's season rollover in the wrong place. The match archive shows it
+  exactly: 314 matches in "2019" and 446 in "2020", against a normal 380. No English league
+  season has ever kicked off in July.
 - **The ratings are anchored to the league mean.** Nothing otherwise forces mean attack and mean
   defence to zero, so in a high-scoring season every club's ratings drift up together. That
   breaks the season rollover, which regresses toward zero — no longer the mean — and quietly
@@ -646,7 +714,7 @@ Front-loaded, because football naming and football dates are both worse than the
   predicts a mean supremacy of +0.249 against an actual +0.257, and a mean total of 2.851
   against an actual 2.850.
 
-### Confirming the odds columns
+### Checking the source
 
 The one thing here that cannot be verified without reaching the live host is the shape of
 football-data's odds columns — and that layout has already changed once. It is
@@ -669,18 +737,23 @@ have made a first retrain a three-hour one.
 
 Three things now bound it, and it is worth knowing which does what:
 
-- **A wall-clock budget on the primary host — this is the bound that actually holds.** Thirty
-  seconds of *wasted* time and the host is abandoned for the rest of the run. Tuning retry counts
-  and socket timeouts assumes you know how a host will fail, and you do not: this one turned out
-  to accept the TCP connection and then stall, so the connect timeout never fired and the read
-  timeout did, at three times the cost. Worse, `read` in requests is a per-socket-read timeout
-  rather than a deadline for the whole response, so a host trickling one byte at a time can
-  exceed any value of it indefinitely and no retry setting will save you. Wall-clock is
-  invariant to all of it. Only time from *failed* requests counts, so a merely slow-but-working
-  host is never abandoned — it is still the only source of odds columns.
+- **`Retry-After` is not honoured.** This is the one that actually bit. The host answers 503,
+  which is in the retry list, and a 503 may carry a `Retry-After` header. urllib3 honours that
+  header by default, and a `Retry-After` sleep is **not** capped by `backoff_max` — that cap
+  applies only to computed exponential backoff. So a single file fetch was parked for **288
+  seconds**, which no amount of tuning `backoff_factor`, `backoff_max` or the retry count could
+  have prevented. Declining to honour the header is the only thing that bounds it, and against a
+  static archive it costs nothing: if the host wants us gone it keeps saying 503, and the
+  breaker notices.
+- **A wall-clock budget on the primary host.** Thirty seconds of *wasted* time and the host is
+  abandoned for the rest of the run. Note what this could and could not do: it correctly tripped
+  on that 288-second fetch and let the job finish — but it is checked *after* a request returns,
+  so it cannot interrupt one that is already asleep. It bounds the run, not the request. Only
+  time from *failed* requests counts, so a merely slow-but-working host is never abandoned.
 - **Short timeouts**, as a first line rather than the defence: 8s to connect, 15s to read, two
   attempts. Both failure paths are bounded under 45 seconds, and a test asserts both, because
-  which one fires is not ours to choose.
+  which one fires is not ours to choose — the diagnosis here was wrong twice before the logs
+  settled it, first as a packet drop and then as a stall, when it was neither.
 - **A circuit breaker.** Once either bound is hit the primary host is treated as down for the
   rest of the run and every later fetch goes straight to the mirror. Discovering a dead host
   once beats discovering it fifty times. The state is per-process and never persisted, so an
@@ -750,6 +823,9 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_WALK_SEASONS` | 6 (nfl) | seasons pooled by the walk-forward evaluation |
 | `DEGEN_NFL_HTTP_TIMEOUT` | 60 | NFL-only HTTP timeout; nflverse serves multi-MB files |
 | `DEGEN_NFL_DOCS` | `docs/nfl` | where the NFL board is written |
+| `DEGEN_EPL_SOURCE` | `matchdata` | history backend: `matchdata` (GitHub archive, the default) or `footballdata` (football-data.co.uk, when it is reachable) |
+| `DEGEN_MATCHDATA_URL` | (the archive) | override the archive location |
+| `DEGEN_EPL_PRIMARY_BUDGET` | 30 | seconds of wasted wall-clock before a source host is abandoned for the run |
 | `DEGEN_EPL_LEAGUE` | `E0` | which division the EPL pipeline predicts: `E0` Premier League, `E1` Championship, `E2` League One, `E3` League Two |
 | `DEGEN_SUP_EDGE` | 0.60 | min goals of supremacy disagreement to publish a handicap play |
 | `DEGEN_GOALS_EDGE` | 0.70 | same for total goals |

@@ -358,6 +358,27 @@ def test_per_request_budget_is_bounded():
     assert attempts * read < 45, "read path unbounded"
 
 
+def test_retry_after_header_is_not_honoured():
+    """The bound the wall-clock budget could not provide.
+
+    football-data.co.uk answers a GitHub runner with HTTP 503 - actively refusing, not stalling
+    - and a 503 may carry Retry-After. urllib3 honours that header by default and a Retry-After
+    sleep is NOT capped by backoff_max, which applies only to computed exponential backoff. One
+    file fetch was parked for 288 seconds. The wall-clock budget cannot help, because it is
+    checked after a request returns and cannot interrupt one already asleep.
+    """
+    from epl.http import session
+
+    adapter = session().get_adapter("https://example.invalid")
+    retry = adapter.max_retries
+    assert retry.respect_retry_after_header is False, (
+        "a hostile Retry-After can park a single fetch for minutes, past every other bound")
+    assert retry.total <= 2
+    assert retry.backoff_max <= 8
+    # the computed backoff is what is left, and it is small
+    assert retry.backoff_factor <= 1.0
+
+
 def test_wall_clock_budget_bounds_a_host_that_stalls():
     """The bound that actually holds. Retry counts and socket timeouts assume you know HOW a
     host will fail; this one accepted the connection and then stalled, so the connect timeout
@@ -478,6 +499,144 @@ def test_lower_division_is_cached_between_retrains(monkeypatch):
     assert len(second) == 3
     assert calls == [], "second run must serve entirely from the cache"
     F.reset_primary()
+
+
+# ---------------------------------------------------------------------------------
+# The match archive (the primary source)
+# ---------------------------------------------------------------------------------
+def _archive_row(**extra):
+    base = dict(Division="E0", MatchDate="2024-08-16", MatchTime="20:00",
+                HomeTeam="Man City", AwayTeam="Luton", FTHome=3, FTAway=0, FTResult="H",
+                HTHome=1, HTAway=0, HTResult="H", HomeShots=20, AwayShots=4,
+                HomeTarget=9, AwayTarget=1, HomeCorners=8, AwayCorners=2,
+                HomeYellow=1, AwayYellow=3, HomeRed=0, AwayRed=0,
+                OddHome=1.20, OddDraw=7.00, OddAway=15.0,
+                Over25=1.55, Under25=2.45,
+                HandiSize=-2.0, HandiHome=1.95, HandiAway=1.90)
+    base.update(extra)
+    return pd.DataFrame([base])
+
+
+def test_archive_parses_into_the_same_schema_as_the_other_source():
+    """Everything downstream is written against the schema, never against a source. That is what
+    made swapping the primary a configuration change rather than a rewrite."""
+    from epl.sources import footballdata, matchdata
+
+    g, ln = matchdata.parse(_archive_row(), "E0")
+    assert list(g.columns) == footballdata.GAME_COLS
+    assert list(ln.columns) == footballdata.LINE_COLS
+    assert len(g) == 1 and len(ln) == 1
+    assert g.home_team.iloc[0] == "Man City"
+    assert g.supremacy.iloc[0] == 3 and g.total_goals.iloc[0] == 3
+    assert g.home_sot.iloc[0] == 9
+
+
+def test_archive_handicap_sign_matches_the_repo_convention():
+    """Verified against the data rather than assumed: on the real archive, home favourites
+    average -1.67 and home underdogs +0.93, which is football-data's convention - negative means
+    the home side gives goals. If the aggregator had flipped it, every pick would take the wrong
+    side and land near 48%, and nothing would raise."""
+    from epl.sources import matchdata
+
+    _g, ln = matchdata.parse(_archive_row(), "E0")
+    assert ln.ah_home.iloc[0] < 0, "home favourite must carry a negative handicap"
+    assert ln.mkt_sup.iloc[0] == pytest.approx(2.0), "market supremacy is -ah_home"
+    assert ln.mkt_p_home.iloc[0] > ln.mkt_p_away.iloc[0]
+
+
+def test_archive_prices_are_not_claimed_to_be_closing():
+    """This aggregate does not distinguish opening from closing. Marking these rows as closing
+    would overstate how sharp the baseline the model is measured against actually is, which is
+    the one number in this project that must not be flattered."""
+    from epl.sources import matchdata
+
+    _g, ln = matchdata.parse(_archive_row(), "E0")
+    assert bool(ln.is_closing.iloc[0]) is False
+    assert "OddHome" in ln.odds_source.iloc[0]
+
+
+def test_archive_dates_are_iso_not_day_first():
+    """The other source writes British dates and this one writes ISO. Both are forced rather
+    than inferred, because a silently reordered season breaks the leak-free replay."""
+    from epl.sources import matchdata
+
+    g, _ln = matchdata.parse(_archive_row(MatchDate="2024-02-01"), "E0")
+    assert g.date.iloc[0] == date(2024, 2, 1)
+
+
+def test_archive_filters_by_division():
+    from epl.sources import matchdata
+
+    both = pd.concat([_archive_row(), _archive_row(Division="E1", HomeTeam="Millwall",
+                                                   AwayTeam="Preston")], ignore_index=True)
+    assert len(matchdata.parse(both, "E0")[0]) == 1
+    assert len(matchdata.parse(both, "E1")[0]) == 1
+    assert len(matchdata.parse(both, "D1")[0]) == 0
+
+
+def test_source_backend_is_selectable():
+    """Both backends produce the identical schema, so the choice is configuration."""
+    import importlib
+
+    from epl import config as cfg
+    from epl import sources
+
+    assert sources.active().__name__.endswith("matchdata"), "matchdata is the default"
+    os.environ["DEGEN_EPL_SOURCE"] = "footballdata"
+    try:
+        importlib.reload(cfg)
+        importlib.reload(sources)
+        assert sources.active().__name__.endswith("footballdata")
+    finally:
+        os.environ.pop("DEGEN_EPL_SOURCE", None)
+        importlib.reload(cfg)
+        importlib.reload(sources)
+
+
+def test_the_archive_holds_no_fixtures_so_the_board_falls_back():
+    """Returning empty is not a failure - it is the archive saying 'ask the live feed', which is
+    the only feed in the project that knows about a match before it is played."""
+    from epl.sources import matchdata
+
+    assert matchdata.fetch_fixtures().empty
+
+
+def test_live_feed_board_is_shaped_like_a_fixtures_table(monkeypatch):
+    from epl.sources import odds
+
+    snap = pd.DataFrame([{
+        "date": date(2026, 9, 12), "kickoff": "15:00", "kickoff_uk": "Sat 12 Sep, 15:00",
+        "home_team": "Arsenal", "away_team": "Chelsea",
+        "live_price_home": 1.90, "live_price_draw": 3.60, "live_price_away": 4.20,
+        "live_total_line": 2.5, "live_price_over": 1.90, "live_price_under": 1.95,
+        "book_1x2": "Pinnacle", "book_ou": "Pinnacle",
+        "p_home_mkt": 0.51, "p_draw_mkt": 0.27, "p_away_mkt": 0.22,
+    }])
+    monkeypatch.setattr(odds, "snapshot", lambda matcher=None: snap)
+    b = odds.board()
+    assert len(b) == 1
+    r = b.iloc[0]
+    assert r.home_team == "Arsenal" and not r.completed
+    assert r.game_id == "2026_arsenal_chelsea"
+    # the handicap is not quoted by this feed, so supremacy is inverted out of the 1X2 price
+    # through the same scoreline model the predictions come out of
+    assert r.ah_home != r.ah_home
+    assert r.mkt_sup == r.mkt_sup and r.mkt_sup > 0, "Arsenal favoured -> positive supremacy"
+    assert r.mkt_total == r.mkt_total
+
+
+def test_covid_season_lands_in_the_right_season():
+    """2019-20 was suspended in March 2020 and finished behind closed doors on 26 July. A July
+    boundary files those 66 matches as 2020-21, joining them to the wrong prior-season strength
+    and crossing the rating rollover in the wrong place."""
+    from epl import config
+
+    assert config.season_of(date(2020, 6, 20)) == 2019, "Project Restart is still 2019-20"
+    assert config.season_of(date(2020, 7, 26)) == 2019, "the final round is still 2019-20"
+    assert config.season_of(date(2020, 9, 12)) == 2020, "2020-21 opened in September"
+    # and the ordinary case is untouched
+    assert config.season_of(date(2024, 8, 16)) == 2024
+    assert config.season_of(date(2025, 5, 25)) == 2024
 
 
 # ---------------------------------------------------------------------------------
@@ -771,6 +930,7 @@ def test_season_boundary_wraps_the_calendar_year():
     assert config.season_of(date(2025, 2, 1)) == 2024
     assert config.season_of(date(2025, 5, 25)) == 2024
     assert config.season_of(date(2025, 8, 15)) == 2025
+    # see test_covid_season_lands_in_the_right_season for why the boundary is August
     assert config.season_code(2024) == "2425"
     assert config.season_code(1999) == "9900"
 

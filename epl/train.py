@@ -47,7 +47,17 @@ from sklearn.metrics import mean_absolute_error
 from . import config
 from .features import BASE_FEATURES, MARKET_FEATURES, build
 from .poisson import grid, match_odds, over_under
-from .sources import footballdata
+from .sources import active
+
+
+def source():
+    """The configured history/prices backend, resolved at call time.
+
+    Never bound at import: the tests and the docs both switch DEGEN_EPL_SOURCE, and a module
+    captured at import would ignore them - the same trap the config paths already avoid.
+    """
+    return active()
+
 
 log = logging.getLogger("epl.train")
 
@@ -61,7 +71,7 @@ DEFAULTS = dict(n_estimators=700, max_depth=3, learning_rate=0.02, subsample=0.8
 TARGETS = {"total": "total_goals", "sup": "supremacy"}
 # The market's number for each target, already in the model's units. Unlike the NFL there is no
 # sign flip: `mkt_sup` is the market's expected home supremacy (from the Asian handicap, whose
-# sign convention is fixed once in sources/footballdata.py) and `mkt_total` is its expected
+# sign convention is fixed once in sources/source().py) and `mkt_total` is its expected
 # goal count (inverted from the over/under price through the same scoreline model the
 # predictions come out of).
 MARKET_COL = {"total": "mkt_total", "sup": "mkt_sup"}
@@ -126,15 +136,15 @@ def load_models() -> tuple[dict, dict]:
 
 def assemble(fetch: bool = True) -> tuple[pd.DataFrame, list[dict]]:
     if fetch:
-        games = footballdata.update_games()
-        footballdata.build_strength(games)
+        games = source().update_games()
+        source().build_strength(games)
     else:
-        games = footballdata.load_games()
+        games = source().load_games()
     if games.empty:
         raise SystemExit("no matches cached - run once with network access")
-    lines = footballdata.load_lines()
-    coverage = footballdata.coverage_report(games, lines)
-    train_rows, _, _ = build(games, lines=lines, strength=footballdata.load_strength())
+    lines = source().load_lines()
+    coverage = source().coverage_report(games, lines)
+    train_rows, _, _ = build(games, lines=lines, strength=source().load_strength())
     log.info("%d completed matches, seasons %s, %d with a market number",
              len(train_rows), sorted(train_rows["season"].unique()),
              int(train_rows["mkt_sup"].notna().sum()) if len(train_rows) else 0)
