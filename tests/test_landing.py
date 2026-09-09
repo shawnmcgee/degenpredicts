@@ -185,3 +185,35 @@ def test_every_live_sport_has_a_card_on_the_chooser():
     slugs = {s["slug"] for s in landing.SPORTS}
     for slug in LIVE_SPORTS:
         assert slug in slugs, f"{slug} publishes a board but has no card on the chooser"
+
+
+def test_every_committing_workflow_commits_before_pulling():
+    """The ordering bug that lost the first EPL board, checked across all three sports.
+
+    `python -m <sport>.site` writes docs/<sport>/index.html as an UNTRACKED file. If the remote
+    has gained a commit that also creates it, git refuses to clobber it and aborts the pull -
+    and a trailing `|| true` swallows that abort, so the commit lands on a stale base and the
+    push is rejected non-fast-forward.
+
+    This lives in the sport-neutral suite on purpose: it is a property of every publishing
+    workflow, and pinning it per sport is how it came to be fixed in one place and left broken
+    in six others.
+    """
+    wf = ROOT / ".github" / "workflows"
+    jobs = sorted(p.name for p in wf.glob("*.yml")
+                  if any(k in p.name for k in ("-predict", "-grade", "-train")))
+    assert len(jobs) >= 9, f"expected every sport's three jobs, found {jobs}"
+    for name in jobs:
+        text = (wf / name).read_text()
+        if "git push" not in text:
+            continue
+        add, commit = text.index("git add "), text.index("git commit -m")
+        pull, push = text.index("git pull"), text.index("git push")
+        assert add < pull, f"{name}: pulls before staging"
+        assert commit < pull, f"{name}: commits after pulling"
+        assert pull < push, f"{name}: pushes before rebasing"
+        # Strip comments first: the explanation of this very bug quotes `|| true`.
+        commands = [ln for ln in text.split("git config user.name")[1].splitlines()
+                    if not ln.strip().startswith("#")]
+        assert not any("|| true" in ln for ln in commands), \
+            f"{name}: swallows a failed git command, which hides a doomed push"
