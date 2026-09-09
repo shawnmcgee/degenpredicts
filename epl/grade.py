@@ -26,7 +26,17 @@ import numpy as np
 import pandas as pd
 
 from . import config
-from .sources import footballdata
+from .sources import active
+
+
+def source():
+    """The configured history/prices backend, resolved at call time.
+
+    Never bound at import: the tests and the docs both switch DEGEN_EPL_SOURCE, and a module
+    captured at import would ignore them - the same trap the config paths already avoid.
+    """
+    return active()
+
 
 log = logging.getLogger("epl.grade")
 BREAK_EVEN = config.BREAK_EVEN
@@ -90,7 +100,7 @@ def grade() -> pd.DataFrame:
         log.info("nothing new to grade")
         return done
 
-    games = footballdata.update_games()
+    games = source().update_games()
     finals = games[games["completed"].astype(bool)][
         ["game_id", "home_goals", "away_goals", "supremacy", "total_goals", "result"]]
     m = pending.merge(finals, on="game_id", how="inner", suffixes=("", "_final"))
@@ -140,7 +150,7 @@ def grade() -> pd.DataFrame:
     m["total_abs_err"] = (m["total_pred"] - m["total_goals"]).abs()
 
     # ---- closing-line value ------------------------------------------------------
-    closing = footballdata.load_lines()
+    closing = source().load_lines()
     if len(closing):
         c = closing[["game_id", "ah_home", "mkt_sup", "mkt_total"]].rename(
             columns={"ah_home": "close_ah", "mkt_sup": "close_sup", "mkt_total": "close_total"})

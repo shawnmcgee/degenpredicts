@@ -28,6 +28,8 @@ difference between the two is reported in the training metadata.
 """
 from __future__ import annotations
 
+from functools import lru_cache
+
 import numpy as np
 
 # Bookmaker margins outside this range mean the quote is broken - a stale price, a suspended
@@ -169,51 +171,62 @@ def devig_two(a, b, method: str = "shin") -> tuple[float, float]:
     return float(p[0]), float(p[1])
 
 
+# Both inversions below are monotonic one-dimensional maps, so they are tabulated once and then
+# interpolated rather than bisected per row.
+#
+# This is not premature optimisation. Bisecting rebuilt the scoreline grid sixty times for every
+# match, which measured at 18 ms a row - roughly seven minutes of a training run spent
+# re-deriving the same curve twenty-four thousand times. Tabulating costs ~850 grid builds once
+# per distinct goal line and turns the per-row cost into a NumPy interpolation. The step is 0.01
+# goals against output rounded to three decimals, so the approximation sits far below anything
+# reported.
+_GRID_STEP = 0.01
+
+
+@lru_cache(maxsize=8)
+def _supremacy_table():
+    """supremacy -> P(home) - P(away), monotonic and independent of the total."""
+    from .poisson import grid, match_odds
+    from .ratings import LEAGUE_GPG
+
+    sups = np.arange(-4.0, 4.0 + _GRID_STEP, _GRID_STEP)
+    diffs = np.array([(lambda t: t[0] - t[2])(match_odds(grid(float(x), 2 * LEAGUE_GPG)))
+                      for x in sups])
+    return sups, diffs
+
+
+@lru_cache(maxsize=32)
+def _total_table(line: float):
+    """total goals -> P(over `line`), monotonically increasing."""
+    from .poisson import grid, over_under
+
+    totals = np.arange(0.5, 6.0 + _GRID_STEP, _GRID_STEP)
+    ps = np.array([over_under(grid(0.0, float(t)), line)[0] for t in totals])
+    return totals, ps
+
+
 def supremacy_from_prices(home, draw, away, method: str = "shin") -> float:
     """The market's implied goal supremacy, backed out of a 1X2 price.
 
     Inverts :func:`epl.poisson.match_odds` on a fixed league total, so a 1X2 price can be
     compared against the model on the model's own scale. Used when a match has a 1X2 price but
-    no Asian handicap - common in the older seasons, where football-data carries 1X2 back to
-    2000-01 but handicaps only from 2006-07.
-    """
-    from .poisson import grid, match_odds
-    from .ratings import LEAGUE_GPG
+    no Asian handicap - the older seasons, and the live price feed, which quotes no handicap.
 
+    The home/away *difference* is what gets inverted, rather than the raw home probability,
+    because it is monotonic in supremacy AND barely moves with the total - so the inversion is
+    stable even though the true total for the match is unknown at this point.
+    """
     ph, pd_, pa = devig_three(home, draw, away, method=method)
     if ph != ph or pa != pa:
         return float("nan")
-    lo, hi = -4.0, 4.0
-    for _ in range(60):
-        mid = (lo + hi) / 2
-        h, _d, a = match_odds(grid(mid, 2 * LEAGUE_GPG))
-        if h != h:
-            return float("nan")
-        # The home/away ratio is monotonic in supremacy and, unlike the raw home probability,
-        # does not move when the total does - so this inversion is stable even though the true
-        # total for the match is unknown at this point.
-        if (h - a) < (ph - pa):
-            lo = mid
-        else:
-            hi = mid
-    return round((lo + hi) / 2, 3)
+    sups, diffs = _supremacy_table()
+    return round(float(np.interp(ph - pa, diffs, sups)), 3)
 
 
 def total_from_prices(over, under, line: float, method: str = "shin") -> float:
     """The market's implied total goals, backed out of an over/under price."""
-    from .poisson import grid, over_under
-
     po, _pu = devig_two(over, under, method=method)
     if po != po or line != line:
         return float("nan")
-    lo, hi = 0.5, 6.0
-    for _ in range(60):
-        mid = (lo + hi) / 2
-        o, _p, _u = over_under(grid(0.0, mid), float(line))
-        if o != o:
-            return float("nan")
-        if o < po:
-            lo = mid
-        else:
-            hi = mid
-    return round((lo + hi) / 2, 3)
+    totals, ps = _total_table(float(line))
+    return round(float(np.interp(po, ps, totals)), 3)

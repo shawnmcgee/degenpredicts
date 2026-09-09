@@ -38,8 +38,18 @@ from .features import BASE_FEATURES, MARKET_FEATURES, build, epl_clubs
 from .odds_math import devig_three, devig_two, payout
 from .poisson import (asian_handicap, both_teams_score, fair_handicap, grid, match_odds,
                       most_likely_score, over_under)
-from .sources import footballdata, odds
+from .sources import active, odds
 from .train import load_models
+
+
+def source():
+    """The configured history/prices backend, resolved at call time.
+
+    Never bound at import: the tests and the docs both switch DEGEN_EPL_SOURCE, and a module
+    captured at import would ignore them - the same trap the config paths already avoid.
+    """
+    return active()
+
 
 log = logging.getLogger("epl.predict")
 
@@ -91,23 +101,34 @@ def run(dry_run: bool = False, days: int | None = None) -> pd.DataFrame:
     if not models:
         raise SystemExit("no trained models - run python -m epl.train")
 
-    games = footballdata.update_games()
-    lines = footballdata.load_lines()
+    games = source().update_games()
+    lines = source().load_lines()
     # Strength is READ here, never rebuilt. It is a season-static quantity - prior-season
     # ratings cannot change mid-season - so refreshing it daily bought nothing and re-fetched
     # the whole division below every morning. The Tuesday retrain owns building it.
-    strength = footballdata.load_strength()
+    strength = source().load_strength()
     if strength.empty:
         log.warning("no strength table - preseason features will be empty. "
                     "Run `python -m epl.train` to build it.")
 
-    board = build_board(footballdata.fetch_fixtures(), days)
+    # The source supplies fixtures if it can; the matchdata archive holds played matches only
+    # and returns empty, which is its way of saying "ask the live feed". That feed knows about
+    # unplayed matches and carries their prices, so it fills both roles at once.
+    matcher = odds.build_matcher(sorted(epl_clubs(games, config.season_of(today))))
+    fixtures = source().fetch_fixtures()
+    if fixtures.empty:
+        fixtures = odds.board(matcher)
+    board = build_board(fixtures, days)
     if board.empty:
         log.info("no upcoming fixtures on the board")
         return board
 
-    live = odds.snapshot(odds.build_matcher(sorted(epl_clubs(games, config.season_of(today)))))
-    if not dry_run:
+    # Only re-pull when the board came from the source rather than from the feed itself;
+    # otherwise this would spend a second API call to fetch numbers already in hand.
+    from_feed = str(board.get("odds_source", pd.Series(dtype=str)).iloc[0]
+                    if len(board) else "").startswith("odds-api")
+    live = pd.DataFrame() if from_feed else odds.snapshot(matcher)
+    if not dry_run and len(live):
         odds.append_snapshot(live)
     if len(live):
         board = board.merge(
