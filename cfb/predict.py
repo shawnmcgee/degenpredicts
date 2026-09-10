@@ -56,6 +56,15 @@ def _stakes(p_win, payout, strength):
 
 
 def _strength(edge, minimum, thin) -> str:
+    """How hard we back a market, from the model's raw disagreement with the line.
+
+    Classification is deliberately NOT an input here. An early blanket ban on FBS-vs-FCS games
+    was measured and withdrawn: judged on the population that actually gets staked - games that
+    clear these thresholds - FCS totals cover 56.8% against a 51.75% break-even, above every
+    seed, which is the best segment in the table rather than the worst. The unconditioned 50.7%
+    that motivated the ban describes games this function already declines. The thresholds are
+    the gate; a game is priced on its features, not on its opponent's division.
+    """
     e = abs(edge) if edge == edge else 0.0
     if e < minimum:
         return "pass"
@@ -76,17 +85,32 @@ def build_board(games: pd.DataFrame, lines: pd.DataFrame, week: int | None = Non
                       (sched["date"] <= today + timedelta(days=config.BOARD_DAYS))]
     if sched.empty:
         return sched
-    # FBS vs FBS only. The schedule feed carries every classification, so without this the
-    # board publishes a spread and a total on Miami -56.5 vs Florida A&M: a number the model
-    # has no basis for (the visitor has no rating and no SP+ row), on a game the site says it
-    # does not cover. 36 of last week's 85 board games were of exactly that shape.
+    # The schedule feed carries every classification, including the D-II and D-III rows the
+    # broken CFBD filter drags in. Two different decisions here, and only one of them is about
+    # what the model can price:
+    #
+    #   * a game with NEITHER side FBS is always dropped. Nothing rates those teams, and
+    #     publishing a number on one is inventing it.
+    #   * an FBS-vs-FCS game is kept when `config.BOARD_FCS`, and carries `fbs=False`. The
+    #     flag is for labelling and for the per-class record split in `grade.metrics` - it is
+    #     NOT a staking veto. Judged on the games that clear the edge thresholds, FCS totals
+    #     cover 56.8% against a 51.75% break-even, so blocking them would have removed the
+    #     best-covering segment measured. The thresholds decide, the same as anywhere else.
     members = fbs_membership(games, sp)
-    keep = [is_fbs_game(members, r.season, r.home_team, r.away_team) for r in sched.itertuples()]
+    sched["fbs"] = [is_fbs_game(members, r.season, r.home_team, r.away_team)
+                    for r in sched.itertuples()]
+    rated = fbs_teams(games, season, sp)
+    one_side = [(r.home_team in rated) or (r.away_team in rated) for r in sched.itertuples()]
+    keep = [f or (config.BOARD_FCS and o) for f, o in zip(sched["fbs"], one_side)]
     if not all(keep):
-        log.info("board: dropped %d non-FBS games, %d remain", len(keep) - sum(keep), sum(keep))
+        log.info("board: dropped %d unrateable games, %d remain",
+                 len(keep) - sum(keep), sum(keep))
     sched = sched[keep]
     if sched.empty:
         return sched
+    if not sched["fbs"].all():
+        log.info("board: %d of %d games are FBS vs FCS (shown, not staked)",
+                 int((~sched["fbs"]).sum()), len(sched))
     cols = ["game_id", "spread_home", "spread_open", "total_line", "total_open",
             "provider", "n_providers"]
     have = [c for c in cols if c in lines.columns]
@@ -94,8 +118,25 @@ def build_board(games: pd.DataFrame, lines: pd.DataFrame, week: int | None = Non
     return board
 
 
+def board_teams(board: pd.DataFrame, games: pd.DataFrame, season: int,
+                sp: pd.DataFrame | None = None) -> set[str]:
+    """Name universe for the odds and Kalshi matchers.
+
+    The FBS roster, plus the FCS teams actually on this week's board. It has to be *plus this
+    week's names only*: handing the matcher every name in the games file put 699 teams in the
+    2025 table, and `difflib` at cutoff 0.80 mis-resolves names onto the extra collision
+    targets. Thirty-odd real opponents is a rounding error on a 135-team roster; five hundred
+    is a different failure mode.
+    """
+    names = set(fbs_teams(games, season, sp))
+    if board is not None and len(board):
+        names |= set(board["home_team"]) | set(board["away_team"])
+    return names
+
+
 def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     today = config.today_et()
+    season = config.season_of(today)
     models, meta = load_models()
     if not models:
         raise SystemExit("no trained models - run python -m cfb.train")
@@ -112,7 +153,7 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         return board
 
     # optional live prices, joined on team names
-    live = odds.snapshot(odds.build_matcher(sorted(fbs_teams(games, config.season_of(today), sp))))
+    live = odds.snapshot(odds.build_matcher(sorted(board_teams(board, games, season, sp))))
     if not dry_run:
         odds.append_snapshot(live)
     if len(live):
@@ -141,7 +182,10 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
             "home_team", "away_team",
             "neutral_site", "conference_game", "total_line", "spread_home", "provider",
             "over_price", "under_price", "spread_home_price", "spread_away_price",
-            "total_book", "spread_book", "h_games", "a_games", "exp_total", "exp_margin"]
+            "total_book", "spread_book", "h_games", "a_games", "exp_total", "exp_margin",
+            # `fbs` is load-bearing, not decoration: it is what makes an FBS-vs-FCS game
+            # unstakeable further down. Dropping it here silently re-enables betting on them.
+            "fbs"]
     out = up[[c for c in keep if c in up.columns]].copy()
 
     for kind, line_col, sign in (("total", "total_line", 1), ("margin", "spread_home", -1)):
@@ -308,7 +352,7 @@ def _attach_kalshi(out: pd.DataFrame, games: pd.DataFrame,
         out[c] = np.nan
     out["ml_ref_side"] = pd.Series([None] * len(out), index=out.index, dtype="object")
     try:
-        matcher = odds.build_matcher(sorted(fbs_teams(games, config.season_of(config.today_et()), sp)))
+        matcher = odds.build_matcher(sorted(board_teams(out, games, config.season_of(config.today_et()), sp)))
         board = kalshi.moneyline_board(matcher)
     except Exception as e:                    # a third-party outage must not kill the run
         log.warning("kalshi unavailable (%s) - continuing without exchange prices", e)
@@ -431,7 +475,7 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
     out["kalshi_incoherent"] = False
 
     try:
-        matcher = odds.build_matcher(sorted(fbs_teams(games, config.season_of(config.today_et()), sp)))
+        matcher = odds.build_matcher(sorted(board_teams(out, games, config.season_of(config.today_et()), sp)))
         tot = kalshi.ladder_board("total", matcher)
         spr = kalshi.ladder_board("spread", matcher)
     except Exception as e:
