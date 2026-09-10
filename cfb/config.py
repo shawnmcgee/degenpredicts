@@ -86,6 +86,18 @@ FIRST_SEASON = int(os.environ.get("DEGEN_FIRST_SEASON", "2015"))
 # Games this many days ahead go on the board. CFB weeks run Thu-Mon.
 BOARD_DAYS = int(os.environ.get("DEGEN_BOARD_DAYS", "7"))
 
+# Publish FBS-vs-FCS games on the board as well - ~120 a season, staked on the same edge
+# thresholds as anything else. An initial version showed them but banned staking, on a 50.7%
+# ATS reading taken over ALL mixed games; that is the wrong population, because only games
+# clearing SPREAD_EDGE_MIN / TOTAL_EDGE_MIN are ever staked. Conditioned on clearing them, FCS
+# totals cover 56.8% against a 51.75% break-even (n~88, above break-even on all seven seeds) -
+# the best segment measured, not the worst. So classification is a label, not a bet filter:
+# `grade.metrics` reports `by_class` so the two populations stay legible.
+#
+# Set to 0 for an FBS-only board. Games where NEITHER side is FBS are always dropped - those
+# are the D-II/D-III rows the broken feed filter drags in, and nothing prices them.
+BOARD_FCS = os.environ.get("DEGEN_CFB_BOARD_FCS", "1").lower() not in ("0", "false", "no", "")
+
 # --- modelling / betting -------------------------------------------------------------
 MIN_GAMES = int(os.environ.get("DEGEN_MIN_GAMES", "2"))     # thin-data guard (weeks 1-2)
 # NOTE: these thresholds apply to the model's RAW disagreement with the line

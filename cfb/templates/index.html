@@ -47,6 +47,7 @@
   .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
   .tag.play,.tag.bold{background:var(--good);color:#052e16}
   .tag.pass{background:var(--line);color:var(--dim)}
+  .tag.watch{background:var(--line);color:var(--dim);border:1px solid var(--warn)}
   .tag.early,.tag.thin{background:var(--warn);color:#2a1c00}
   .tag.win{background:var(--good);color:#052e16}
   .tag.loss{background:var(--bad);color:#3f0a0a}
@@ -111,10 +112,9 @@
   </div>
   <p class="sub">Break-even at {{ m.venue or venue }} is {{ m.break_even }}%.
     CLV is the fastest honest read on whether there's an edge.
-    {% if m.off_board_games %}Counts {{ m.graded_games - m.off_board_games }} FBS-vs-FBS games.
-    {{ m.off_board_games }} further picks were published before the board filtered out
-    FBS-vs-FCS matchups; they are graded but scored separately, because the board will not
-    offer another one.{% endif %}</p>
+    {% if m.fcs_games %}Covers all {{ m.graded_games }} graded games, of which
+    {{ m.fcs_games }} were FBS vs FCS &mdash; a different population (median spread 30.5 against
+    8.5), staked on the same thresholds and broken out under <code>by_class</code>.{% endif %}</p>
 </section>
 {% endif %}
 
@@ -147,7 +147,7 @@
        data-kick="{{ g.kick_sort or '' }}">
     <div class="ghead">
       <span>{{ g.time_label }}</span>
-      <span>{% if g.has_play %}<span class="tag play">play</span> {% endif %}&#916;{{ '%.1f'|format(gap) }}{% if g.thin_data %} &middot; early season{% endif %}</span>
+      <span>{% if g.has_play %}<span class="tag play">play</span> {% endif %}{% if g.fcs %}<span class="tag watch">FCS</span> {% endif %}&#916;{{ '%.1f'|format(gap) }}{% if g.thin_data %} &middot; early season{% endif %}</span>
     </div>
     <div class="matchup">{{ g.away_team }}<span class="at">{% if g.neutral_site %}vs{% else %}at{% endif %}</span>{{ g.home_team }}</div>
     <div class="bets">

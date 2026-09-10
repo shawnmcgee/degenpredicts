@@ -5,9 +5,9 @@
 Grading joins on CFBD's ``game_id``, so there's no team-name matching to go wrong - a big
 simplification over the old pipeline, which merged on (date, home, away) strings.
 
-Every graded row is tagged FBS-vs-FBS or not, and the headline record counts only the former:
-the board publishes FBS vs FBS today, so a number that averages in the FBS-vs-FCS picks it used
-to publish describes a population it no longer offers. See :func:`tag_fbs`.
+Every graded row is tagged FBS-vs-FBS or not. Both are published and both are staked on the
+same edge thresholds, so both count in the headline - but they are different populations, and
+the season-to-date mix moves around, so `by_class` always carries the split. See :func:`tag_fbs`.
 """
 from __future__ import annotations
 
@@ -116,10 +116,11 @@ def grade() -> pd.DataFrame:
 def tag_fbs(done: pd.DataFrame, games=None, sp=None) -> pd.DataFrame:
     """Mark each graded row with whether it was an FBS-vs-FBS game.
 
-    The board publishes FBS vs FBS only (see ``predict.build_board``). It did not always: 66 of
-    the first 105 graded picks were FBS vs FCS, priced off a rating the visitor does not have.
-    Scoring both populations as one number reports a record for games the board no longer
-    offers, so every row carries the flag and :func:`metrics` splits on it.
+    Both classes are published and staked, so this is not a bet filter - it is what lets
+    :func:`metrics` report `by_class` behind the headline. The two are genuinely different
+    populations (median spread 30.5 against 8.5) and the mix moves around: 66 of the first 105
+    graded picks were FBS vs FCS, published before ``build_board`` existed at all. Without the
+    split a shifting mix reads as a changing edge.
 
     Recomputed over the whole file rather than only the new rows, so the legacy picks get the
     flag too. A season with no roster to judge by resolves to "FBS" - :func:`is_fbs_game`
@@ -162,37 +163,45 @@ def metrics(done: pd.DataFrame) -> dict:
     if season.empty:
         season = done[done["season"] == done["season"].max()]
 
-    # Score the population the board actually publishes. Everything here was graded, but the
-    # FBS-vs-FCS picks were published before `build_board` filtered them out and the board will
-    # never offer another one - averaging them into the headline describes a mix that no longer
-    # exists. They are reported under `off_board` rather than dropped, because they were real
-    # published picks and hiding a losing sample is how a record starts flattering itself.
+    # The board publishes both FBS-vs-FBS and FBS-vs-FCS games and stakes both on the same edge
+    # thresholds, so the headline record is every graded game - that is the real P&L, and
+    # carving the FCS picks out of it would understate money actually risked.
+    #
+    # They are still reported separately, because they are a genuinely different population
+    # (median spread 30.5 against 8.5) and the season-to-date mix moves around: 66 of the first
+    # 105 graded picks were FCS games, published before the board filter existed. A headline
+    # that silently changes population is how a record starts flattering itself, so `by_class`
+    # always shows the split behind it.
     fbs = (season["fbs"].astype(bool) if "fbs" in season.columns
            else pd.Series(True, index=season.index))
-    comparable, off_board = season[fbs], season[~fbs]
-    out["off_board_games"] = int(len(off_board))
+    fbs_only, fcs = season[fbs], season[~fbs]
     out["graded_games"] = int(len(season))
+    out["fcs_games"] = int(len(fcs))
 
     for kind, edge_col, err_col, strength_col in (
             ("total", "total_disagree", "total_abs_err", "total_strength"),
             ("spread", "margin_disagree", "margin_abs_err", "spread_strength")):
         key = "totals" if kind == "total" else "spreads"
-        played = comparable[comparable[strength_col].isin(["play", "bold"])]
+        played = season[season[strength_col].isin(["play", "bold"])]
         out[key] = {
             "season": _rec(played, kind),
-            "all_games": _rec(comparable, kind),
-            "off_board": _rec(off_board, kind),
+            "all_games": _rec(season, kind),
+            # Same granularity as `all_games` above, deliberately: this is the split BEHIND the
+            # headline, so it has to add up to it. Filtering these two to played games only
+            # made both read 0-0 while the headline showed 62-43, since every legacy pick
+            # graded `pass`.
+            "by_class": {"fbs": _rec(fbs_only, kind), "fcs": _rec(fcs, kind)},
             "last2weeks": _rec(played[played["week"] >= played["week"].max() - 1], kind)
             if len(played) else _rec(played, kind),
-            "mae": round(float(comparable[err_col].mean()), 2) if len(comparable) else None,
+            "mae": round(float(season[err_col].mean()), 2) if len(season) else None,
             "by_edge": [],
         }
         for lo, hi in [(0, 1), (1, 2), (2, 3), (3, 5), (5, 7), (7, 999)]:
-            b = comparable[(comparable[edge_col].abs() >= lo) & (comparable[edge_col].abs() < hi)]
+            b = season[(season[edge_col].abs() >= lo) & (season[edge_col].abs() < hi)]
             if len(b):
                 out[key]["by_edge"].append({"bucket": f"{lo}-{hi if hi < 999 else '+'}", **_rec(b, kind)})
 
-    for wk, grp in comparable.groupby("week"):
+    for wk, grp in season.groupby("week"):
         played = grp[grp["total_strength"].isin(["play", "bold"]) |
                      grp["spread_strength"].isin(["play", "bold"])]
         out["by_week"].append({

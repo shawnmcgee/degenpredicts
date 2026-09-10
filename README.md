@@ -235,9 +235,12 @@ noise is ±0.01–0.03 MAE:
 | FBS-involved | all | 12.228 | 50.70% |
 | FBS only | FBS only | 12.290 | 49.94% |
 
-- **The board is filtered.** 36 of one week's 85 published games were FBS vs FCS — Miami −56.5
-  against Florida A&M, priced off a rating Florida A&M does not have, on a site that says it
-  covers FBS. Those are gone.
+- **The board publishes them, on the same footing** (`DEGEN_CFB_BOARD_FCS`, on by default).
+  37 of this week's 87 board games are FBS vs FCS. They carry an `FCS` badge and an `fbs=False`
+  flag for the record split, but the edge thresholds decide whether anything is staked, exactly
+  as for an FBS game. Games where *neither* side is FBS are dropped outright: 218 of the 305
+  games in this week's window were Denison–Oberlin and the like, and nothing rates those.
+  See "Should you bet them" below.
 - **Training and the rating replay are not filtered.** Going fully FBS-only costs **0.10 points
   of MAE and 1.9 points of ATS** — far outside seed noise. Splitting the two knobs shows where
   that comes from:
@@ -252,11 +255,36 @@ noise is ±0.01–0.03 MAE:
 Dropping the non-FBS rows would have been a plausible-sounding change that made the model
 worse, and dropping only the mixed games would have been worse still per row discarded.
 
-### Why the mixed games stay off the board anyway
+### Should you bet them
 
-Not because they are unpredictable. Scored on mixed holdout games the model runs 50.72% ATS on
-margin (±2.35, n=453) against a 51.75% break-even — no edge. But bucketed by line size it is
-not the FCS that hurts:
+Yes, on the same terms as anything else — but the first answer here was wrong, and the way it
+was wrong is worth keeping.
+
+Scored across *all* mixed holdout games the model runs 50.72% ATS on margin (±2.35, n=453)
+against a 51.75% break-even, which reads like a clear no. That was the basis for an initial
+blanket staking ban. It measures the wrong population: you never bet every game, you bet games
+that clear `SPREAD_EDGE_MIN` / `TOTAL_EDGE_MIN`. Conditioned on clearing them — the games that
+actually get staked, seven seeds, four walk-forward seasons:
+
+| Market | FBS vs FBS | FBS vs FCS |
+| --- | ---: | ---: |
+| Totals, disagreement ≥ 5.0 | 53.6% (n≈399, seed sd 1.7) | **56.8%** (n≈88, seed sd 1.7) |
+| Spreads, disagreement ≥ 4.0 | 52.3% (n≈496, seed sd 1.5) | 51.8% (n≈80, seed sd 3.2) |
+
+Break-even is 51.75%. FCS totals are the **best** segment in the table, above break-even on
+every seed — the ban would have removed the strongest thing measured while leaving weaker
+segments in. FCS spreads straddle break-even with double the seed variance, so they are thin,
+but they are not distinguishable from the FBS spreads sitting at 52.3%.
+
+The general lesson: an unconditioned population statistic is not a decision rule for a system
+that only acts on a filtered subset. Judge a filter on the games it would actually change.
+
+The caveats are real and stay stated: n≈88 is thin, these are eight cells looked at together,
+and none of the gaps clears two standard errors. What makes shipping it reasonable is that the
+thresholds already carry the risk, and `by_class` in `metrics.json` now reports FBS and FCS
+separately every run — so a season of live data settles it rather than another argument.
+
+Bucketed by line size, it is also not the FCS that hurts:
 
 | \|spread\| | FBS vs FBS | FBS vs FCS |
 | --- | ---: | ---: |
@@ -267,8 +295,18 @@ not the FCS that hurts:
 
 At the same spread the two populations behave the same. The edge lives in the 7–14 and 21–28
 buckets, and mixed games have a median spread of **30.5** against 8.5 for FBS games, with 56%
-of them past 28 — they land almost entirely where nobody beats the number. Publishing them
-would add ~120 games a season of board volume and no expected value.
+of them past 28 — so most of them will simply never clear a threshold, which is the filter
+doing its job without needing a rule about divisions.
+
+`predict._strength` therefore takes no classification argument at all, and a test asserts its
+signature so the ban cannot creep back in by the side door. What `fbs` still does:
+
+| Where | What it does |
+| --- | --- |
+| `build_board` | keeps FBS-vs-FCS, drops games with no FBS side at all |
+| `run`'s `keep` list | carries the flag into `picks.csv` — it is dropped silently if not named, so a test asserts it |
+| the board page | an `FCS` badge on the card |
+| `grade.metrics` | `by_class`, the FBS/FCS split behind the headline record |
 
 ### Reading the record
 
@@ -277,10 +315,19 @@ were FBS vs FCS — so the headline record used to average two populations, one 
 board will never offer again. It flattered the numbers badly: those 66 ran 63.6% on totals
 against 51.3% for the comparable picks, reporting a 59% season.
 
-`grade.tag_fbs` now flags every graded row and `grade.metrics` scores only the comparable ones,
-reporting the rest under `off_board` rather than dropping them — they were real published picks,
-and hiding a sample is how a record starts flattering itself. Once the pre-filter picks age out
-of the current season the split goes away on its own.
+Both classes are staked now, so both belong in the headline — carving out real money risked
+would understate the P&L. But the mix swings hard, and a headline whose population changes
+underneath it reads as a changing edge. So `grade.tag_fbs` flags every graded row and
+`grade.metrics` always reports `by_class` behind the headline, at the same granularity, so the
+two add up:
+
+| | Headline | FBS vs FBS | FBS vs FCS |
+| --- | --- | --- | --- |
+| Totals | 62-43 (59.0%) | 20-19 (51.3%) | 42-24 (63.6%) |
+| Spreads | 41-64 (39.0%) | 13-26 (33.3%) | 28-38 (42.4%) |
+
+That 59% totals headline is carried by the FCS games, and now you can see that at a glance
+instead of inferring it.
 
 ---
 
@@ -926,6 +973,7 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_MIN_GAMES` | 2 (cfb) / 3 (nfl) | below this, picks are flagged early-season and not staked |
 | `DEGEN_KELLY` | 0.25 | Kelly fraction |
 | `DEGEN_BOARD_DAYS` | 7 | how far ahead to post games |
+| `DEGEN_CFB_BOARD_FCS` | `1` | publish FBS-vs-FCS games too, staked on the same edge thresholds. `0` for an FBS-only board |
 | `DEGEN_FIRST_SEASON` | 2015 (cfb) / 2010 (nfl) | earliest season to train on |
 | `DEGEN_WARMUP_SEASONS` | 1 (nfl) | seasons loaded before the training window to warm the ratings up |
 | `DEGEN_WALK_SEASONS` | 6 (nfl) | seasons pooled by the walk-forward evaluation |

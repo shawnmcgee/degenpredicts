@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import os
+import pathlib
 from datetime import date, timedelta
 
 import numpy as np
@@ -583,9 +584,11 @@ def test_season_roster_stays_in_a_sane_band(env):
         assert fbs / len(played) > 0.9, f"{season}: only {fbs}/{len(played)} FBS vs FBS"
 
 
-def test_the_board_drops_games_the_model_cannot_price(env):
+def test_the_board_labels_fcs_games_rather_than_pricing_them_as_equals(env):
     """36 of one week's 85 published games were FBS vs FCS, priced off a rating the visitor
-    does not have, on a site that says it covers FBS."""
+    does not have. They are published again now (~120 real games a season), but flagged
+    `fbs=False`, which is what makes them unstakeable downstream and keeps them out of the
+    headline record. The flag is the whole safety mechanism, so assert it, not just the row."""
     from cfb.predict import build_board
 
     today = env.today_et()
@@ -599,7 +602,8 @@ def test_the_board_drops_games_the_model_cannot_price(env):
     lines = pd.DataFrame([{"game_id": "1", "spread_home": -3.5, "total_line": 55.5},
                           {"game_id": "2", "spread_home": -56.5, "total_line": 62.5}])
     board = build_board(sched, lines, sp=_sp_table(["Team 001", "Team 002"], [season]))
-    assert list(board["game_id"]) == ["1"]
+    assert list(board["game_id"]) == ["1", "2"]
+    assert dict(zip(board["game_id"], board["fbs"])) == {"1": True, "2": False}
 
 
 def test_nothing_is_staked_on_a_market_we_declined(env):
@@ -768,11 +772,11 @@ def test_missing_completed_field_falls_back_to_the_score(env, monkeypatch):
     assert bool(got["completed"].iloc[0])
 
 
-def test_the_record_scores_only_the_games_the_board_still_publishes(env, monkeypatch):
-    """The first 105 graded picks included 66 FBS-vs-FCS games, published before `build_board`
-    filtered them out. They ran 63.6% on totals against 51.3% for the FBS-vs-FBS picks, so
-    averaging the two reported a 59% headline for a board that will never offer another one.
-    The record splits on the flag, and the off-board sample is reported rather than dropped."""
+def test_the_record_reports_both_classes_and_the_split_behind_them(env, monkeypatch):
+    """The first 105 graded picks included 66 FBS-vs-FCS games and ran 63.6% on totals against
+    51.3% for the FBS-vs-FBS picks. Both classes are staked now, so both belong in the headline
+    - but a season-to-date mix that swings from 63% FCS to almost none would read as a changing
+    edge unless the split is always visible alongside it."""
     from cfb import grade as G
 
     sp = _sp_table(["Alpha", "Bravo"], [2026])
@@ -799,13 +803,91 @@ def test_the_record_scores_only_the_games_the_board_still_publishes(env, monkeyp
     ])
     m = G.metrics(done)
 
-    assert m["graded_games"] == 4 and m["off_board_games"] == 2
-    # headline counts the two comparable games only, not the flattering FCS pair
-    assert m["totals"]["all_games"]["n"] == 2
-    assert m["totals"]["all_games"]["win_pct"] == 50.0
-    # the off-board picks are still reported, not quietly discarded
-    assert m["totals"]["off_board"]["n"] == 2
-    assert m["totals"]["off_board"]["win_pct"] == 100.0
-    assert m["spreads"]["all_games"]["win_pct"] == 0.0
-    # by_week describes the same population as the headline
-    assert sum(w["games"] for w in m["by_week"]) == 2
+    assert m["graded_games"] == 4 and m["fcs_games"] == 2
+    # both classes are staked on the same thresholds, so both count in the headline P&L
+    assert m["totals"]["all_games"]["n"] == 4
+    assert m["totals"]["all_games"]["win_pct"] == 75.0
+    # ...but the split stays visible, so a shifting mix can't read as a changing edge
+    assert m["totals"]["by_class"]["fbs"]["win_pct"] == 50.0
+    assert m["totals"]["by_class"]["fcs"]["win_pct"] == 100.0
+    assert m["spreads"]["by_class"]["fbs"]["win_pct"] == 0.0
+    assert sum(w["games"] for w in m["by_week"]) == 4
+
+
+def test_strength_ignores_classification_and_lets_the_thresholds_decide(env):
+    """A blanket ban on staking FBS-vs-FCS games was built and then withdrawn on measurement.
+    The 50.7% that motivated it is the UNCONDITIONED population - games this function already
+    declines. Among games that clear the thresholds, i.e. the ones actually staked, FCS totals
+    cover 56.8% against a 51.75% break-even, above break-even on every seed. Classification
+    must not re-enter this decision by the back door."""
+    from cfb.predict import PLAYABLE, _stakes, _strength
+
+    # same edge, same thin flag -> same answer, whoever the opponent is
+    assert _strength(9.0, 5.0, thin=False) in PLAYABLE
+    assert _strength(1.0, 5.0, thin=False) == "pass"
+    assert _strength(9.0, 5.0, thin=True) == "thin"
+    # _strength takes no classification argument at all
+    import inspect
+    assert list(inspect.signature(_strength).parameters) == ["edge", "minimum", "thin"]
+    # and staking still follows strength, not class
+    assert _stakes([0.95], [1.0], ["pass"]) == [0.0]
+    assert _stakes([0.95], [1.0], ["bold"])[0] > 0
+
+
+def test_board_keeps_fcs_visitors_but_never_the_d3_rows(env, monkeypatch):
+    """Two different decisions: an FBS-vs-FCS game is a real game the model can put a soft
+    number on, but a game with neither side FBS is one nothing rates at all. The broken CFBD
+    filter supplies thousands of the latter a season."""
+    from cfb import config as C
+    from cfb.predict import build_board
+
+    monkeypatch.setattr(C, "BOARD_FCS", True)
+    today = C.today_et()
+    season = C.season_of(today)
+    sched = pd.DataFrame([
+        {"game_id": "1", "season": season, "week": 3, "completed": False,
+         "date": today, "home_team": "Alpha", "away_team": "Bravo"},      # FBS v FBS
+        {"game_id": "2", "season": season, "week": 3, "completed": False,
+         "date": today, "home_team": "Alpha", "away_team": "Citadel"},    # FBS v FCS
+        {"game_id": "3", "season": season, "week": 3, "completed": False,
+         "date": today, "home_team": "Kenyon", "away_team": "Sewanee"},   # neither: D-III
+    ])
+    sp = _sp_table(["Alpha", "Bravo"], [season])
+    board = build_board(sched, pd.DataFrame({"game_id": []}), sp=sp)
+
+    assert set(board["game_id"]) == {"1", "2"}, "D-III row must never reach the board"
+    assert dict(zip(board["game_id"], board["fbs"])) == {"1": True, "2": False}
+
+    # and with the flag off it is FBS-vs-FBS only, as before
+    monkeypatch.setattr(C, "BOARD_FCS", False)
+    board = build_board(sched, pd.DataFrame({"game_id": []}), sp=sp)
+    assert set(board["game_id"]) == {"1"}
+
+
+def test_the_matcher_universe_grows_by_this_weeks_opponents_only(env):
+    """Handing difflib every name in the games file is what put 699 teams in the 2025 table
+    and gave a 0.80 cutoff hundreds of extra collision targets. Adding the FCS teams actually
+    on the board is ~30 names; adding the file is ~560."""
+    from cfb.predict import board_teams
+
+    season = 2026
+    games = pd.DataFrame([{"season": season, "home_team": h, "away_team": a}
+                          for h, a in [("Alpha", "Bravo"), ("Kenyon", "Sewanee"),
+                                       ("Wayland Baptist", "Bravo")]])
+    sp = _sp_table(["Alpha", "Bravo"], [season])
+    board = pd.DataFrame([{"home_team": "Alpha", "away_team": "Citadel"}])
+
+    names = board_teams(board, games, season, sp)
+    assert names == {"Alpha", "Bravo", "Citadel"}
+    assert "Kenyon" not in names and "Wayland Baptist" not in names
+
+
+def test_the_fbs_flag_survives_into_picks_for_the_record_split(env):
+    """`fbs` is what `grade.metrics` splits `by_class` on, and what labels the board. It is
+    carried by an explicit column list in `run`, which silently drops anything not named - so
+    the projection is asserted rather than assumed."""
+    from cfb import predict
+
+    src = pathlib.Path(predict.__file__).read_text()
+    keep_block = src.split("keep = [", 1)[1].split("]", 1)[0]
+    assert '"fbs"' in keep_block, "`fbs` dropped from the keep list - the record split goes blind"

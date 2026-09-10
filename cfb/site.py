@@ -135,6 +135,10 @@ def _board() -> tuple[list[dict], int | None]:
             playable |= df[c].notna()
     df["has_play"] = playable
     df.loc[playable, "_rank"] = df.loc[playable, "_rank"] + 100
+
+    # FBS-vs-FCS games are labelled but rank on the same footing as everything else: they are
+    # staked on the same edge thresholds, so demoting them would hide plays the system took.
+    df["fcs"] = ~df["fbs"].astype(bool) if "fbs" in df.columns else False
     df = df.sort_values("_rank", ascending=False)
 
     # Exchange quotes as payout multiples. `pays` is what the contract returns per unit risked
