@@ -28817,7 +28817,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401858286,2026,10,regular,2026-11-07,True,,NC State,Duke,,,,,False,True,ACC,ACC,False,2026-11-07T00:00:00-05:00,Sat,fbs,fbs
 401858287,2026,10,regular,2026-11-07,True,,Georgia Tech,Louisville,,,,,False,True,ACC,ACC,False,2026-11-07T00:00:00-05:00,Sat,fbs,fbs
 401858289,2026,10,regular,2026-11-07,True,,Boston College,Florida State,,,,,False,True,ACC,ACC,False,2026-11-07T00:00:00-05:00,Sat,fbs,fbs
-401858290,2026,10,regular,2026-11-07,False,"Sat Nov 07, 12:00 PM",Wake Forest,Merrimack,,,,,False,False,ACC,FCS Independents,False,2026-11-07T12:00:00-05:00,Sat,fbs,fcs
+401858290,2026,10,regular,2026-11-07,True,,Wake Forest,Merrimack,,,,,False,False,ACC,FCS Independents,False,2026-11-07T00:00:00-05:00,Sat,fbs,fcs
 401858291,2026,10,regular,2026-11-07,False,"Sat Nov 07, 7:30 PM",Notre Dame,Miami,,,,,False,False,FBS Independents,ACC,False,2026-11-07T19:30:00-05:00,Sat,fbs,fbs
 401858292,2026,10,regular,2026-11-07,False,"Sat Nov 07, 12:00 PM",UConn,North Carolina,,,,,False,False,FBS Independents,ACC,False,2026-11-07T12:00:00-05:00,Sat,fbs,fbs
 401858511,2026,10,regular,2026-11-07,True,,Michigan,Michigan State,,,,,False,True,Big Ten,Big Ten,False,2026-11-07T00:00:00-05:00,Sat,fbs,fbs
