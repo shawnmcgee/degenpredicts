@@ -14,12 +14,22 @@ row carries an ``fbs`` flag. What that flag is used for is deliberately asymmetr
 
 * **The board is filtered by it** (see ``predict.build_board``). We do not publish a number on
   a game the model has no business pricing, and the site claims FBS coverage.
-* **Training and the rating replay are not.** That was measured rather than assumed: dropping
-  the ~68% non-FBS rows costs 0.05-0.10 points of holdout MAE and 0.5-1.8 points of ATS on
-  FBS-vs-FBS games, stable across seeds. Replaying eleven seasons rates the repeat FCS
-  visitors properly (2025: non-FBS mean margin -2.0 vs FBS +10.8), so they are not
-  "average FBS" by the time they matter, and the extra 18k rows are worth more than the
-  contamination costs.
+* **Training and the rating replay are not.** Measured rather than assumed, on FBS-vs-FBS
+  holdout games across five seeds (noise is +-0.01-0.03 MAE). Going fully FBS-only costs 0.10
+  points of MAE and 1.9 points of ATS.
+
+The rows that are not FBS-vs-FBS are two different things, and lumping them together hides
+which one earns its keep: 1,245 FBS-vs-FCS games (4.7%) and 16,782 non-FBS-vs-non-FBS games
+(63.6%, down to D-III, courtesy of the broken feed filter).
+
+* Dropping the non-FBS-vs-non-FBS games from the *replay* alone costs 0.042 MAE and 1.14 ATS.
+  They are what rates the FCS teams, so a repeat visitor is a known quantity by the time it
+  matters (2025: non-FBS mean margin -2.0 vs FBS +10.8) rather than "an average FBS team".
+* Dropping just the 1,245 mixed rows from *training* costs 0.046 MAE and 0.82 ATS - far more
+  than 4.7% of the data should be worth, because they are the only rows that connect the two
+  rating pools.
+
+See the README for the full grid and for why the mixed games still stay off the board.
 """
 from __future__ import annotations
 

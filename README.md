@@ -199,30 +199,88 @@ unknown is the honest value.
 `cfb/sources/cfbd.py` asks CFBD for FBS games. It asks with `classification` *and* `division`,
 because the parameter was renamed and unknown parameters are silently ignored rather than
 rejected — which is how a request for FBS quietly returned 699 teams in 2025, Kenyon, Sewanee
-and Wayland Baptist among them. Only 32% of the 26,381 completed training rows are FBS vs FBS.
+and Wayland Baptist among them.
 
 So the question is not trusted. `features.fbs_membership` resolves the FBS roster for each
 season from `sp_ratings.csv` (SP+ only rates FBS, so its roster *is* the membership list) and
 from a `classification` column now carried on each game, and `cfbd.update_games` warns when a
 season falls outside 700–1200 games or 110–160 teams.
 
-What that flag gates is deliberately asymmetric, and the asymmetry was measured rather than
-assumed:
+### Three populations, not two
+
+"Non-FBS rows" is not one thing, and the distinction is the whole answer. Of the 26,381
+completed training rows:
+
+| Category | Rows | Share | What it is |
+| --- | ---: | ---: | --- |
+| FBS vs FBS | 8,354 | 31.7% | what the board publishes |
+| **FBS vs FCS** | **1,245** | **4.7%** | the mixed games — ~120 a season |
+| non-FBS vs non-FBS | 16,782 | 63.6% | FCS-vs-FCS and below, including D-II and D-III |
+
+The 68% that is not FBS-vs-FBS is overwhelmingly the third row, not the second. Since 2021 the
+broken filter has pulled in ~2,900 of those a season against ~120 real mixed games.
+
+### What the flag gates, and why
+
+Deliberately asymmetric, and measured rather than assumed. Walk-forward over 2022–25, five
+seeds, scored **only on FBS-vs-FBS holdout games** — the population the board publishes. Seed
+noise is ±0.01–0.03 MAE:
+
+| Rating replay | Training rows | Margin MAE | ATS |
+| --- | --- | ---: | ---: |
+| all | all | **12.186** | **51.84%** |
+| all | FBS + mixed | 12.202 | 51.32% |
+| all | drop mixed | 12.232 | 51.02% |
+| all | FBS only | 12.252 | 51.24% |
+| FBS-involved | all | 12.228 | 50.70% |
+| FBS only | FBS only | 12.290 | 49.94% |
 
 - **The board is filtered.** 36 of one week's 85 published games were FBS vs FCS — Miami −56.5
   against Florida A&M, priced off a rating Florida A&M does not have, on a site that says it
   covers FBS. Those are gone.
-- **Training and the rating replay are not filtered.** The obvious fix is to drop the ~68%
-  non-FBS rows. Measured on FBS-vs-FBS holdout games across five seeds, that costs
-  **0.05–0.10 points of MAE and 0.5–1.8 points of ATS** — well outside the ±0.02 seed noise.
-  Two reasons. Eleven seasons of replay rates the repeat FCS visitors properly (2025: non-FBS
-  mean margin −2.0 against FBS +10.8), so they are not "an average FBS team" by the time they
-  matter; and the extra 18k rows are worth more than the contamination costs. Dropping them
-  would have been a plausible-sounding change that made the model worse.
+- **Training and the rating replay are not filtered.** Going fully FBS-only costs **0.10 points
+  of MAE and 1.9 points of ATS** — far outside seed noise. Splitting the two knobs shows where
+  that comes from:
+  - **The replay does most of the work.** Dropping FCS-vs-FCS from the replay alone costs 0.042
+    MAE and 1.14 ATS. Those games are what *rate* the FCS teams, so a repeat visitor is a known
+    quantity by the time it matters (2025: non-FBS mean margin −2.0 against FBS +10.8) rather
+    than an average FBS team.
+  - **The mixed rows punch far above their weight.** Removing just those 1,245 rows — 4.7% of
+    the file — costs 0.046 MAE and 0.82 ATS, because they are the only rows that connect the
+    two rating pools.
 
-One consequence worth knowing when reading the record: 66 of the 105 games graded so far were
-FBS vs FCS, so the season-to-date numbers describe a different population from the one the
-board will publish from here.
+Dropping the non-FBS rows would have been a plausible-sounding change that made the model
+worse, and dropping only the mixed games would have been worse still per row discarded.
+
+### Why the mixed games stay off the board anyway
+
+Not because they are unpredictable. Scored on mixed holdout games the model runs 50.72% ATS on
+margin (±2.35, n=453) against a 51.75% break-even — no edge. But bucketed by line size it is
+not the FCS that hurts:
+
+| \|spread\| | FBS vs FBS | FBS vs FCS |
+| --- | ---: | ---: |
+| 7–14 | 55.0% | 68.6% (n=35) |
+| 14–21 | 50.4% | 50.9% |
+| 21–28 | 53.8% | 54.1% |
+| 28+ | 51.2% | 50.2% |
+
+At the same spread the two populations behave the same. The edge lives in the 7–14 and 21–28
+buckets, and mixed games have a median spread of **30.5** against 8.5 for FBS games, with 56%
+of them past 28 — they land almost entirely where nobody beats the number. Publishing them
+would add ~120 games a season of board volume and no expected value.
+
+### Reading the record
+
+The board publishes FBS vs FBS today. It did not always, and 66 of the first 105 graded picks
+were FBS vs FCS — so the headline record used to average two populations, one of which the
+board will never offer again. It flattered the numbers badly: those 66 ran 63.6% on totals
+against 51.3% for the comparable picks, reporting a 59% season.
+
+`grade.tag_fbs` now flags every graded row and `grade.metrics` scores only the comparable ones,
+reporting the rest under `off_board` rather than dropping them — they were real published picks,
+and hiding a sample is how a record starts flattering itself. Once the pre-filter picks age out
+of the current season the split goes away on its own.
 
 ---
 
