@@ -110,7 +110,11 @@
       <div class="l">line moved our way</div></div>
   </div>
   <p class="sub">Break-even at {{ m.venue or venue }} is {{ m.break_even }}%.
-    CLV is the fastest honest read on whether there's an edge.</p>
+    CLV is the fastest honest read on whether there's an edge.
+    {% if m.off_board_games %}Counts {{ m.graded_games - m.off_board_games }} FBS-vs-FBS games.
+    {{ m.off_board_games }} further picks were published before the board filtered out
+    FBS-vs-FCS matchups; they are graded but scored separately, because the board will not
+    offer another one.{% endif %}</p>
 </section>
 {% endif %}
 

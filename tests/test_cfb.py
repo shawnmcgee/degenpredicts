@@ -766,3 +766,46 @@ def test_missing_completed_field_falls_back_to_the_score(env, monkeypatch):
     monkeypatch.setattr(cfbd, "get_json", lambda *a, **k: payload)
     got = cfbd.fetch_games(2024, season_type="regular")
     assert bool(got["completed"].iloc[0])
+
+
+def test_the_record_scores_only_the_games_the_board_still_publishes(env, monkeypatch):
+    """The first 105 graded picks included 66 FBS-vs-FCS games, published before `build_board`
+    filtered them out. They ran 63.6% on totals against 51.3% for the FBS-vs-FBS picks, so
+    averaging the two reported a 59% headline for a board that will never offer another one.
+    The record splits on the flag, and the off-board sample is reported rather than dropped."""
+    from cfb import grade as G
+
+    sp = _sp_table(["Alpha", "Bravo"], [2026])
+    monkeypatch.setattr(G.cfbd, "load_sp", lambda: sp)
+    monkeypatch.setattr(G.cfbd, "load_games", lambda: pd.DataFrame(
+        columns=["season", "home_team", "away_team"]))
+
+    def row(away, total_result, spread_result):
+        return {"game_id": f"g{away}{total_result}", "season": 2026, "week": 1,
+                "home_team": "Alpha", "away_team": away,
+                "total_result": total_result, "spread_result": spread_result,
+                "total_strength": "play", "spread_strength": "play",
+                "total_stake": 1.0, "spread_stake": 1.0,
+                "total_units": 1.0 if total_result == "win" else -1.0,
+                "spread_units": 1.0 if spread_result == "win" else -1.0,
+                "total_disagree": 2.0, "margin_disagree": 2.0,
+                "total_abs_err": 10.0, "margin_abs_err": 10.0}
+
+    done = pd.DataFrame([
+        row("Bravo", "win", "loss"),        # FBS vs FBS
+        row("Bravo", "loss", "loss"),       # FBS vs FBS
+        row("Citadel", "win", "win"),       # FBS vs FCS - off the board now
+        row("Furman", "win", "win"),        # FBS vs FCS - off the board now
+    ])
+    m = G.metrics(done)
+
+    assert m["graded_games"] == 4 and m["off_board_games"] == 2
+    # headline counts the two comparable games only, not the flattering FCS pair
+    assert m["totals"]["all_games"]["n"] == 2
+    assert m["totals"]["all_games"]["win_pct"] == 50.0
+    # the off-board picks are still reported, not quietly discarded
+    assert m["totals"]["off_board"]["n"] == 2
+    assert m["totals"]["off_board"]["win_pct"] == 100.0
+    assert m["spreads"]["all_games"]["win_pct"] == 0.0
+    # by_week describes the same population as the headline
+    assert sum(w["games"] for w in m["by_week"]) == 2
