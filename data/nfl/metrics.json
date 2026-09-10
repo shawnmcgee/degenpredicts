@@ -1,9 +1,109 @@
 {
-  "updated": "2026-09-09",
+  "updated": "2026-09-10",
   "sport": "nfl",
   "break_even": 51.75,
   "venue": "kalshi_taker",
-  "totals": {},
-  "spreads": {},
-  "by_week": []
+  "totals": {
+    "season": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "pushes": 0,
+      "win_pct": 0.0,
+      "units": 0.0,
+      "roi": 0.0,
+      "clv": null
+    },
+    "all_games": {
+      "n": 1,
+      "wins": 1,
+      "losses": 0,
+      "pushes": 0,
+      "win_pct": 100.0,
+      "units": 0.0,
+      "roi": 0.0,
+      "clv": 0.0
+    },
+    "last2weeks": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "pushes": 0,
+      "win_pct": 0.0,
+      "units": 0.0,
+      "roi": 0.0,
+      "clv": null
+    },
+    "mae": 21.3,
+    "by_edge": [
+      {
+        "bucket": "1-2",
+        "n": 1,
+        "wins": 1,
+        "losses": 0,
+        "pushes": 0,
+        "win_pct": 100.0,
+        "units": 0.0,
+        "roi": 0.0,
+        "clv": 0.0
+      }
+    ]
+  },
+  "spreads": {
+    "season": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "pushes": 0,
+      "win_pct": 0.0,
+      "units": 0.0,
+      "roi": 0.0,
+      "clv": null
+    },
+    "all_games": {
+      "n": 1,
+      "wins": 0,
+      "losses": 0,
+      "pushes": 1,
+      "win_pct": 0.0,
+      "units": 0.0,
+      "roi": 0.0,
+      "clv": 0.0
+    },
+    "last2weeks": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "pushes": 0,
+      "win_pct": 0.0,
+      "units": 0.0,
+      "roi": 0.0,
+      "clv": null
+    },
+    "mae": 0.3,
+    "by_edge": [
+      {
+        "bucket": "1-2",
+        "n": 1,
+        "wins": 0,
+        "losses": 0,
+        "pushes": 1,
+        "win_pct": 0.0,
+        "units": 0.0,
+        "roi": 0.0,
+        "clv": 0.0
+      }
+    ]
+  },
+  "by_week": [
+    {
+      "week": 1,
+      "games": 1,
+      "total_units": 0.0,
+      "spread_units": 0.0,
+      "played": 0,
+      "cum_total": 0.0,
+      "cum_spread": 0.0
+    }
+  ]
 }
