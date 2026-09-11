@@ -4632,7 +4632,7 @@ game_id,season,week,date,home_team,away_team,provider,spread_home,spread_open,to
 2026_01_NE_SEA,2026,1,2026-09-09,SEA,NE,nflverse_close,-3.0,,44.5,,-166.0,140.0,1
 2026_01_SF_LA,2026,1,2026-09-10,LA,SF,nflverse_close,-3.5,,47.5,,-218.0,180.0,1
 2026_01_ARI_LAC,2026,1,2026-09-13,LAC,ARI,nflverse_close,-9.5,,47.5,,-500.0,380.0,1
-2026_01_ATL_PIT,2026,1,2026-09-13,PIT,ATL,nflverse_close,-5.5,,41.5,,-230.0,190.0,1
+2026_01_ATL_PIT,2026,1,2026-09-13,PIT,ATL,nflverse_close,-5.5,,41.5,,-225.0,185.0,1
 2026_01_BAL_IND,2026,1,2026-09-13,IND,BAL,nflverse_close,3.5,,47.5,,145.0,-175.0,1
 2026_01_BUF_HOU,2026,1,2026-09-13,HOU,BUF,nflverse_close,1.5,,44.5,,-102.0,-118.0,1
 2026_01_CHI_CAR,2026,1,2026-09-13,CAR,CHI,nflverse_close,3.0,,47.5,,142.0,-170.0,1
@@ -4673,7 +4673,7 @@ game_id,season,week,date,home_team,away_team,provider,spread_home,spread_open,to
 2026_03_LV_NO,2026,3,2026-09-27,NO,LV,nflverse_close,-3.5,,42.5,,-185.0,154.0,1
 2026_03_MIN_TB,2026,3,2026-09-27,TB,MIN,nflverse_close,-1.5,,44.5,,-125.0,105.0,1
 2026_03_NE_JAX,2026,3,2026-09-27,JAX,NE,nflverse_close,,,,,,,1
-2026_03_NYJ_DET,2026,3,2026-09-27,DET,NYJ,nflverse_close,-9.5,,45.5,,-410.0,320.0,1
+2026_03_NYJ_DET,2026,3,2026-09-27,DET,NYJ,nflverse_close,-9.5,,45.5,,-425.0,330.0,1
 2026_03_SEA_WAS,2026,3,2026-09-27,WAS,SEA,nflverse_close,,,,,,,1
 2026_03_TEN_NYG,2026,3,2026-09-27,NYG,TEN,nflverse_close,-3.0,,44.5,,-166.0,140.0,1
 2026_03_PHI_CHI,2026,3,2026-09-28,CHI,PHI,nflverse_close,-1.5,,46.5,,-118.0,-102.0,1
@@ -4690,7 +4690,7 @@ game_id,season,week,date,home_team,away_team,provider,spread_home,spread_open,to
 2026_04_LA_PHI,2026,4,2026-10-04,PHI,LA,nflverse_close,,,,,,,1
 2026_04_MIA_MIN,2026,4,2026-10-04,MIN,MIA,nflverse_close,-7.5,,43.5,,-395.0,310.0,1
 2026_04_NE_BUF,2026,4,2026-10-04,BUF,NE,nflverse_close,,,,,,,1
-2026_04_NYJ_CHI,2026,4,2026-10-04,CHI,NYJ,nflverse_close,-8.5,,45.5,,-425.0,330.0,1
+2026_04_NYJ_CHI,2026,4,2026-10-04,CHI,NYJ,nflverse_close,-8.5,,45.5,,-440.0,340.0,1
 2026_04_TEN_BAL,2026,4,2026-10-04,BAL,TEN,nflverse_close,-8.5,,47.5,,-395.0,310.0,1
 2026_04_ATL_NO,2026,4,2026-10-05,NO,ATL,nflverse_close,-2.5,,45.5,,-135.0,114.0,1
 2026_05_TB_DAL,2026,5,2026-10-08,DAL,TB,nflverse_close,-3.5,,52.5,,-205.0,170.0,1
@@ -4730,7 +4730,7 @@ game_id,season,week,date,home_team,away_team,provider,spread_home,spread_open,to
 2026_07_IND_MIN,2026,7,2026-10-25,MIN,IND,nflverse_close,-2.5,,46.5,,-142.0,120.0,1
 2026_07_KC_SEA,2026,7,2026-10-25,SEA,KC,nflverse_close,,,,,,,1
 2026_07_LA_LV,2026,7,2026-10-25,LV,LA,nflverse_close,,,,,,,1
-2026_07_MIA_NYJ,2026,7,2026-10-25,NYJ,MIA,nflverse_close,-2.5,,41.5,,-135.0,114.0,1
+2026_07_MIA_NYJ,2026,7,2026-10-25,NYJ,MIA,nflverse_close,-2.5,,41.5,,-142.0,120.0,1
 2026_07_NYG_HOU,2026,7,2026-10-25,HOU,NYG,nflverse_close,-5.5,,43.5,,-238.0,195.0,1
 2026_07_PIT_NO,2026,7,2026-10-25,NO,PIT,nflverse_close,2.5,,42.5,,120.0,-142.0,1
 2026_07_SF_ATL,2026,7,2026-10-25,ATL,SF,nflverse_close,,,,,,,1
@@ -4754,7 +4754,7 @@ game_id,season,week,date,home_team,away_team,provider,spread_home,spread_open,to
 2026_09_ARI_SEA,2026,9,2026-11-08,SEA,ARI,nflverse_close,,,,,,,1
 2026_09_CIN_ATL,2026,9,2026-11-08,ATL,CIN,nflverse_close,5.5,,49.5,,190.0,-230.0,1
 2026_09_CLE_NO,2026,9,2026-11-08,NO,CLE,nflverse_close,,,,,,,1
-2026_09_DAL_IND,2026,9,2026-11-08,IND,DAL,nflverse_close,1.5,,52.5,,105.0,-125.0,1
+2026_09_DAL_IND,2026,9,2026-11-08,IND,DAL,nflverse_close,,,,,,,1
 2026_09_DEN_CAR,2026,9,2026-11-08,CAR,DEN,nflverse_close,3.0,,42.5,,136.0,-162.0,1
 2026_09_DET_MIA,2026,9,2026-11-08,MIA,DET,nflverse_close,6.5,,47.5,,225.0,-278.0,1
 2026_09_GB_NE,2026,9,2026-11-08,NE,GB,nflverse_close,,,,,,,1
@@ -4762,7 +4762,7 @@ game_id,season,week,date,home_team,away_team,provider,spread_home,spread_open,to
 2026_09_LA_WAS,2026,9,2026-11-08,WAS,LA,nflverse_close,,,,,,,1
 2026_09_LV_SF,2026,9,2026-11-08,SF,LV,nflverse_close,,,,,,,1
 2026_09_NYG_PHI,2026,9,2026-11-08,PHI,NYG,nflverse_close,-5.5,,44.5,,-238.0,195.0,1
-2026_09_NYJ_KC,2026,9,2026-11-08,KC,NYJ,nflverse_close,,,,,,,1
+2026_09_NYJ_KC,2026,9,2026-11-08,KC,NYJ,nflverse_close,-9.5,,41.5,,-455.0,350.0,1
 2026_09_TB_CHI,2026,9,2026-11-08,CHI,TB,nflverse_close,,,,,,,1
 2026_09_BUF_MIN,2026,9,2026-11-09,MIN,BUF,nflverse_close,,,,,,,1
 2026_10_WAS_NYG,2026,10,2026-11-12,NYG,WAS,nflverse_close,,,,,,,1
