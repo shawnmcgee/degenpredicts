@@ -26396,11 +26396,11 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401906546,2026,2,regular,2026-09-10,False,"Thu Sep 10, 8:00 PM",Southwestern Oklahoma State,Harding,,,,,False,True,Great American,Great American,False,2026-09-10T20:00:00-04:00,Thu,,
 401907622,2026,2,regular,2026-09-10,False,"Thu Sep 10, 7:00 PM",West Virginia Wesleyan,Shippensburg,,,,,False,False,Mountain East,Pennsylvania State Athletic,False,2026-09-10T19:00:00-04:00,Thu,,
 401909126,2026,2,regular,2026-09-10,False,"Thu Sep 10, 7:00 PM",Denison,Oberlin,,,,,False,True,North Coast,North Coast,False,2026-09-10T19:00:00-04:00,Thu,,
-401856678,2026,2,regular,2026-09-11,False,"Fri Sep 11, 8:00 PM",Kansas,Missouri,,,,,False,False,Big 12,SEC,False,2026-09-11T20:00:00-04:00,Fri,fbs,fbs
-401858214,2026,2,regular,2026-09-11,False,"Fri Sep 11, 7:30 PM",Boston College,Rutgers,,,,,False,False,ACC,Big Ten,False,2026-09-11T19:30:00-04:00,Fri,fbs,fbs
-401858215,2026,2,regular,2026-09-11,False,"Fri Sep 11, 7:00 PM",Louisville,Villanova,,,,,False,False,ACC,Patriot,False,2026-09-11T19:00:00-04:00,Fri,fbs,fcs
-401858220,2026,2,regular,2026-09-11,False,"Fri Sep 11, 7:00 PM",Virginia,Norfolk State,,,,,False,False,ACC,MEAC,False,2026-09-11T19:00:00-04:00,Fri,fbs,fcs
-401858222,2026,2,regular,2026-09-11,False,"Fri Sep 11, 7:00 PM",NC State,Richmond,,,,,False,False,ACC,Patriot,False,2026-09-11T19:00:00-04:00,Fri,fbs,fcs
+401856678,2026,2,regular,2026-09-11,False,"Fri Sep 11, 8:00 PM",Kansas,Missouri,21.0,38.0,59.0,-17.0,False,False,Big 12,SEC,True,2026-09-11T20:00:00-04:00,Fri,fbs,fbs
+401858214,2026,2,regular,2026-09-11,False,"Fri Sep 11, 7:30 PM",Boston College,Rutgers,28.0,21.0,49.0,7.0,False,False,ACC,Big Ten,True,2026-09-11T19:30:00-04:00,Fri,fbs,fbs
+401858215,2026,2,regular,2026-09-11,False,"Fri Sep 11, 7:00 PM",Louisville,Villanova,59.0,13.0,72.0,46.0,False,False,ACC,Patriot,True,2026-09-11T19:00:00-04:00,Fri,fbs,fcs
+401858220,2026,2,regular,2026-09-11,False,"Fri Sep 11, 7:00 PM",Virginia,Norfolk State,59.0,3.0,62.0,56.0,False,False,ACC,MEAC,True,2026-09-11T19:00:00-04:00,Fri,fbs,fcs
+401858222,2026,2,regular,2026-09-11,False,"Fri Sep 11, 7:00 PM",NC State,Richmond,73.0,0.0,73.0,73.0,False,False,ACC,Patriot,True,2026-09-11T19:00:00-04:00,Fri,fbs,fcs
 401906200,2026,2,regular,2026-09-11,False,"Fri Sep 11, 7:00 PM",North Greenville,Charleston (WV),,,,,False,False,Carolinas,Mountain East,False,2026-09-11T19:00:00-04:00,Fri,,
 401908202,2026,2,regular,2026-09-11,False,"Fri Sep 11, 7:00 PM",King's,Stevenson,,,,,False,True,Mid Atlantic,Mid Atlantic,False,2026-09-11T19:00:00-04:00,Fri,,
 401908691,2026,2,regular,2026-09-11,False,"Fri Sep 11, 7:00 PM",St. Lawrence,St. John Fisher,,,,,False,False,Liberty League,Empire 8,False,2026-09-11T19:00:00-04:00,Fri,,
@@ -26489,7 +26489,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401867884,2026,2,regular,2026-09-12,False,"Sat Sep 12, 2:00 PM",South Dakota,Eastern Washington,,,,,False,False,MVFC,Big Sky,False,2026-09-12T14:00:00-04:00,Sat,,
 401867890,2026,2,regular,2026-09-12,False,"Sat Sep 12, 7:00 PM",Southern Illinois,Southeast Missouri State,,,,,False,False,MVFC,OVC,False,2026-09-12T19:00:00-04:00,Sat,,
 401867895,2026,2,regular,2026-09-12,False,"Sat Sep 12, 2:00 PM",Youngstown State,Duquesne,,,,,False,False,MVFC,NEC,False,2026-09-12T14:00:00-04:00,Sat,,
-401867929,2026,2,regular,2026-09-12,False,"Sat Sep 12, 3:30 PM",James Madison,Wagner,,,,,False,False,Sun Belt,NEC,False,2026-09-12T15:30:00-04:00,Sat,fbs,fcs
+401867929,2026,2,regular,2026-09-12,False,"Sat Sep 12, 12:00 PM",James Madison,Wagner,,,,,False,False,Sun Belt,NEC,False,2026-09-12T12:00:00-04:00,Sat,fbs,fcs
 401867953,2026,2,regular,2026-09-12,False,"Sat Sep 12, 3:00 PM",Delaware State,Bowie State,,,,,False,False,MEAC,CIAA,False,2026-09-12T15:00:00-04:00,Sat,,
 401867966,2026,2,regular,2026-09-12,False,"Sat Sep 12, 6:00 PM",Morgan State,Virginia Lynchburg,,,,,False,False,MEAC,,False,2026-09-12T18:00:00-04:00,Sat,,
 401867983,2026,2,regular,2026-09-12,False,"Sat Sep 12, 6:00 PM",South Carolina State,Virginia State,,,,,False,False,MEAC,CIAA,False,2026-09-12T18:00:00-04:00,Sat,,
@@ -26507,7 +26507,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401868141,2026,2,regular,2026-09-12,False,"Sat Sep 12, 6:00 PM",Eastern Kentucky,Chattanooga,,,,,False,False,UAC,Southern,False,2026-09-12T18:00:00-04:00,Sat,,
 401868150,2026,2,regular,2026-09-12,False,"Sat Sep 12, 7:00 PM",SE Louisiana,North Alabama,,,,,False,False,Southland,UAC,False,2026-09-12T19:00:00-04:00,Sat,,
 401868171,2026,2,regular,2026-09-12,False,"Sat Sep 12, 6:00 PM",The Citadel,Charleston Southern,,,,,False,False,Southern,OVC,False,2026-09-12T18:00:00-04:00,Sat,,
-401868187,2026,2,regular,2026-09-12,False,"Sat Sep 12, 6:00 PM",Liberty,Gardner-Webb,,,,,False,False,Conference USA,OVC,False,2026-09-12T18:00:00-04:00,Sat,fbs,fcs
+401868187,2026,2,regular,2026-09-12,False,"Sat Sep 12, 12:00 PM",Liberty,Gardner-Webb,,,,,False,False,Conference USA,OVC,False,2026-09-12T12:00:00-04:00,Sat,fbs,fcs
 401868195,2026,2,regular,2026-09-12,False,"Sat Sep 12, 7:00 PM",Alabama A&M,Tennessee State,,,,,False,False,SWAC,OVC,False,2026-09-12T19:00:00-04:00,Sat,,
 401868210,2026,2,regular,2026-09-12,False,"Sat Sep 12, 6:00 PM",Butler,Franklin,,,,,False,False,Pioneer,Heartland,False,2026-09-12T18:00:00-04:00,Sat,,
 401868227,2026,2,regular,2026-09-12,False,"Sat Sep 12, 12:00 PM",Dayton,Thomas More,,,,,False,False,Pioneer,Great Midwest Athletic,False,2026-09-12T12:00:00-04:00,Sat,,
