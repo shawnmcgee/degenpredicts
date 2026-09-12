@@ -891,3 +891,62 @@ def test_the_fbs_flag_survives_into_picks_for_the_record_split(env):
     src = pathlib.Path(predict.__file__).read_text()
     keep_block = src.split("keep = [", 1)[1].split("]", 1)[0]
     assert '"fbs"' in keep_block, "`fbs` dropped from the keep list - the record split goes blind"
+
+
+def test_slates_bucket_a_saturday_by_kickoff(env):
+    """A CFB Saturday is ~50 games in one list. The slate chips split it into the windows
+    people actually think in, and the boundaries have to land on real kickoffs: 12:45 is noon,
+    3:30 and 4:15 are afternoon, 6:00 through 10:15 are night, 10:30+ is west-coast late."""
+    from cfb.site import _slate
+
+    def at(label):
+        return _slate(None, "Sat Sep 12, " + label)
+
+    assert at("12:00 PM") == "early"
+    assert at("12:45 PM") == "early"
+    assert at("2:30 PM") == "early"
+    assert at("3:30 PM") == "afternoon"
+    assert at("4:15 PM") == "afternoon"
+    assert at("6:00 PM") == "night", "6pm is an evening kickoff, not an afternoon one"
+    assert at("8:00 PM") == "night"
+    assert at("10:15 PM") == "night"
+    assert at("10:30 PM") == "late"
+    assert at("11:59 PM") == "late"
+    # midnight and noon are where 12-hour parsing usually breaks
+    assert at("12:30 AM") == "early"
+    # an exact ISO kickoff wins over the printed label, and carries its own offset
+    assert _slate("2026-09-12T15:30:00-04:00", "Sat Sep 12, 9:99 XM") == "afternoon"
+    assert _slate("2026-09-13T00:30:00-04:00", "") == "early"
+    # no time anywhere is its own bucket, never a silent drop
+    assert _slate(None, None) == "tbd"
+    assert _slate("nan", "") == "tbd"
+
+
+def test_slate_tabs_skip_empty_slates_and_put_tbd_last(env):
+    """An empty chip invites a click that blanks the board, so only slates with games get one.
+    TBD is offered only when something is genuinely unannounced, and never first."""
+    from cfb.site import _slate_tabs
+
+    picks = ([{"slate": "night"}] * 3 + [{"slate": "early"}] * 2
+             + [{"slate": "tbd"}] + [{"slate": "late"}])
+    tabs = _slate_tabs(picks)
+    assert [t["key"] for t in tabs] == ["early", "night", "late", "tbd"], "kickoff order"
+    assert [t["n"] for t in tabs] == [2, 3, 1, 1]
+    assert sum(t["n"] for t in tabs) == len(picks), "counts must account for every game"
+    # no afternoon games -> no afternoon chip
+    assert all(t["key"] != "afternoon" for t in tabs)
+    # and a board with nothing unannounced offers no TBD chip
+    assert all(t["key"] != "tbd" for t in _slate_tabs([{"slate": "night"}]))
+
+
+def test_slate_boundaries_are_configurable(env, monkeypatch):
+    """The cuts are a judgement call, so they are overridable - and a typo in the env var must
+    fall back to the defaults rather than take down the daily site build."""
+    from cfb import config as C
+
+    monkeypatch.setenv("DEGEN_CFB_SLATES", "13,17,21")
+    assert [s[2] for s in C.slates()] == [0.0, 13.0, 17.0, 21.0]
+    monkeypatch.setenv("DEGEN_CFB_SLATES", "not,a,number")
+    assert [s[2] for s in C.slates()] == [0.0, 15.0, 18.0, 22.5]
+    monkeypatch.setenv("DEGEN_CFB_SLATES", "15,18")        # wrong arity
+    assert [s[2] for s in C.slates()] == [0.0, 15.0, 18.0, 22.5]

@@ -98,6 +98,38 @@ BOARD_DAYS = int(os.environ.get("DEGEN_BOARD_DAYS", "7"))
 # are the D-II/D-III rows the broken feed filter drags in, and nothing prices them.
 BOARD_FCS = os.environ.get("DEGEN_CFB_BOARD_FCS", "1").lower() not in ("0", "false", "no", "")
 
+# Saturday kickoff slates, as ET hours. A CFB Saturday runs ~50 games and reading them as one
+# list is the problem these solve. Boundaries are taken from where the schedule actually
+# clusters rather than from round numbers: a typical board sits at 12:00, 15:30-16:15,
+# 19:00-20:00 and 22:30+, which is the familiar noon / 3:30-4 / primetime / west-coast-late
+# shape. 6pm counts as night, not afternoon - it is an evening kickoff by any normal reading,
+# and the afternoon window is the 3:30-4:00 block.
+_SLATE_LABELS = (("early", "Noon"), ("afternoon", "Afternoon"),
+                 ("night", "Night"), ("late", "Late"))
+_SLATE_DEFAULT = (15.0, 18.0, 22.5)
+
+
+def slates() -> tuple[tuple[str, str, float, float], ...]:
+    """(key, label, start_hour, end_hour) per slate, start-inclusive and end-exclusive.
+
+    Three cut points make four buckets. `DEGEN_CFB_SLATES` overrides them as a comma-separated
+    list of ET hours ("15,18,22.5"); anything unparseable falls back to the defaults rather
+    than crashing the daily site build over a typo in an env var.
+    """
+    cuts = _SLATE_DEFAULT
+    raw = os.environ.get("DEGEN_CFB_SLATES", "").strip()
+    if raw:
+        try:
+            parsed = tuple(sorted(float(x) for x in raw.split(",")))
+            if len(parsed) == 3 and all(0 < c < 24 for c in parsed):
+                cuts = parsed
+        except ValueError:
+            pass
+    edges = (0.0,) + cuts + (24.0,)
+    return tuple((key, label, edges[i], edges[i + 1])
+                 for i, (key, label) in enumerate(_SLATE_LABELS))
+
+
 # --- modelling / betting -------------------------------------------------------------
 MIN_GAMES = int(os.environ.get("DEGEN_MIN_GAMES", "2"))     # thin-data guard (weeks 1-2)
 # NOTE: these thresholds apply to the model's RAW disagreement with the line
