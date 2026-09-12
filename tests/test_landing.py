@@ -112,7 +112,7 @@ def test_renders_a_chooser_with_a_link_per_sport(tmp_path):
     }, picks=picks)
     _publish(docs, "nfl", metrics={"updated": "2026-09-08"}, picks=HEADER)
 
-    html = landing.build(docs).read_text()
+    html = landing.build(docs, today="2026-09-08").read_text()
     assert 'href="cfb/"' in html and 'href="nfl/"' in html
     assert "College Football" in html and "NFL" in html
     # units come from the STAKED record, never from all_games
@@ -120,6 +120,9 @@ def test_renders_a_chooser_with_a_link_per_sport(tmp_path):
     assert "+9.90u" not in html and "-4.00u" not in html  # the all-games units must not leak
     assert "+0.31" in html                                 # CLV carried through
     assert "No games on the board right now." in html      # the NFL card, with an empty board
+    # pinned like every other test in this file. Reading the real clock here meant the
+    # fixture pick (dated 2026-09-10) stopped being "upcoming" on 2026-09-11, after which the
+    # plays pill never rendered and this line failed on every run.
     assert "1 play" in html and "1 plays" not in html      # singular, not "1 plays"
     # a pandas-style NaN must never reach the page
     body = re.sub(r"<(script|style)\b.*?</\1>", "", html, flags=re.S | re.I).lower()
@@ -144,7 +147,7 @@ def test_unstaked_weeks_show_a_record_not_a_fabricated_roi(tmp_path):
                                  "win_pct": 59.0, "clv": 0.21}},
     }, picks=HEADER + "g1,2026-09-10,2,pass,pass\n")
 
-    html = landing.build(docs).read_text()
+    html = landing.build(docs, today="2026-09-08").read_text()
     assert "model side, unstaked" in html
     assert "62-43" in html and "41-64" in html      # the side record is still shown
     assert "u<" not in html and "0.34u" not in html and "3.26u" not in html
@@ -155,7 +158,7 @@ def test_unstaked_weeks_show_a_record_not_a_fabricated_roi(tmp_path):
 def test_renders_with_nothing_published(tmp_path):
     docs = tmp_path / "docs"
     docs.mkdir(parents=True)
-    html = landing.build(docs).read_text()
+    html = landing.build(docs, today="2026-09-08").read_text()
     assert "Nothing published yet" in html
     assert (docs / ".nojekyll").exists()
 
