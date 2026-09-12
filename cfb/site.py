@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import shutil
 from pathlib import Path
 
@@ -92,6 +93,48 @@ def _recent_results(limit: int = 12) -> list[dict]:
     return df.astype(object).where(pd.notna(df), None).to_dict("records")
 
 
+_TIME_RE = re.compile(r"(\d{1,2}):(\d{2})\s*([AaPp])\.?[Mm]")
+
+
+def _et_hour(kickoff_utc, tip_et) -> float | None:
+    """Kickoff as a fractional ET hour, or None when it is genuinely unannounced.
+
+    Two sources because they fail in different places. `kickoff_utc` carries an explicit UTC
+    offset and is exact, but older pick rows predate the column. Those rows still carry a
+    printed `tip_et` ("Sat Sep 12, 3:30 PM"), and the page already shows it - so a game with a
+    visible time must not read as "TBD" in the slate filter just because the ISO field is
+    missing. Parsing the label back is ugly and it is the honest fallback.
+    """
+    if kickoff_utc is not None and str(kickoff_utc).strip() not in ("", "nan", "NaT", "None"):
+        try:
+            ts = pd.Timestamp(str(kickoff_utc))
+            ts = ts.tz_localize(config.ET) if ts.tzinfo is None else ts.tz_convert(config.ET)
+            return ts.hour + ts.minute / 60
+        except (ValueError, TypeError):
+            pass
+    m = _TIME_RE.search(str(tip_et or ""))
+    if not m:
+        return None
+    hour, minute, half = int(m.group(1)) % 12, int(m.group(2)), m.group(3).lower()
+    return (hour + (12 if half == "p" else 0)) + minute / 60
+
+
+def _slate(kickoff_utc, tip_et) -> str:
+    """Which Saturday slate a kickoff belongs to; "tbd" when there is no time at all.
+
+    "tbd" is a bucket rather than a silent drop. Games a week out often have no announced
+    kickoff, and a slate filter that hid them would quietly shrink the board with no way to
+    tell it had happened.
+    """
+    hour = _et_hour(kickoff_utc, tip_et)
+    if hour is None:
+        return "tbd"
+    for key, _label, lo, hi in config.slates():
+        if lo <= hour < hi:
+            return key
+    return "late"          # a 24:00 rounding artefact belongs at the end, not nowhere
+
+
 def _kick_key(kickoff_utc, tip_et) -> str:
     """Sort key for the "Sort by kickoff" control: the ISO timestamp, or "" if unannounced.
 
@@ -166,6 +209,9 @@ def _board() -> tuple[list[dict], int | None]:
     df["kick_sort"] = [_kick_key(k, t) for k, t in
                        zip(df["kickoff_utc"] if "kickoff_utc" in df else _blank,
                            df["tip_et"] if "tip_et" in df else _blank)]
+    df["slate"] = [_slate(k, t) for k, t in
+                   zip(df["kickoff_utc"] if "kickoff_utc" in df else _blank,
+                       df["tip_et"] if "tip_et" in df else _blank)]
     conf_h = df["home_conf"] if "home_conf" in df else pd.Series([""] * len(df), index=df.index)
     conf_a = df["away_conf"] if "away_conf" in df else pd.Series([""] * len(df), index=df.index)
     df["search"] = (df["home_team"].fillna("") + " " + df["away_team"].fillna("") + " "
@@ -182,6 +228,20 @@ def _metrics() -> dict:
     if config.METRICS.exists():
         return json.loads(config.METRICS.read_text())
     return {}
+
+
+def _slate_tabs(picks: list[dict]) -> list[dict]:
+    """Slate chips in kickoff order, with counts, and only for slates that have games.
+
+    An empty chip is worse than no chip: it invites a click that blanks the board. TBD sorts
+    last and is only offered when something is actually unannounced.
+    """
+    counts: dict[str, int] = {}
+    for p in picks:
+        k = p.get("slate") or "tbd"
+        counts[k] = counts.get(k, 0) + 1
+    order = [(key, label) for key, label, _lo, _hi in config.slates()] + [("tbd", "Time TBD")]
+    return [{"key": k, "label": lab, "n": counts[k]} for k, lab in order if counts.get(k)]
 
 
 def _days(picks: list[dict]) -> list[dict]:
@@ -205,7 +265,8 @@ def build() -> None:
         title=config.SITE_TITLE, picks=picks, m=metrics, week=week,
         results=_recent_results(), venue=config.VENUE,
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL,
-        days=_days(picks), updated=metrics.get("updated", ""),
+        days=_days(picks), slates=_slate_tabs(picks),
+        updated=metrics.get("updated", ""),
         total_min=config.TOTAL_EDGE_MIN, spread_min=config.SPREAD_EDGE_MIN,
     )
     (config.DOCS / "index.html").write_text(html)

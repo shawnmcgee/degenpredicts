@@ -926,6 +926,7 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_MIN_GAMES` | 2 (cfb) / 3 (nfl) | below this, picks are flagged early-season and not staked |
 | `DEGEN_KELLY` | 0.25 | Kelly fraction |
 | `DEGEN_BOARD_DAYS` | 7 | how far ahead to post games |
+| `DEGEN_CFB_SLATES` | `15,18,22.5` | ET hours cutting the four kickoff slates (noon / afternoon / night / late). A bad value falls back to the defaults |
 | `DEGEN_FIRST_SEASON` | 2015 (cfb) / 2010 (nfl) | earliest season to train on |
 | `DEGEN_WARMUP_SEASONS` | 1 (nfl) | seasons loaded before the training window to warm the ratings up |
 | `DEGEN_WALK_SEASONS` | 6 (nfl) | seasons pooled by the walk-forward evaluation |
@@ -946,6 +947,30 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_THEME` | `ticker` | site look: `ticker`, `scoreboard`, `field` |
 | `DEGEN_SUPPORT_URL` | (blank) | e.g. a Buy Me a Coffee link; blank hides the button |
 | `DEGEN_SUPPORT_LABEL` | `Buy me a coffee` | button text |
+
+### Filtering a Saturday
+
+A CFB Saturday is around 50 board games, which is too many to read as one list. Above the board
+there are two independent chip rows — **day** and **kickoff slate** — and they combine, so
+"Saturday + Night" is two clicks.
+
+The slates are the windows the schedule actually clusters into, not round numbers. A typical
+week:
+
+| Slate | ET window | Games |
+| --- | --- | ---: |
+| Noon | before 3:00 | 10 |
+| Afternoon | 3:00 – 5:59 | 14 |
+| Night | 6:00 – 10:29 | 21 |
+| Late | 10:30 onwards | 3 |
+
+Two deliberate choices. **6pm counts as night**, because it is an evening kickoff by any normal
+reading and the afternoon window is the 3:30–4:00 block. And a game with **no announced kickoff
+gets its own `Time TBD` chip** rather than being dropped — games a week out often have no time
+yet, and a filter that silently shrank the board would be worse than one extra chip. A slate
+chip only appears when it has games, so an empty chip can never blank the board.
+
+Cuts are set by `DEGEN_CFB_SLATES` if you disagree with them.
 
 ### Reading the board
 

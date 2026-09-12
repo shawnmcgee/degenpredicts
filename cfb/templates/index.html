@@ -47,6 +47,7 @@
   .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
   .tag.play,.tag.bold{background:var(--good);color:#052e16}
   .tag.pass{background:var(--line);color:var(--dim)}
+  .chip .n{opacity:.55;font-variant-numeric:tabular-nums;margin-left:2px}
   .tag.early,.tag.thin{background:var(--warn);color:#2a1c00}
   .tag.win{background:var(--good);color:#052e16}
   .tag.loss{background:var(--bad);color:#3f0a0a}
@@ -128,6 +129,12 @@
     <button class="chip" aria-pressed="true" data-day="all">All days</button>
     {% for d in days %}<button class="chip" aria-pressed="false" data-day="{{ d.key }}">{{ d.label }}</button>{% endfor %}
   </div>
+  {% if slates|length > 1 %}
+  <div class="controls" role="group" aria-label="Kickoff slate">
+    <button class="chip" aria-pressed="true" data-slate="all">All slates</button>
+    {% for s in slates %}<button class="chip" aria-pressed="false" data-slate="{{ s.key }}">{{ s.label }} <span class="n">{{ s.n }}</span></button>{% endfor %}
+  </div>
+  {% endif %}
   <div class="controls" role="group" aria-label="Filters">
     <button class="chip" aria-pressed="false" data-f="plays">Plays only</button>
     <button class="chip" aria-pressed="false" data-f="g5">Group of Five</button>
@@ -144,7 +151,7 @@
   <div class="game {% if g.has_play %}hot{% endif %}"
        data-day="{{ g.day_key }}" data-play="{{ 1 if g.has_play else 0 }}"
        data-g5="{{ 1 if g.is_g5 else 0 }}" data-search="{{ g.search }}"
-       data-kick="{{ g.kick_sort or '' }}">
+       data-kick="{{ g.kick_sort or '' }}" data-slate="{{ g.slate or 'tbd' }}">
     <div class="ghead">
       <span>{{ g.time_label }}</span>
       <span>{% if g.has_play %}<span class="tag play">play</span> {% endif %}&#916;{{ '%.1f'|format(gap) }}{% if g.thin_data %} &middot; early season{% endif %}</span>
@@ -264,7 +271,7 @@
   var q = document.getElementById('q');
   var count = document.getElementById('count');
   var none = document.getElementById('noresults');
-  var state = { day: 'all', plays: false, g5: false, kick: false, q: '' };
+  var state = { day: 'all', slate: 'all', plays: false, g5: false, kick: false, q: '' };
 
   function kickAt(el) {
     // Real time order, not alphabetical order on the printed label. Anything without an
@@ -283,6 +290,7 @@
     games.forEach(function (el) {
       var ok = true;
       if (state.day !== 'all' && el.dataset.day !== state.day) ok = false;
+      if (state.slate !== 'all' && el.dataset.slate !== state.slate) ok = false;
       if (state.plays && el.dataset.play !== '1') ok = false;
       if (state.g5 && el.dataset.g5 !== '1') ok = false;
       if (state.q && (el.dataset.search || '').indexOf(state.q) === -1) ok = false;
@@ -298,6 +306,15 @@
     c.addEventListener('click', function () {
       state.day = c.dataset.day;
       Array.prototype.forEach.call(document.querySelectorAll('button[data-day]'), function (o) {
+        o.setAttribute('aria-pressed', String(o === c));
+      });
+      apply();
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-slate]'), function (c) {
+    c.addEventListener('click', function () {
+      state.slate = c.dataset.slate;
+      Array.prototype.forEach.call(document.querySelectorAll('button[data-slate]'), function (o) {
         o.setAttribute('aria-pressed', String(o === c));
       });
       apply();
