@@ -136,13 +136,22 @@ def collect(docs: Path | None = None, today: str | None = None) -> list[dict]:
     return cards
 
 
-def build(docs: Path | None = None) -> Path:
+def build(docs: Path | None = None, today: str | None = None) -> Path:
+    """Render the sport chooser. `today` is forwarded to :func:`collect`.
+
+    It is injectable for the same reason `collect`'s is: "which games are still upcoming" is
+    read against a date, so a test that cannot pin the date is really asserting something
+    about the day it runs on. `test_renders_a_chooser_with_a_link_per_sport` was the one test
+    that went through `build` rather than `collect`, so it used the real clock against a
+    fixture pick dated two days out - it passed until that date went by, then failed every
+    run after. Production behaviour is unchanged: omitted, it is still today.
+    """
     docs = docs or DOCS
     docs.mkdir(parents=True, exist_ok=True)
     env = Environment(loader=FileSystemLoader(TEMPLATES),
                       autoescape=select_autoescape(["html"]))
     env.filters["money"] = lambda v: ("+" if (v or 0) >= 0 else "") + f"{v or 0:.2f}"
-    cards = collect(docs)
+    cards = collect(docs, today)
     html = env.get_template("landing.html").render(
         title=SITE_TITLE, sports=cards,
         support_url=SUPPORT_URL, support_label=SUPPORT_LABEL,
