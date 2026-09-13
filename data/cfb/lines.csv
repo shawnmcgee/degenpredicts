@@ -11831,11 +11831,11 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401856682,2026,2,2026-09-12,Texas,Ohio State,-2.0,-2.5,51.0,47.5,Bovada,3
 401856683,2026,2,2026-09-12,Texas A&M,Arizona State,-15.0,-14.0,51.5,51.5,Bovada,3
 401856684,2026,2,2026-09-12,Vanderbilt,Delaware,-21.0,-21.0,54.5,53.5,Bovada,3
-401856685,2026,3,2026-09-19,Alabama,Florida State,-17.5,-15.5,50.5,52.5,DraftKings,1
-401856686,2026,3,2026-09-19,Arkansas,Georgia,17.5,17.5,52.5,52.5,DraftKings,1
-401856687,2026,3,2026-09-19,Auburn,Florida,2.5,-1.5,51.5,53.5,DraftKings,1
+401856685,2026,3,2026-09-19,Alabama,Florida State,-18.5,-15.5,50.5,52.5,DraftKings,1
+401856686,2026,3,2026-09-19,Arkansas,Georgia,23.5,17.5,53.5,52.5,DraftKings,1
+401856687,2026,3,2026-09-19,Auburn,Florida,2.5,-1.5,53.5,53.5,DraftKings,1
 401856688,2026,3,2026-09-19,Ole Miss,LSU,2.5,-1.5,58.5,57.5,DraftKings,1
-401856691,2026,3,2026-09-19,South Carolina,Mississippi State,-5.5,-7.5,56.5,54.5,DraftKings,1
+401856691,2026,3,2026-09-19,South Carolina,Mississippi State,-3.5,-7.5,58.5,54.5,DraftKings,1
 401856693,2026,3,2026-09-19,Texas,UTSA,-29.5,-29.5,57.5,57.5,DraftKings,1
 401856694,2026,3,2026-09-19,Texas A&M,Kentucky,-15.5,-15.5,48.5,48.5,DraftKings,1
 401856700,2026,4,2026-09-26,Georgia,Oklahoma,-10.0,-10.0,52.5,52.5,DraftKings,1
@@ -11885,11 +11885,13 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401856790,2026,2,2026-09-12,Pittsburgh,UCF,-7.0,-7.5,55.0,57.0,Bovada,3
 401856791,2026,2,2026-09-12,West Virginia,UT Martin,-41.5,-42.0,57.5,55.5,Bovada,3
 401856796,2026,3,2026-09-19,Northwestern,Colorado,-3.0,-4.5,45.5,45.5,DraftKings,1
+401856797,2026,3,2026-09-19,Cincinnati,Miami (OH),-15.5,-15.5,49.5,49.5,DraftKings,1
+401856801,2026,3,2026-09-19,Utah,Utah State,-27.5,-27.5,57.5,57.5,DraftKings,1
 401856802,2026,3,2026-09-19,Virginia,West Virginia,-9.5,-8.5,53.5,50.5,DraftKings,1
 401856809,2026,7,2026-10-17,BYU,Notre Dame,10.0,10.0,54.5,54.5,DraftKings,1
 401856810,2026,2,2026-09-12,BYU,Arizona,-7.0,-7.5,49.0,50.5,Bovada,3
 401856811,2026,3,2026-09-18,Texas Tech,Houston,-9.5,-13.5,,,DraftKings/median,1
-401856812,2026,3,2026-09-19,Kansas,Arizona State,5.5,5.5,56.5,56.5,DraftKings,1
+401856812,2026,3,2026-09-19,Kansas,Arizona State,5.5,5.5,55.5,56.5,DraftKings,1
 401856830,2026,7,2026-10-17,Kansas State,Kansas,-7.5,-7.5,54.5,54.5,DraftKings,1
 401856837,2026,8,2026-10-24,Utah,Houston,-6.5,-6.5,50.5,50.5,DraftKings,1
 401856849,2026,10,2026-11-07,Utah,BYU,-3.0,-3.0,51.5,51.5,DraftKings,1
@@ -11921,10 +11923,10 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401858222,2026,2,2026-09-11,NC State,Richmond,-33.0,-31.0,50.5,49.5,Bovada,3
 401858223,2026,2,2026-09-12,SMU,UC Davis,-32.5,-29.5,59.0,58.5,Bovada,3
 401858224,2026,2,2026-09-12,Purdue,Wake Forest,2.5,4.5,51.0,50.0,Bovada,3
-401858225,2026,3,2026-09-17,Pittsburgh,Syracuse,-10.5,-10.5,53.5,59.5,DraftKings,1
-401858226,2026,3,2026-09-18,Wake Forest,Miami,22.5,19.5,55.5,50.5,DraftKings,1
-401858229,2026,3,2026-09-19,Clemson,North Carolina,-8.5,-9.5,44.5,44.5,DraftKings,1
-401858230,2026,3,2026-09-19,Louisville,SMU,-1.5,-1.5,58.5,56.5,DraftKings,1
+401858225,2026,3,2026-09-17,Pittsburgh,Syracuse,-10.0,-10.5,53.5,59.5,DraftKings,1
+401858226,2026,3,2026-09-18,Wake Forest,Miami,23.5,19.5,55.5,50.5,DraftKings,1
+401858229,2026,3,2026-09-19,Clemson,North Carolina,-6.5,-9.5,44.5,44.5,DraftKings,1
+401858230,2026,3,2026-09-19,Louisville,SMU,-1.5,-1.5,59.5,56.5,DraftKings,1
 401858232,2026,3,2026-09-19,Maryland,Virginia Tech,3.0,1.5,54.5,53.5,DraftKings,1
 401858249,2026,5,2026-10-03,Clemson,Miami,7.0,7.0,55.5,55.5,DraftKings,1
 401858250,2026,5,2026-10-03,North Carolina,Notre Dame,23.5,23.5,55.5,55.5,DraftKings,1
@@ -11965,8 +11967,10 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401858446,2026,2,2026-09-12,Washington,Utah State,-28.5,-26.5,55.5,55.5,Bovada,3
 401858447,2026,2,2026-09-12,Wisconsin,Western Illinois,-43.0,-40.0,53.0,49.5,Bovada,3
 401858449,2026,3,2026-09-19,Indiana,Western Kentucky,-44.5,-44.5,59.5,59.5,DraftKings,1
+401858451,2026,3,2026-09-19,Minnesota,Akron,-26.5,-26.5,48.5,48.5,DraftKings,1
 401858453,2026,3,2026-09-19,Notre Dame,Michigan State,-29.5,-29.5,53.5,53.5,DraftKings,1
-401858454,2026,3,2026-09-19,Ohio State,Kent State,-52.5,-52.5,56.5,56.5,DraftKings,1
+401858454,2026,3,2026-09-19,Ohio State,Kent State,-52.5,-52.5,57.5,56.5,DraftKings,1
+401858456,2026,3,2026-09-19,Penn State,Buffalo,-39.5,-39.5,48.5,48.5,DraftKings,1
 401858469,2026,4,2026-09-26,USC,Oregon,5.5,5.5,58.5,58.5,DraftKings,1
 401858485,2026,6,2026-10-10,Penn State,USC,-1.5,-1.5,56.5,56.5,DraftKings,1
 401858488,2026,7,2026-10-17,Indiana,Ohio State,-1.5,1.5,48.5,48.5,DraftKings,1
@@ -11991,6 +11995,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401860883,2026,2,2026-09-12,Fresno State,Sacramento State,-18.5,-18.0,43.5,46.0,Bovada,3
 401860884,2026,2,2026-09-12,Texas State,UTSA,-1.5,1.0,65.5,64.5,Bovada,3
 401861962,2026,1,2026-09-05,UConn,Lafayette,-19.5,-19.5,51.5,51.5,Bovada,3
+401861963,2026,3,2026-09-19,Southern Miss,UConn,2.5,2.5,55.5,55.5,DraftKings,1
 401862693,2026,1,2026-08-29,UNLV,Memphis,-5.0,-3.0,55.5,60.5,Bovada,3
 401862694,2026,1,2026-09-05,Charlotte,The Citadel,-20.5,-20.0,49.0,46.5,Bovada,3
 401862695,2026,1,2026-09-05,Memphis,Arkansas State,-10.5,-10.5,52.0,55.5,Bovada,3
@@ -12158,6 +12163,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401869129,2026,1,2026-09-05,Louisiana Tech,Northwestern State,-44.5,-44.5,56.5,55.5,Bovada,3
 401869130,2026,2,2026-09-12,East Texas A&M,Northwestern State,-20.5,-20.5,53.5,51.5,DraftKings,2
 401869142,2026,1,2026-09-05,Louisiana,Lamar,-20.0,-20.0,48.5,48.5,Bovada,3
+401869940,2026,3,2026-09-19,Delaware,Coastal Carolina,-4.5,-4.5,58.5,58.5,DraftKings,1
 401869955,2026,2,2026-09-12,Kennesaw State,Georgia State,-7.5,-9.0,55.5,51.0,Bovada,3
 401869960,2026,1,2026-09-05,James Madison,Liberty,-6.0,-6.0,50.5,50.5,Bovada,3
 401870763,2026,1,2026-09-05,Troy,Sam Houston,-16.5,-17.0,53.0,50.5,Bovada,3
