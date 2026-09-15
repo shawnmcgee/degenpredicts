@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-14",
+  "updated": "2026-09-15",
   "sport": "nfl",
   "break_even": 51.75,
   "venue": "kalshi_taker",
@@ -15,14 +15,14 @@
       "clv": null
     },
     "all_games": {
-      "n": 15,
-      "wins": 4,
+      "n": 16,
+      "wins": 5,
       "losses": 11,
       "pushes": 0,
-      "win_pct": 26.7,
+      "win_pct": 31.2,
       "units": 0.0,
       "roi": 0.0,
-      "clv": -0.07
+      "clv": 0.0
     },
     "last2weeks": {
       "n": 0,
@@ -34,18 +34,18 @@
       "roi": 0.0,
       "clv": null
     },
-    "mae": 12.44,
+    "mae": 11.82,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 3,
-        "wins": 1,
+        "n": 4,
+        "wins": 2,
         "losses": 2,
         "pushes": 0,
-        "win_pct": 33.3,
+        "win_pct": 50.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.67
+        "clv": -0.25
       },
       {
         "bucket": "1-2",
@@ -105,14 +105,14 @@
       "clv": null
     },
     "all_games": {
-      "n": 15,
+      "n": 16,
       "wins": 5,
-      "losses": 9,
+      "losses": 10,
       "pushes": 1,
-      "win_pct": 35.7,
+      "win_pct": 33.3,
       "units": 0.0,
       "roi": 0.0,
-      "clv": 0.23
+      "clv": 0.19
     },
     "last2weeks": {
       "n": 0,
@@ -124,7 +124,7 @@
       "roi": 0.0,
       "clv": null
     },
-    "mae": 10.93,
+    "mae": 11.43,
     "by_edge": [
       {
         "bucket": "0-1",
@@ -150,14 +150,14 @@
       },
       {
         "bucket": "2-3",
-        "n": 1,
+        "n": 2,
         "wins": 0,
-        "losses": 1,
+        "losses": 2,
         "pushes": 0,
         "win_pct": 0.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.0
+        "clv": -0.25
       },
       {
         "bucket": "3-5",
@@ -186,7 +186,7 @@
   "by_week": [
     {
       "week": 1,
-      "games": 15,
+      "games": 16,
       "total_units": 0.0,
       "spread_units": 0.0,
       "played": 0,
