@@ -26693,7 +26693,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401909018,2026,2,regular,2026-09-12,False,"Sat Sep 12, 7:00 PM",Shenandoah,Geneva,,,,,False,False,Old Dominion,Presidents',False,2026-09-12T19:00:00-04:00,Sat,,
 401909074,2026,2,regular,2026-09-12,False,"Sat Sep 12, 4:00 PM",Whitworth,Eastern Oregon,,,,,False,False,Northwest,,False,2026-09-12T16:00:00-04:00,Sat,,
 401909137,2026,2,regular,2026-09-12,False,"Sat Sep 12, 1:00 PM",Kenyon,Wooster,,,,,False,True,North Coast,North Coast,False,2026-09-12T13:00:00-04:00,Sat,,
-401858225,2026,3,regular,2026-09-17,False,"Thu Sep 17, 7:30 PM",Pittsburgh,Syracuse,,,,,False,True,ACC,ACC,False,2026-09-17T19:30:00-04:00,Thu,fbs,fbs
+401858225,2026,3,regular,2026-09-17,False,"Thu Sep 17, 7:30 PM",Pittsburgh,Syracuse,27.0,13.0,40.0,14.0,False,True,ACC,ACC,True,2026-09-17T19:30:00-04:00,Thu,fbs,fbs
 401907580,2026,3,regular,2026-09-17,False,"Thu Sep 17, 7:00 PM",Concord,Charleston (WV),,,,,False,True,Mountain East,Mountain East,False,2026-09-17T19:00:00-04:00,Thu,,
 401856811,2026,3,regular,2026-09-18,False,"Fri Sep 18, 8:00 PM",Texas Tech,Houston,,,,,False,True,Big 12,Big 12,False,2026-09-18T20:00:00-04:00,Fri,fbs,fbs
 401858226,2026,3,regular,2026-09-18,False,"Fri Sep 18, 7:30 PM",Wake Forest,Miami,,,,,False,True,ACC,ACC,False,2026-09-18T19:30:00-04:00,Fri,fbs,fbs

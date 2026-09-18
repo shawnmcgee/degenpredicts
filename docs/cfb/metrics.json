@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-17",
+  "updated": "2026-09-18",
   "break_even": 51.75,
   "venue": "kalshi_taker",
   "totals": {
@@ -14,25 +14,25 @@
       "clv": null
     },
     "all_games": {
-      "n": 191,
+      "n": 192,
       "wins": 116,
-      "losses": 75,
+      "losses": 76,
       "pushes": 0,
-      "win_pct": 60.7,
+      "win_pct": 60.4,
       "units": 0.0,
       "roi": 0.0,
-      "clv": 0.3
+      "clv": 0.2
     },
     "by_class": {
       "fbs": {
-        "n": 88,
+        "n": 89,
         "wins": 51,
-        "losses": 37,
+        "losses": 38,
         "pushes": 0,
-        "win_pct": 58.0,
+        "win_pct": 57.3,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.01
+        "clv": -0.17
       },
       "fcs": {
         "n": 103,
@@ -70,14 +70,14 @@
       },
       {
         "bucket": "1-2",
-        "n": 51,
+        "n": 52,
         "wins": 30,
-        "losses": 21,
+        "losses": 22,
         "pushes": 0,
-        "win_pct": 58.8,
+        "win_pct": 57.7,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.17
+        "clv": -0.43
       },
       {
         "bucket": "2-3",
@@ -137,25 +137,25 @@
       "clv": null
     },
     "all_games": {
-      "n": 191,
+      "n": 192,
       "wins": 86,
-      "losses": 105,
+      "losses": 106,
       "pushes": 0,
-      "win_pct": 45.0,
+      "win_pct": 44.8,
       "units": 0.0,
       "roi": 0.0,
       "clv": 0.08
     },
     "by_class": {
       "fbs": {
-        "n": 88,
+        "n": 89,
         "wins": 36,
-        "losses": 52,
+        "losses": 53,
         "pushes": 0,
-        "win_pct": 40.9,
+        "win_pct": 40.4,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.09
+        "clv": 0.1
       },
       "fcs": {
         "n": 103,
@@ -178,15 +178,15 @@
       "roi": 0.0,
       "clv": null
     },
-    "mae": 12.35,
+    "mae": 12.3,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 53,
+        "n": 54,
         "wins": 16,
-        "losses": 37,
+        "losses": 38,
         "pushes": 0,
-        "win_pct": 30.2,
+        "win_pct": 29.6,
         "units": 0.0,
         "roi": 0.0,
         "clv": 0.61
@@ -266,8 +266,17 @@
       "played": 0,
       "cum_total": 0.0,
       "cum_spread": 0.0
+    },
+    {
+      "week": 3,
+      "games": 1,
+      "total_units": 0.0,
+      "spread_units": 0.0,
+      "played": 0,
+      "cum_total": 0.0,
+      "cum_spread": 0.0
     }
   ],
-  "graded_games": 191,
+  "graded_games": 192,
   "fcs_games": 103
 }
