@@ -26695,9 +26695,9 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401909137,2026,2,regular,2026-09-12,False,"Sat Sep 12, 1:00 PM",Kenyon,Wooster,,,,,False,True,North Coast,North Coast,False,2026-09-12T13:00:00-04:00,Sat,,
 401858225,2026,3,regular,2026-09-17,False,"Thu Sep 17, 7:30 PM",Pittsburgh,Syracuse,27.0,13.0,40.0,14.0,False,True,ACC,ACC,True,2026-09-17T19:30:00-04:00,Thu,fbs,fbs
 401907580,2026,3,regular,2026-09-17,False,"Thu Sep 17, 7:00 PM",Concord,Charleston (WV),,,,,False,True,Mountain East,Mountain East,False,2026-09-17T19:00:00-04:00,Thu,,
-401856811,2026,3,regular,2026-09-18,False,"Fri Sep 18, 8:00 PM",Texas Tech,Houston,,,,,False,True,Big 12,Big 12,False,2026-09-18T20:00:00-04:00,Fri,fbs,fbs
-401858226,2026,3,regular,2026-09-18,False,"Fri Sep 18, 7:30 PM",Wake Forest,Miami,,,,,False,True,ACC,ACC,False,2026-09-18T19:30:00-04:00,Fri,fbs,fbs
-401858455,2026,3,regular,2026-09-18,False,"Fri Sep 18, 10:30 PM",Oregon,Portland State,,,,,False,False,Big Ten,Big Sky,False,2026-09-18T22:30:00-04:00,Fri,fbs,fcs
+401856811,2026,3,regular,2026-09-18,False,"Fri Sep 18, 8:00 PM",Texas Tech,Houston,28.0,26.0,54.0,2.0,False,True,Big 12,Big 12,True,2026-09-18T20:00:00-04:00,Fri,fbs,fbs
+401858226,2026,3,regular,2026-09-18,False,"Fri Sep 18, 7:30 PM",Wake Forest,Miami,20.0,33.0,53.0,-13.0,False,True,ACC,ACC,True,2026-09-18T19:30:00-04:00,Fri,fbs,fbs
+401858455,2026,3,regular,2026-09-18,False,"Fri Sep 18, 10:30 PM",Oregon,Portland State,84.0,0.0,84.0,84.0,False,False,Big Ten,Big Sky,True,2026-09-18T22:30:00-04:00,Fri,fbs,fcs
 401908593,2026,3,regular,2026-09-18,False,"Fri Sep 18, 7:00 PM",UMass Dartmouth,Framingham State,,,,,False,True,MSCAC,MSCAC,False,2026-09-18T19:00:00-04:00,Fri,,
 401856685,2026,3,regular,2026-09-19,False,"Sat Sep 19, 3:30 PM",Alabama,Florida State,,,,,False,False,SEC,ACC,False,2026-09-19T15:30:00-04:00,Sat,fbs,fbs
 401856686,2026,3,regular,2026-09-19,False,"Sat Sep 19, 12:00 PM",Arkansas,Georgia,,,,,False,True,SEC,SEC,False,2026-09-19T12:00:00-04:00,Sat,fbs,fbs
