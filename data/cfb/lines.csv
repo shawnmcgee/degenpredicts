@@ -11844,10 +11844,10 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401856695,2026,3,2026-09-19,Vanderbilt,NC State,-3.0,-4.0,50.5,52.5,Bovada,3
 401856696,2026,4,2026-09-26,Alabama,South Carolina,-11.5,-11.5,52.5,46.5,DraftKings,1
 401856698,2026,4,2026-09-26,Auburn,Vanderbilt,-9.5,-8.5,52.5,50.5,DraftKings,1
-401856699,2026,4,2026-09-26,Florida,Ole Miss,-1.5,-1.5,58.5,57.5,DraftKings,1
-401856700,2026,4,2026-09-26,Georgia,Oklahoma,-14.0,-10.0,47.5,52.5,DraftKings,1
+401856699,2026,4,2026-09-26,Florida,Ole Miss,-1.5,-1.5,57.5,57.5,DraftKings,1
+401856700,2026,4,2026-09-26,Georgia,Oklahoma,-14.0,-10.0,45.5,52.5,DraftKings,1
 401856702,2026,4,2026-09-26,LSU,Texas A&M,-8.5,-3.0,53.5,57.5,DraftKings,1
-401856703,2026,4,2026-09-26,Mississippi State,Missouri,-3.0,-1.5,57.5,56.5,DraftKings,1
+401856703,2026,4,2026-09-26,Mississippi State,Missouri,-3.5,-1.5,58.5,56.5,DraftKings,1
 401856704,2026,4,2026-09-26,Tennessee,Texas,5.5,6.5,57.5,56.5,DraftKings,1
 401856712,2026,6,2026-10-10,Alabama,Georgia,3.0,3.0,50.5,50.5,DraftKings,1
 401856717,2026,6,2026-10-10,Oklahoma,Texas,6.0,6.0,48.5,48.5,DraftKings,1
@@ -11903,11 +11903,13 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401856801,2026,3,2026-09-19,Utah,Utah State,-26.0,-28.0,56.0,57.0,Bovada,3
 401856802,2026,3,2026-09-19,Virginia,West Virginia,-11.0,-9.5,51.5,54.5,Bovada,3
 401856803,2026,3,2026-09-19,Oklahoma State,Murray State,-55.5,-55.5,70.0,70.0,Bovada,3
+401856805,2026,4,2026-09-26,Texas Tech,Sam Houston,-37.5,-37.5,54.5,54.5,DraftKings,1
 401856806,2026,4,2026-09-26,Georgia Southern,Houston,19.5,19.5,55.5,55.5,DraftKings,1
 401856809,2026,7,2026-10-17,BYU,Notre Dame,10.0,10.0,54.5,54.5,DraftKings,1
 401856810,2026,2,2026-09-12,BYU,Arizona,-7.0,-7.5,49.0,50.5,Bovada,3
 401856811,2026,3,2026-09-18,Texas Tech,Houston,-8.5,-8.5,52.5,53.0,Bovada,3
 401856812,2026,3,2026-09-19,Kansas,Arizona State,5.0,6.5,51.0,53.0,Bovada,3
+401856813,2026,4,2026-09-26,Baylor,Colorado,-8.5,-8.5,53.5,53.5,DraftKings,1
 401856816,2026,4,2026-09-26,Iowa State,Utah,11.5,11.5,49.5,49.5,DraftKings,1
 401856830,2026,7,2026-10-17,Kansas State,Kansas,-7.5,-7.5,54.5,54.5,DraftKings,1
 401856837,2026,8,2026-10-24,Utah,Houston,-6.5,-6.5,50.5,50.5,DraftKings,1
@@ -11952,6 +11954,8 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401858233,2026,3,2026-09-19,California,Wagner,-57.5,-57.5,65.0,65.0,Bovada,3
 401858234,2026,4,2026-09-25,California,Clemson,1.5,1.5,47.5,47.5,DraftKings,1
 401858238,2026,4,2026-09-26,Miami,Central Michigan,-42.5,-42.5,54.5,54.5,DraftKings,1
+401858239,2026,4,2026-09-26,Virginia,Delaware,-20.5,-20.5,,,DraftKings/median,1
+401858242,2026,4,2026-09-26,Boston College,Virginia Tech,14.0,14.0,54.5,54.5,DraftKings,1
 401858243,2026,4,2026-09-26,Louisville,Wake Forest,-13.5,-13.5,58.5,58.5,DraftKings,1
 401858249,2026,5,2026-10-03,Clemson,Miami,7.0,7.0,55.5,55.5,DraftKings,1
 401858250,2026,5,2026-10-03,North Carolina,Notre Dame,23.5,23.5,55.5,55.5,DraftKings,1
@@ -12009,7 +12013,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401858463,2026,4,2026-09-26,Michigan,Iowa,-4.5,-4.5,37.5,39.5,DraftKings,1
 401858464,2026,4,2026-09-26,Michigan State,Nebraska,4.5,5.5,48.5,52.5,DraftKings,1
 401858465,2026,4,2026-09-26,Ohio State,Illinois,-27.5,-27.5,53.5,54.5,DraftKings,1
-401858466,2026,4,2026-09-26,Penn State,Wisconsin,-10.0,-11.5,43.5,42.5,DraftKings,1
+401858466,2026,4,2026-09-26,Penn State,Wisconsin,-9.5,-11.5,44.5,42.5,DraftKings,1
 401858467,2026,4,2026-09-26,Purdue,Notre Dame,27.5,27.5,56.5,56.5,DraftKings,1
 401858469,2026,4,2026-09-26,USC,Oregon,1.5,5.5,62.5,58.5,DraftKings,1
 401858470,2026,4,2026-09-26,Washington,Minnesota,-9.5,-9.5,45.5,44.5,DraftKings,1
@@ -12042,10 +12046,12 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401860888,2026,3,2026-09-19,San José State,Fresno State,4.0,7.0,47.5,50.5,Bovada,3
 401860889,2026,3,2026-09-19,Texas State,North Texas,-3.0,-3.0,62.5,63.5,Bovada,3
 401860890,2026,3,2026-09-19,Washington State,Duquesne,-38.5,-38.5,52.5,54.0,Bovada,3
-401860893,2026,4,2026-09-26,Toledo,San Diego State,1.5,1.5,48.5,48.5,DraftKings,1
+401860893,2026,4,2026-09-26,Toledo,San Diego State,-1.5,1.5,48.5,48.5,DraftKings,1
+401860896,2026,4,2026-09-26,UTSA,Colorado State,-11.5,-11.5,57.5,57.5,DraftKings,1
 401860897,2026,4,2026-09-26,Western Michigan,Boise State,7.5,7.5,47.5,47.5,DraftKings,1
 401861962,2026,1,2026-09-05,UConn,Lafayette,-19.5,-19.5,51.5,51.5,Bovada,3
 401861963,2026,3,2026-09-19,Southern Miss,UConn,3.5,3.5,54.5,54.0,Bovada,3
+401861970,2026,4,2026-09-26,Miami (OH),UConn,-3.0,-3.0,50.5,50.5,DraftKings,1
 401862693,2026,1,2026-08-29,UNLV,Memphis,-5.0,-3.0,55.5,60.5,Bovada,3
 401862694,2026,1,2026-09-05,Charlotte,The Citadel,-20.5,-20.0,49.0,46.5,Bovada,3
 401862695,2026,1,2026-09-05,Memphis,Arkansas State,-10.5,-10.5,52.0,55.5,Bovada,3
@@ -12070,6 +12076,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401862777,2026,3,2026-09-19,South Florida,Delaware State,-37.5,-36.5,60.5,61.0,Bovada,3
 401862778,2026,4,2026-09-25,UAB,Navy,11.5,11.5,53.5,53.5,DraftKings,1
 401862779,2026,4,2026-09-25,Temple,Army,3.0,3.0,49.5,49.5,DraftKings,1
+401862780,2026,4,2026-09-26,Charlotte,Louisiana,14.5,14.5,52.5,52.5,DraftKings,1
 401862844,2026,15,2026-12-12,Army,Navy,2.5,2.5,37.5,37.5,DraftKings,1
 401864424,2026,1,2026-09-03,Delaware,Merrimack,-31.5,-28.5,56.5,55.5,DraftKings,2
 401864425,2026,1,2026-09-03,Kennesaw State,West Georgia,-22.5,-22.5,50.5,51.5,DraftKings,2
@@ -12089,12 +12096,18 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401864506,2026,2,2026-09-12,Wyoming,Northern Colorado,-23.5,-22.5,44.0,47.5,Bovada,3
 401864507,2026,3,2026-09-19,Sacramento State,North Dakota State,24.5,28.0,50.5,53.0,Bovada,3
 401864508,2026,3,2026-09-19,Central Michigan,Wyoming,2.0,-1.5,40.0,39.5,Bovada,3
+401864510,2026,4,2026-09-26,Wyoming,Hawai'i,5.5,5.5,44.5,44.5,DraftKings,1
+401864511,2026,4,2026-09-26,Georgia State,Northern Illinois,-8.5,-8.5,54.5,54.5,DraftKings,1
+401864512,2026,4,2026-09-26,Akron,UNLV,14.0,14.0,49.5,49.5,DraftKings,1
 401864570,2026,1,2026-08-29,Florida State,New Mexico State,-31.0,-29.5,53.5,53.5,Bovada,3
 401864571,2026,2,2026-09-12,East Carolina,App State,-6.5,-8.0,56.0,56.5,Bovada,3
+401864572,2026,4,2026-09-26,NC State,App State,-14.0,-14.0,55.5,55.5,DraftKings,1
 401864574,2026,3,2026-09-19,App State,Charlotte,-16.0,-20.5,52.5,50.5,Bovada,3
 401864575,2026,2,2026-09-12,Tulane,South Alabama,-9.5,-10.0,47.5,50.5,Bovada,3
+401864576,2026,4,2026-09-26,Kentucky,South Alabama,-19.5,-19.5,55.5,55.5,DraftKings,1
 401864577,2026,1,2026-08-29,North Dakota State,Jacksonville State,-7.0,-10.0,46.5,48.5,Bovada,3
 401864578,2026,2,2026-09-12,Hawai'i,New Mexico State,-7.5,-10.0,50.0,50.5,Bovada,3
+401864579,2026,4,2026-09-26,New Mexico State,New Mexico,12.5,12.5,49.5,49.5,DraftKings,1
 401865252,2026,2,2026-09-12,New Mexico,Mercyhurst,-42.0,-41.5,54.5,52.5,Bovada,3
 401866408,2026,1,2026-08-29,Eastern Michigan,Sacramento State,-9.0,-8.5,53.0,52.5,Bovada,3
 401866409,2026,1,2026-09-03,Buffalo,UAlbany,-18.5,-24.5,47.5,48.5,DraftKings,2
