@@ -8,7 +8,9 @@
   :root{--bg:#0d0e11;--card:#171a1f;--card2:#1e2229;--line:#2a2e36;--fg:#e9eaec;--dim:#98a0aa;
         --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:64px}
+  html{scroll-behavior:smooth}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:88px}
   header,main,footer{max-width:960px;margin:0 auto;padding:0 16px}
   .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 6px}
   h1{font-size:21px;font-weight:600}
@@ -41,6 +43,9 @@
   .bet .l{font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;display:flex;gap:6px;align-items:center}
   .bet .p{font-size:18px;font-weight:600;line-height:1.25}
   .bet .d{font-size:12px;color:var(--dim);margin-top:5px}
+  .bet .hit{font-size:12px;color:var(--dim);margin-top:3px}
+  .bet .hit b{color:var(--fg);font-variant-numeric:tabular-nums}
+  .bet .hit .up{color:var(--good)} .bet .hit .down{color:var(--bad)}
   .exch{margin:0 14px 14px;background:var(--card2);border-radius:9px;padding:10px 12px}
   .exrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;padding:4px 0}
   .exrow + .exrow{border-top:1px solid var(--line)}
@@ -64,11 +69,20 @@
   nav.sports{display:flex;gap:8px;margin:0 0 4px;flex-wrap:wrap}
   nav.sports .chip{text-decoration:none}
   nav.sports .chip[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  #stats{scroll-margin-top:12px}
+  /* floating jump: down to the hit-rate and results tables, back up once there */
+  .jump{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:10;
+        display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 16px;border-radius:999px;
+        background:var(--accent);color:#06121f;font-size:14px;font-weight:600;text-decoration:none;
+        box-shadow:0 4px 14px rgba(0,0,0,.5);-webkit-tap-highlight-color:transparent}
+  .jump svg{transition:transform .2s}
+  .jump.up svg{transform:rotate(180deg)}
+  @media print{.jump{display:none}}
   @media(max-width:560px){.bets{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header>
+<header id="top">
   <nav class="sports" aria-label="Sport">
     <a class="chip" href="../">&larr; All sports</a>
     <a class="chip" href="../cfb/">College football</a>
@@ -79,7 +93,7 @@
     <div>
       <h1>DegenPredicts — NFL</h1>
       <div class="sub">NFL spreads and totals &middot; Week 3
-        &middot; updated 2026-09-22</div>
+        &middot; updated 2026-09-23</div>
     </div>
     
     <a class="coffee" href="https://buymeacoffee.com/smcgee" rel="noopener">&#9749; Buy me a coffee</a>
@@ -178,11 +192,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 45.5</div>
         <div class="d">model 51.3 &middot; +5.8 vs line</div>
+        <div class="hit">Hit <b class="">50.0%</b> (1-1) this season at 5–7 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">JAX -3.0</div>
         <div class="d">model margin 5.1 &middot; +2.1 vs line</div>
+        <div class="hit">Hit <b class="">20.0%</b> (1-4) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -232,11 +248,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 45.5</div>
         <div class="d">model 47.7 &middot; +2.2 vs line</div>
+        <div class="hit">Hit <b class="">55.6%</b> (5-4) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag early">no play</span></div>
         <div class="p">DEN +2.5</div>
         <div class="d">model margin 3.0 &middot; +5.5 vs line</div>
+        <div class="hit">Hit <b class="">50.0%</b> (1-1) this season at 5–7 pts off</div>
       </div>
     </div>
     
@@ -286,11 +304,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 46.5</div>
         <div class="d">model 45.8 &middot; -0.7 vs line</div>
+        <div class="hit">Hit <b class="">44.4%</b> (4-5) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">MIA +11.5</div>
         <div class="d">model margin -6.7 &middot; +4.8 vs line</div>
+        <div class="hit">Hit <b class="">40.0%</b> (2-3) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -340,11 +360,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 42.5</div>
         <div class="d">model 42.7 &middot; +0.2 vs line</div>
+        <div class="hit">Hit <b class="">44.4%</b> (4-5) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">TB +1.5</div>
         <div class="d">model margin 2.2 &middot; +3.7 vs line</div>
+        <div class="hit">Hit <b class="">40.0%</b> (2-3) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -394,11 +416,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 50.5</div>
         <div class="d">model 54.0 &middot; +3.5 vs line</div>
+        <div class="hit">Hit <b class="">66.7%</b> (2-1) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">LAC +7.0</div>
         <div class="d">model margin 6.2 &middot; -0.8 vs line</div>
+        <div class="hit">Hit <b class="">58.3%</b> (7-5) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -448,11 +472,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 40.5</div>
         <div class="d">model 43.9 &middot; +3.4 vs line</div>
+        <div class="hit">Hit <b class="">66.7%</b> (2-1) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">TEN +3.0</div>
         <div class="d">model margin 2.1 &middot; -0.9 vs line</div>
+        <div class="hit">Hit <b class="">58.3%</b> (7-5) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -502,11 +528,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 47.5</div>
         <div class="d">model 50.7 &middot; +3.2 vs line</div>
+        <div class="hit">Hit <b class="">66.7%</b> (2-1) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">SF -8.5</div>
         <div class="d">model margin 11.4 &middot; +2.9 vs line</div>
+        <div class="hit">Hit <b class="">20.0%</b> (1-4) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -556,11 +584,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 42.5</div>
         <div class="d">model 42.7 &middot; +0.2 vs line</div>
+        <div class="hit">Hit <b class="">44.4%</b> (4-5) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">CLE +2.5</div>
         <div class="d">model margin 0.7 &middot; +3.2 vs line</div>
+        <div class="hit">Hit <b class="">40.0%</b> (2-3) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -610,11 +640,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 44.5</div>
         <div class="d">model 43.3 &middot; -1.2 vs line</div>
+        <div class="hit">Hit <b class="">33.3%</b> (3-6) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">NO -3.0</div>
         <div class="d">model margin 6.1 &middot; +3.1 vs line</div>
+        <div class="hit">Hit <b class="">40.0%</b> (2-3) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -664,11 +696,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 40.5</div>
         <div class="d">model 43.4 &middot; +2.9 vs line</div>
+        <div class="hit">Hit <b class="">55.6%</b> (5-4) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">WAS +7.0</div>
         <div class="d">model margin -4.1 &middot; +2.9 vs line</div>
+        <div class="hit">Hit <b class="">20.0%</b> (1-4) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -718,11 +752,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 52.5</div>
         <div class="d">model 51.2 &middot; -1.3 vs line</div>
+        <div class="hit">Hit <b class="">33.3%</b> (3-6) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">BAL -3.0</div>
         <div class="d">model margin -4.9 &middot; -1.9 vs line</div>
+        <div class="hit">Hit <b class="">57.1%</b> (4-3) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -772,11 +808,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 48.5</div>
         <div class="d">model 50.2 &middot; +1.7 vs line</div>
+        <div class="hit">Hit <b class="">33.3%</b> (3-6) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">NYJ +6.5</div>
         <div class="d">model margin 5.5 &middot; -1.0 vs line</div>
+        <div class="hit">Hit <b class="">57.1%</b> (4-3) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -826,11 +864,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 44.5</div>
         <div class="d">model 45.4 &middot; +0.9 vs line</div>
+        <div class="hit">Hit <b class="">44.4%</b> (4-5) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">ATL +6.0</div>
         <div class="d">model margin 4.5 &middot; -1.5 vs line</div>
+        <div class="hit">Hit <b class="">57.1%</b> (4-3) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -880,11 +920,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 43.5</div>
         <div class="d">model 42.1 &middot; -1.4 vs line</div>
+        <div class="hit">Hit <b class="">33.3%</b> (3-6) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">HOU -2.5</div>
         <div class="d">model margin -3.5 &middot; -1.0 vs line</div>
+        <div class="hit">Hit <b class="">57.1%</b> (4-3) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -934,11 +976,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 43.5</div>
         <div class="d">model 42.4 &middot; -1.1 vs line</div>
+        <div class="hit">Hit <b class="">33.3%</b> (3-6) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">CHI +3.5</div>
         <div class="d">model margin -3.5 &middot; +0.0 vs line</div>
+        <div class="hit">Hit <b class="">58.3%</b> (7-5) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -988,11 +1032,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 42.5</div>
         <div class="d">model 42.0 &middot; -0.5 vs line</div>
+        <div class="hit">Hit <b class="">44.4%</b> (4-5) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">PIT +3.5</div>
         <div class="d">model margin -2.9 &middot; +0.6 vs line</div>
+        <div class="hit">Hit <b class="">58.3%</b> (7-5) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -1036,6 +1082,53 @@
     trips, wind.</p>
   
 </section>
+
+<div id="stats">
+
+
+
+<section>
+  <h2>Cover rate by model disagreement</h2>
+  <table>
+    <tr><th>|Model − line|</th><th>Totals</th><th>Win%</th><th>Spreads</th><th>Win%</th></tr>
+    
+    <tr><td>0–1 pts</td>
+      <td>4-5</td>
+      <td class="">44.4%</td>
+      <td>7-5</td>
+      <td class="">58.3%</td></tr>
+    
+    <tr><td>1–2 pts</td>
+      <td>3-6</td>
+      <td class="">33.3%</td>
+      <td>4-3</td>
+      <td class="">57.1%</td></tr>
+    
+    <tr><td>2–3 pts</td>
+      <td>5-4</td>
+      <td class="">55.6%</td>
+      <td>1-4</td>
+      <td class="">20.0%</td></tr>
+    
+    <tr><td>3–5 pts</td>
+      <td>2-1</td>
+      <td class="">66.7%</td>
+      <td>2-3</td>
+      <td class="">40.0%</td></tr>
+    
+    <tr><td>5–7 pts</td>
+      <td>1-1</td>
+      <td class="">50.0%</td>
+      <td>1-1</td>
+      <td class="">50.0%</td></tr>
+    
+  </table>
+  <p class="sub" style="margin-top:8px">Every graded game this season, bucketed by how far the
+    model sat from the line &mdash; each pick above shows the row it falls in. Green clears the
+    51.75% break-even and red falls short; a bucket stays uncoloured until it has
+    20 games.</p>
+</section>
+
 
 
 <section>
@@ -1155,42 +1248,7 @@
 </section>
 
 
-
-
-
-<section>
-  <h2>Cover rate by model disagreement</h2>
-  <table>
-    <tr><th>|Model − line|</th><th>Totals</th><th>Win%</th><th>Spreads</th><th>Win%</th></tr>
-    
-    
-    <tr><td>0-1</td><td>4-5</td><td>44.4%</td>
-      <td>7-5</td>
-      <td>58.3%</td></tr>
-    
-    
-    <tr><td>1-2</td><td>3-6</td><td>33.3%</td>
-      <td>4-3</td>
-      <td>57.1%</td></tr>
-    
-    
-    <tr><td>2-3</td><td>5-4</td><td>55.6%</td>
-      <td>1-4</td>
-      <td>20.0%</td></tr>
-    
-    
-    <tr><td>3-5</td><td>2-1</td><td>66.7%</td>
-      <td>2-3</td>
-      <td>40.0%</td></tr>
-    
-    
-    <tr><td>5-7</td><td>1-1</td><td>50.0%</td>
-      <td>1-1</td>
-      <td>50.0%</td></tr>
-    
-  </table>
-</section>
-
+</div>
 
 <section>
   <div class="note">
@@ -1208,6 +1266,15 @@
   &middot; <a href="../cfb/">college football</a> &middot; <a href="../epl/">Premier League</a>
   <br><a href="https://buymeacoffee.com/smcgee" rel="noopener">Buy me a coffee</a>
 </footer>
+
+
+
+<a class="jump" id="jump" href="#stats"
+   aria-label="Jump to hit rate and recent results">
+  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v11M3.5 9 8 13.5 12.5 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span class="jl">Hit rate</span>
+</a>
+
 
 <script>
 (function () {
@@ -1268,6 +1335,31 @@
   });
   q.addEventListener('input', function () { state.q = q.value.trim().toLowerCase(); apply(); });
   apply();
+})();
+
+(function () {
+  // The jump button is a plain anchor, so it works with scripts off. This only flips it to
+  // "back to top" once the tables it points at are on screen.
+  var fab = document.getElementById('jump');
+  var stats = document.getElementById('stats');
+  if (!fab || !stats) return;
+  var label = fab.querySelector('.jl');
+  var downText = label.textContent, downAria = fab.getAttribute('aria-label');
+  var queued = false;
+  function sync() {
+    queued = false;
+    var down = stats.getBoundingClientRect().top > window.innerHeight / 2;
+    fab.classList.toggle('up', !down);
+    fab.setAttribute('href', down ? '#stats' : '#top');
+    fab.setAttribute('aria-label', down ? downAria : 'Back to top');
+    label.textContent = down ? downText : 'Top';
+  }
+  function queue() { if (!queued) { queued = true; requestAnimationFrame(sync); } }
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  // filtering the board moves the tables without firing a scroll event
+  if (window.ResizeObserver) new ResizeObserver(queue).observe(document.body);
+  sync();
 })();
 </script>
 </body>
