@@ -22,6 +22,7 @@ LIVE_SPORTS = {
     "cfb": ("cfb/templates/index.html", "College football"),
     "nfl": ("nfl/templates/index.html", "NFL"),
     "epl": ("epl/templates/index.html", "Premier League"),
+    "nhl": ("nhl/templates/index.html", "NHL"),
 }
 
 
@@ -166,7 +167,8 @@ def test_every_publishing_workflow_rebuilds_the_front_page():
     """A sport that publishes without refreshing the chooser leaves the front page stale."""
     from pathlib import Path
     wf = Path(__file__).resolve().parent.parent / ".github" / "workflows"
-    for name in ("cfb-predict", "cfb-grade", "nfl-predict", "nfl-grade"):
+    for name in ("cfb-predict", "cfb-grade", "nfl-predict", "nfl-grade", "nhl-predict",
+                 "nhl-grade"):
         text = (wf / f"{name}.yml").read_text()
         assert "python -m core.landing" in text, f"{name}.yml does not rebuild the chooser"
 

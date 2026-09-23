@@ -1,0 +1,634 @@
+{
+  "trained_at": "2026-09-23T20:38:44+00:00",
+  "sport": "nhl",
+  "models": [
+    "market",
+    "nomarket"
+  ],
+  "base_features": [
+    "log_lam",
+    "log_L",
+    "log_S",
+    "log_p",
+    "opp_goalie",
+    "is_home",
+    "playoff",
+    "own_b2b",
+    "opp_b2b",
+    "own_rest",
+    "opp_rest",
+    "own_km",
+    "opp_km",
+    "own_tz_abs",
+    "opp_tz_abs",
+    "own_3in4",
+    "opp_3in4",
+    "early"
+  ],
+  "market_features": [
+    "dev_lam",
+    "dev_L",
+    "log_S",
+    "opp_goalie",
+    "opp_b2b",
+    "own_b2b",
+    "own_rest",
+    "opp_rest",
+    "own_3in4",
+    "opp_3in4",
+    "playoff",
+    "early",
+    "is_home",
+    "own_km",
+    "own_tz_abs"
+  ],
+  "n_rows": 24542,
+  "seasons": [
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "half_life_seasons": 4.0,
+  "theta": {
+    "T": 10.0,
+    "w": 1.0,
+    "t1": 9.0,
+    "t2": 9.0,
+    "m6": 1.6000973676940384,
+    "en": 0.07440565945201555,
+    "tie": 0.35994022107146606,
+    "c": 1.011541444297115,
+    "ot0": 0.031412050591249345,
+    "ot1": 1.1000826507000816,
+    "c_home_fit": 0.9970079128143835,
+    "c_away_fit": 1.0260749757798464,
+    "nll": 3.6560974411867124,
+    "n_games": 5248,
+    "converged": true,
+    "seasons": [
+      2022,
+      2023,
+      2024,
+      2025
+    ]
+  },
+  "scoreline_calibration": [
+    {
+      "event": "goes to overtime",
+      "predicted_pct": 22.0,
+      "actual_pct": 22.3
+    },
+    {
+      "event": "home wins",
+      "predicted_pct": 53.6,
+      "actual_pct": 53.7
+    },
+    {
+      "event": "home by 2+ (home -1.5 covers)",
+      "predicted_pct": 32.7,
+      "actual_pct": 32.7
+    },
+    {
+      "event": "away by 2+ (away -1.5 covers)",
+      "predicted_pct": 27.3,
+      "actual_pct": 27.2
+    },
+    {
+      "event": "one-goal margin",
+      "predicted_pct": 39.9,
+      "actual_pct": 40.0
+    },
+    {
+      "event": "total over 5.5",
+      "predicted_pct": 56.0,
+      "actual_pct": 57.0
+    },
+    {
+      "event": "total exactly 6",
+      "predicted_pct": 10.6,
+      "actual_pct": 11.1
+    },
+    {
+      "event": "total over 6.5",
+      "predicted_pct": 45.5,
+      "actual_pct": 45.9
+    }
+  ],
+  "shrink": {
+    "n_split": 6193,
+    "split_raw": 0.4,
+    "split": 0.4,
+    "n_total": 3320,
+    "total_raw": 0.3,
+    "total": 0.3
+  },
+  "effects": {
+    "nomarket": {
+      "log_lam": 6.07,
+      "log_L": 1.16,
+      "log_S": 4.64,
+      "log_p": 3.16,
+      "opp_goalie": 0.34,
+      "is_home": -1.63,
+      "playoff": -1.21,
+      "own_b2b": -1.31,
+      "opp_b2b": 1.36,
+      "own_rest": 0.42,
+      "opp_rest": 0.11,
+      "own_km": -0.03,
+      "opp_km": 0.82,
+      "own_tz_abs": 0.28,
+      "opp_tz_abs": -0.6,
+      "own_3in4": -0.83,
+      "opp_3in4": 0.1,
+      "early": 0.53
+    },
+    "market": {
+      "dev_lam": 4.91,
+      "dev_L": -1.43,
+      "log_S": -0.33,
+      "opp_goalie": -0.36,
+      "opp_b2b": 0.87,
+      "own_b2b": -0.97,
+      "own_rest": 0.29,
+      "opp_rest": 0.32,
+      "own_3in4": -0.72,
+      "opp_3in4": 0.22,
+      "playoff": -0.74,
+      "early": 0.47,
+      "is_home": -0.12,
+      "own_km": 0.87,
+      "own_tz_abs": -0.6
+    }
+  },
+  "lines": {
+    "sbr_close": 19281,
+    "oddsapi_noon": 3500
+  },
+  "eval": {
+    "test_seasons": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "n_test_total": 7945,
+    "moneyline": {
+      "n": 6193,
+      "log_loss_model": 0.65763,
+      "log_loss_market": 0.65797,
+      "log_loss_edge": 0.00034,
+      "beats_market": true,
+      "vs_closing": {
+        "n": 2693,
+        "log_loss_edge": -3e-05
+      },
+      "vs_pregame": {
+        "n": 3500,
+        "log_loss_edge": 0.00064
+      },
+      "log_loss_nomarket_model": 0.66104
+    },
+    "spread": {
+      "n": 6186,
+      "cover_rate": 53.6,
+      "market_expected_rate": 52.0,
+      "cover_n": 6186,
+      "cover_stderr": 0.61,
+      "log_loss_model": 0.6537,
+      "log_loss_market": 0.65468,
+      "log_loss_market_via_scoreline": 0.65425,
+      "beats_market": true,
+      "n_priced": 3493,
+      "roi_by_ev": [
+        {
+          "n": 3114,
+          "hit_pct": 57.9,
+          "roi_pct": -4.59,
+          "stderr": 1.55,
+          "vs_zero_se": -2.96,
+          "season_roi_pct": {
+            "2023": -5.1,
+            "2024": -6.7,
+            "2025": 0.5
+          },
+          "seasons_measured": 3,
+          "seasons_positive": 1,
+          "ev": "-1.00 to +0.00",
+          "candidate": false,
+          "significant": false
+        },
+        {
+          "n": 273,
+          "hit_pct": 60.1,
+          "roi_pct": 9.43,
+          "stderr": 5.59,
+          "vs_zero_se": 1.69,
+          "season_roi_pct": {
+            "2023": 10.5,
+            "2024": 7.2,
+            "2025": 12.5
+          },
+          "seasons_measured": 3,
+          "seasons_positive": 3,
+          "ev": "+0.00 to +0.02",
+          "candidate": true,
+          "significant": false
+        },
+        {
+          "n": 66,
+          "hit_pct": 68.2,
+          "roi_pct": 33.52,
+          "stderr": 11.66,
+          "vs_zero_se": 2.88,
+          "season_roi_pct": {
+            "2023": 22.1
+          },
+          "seasons_measured": 1,
+          "seasons_positive": 1,
+          "ev": "+0.02 to +0.04",
+          "candidate": true,
+          "significant": true
+        }
+      ],
+      "rules": [
+        {
+          "segment": "every positive-EV side",
+          "n": 379,
+          "hit_pct": 60.7,
+          "roi_pct": 14.54,
+          "stderr": 4.91,
+          "vs_zero_se": 2.96,
+          "season_roi_pct": {
+            "2023": 9.9,
+            "2024": 18.3,
+            "2025": 17.3
+          },
+          "seasons_measured": 3,
+          "seasons_positive": 3,
+          "significant": true
+        },
+        {
+          "segment": "EV >= 0.03 (the staking rule)",
+          "n": 72,
+          "hit_pct": 55.6,
+          "roi_pct": 18.99,
+          "stderr": 12.83,
+          "vs_zero_se": 1.48,
+          "season_roi_pct": {
+            "2023": -3.1
+          },
+          "seasons_measured": 1,
+          "seasons_positive": 0,
+          "significant": false
+        }
+      ],
+      "market_softness": {
+        "by_back_to_back": [
+          {
+            "segment": "no back-to-back",
+            "n": 268,
+            "hit_pct": 61.9,
+            "roi_pct": 17.57,
+            "stderr": 5.86,
+            "vs_zero_se": 3.0,
+            "season_roi_pct": {
+              "2023": 11.9,
+              "2024": 28.0,
+              "2025": 9.9
+            },
+            "seasons_measured": 3,
+            "seasons_positive": 3,
+            "significant": true
+          }
+        ],
+        "by_stage": [
+          {
+            "segment": "after 15 games",
+            "n": 293,
+            "hit_pct": 58.4,
+            "roi_pct": 11.9,
+            "stderr": 5.73,
+            "vs_zero_se": 2.08,
+            "season_roi_pct": {
+              "2023": 8.0,
+              "2024": 18.8
+            },
+            "seasons_measured": 2,
+            "seasons_positive": 2,
+            "significant": false
+          }
+        ],
+        "by_favourite": [
+          {
+            "segment": "clear favourite (60%+)",
+            "n": 313,
+            "hit_pct": 62.0,
+            "roi_pct": 17.3,
+            "stderr": 5.3,
+            "vs_zero_se": 3.26,
+            "season_roi_pct": {
+              "2023": 14.3,
+              "2024": 22.3,
+              "2025": 13.2
+            },
+            "seasons_measured": 3,
+            "seasons_positive": 3,
+            "significant": true
+          }
+        ],
+        "by_goalie_certainty": [
+          {
+            "segment": "a starter in doubt",
+            "n": 246,
+            "hit_pct": 58.9,
+            "roi_pct": 9.84,
+            "stderr": 6.01,
+            "vs_zero_se": 1.64,
+            "season_roi_pct": {
+              "2023": 7.8,
+              "2024": 9.8,
+              "2025": 16.6
+            },
+            "seasons_measured": 3,
+            "seasons_positive": 3,
+            "significant": false
+          }
+        ]
+      },
+      "significance": {
+        "comparisons": 8,
+        "family_alpha": 0.05,
+        "z_required": 2.73,
+        "significant_segments": [
+          "+0.02 to +0.04",
+          "every positive-EV side",
+          "no back-to-back",
+          "clear favourite (60%+)"
+        ],
+        "verdict": "4 of 8 segments survive correction"
+      }
+    },
+    "total": {
+      "n": 5889,
+      "cover_rate": 51.8,
+      "market_expected_rate": 50.0,
+      "cover_n": 5889,
+      "cover_stderr": 0.65,
+      "log_loss_model": 0.6925,
+      "log_loss_market": 0.69259,
+      "beats_market": true,
+      "mae_model": 1.85,
+      "mae_market": 1.852,
+      "n_priced": 3320,
+      "roi_by_ev": [
+        {
+          "n": 3299,
+          "hit_pct": 51.2,
+          "roi_pct": -2.11,
+          "stderr": 1.67,
+          "vs_zero_se": -1.27,
+          "season_roi_pct": {
+            "2023": -1.2,
+            "2024": -2.3,
+            "2025": -3.6
+          },
+          "seasons_measured": 3,
+          "seasons_positive": 0,
+          "ev": "-1.00 to +0.00",
+          "candidate": false,
+          "significant": false
+        }
+      ],
+      "rules": [],
+      "market_softness": {},
+      "significance": {
+        "comparisons": 0,
+        "verdict": "no positive-EV side in the backtest - nothing to test"
+      }
+    },
+    "per_season": [
+      {
+        "season": 2020,
+        "n": 951,
+        "ml_log_loss_edge": 9e-05
+      },
+      {
+        "season": 2021,
+        "n": 1400,
+        "ml_log_loss_edge": -0.00012
+      },
+      {
+        "season": 2022,
+        "n": 342,
+        "ml_log_loss_edge": -3e-05
+      },
+      {
+        "season": 2023,
+        "n": 1399,
+        "ml_log_loss_edge": 0.00077
+      },
+      {
+        "season": 2024,
+        "n": 1396,
+        "ml_log_loss_edge": 0.00062
+      },
+      {
+        "season": 2025,
+        "n": 705,
+        "ml_log_loss_edge": 0.00043
+      }
+    ],
+    "goalies": {
+      "top_pick_started_pct": 65.0,
+      "n_games": 7945,
+      "nomarket_ml_gain": 0.00027,
+      "market_ml_gain_close": 6e-05,
+      "n_close": 2693,
+      "market_ml_gain_noon": 0.0,
+      "n_noon": 3500
+    }
+  },
+  "eval_strict": {
+    "test_seasons": [
+      2023,
+      2024,
+      2025
+    ],
+    "theta_seasons": [
+      2019,
+      2020,
+      2021,
+      2022
+    ],
+    "shrink_seasons": [
+      2020,
+      2021,
+      2022
+    ],
+    "shrink": {
+      "n_split": 2693,
+      "split_raw": 0.3,
+      "split": 0.3,
+      "n_total": 0,
+      "total_raw": 0.25,
+      "total": 0.25
+    },
+    "moneyline": {
+      "n": 3500,
+      "log_loss_model": 0.66294,
+      "log_loss_market": 0.66341,
+      "log_loss_edge": 0.00047,
+      "beats_market": true,
+      "vs_pregame": {
+        "n": 3500,
+        "log_loss_edge": 0.00048
+      },
+      "log_loss_nomarket_model": 0.66604
+    },
+    "spread": {
+      "n": 3493,
+      "log_loss_model": 0.65387,
+      "log_loss_market": 0.65468,
+      "roi_by_ev": [
+        {
+          "n": 2725,
+          "hit_pct": 60.3,
+          "roi_pct": -4.66,
+          "stderr": 1.55,
+          "vs_zero_se": -3.0,
+          "season_roi_pct": {
+            "2023": -4.4,
+            "2024": -8.3,
+            "2025": 1.9
+          },
+          "seasons_measured": 3,
+          "seasons_positive": 1,
+          "ev": "-1.00 to +0.00",
+          "candidate": false,
+          "significant": false
+        },
+        {
+          "n": 523,
+          "hit_pct": 62.7,
+          "roi_pct": 4.66,
+          "stderr": 3.6,
+          "vs_zero_se": 1.29,
+          "season_roi_pct": {
+            "2023": 0.2,
+            "2024": 5.4,
+            "2025": 11.3
+          },
+          "seasons_measured": 3,
+          "seasons_positive": 3,
+          "ev": "+0.00 to +0.02",
+          "candidate": true,
+          "significant": false
+        },
+        {
+          "n": 153,
+          "hit_pct": 53.6,
+          "roi_pct": 0.67,
+          "stderr": 7.7,
+          "vs_zero_se": 0.09,
+          "season_roi_pct": {
+            "2023": -0.3,
+            "2024": -7.5
+          },
+          "seasons_measured": 2,
+          "seasons_positive": 0,
+          "ev": "+0.02 to +0.04",
+          "candidate": true,
+          "significant": false
+        }
+      ],
+      "rules": [
+        {
+          "segment": "every positive-EV side",
+          "n": 768,
+          "hit_pct": 60.3,
+          "roi_pct": 5.83,
+          "stderr": 3.18,
+          "vs_zero_se": 1.83,
+          "season_roi_pct": {
+            "2023": 0.2,
+            "2024": 8.5,
+            "2025": 12.8
+          },
+          "seasons_measured": 3,
+          "seasons_positive": 3,
+          "significant": false
+        },
+        {
+          "segment": "EV >= 0.03 (the staking rule)",
+          "n": 153,
+          "hit_pct": 54.9,
+          "roi_pct": 12.5,
+          "stderr": 8.41,
+          "vs_zero_se": 1.49,
+          "season_roi_pct": {
+            "2023": 4.3,
+            "2024": 24.0
+          },
+          "seasons_measured": 2,
+          "seasons_positive": 2,
+          "significant": false
+        }
+      ],
+      "significance": {
+        "comparisons": 12,
+        "family_alpha": 0.05,
+        "z_required": 2.86,
+        "significant_segments": [],
+        "verdict": "no segment survives correction for the number of looks taken"
+      }
+    },
+    "total": {
+      "n": 3320,
+      "log_loss_model": 0.69252,
+      "log_loss_market": 0.69259,
+      "roi_by_ev": [
+        {
+          "n": 3314,
+          "hit_pct": 51.0,
+          "roi_pct": -2.45,
+          "stderr": 1.66,
+          "vs_zero_se": -1.47,
+          "season_roi_pct": {
+            "2023": -3.3,
+            "2024": -1.1,
+            "2025": -3.3
+          },
+          "seasons_measured": 3,
+          "seasons_positive": 0,
+          "ev": "-1.00 to +0.00",
+          "candidate": false,
+          "significant": false
+        }
+      ],
+      "rules": [],
+      "significance": {
+        "comparisons": 0,
+        "verdict": "no positive-EV side in the backtest - nothing to test"
+      }
+    }
+  }
+}

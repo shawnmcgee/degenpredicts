@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DegenPredicts — NHL</title>
+<style>
+  :root{--bg:#0d0e11;--card:#171a1f;--card2:#1e2229;--line:#2a2e36;--fg:#e9eaec;--dim:#98a0aa;
+        --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;--ot:#a78bfa;--away:#f0abfc;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:88px}
+  header,main,footer{max-width:960px;margin:0 auto;padding:0 16px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 6px}
+  h1{font-size:21px;font-weight:600}
+  .sub{color:var(--dim);font-size:13px;margin-top:3px}
+  .coffee{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;
+          background:var(--warn);color:#2a1c00;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+  section{margin-top:22px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .stat{background:var(--card);border-radius:10px;padding:13px;text-align:center}
+  .stat .v{font-size:22px;font-weight:600;margin:3px 0}
+  .stat .l{font-size:11px;color:var(--dim);text-transform:uppercase}
+  .up{color:var(--good)} .down{color:var(--bad)}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  input[type=search]{flex:1;min-width:190px;background:var(--card);border:1px solid var(--line);
+    border-radius:8px;color:var(--fg);padding:9px 12px;font-size:14px}
+  input[type=search]::placeholder{color:var(--dim)}
+  .chip{background:var(--card2);color:var(--dim);border:1px solid var(--line);border-radius:999px;
+        padding:7px 14px;font-size:13px;cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  .game{background:var(--card);border-radius:12px;margin-bottom:11px;overflow:hidden;border:1px solid var(--line)}
+  .game.hot{border-color:var(--accent)}
+  .ghead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 14px;
+         background:var(--card2);font-size:12px;color:var(--dim)}
+  .matchup{padding:12px 14px 2px;font-size:17px;font-weight:600}
+  .matchup .at{color:var(--dim);font-weight:400;font-size:14px;margin:0 6px}
+  .ctx{padding:0 14px 4px;font-size:12px;color:var(--warn)}
+  .goalies{padding:0 14px 8px;font-size:12px;color:var(--dim)}
+  .goalies b{color:var(--fg);font-weight:600}
+  /* how sure the board is about who starts: the day's news, or the model's own guess */
+  .gs{display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;text-transform:uppercase;
+      letter-spacing:.03em;font-weight:600;background:var(--line);color:var(--dim);vertical-align:1px}
+  .gs.confirmed{background:var(--good);color:#052e16}
+  .gs.likely{background:var(--accent);color:#06121f}
+  .gs.backup{background:var(--warn);color:#2a1c00}
+  /* the probability strip: what we think, before what it is worth */
+  .probs{display:flex;align-items:stretch;gap:2px;margin:4px 14px 8px;border-radius:7px;overflow:hidden;height:30px}
+  .probs div{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;
+             color:#06121f;min-width:40px;white-space:nowrap;padding:0 4px}
+  .probs .ph{background:var(--accent)} .probs .pot{background:var(--ot)} .probs .pa{background:var(--away)}
+  .scoreline{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:0 14px 8px;font-size:12px;color:var(--dim)}
+  .scoreline b{color:var(--fg);font-variant-numeric:tabular-nums}
+  .bets{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 14px 14px}
+  .bet{background:var(--card2);border-radius:9px;padding:11px}
+  .bet .l{font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .bet .p{font-size:18px;font-weight:600;line-height:1.25}
+  .bet .p .px{font-size:14px;color:var(--dim);font-weight:500;margin-left:4px;font-variant-numeric:tabular-nums}
+  .bet .d{font-size:12px;color:var(--dim);margin-top:5px;font-variant-numeric:tabular-nums}
+  .bet .d b{color:var(--fg)}
+  .bet .hit{font-size:12px;color:var(--dim);margin-top:3px}
+  .bet .hit b{color:var(--fg);font-variant-numeric:tabular-nums}
+  .bet .hit .up{color:var(--good)} .bet .hit .down{color:var(--bad)}
+  .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  .tag.play,.tag.bold{background:var(--good);color:#052e16}
+  .tag.pass{background:var(--line);color:var(--dim)}
+  .tag.early,.tag.thin,.tag.wait{background:var(--warn);color:#2a1c00}
+  .tag.win{background:var(--good);color:#052e16}
+  .tag.loss{background:var(--bad);color:#3f0a0a}
+  .tag.push{background:var(--line);color:var(--dim)}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:10px;overflow:hidden}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--dim);font-weight:500;font-size:11px;text-transform:uppercase}
+  .wrap{overflow-x:auto}
+  .note{background:var(--card);border-left:3px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
+  .note b{color:var(--fg)}
+  .note.ok{border-left-color:var(--good)} .note.bad{border-left-color:var(--bad)}
+  .empty{text-align:center;color:var(--dim);padding:26px 0;font-size:14px}
+  footer{margin-top:36px;color:var(--dim);font-size:12px;text-align:center}
+  a{color:var(--accent)}
+  nav.sports{display:flex;gap:8px;margin:0 0 4px;flex-wrap:wrap}
+  nav.sports .chip{text-decoration:none}
+  nav.sports .chip[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  #stats{scroll-margin-top:12px}
+  /* floating jump: down to the backtest and results tables, back up once there */
+  .jump{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:10;
+        display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 16px;border-radius:999px;
+        background:var(--accent);color:#06121f;font-size:14px;font-weight:600;text-decoration:none;
+        box-shadow:0 4px 14px rgba(0,0,0,.5);-webkit-tap-highlight-color:transparent}
+  .jump svg{transition:transform .2s}
+  .jump.up svg{transform:rotate(180deg)}
+  @media print{.jump{display:none}}
+  @media(max-width:560px){.bets{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header id="top">
+  <nav class="sports" aria-label="Sport">
+    <a class="chip" href="../">&larr; All sports</a>
+    <a class="chip" href="../cfb/">College football</a>
+    <a class="chip" href="../nfl/">NFL</a>
+    <a class="chip" href="../epl/">Premier League</a>
+    <a class="chip" aria-current="page" href="./">NHL</a>
+  </nav>
+  <div class="topbar">
+    <div>
+      <h1>DegenPredicts — NHL</h1>
+      <div class="sub">NHL puck lines and totals &middot; 0 games
+        on the board &middot; updated 2026-09-23</div>
+    </div>
+    
+    <a class="coffee" href="https://buymeacoffee.com/smcgee" rel="noopener">&#9749; Buy me a coffee</a>
+    
+  </div>
+</header>
+
+<main>
+
+
+<section>
+  <div class="note">
+    
+    <b>The honest backtest.</b> With nothing fitted on the seasons it scores
+    (2023&ndash;2025, priced at the noon
+    lines this board bets into), every positive-EV puck-line side returned
+    <b>+5.8%</b> on 768 bets
+    (&plusmn;3.18), positive in
+    3 of 3 seasons,
+    and the staking rule +12.5% on
+    153. Suggestive, not proven: a slice
+    needs |z| &ge; 2.86 to survive the number of looks taken.
+    Closing-line value is what will settle it.
+    <br><br>
+    
+    Against <b>closing</b> moneylines the model
+    tied the market (log-loss difference
+    under 0.0001);
+    against <b>noon</b> prices it was better by
+    0.0006.
+    On totals the market was as good as the model
+    (log loss 0.6925 against 0.6926), so the published total sits
+    30% of the way from the market to the model
+    and almost never clears the bar.
+    The full walk-forward reads higher &mdash;
+    +14.5% on 379 &mdash; because its
+    late-game model and shrinks were fitted on overlapping seasons; the number above is the one
+    to trust.
+    <br><br><b>Goalies.</b> From recent
+    starts alone the model names the right starter 65.0% of the
+    time. Knowing the real one sharpens its ratings-only forecast (moneyline log loss
+    0.0003 better) but barely moves the market-aware one
+    against closing lines (+0.0001): the books
+    price the starter too. So the board takes the starter from the day's news and does not stake
+    a pick until both are confirmed or likely &mdash; it is never betting blind into goalie news.
+    
+  </div>
+</section>
+
+
+
+
+
+
+<section>
+  <h2>The board</h2>
+  
+  <div class="note">No games on the board yet. The pipeline posts each morning's slate and
+    refreshes it in the evening, once the books have prices up.</div>
+  
+
+  <div id="list">
+  
+  </div>
+  <div class="empty" id="noresults" style="display:none">No games match those filters.</div>
+  
+</section>
+
+<div id="stats">
+
+<section>
+  <h2>ROI by expected value &mdash; backtest</h2>
+  <p class="sub" style="margin-bottom:10px">Nothing graded this season yet, so this is the
+    strict holdout over 2023&ndash;2025
+    &mdash; nothing in it was fitted on those seasons &mdash; priced at the noon
+    lines this board bets into. Not live picks.</p>
+  <div class="wrap">
+  <table>
+    <tr><th>EV at the price</th><th>Puck line</th><th>ROI</th><th>Totals</th><th>ROI</th></tr>
+    
+    <tr>
+      <td>-1.00 to +0.00</td>
+      <td>2725</td>
+      <td class="down">-4.7% <span class="sub">&plusmn;1.55</span></td>
+      <td>3314</td>
+      <td class="down">-2.5% <span class="sub">&plusmn;1.66</span></td>
+    </tr>
+    
+    <tr>
+      <td>+0.00 to +0.02</td>
+      <td>523</td>
+      <td class="up">+4.7% <span class="sub">&plusmn;3.6</span></td>
+      <td></td>
+      <td class=""></td>
+    </tr>
+    
+    <tr>
+      <td>+0.02 to +0.04</td>
+      <td>153</td>
+      <td class="up">+0.7% <span class="sub">&plusmn;7.7</span></td>
+      <td></td>
+      <td class=""></td>
+    </tr>
+    
+  </table>
+  </div>
+  <p class="sub" style="margin-top:8px">The negative-EV row is the board declining the bet and
+    losing the vig, as it should. Several slices were examined, so one
+    needs |z| &ge; 2.86 &mdash; not 2 &mdash; before it means anything:
+    no segment survives correction for the number of looks taken.</p>
+</section>
+
+
+
+<section>
+  <h2>Does the model know how hockey games end?</h2>
+  <div class="wrap">
+  <table>
+    <tr><th>Event</th><th>Predicted</th><th>Actual</th></tr>
+    
+    <tr><td>goes to overtime</td><td>22.0%</td><td>22.3%</td></tr>
+    
+    <tr><td>home wins</td><td>53.6%</td><td>53.7%</td></tr>
+    
+    <tr><td>home by 2+ (home -1.5 covers)</td><td>32.7%</td><td>32.7%</td></tr>
+    
+    <tr><td>away by 2+ (away -1.5 covers)</td><td>27.3%</td><td>27.2%</td></tr>
+    
+    <tr><td>one-goal margin</td><td>39.9%</td><td>40.0%</td></tr>
+    
+    <tr><td>total over 5.5</td><td>56.0%</td><td>57.0%</td></tr>
+    
+    <tr><td>total exactly 6</td><td>10.6%</td><td>11.1%</td></tr>
+    
+    <tr><td>total over 6.5</td><td>45.5%</td><td>45.9%</td></tr>
+    
+  </table>
+  </div>
+  <p class="sub" style="margin-top:8px">The last few minutes of a close game decide the puck line:
+    a team down one or two chases, pulls its goalie, and either ties it or gives up an empty-netter.
+    in regulation a plain Poisson model puts 30% of games on a one-goal margin, and the real figure
+    is 18% &mdash; the rest get tied up or iced late. This model plays out the final ten minutes
+    goal by goal.</p>
+</section>
+
+
+
+
+
+</div>
+
+<section>
+  <div class="note">
+    Model output, not advice. NHL moneylines and totals are efficiently priced, and the backtest
+    found nothing in totals at all; the puck line is where a public model has a structural reason
+    to disagree with the book, and even there the evidence is three seasons long. Bet only what
+    you can afford to lose.
+  </div>
+</section>
+</main>
+
+<footer>
+  Data: NHL Stats API &middot; starting goalies from Daily Faceoff &middot; prices via The Odds
+  API &middot; historical lines from SportsbookReviewsOnline and The Odds API archives.
+  <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
+  &middot; <a href="../cfb/">college football</a> &middot; <a href="../nfl/">NFL</a> &middot; <a href="../epl/">Premier League</a>
+  <br>Models trained 2026-09-23.
+  <br><a href="https://buymeacoffee.com/smcgee" rel="noopener">Buy me a coffee</a>
+</footer>
+
+
+
+<a class="jump" id="jump" href="#stats"
+   aria-label="Jump to the backtest and results">
+  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v11M3.5 9 8 13.5 12.5 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span class="jl">Hit rate</span>
+</a>
+
+
+<script>
+(function () {
+  var games = Array.prototype.slice.call(document.querySelectorAll('.game'));
+  if (!games.length) return;
+  var list = document.getElementById('list');
+  var order = games.slice();
+  var q = document.getElementById('q');
+  var count = document.getElementById('count');
+  var none = document.getElementById('noresults');
+  var state = { day: 'all', plays: false, b2b: false, backup: false, kick: false, q: '' };
+
+  function kickAt(el) {
+    // Real time order, never alphabetical on the printed label. No announced time sorts last.
+    var t = Date.parse(el.dataset.kick || '');
+    return t === t ? t : Infinity;   // NaN is the only value that fails self-equality
+  }
+
+  function apply() {
+    var seq = order.slice();
+    if (state.kick) {
+      seq.sort(function (a, b) { return kickAt(a) - kickAt(b); });
+    }
+    seq.forEach(function (el) { list.appendChild(el); });
+    var shown = 0;
+    games.forEach(function (el) {
+      var ok = true;
+      if (state.day !== 'all' && el.dataset.day !== state.day) ok = false;
+      if (state.plays && el.dataset.play !== '1') ok = false;
+      if (state.b2b && el.dataset.b2b !== '1') ok = false;
+      if (state.backup && el.dataset.backup !== '1') ok = false;
+      if (state.q && (el.dataset.search || '').indexOf(state.q) === -1) ok = false;
+      el.style.display = ok ? '' : 'none';
+      if (ok) shown++;
+    });
+    count.textContent = shown + ' of ' + games.length + ' games';
+    none.style.display = shown ? 'none' : '';
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-day]'), function (c) {
+    c.addEventListener('click', function () {
+      state.day = c.dataset.day;
+      Array.prototype.forEach.call(document.querySelectorAll('button[data-day]'), function (o) {
+        o.setAttribute('aria-pressed', String(o === c));
+      });
+      apply();
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-f]'), function (c) {
+    c.addEventListener('click', function () {
+      var k = c.dataset.f;
+      state[k] = !state[k];
+      c.setAttribute('aria-pressed', String(state[k]));
+      apply();
+    });
+  });
+  q.addEventListener('input', function () { state.q = q.value.trim().toLowerCase(); apply(); });
+  apply();
+})();
+
+(function () {
+  // The jump button is a plain anchor, so it works with scripts off. This only flips it to
+  // "back to top" once the tables it points at are on screen.
+  var fab = document.getElementById('jump');
+  var stats = document.getElementById('stats');
+  if (!fab || !stats) return;
+  var label = fab.querySelector('.jl');
+  var downText = label.textContent, downAria = fab.getAttribute('aria-label');
+  var queued = false;
+  function sync() {
+    queued = false;
+    var down = stats.getBoundingClientRect().top > window.innerHeight / 2;
+    fab.classList.toggle('up', !down);
+    fab.setAttribute('href', down ? '#stats' : '#top');
+    fab.setAttribute('aria-label', down ? downAria : 'Back to top');
+    label.textContent = down ? downText : 'Top';
+  }
+  function queue() { if (!queued) { queued = true; requestAnimationFrame(sync); } }
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  // filtering the board moves the tables without firing a scroll event
+  if (window.ResizeObserver) new ResizeObserver(queue).observe(document.body);
+  sync();
+})();
+</script>
+</body>
+</html>
