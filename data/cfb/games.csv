@@ -27310,7 +27310,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401856818,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",TCU,BYU,,,,,False,True,Big 12,Big 12,False,2026-10-03T19:00:00-04:00,Sat,fbs,fbs
 401856819,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",Houston,UCF,,,,,False,True,Big 12,Big 12,False,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
 401856820,2026,5,regular,2026-10-03,False,"Sat Oct 03, 11:00 PM",Arizona,Cincinnati,,,,,False,True,Big 12,Big 12,False,2026-10-03T23:00:00-04:00,Sat,fbs,fbs
-401856821,2026,5,regular,2026-10-03,True,,Colorado,Texas Tech,,,,,False,True,Big 12,Big 12,False,2026-10-03T00:00:00-04:00,Sat,fbs,fbs
+401856821,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",Colorado,Texas Tech,,,,,False,True,Big 12,Big 12,False,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
 401856822,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",Iowa State,West Virginia,,,,,False,True,Big 12,Big 12,False,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
 401858246,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",SMU,Boston College,,,,,False,True,ACC,ACC,False,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
 401858247,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",UNLV,California,,,,,False,False,Mountain West,ACC,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
