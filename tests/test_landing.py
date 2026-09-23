@@ -100,7 +100,9 @@ def test_survives_missing_and_malformed_files(tmp_path):
 
 def test_renders_a_chooser_with_a_link_per_sport(tmp_path):
     docs = tmp_path / "docs"
-    picks = HEADER + "g1,2026-09-10,2,play,pass\n"
+    # build() counts games against the real date, so the play has to stay upcoming. It was
+    # dated 2026-09-10, and the day that passed the "1 play" check below started failing.
+    picks = HEADER + "g1,2099-01-01,2,play,pass\n"
     _publish(docs, "cfb", metrics={
         "updated": "2026-09-08",
         "spreads": {"season": {"n": 12, "units": 2.5, "win_pct": 58.0, "roi": 6.1},
