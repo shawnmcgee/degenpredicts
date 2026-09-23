@@ -196,6 +196,11 @@ class Table:
     def _interp(self, arr, lh, la):
         lh = np.asarray(lh, float)
         la = np.asarray(la, float)
+        # a game without a market number comes through as NaN and must come out as NaN - without
+        # casting NaN to an index on the way, which is what floods the logs with warnings
+        bad = ~(np.isfinite(lh) & np.isfinite(la))
+        if bad.any():
+            lh, la = np.where(bad, 3.0, lh), np.where(bad, 3.0, la)
         tau = np.clip(lh + la, self.tau[0], self.tau[-1])
         s = np.clip(lh / np.maximum(lh + la, 1e-9), self.share[0], self.share[-1])
         fi = (tau - self.tau[0]) / (self.tau[1] - self.tau[0])
@@ -203,8 +208,11 @@ class Table:
         i0 = np.clip(np.floor(fi).astype(int), 0, len(self.tau) - 2)
         j0 = np.clip(np.floor(fj).astype(int), 0, len(self.share) - 2)
         a, b = (fi - i0)[:, None], (fj - j0)[:, None]
-        return ((1 - a) * (1 - b) * arr[i0, j0] + a * (1 - b) * arr[i0 + 1, j0]
-                + (1 - a) * b * arr[i0, j0 + 1] + a * b * arr[i0 + 1, j0 + 1])
+        out = ((1 - a) * (1 - b) * arr[i0, j0] + a * (1 - b) * arr[i0 + 1, j0]
+               + (1 - a) * b * arr[i0, j0 + 1] + a * b * arr[i0 + 1, j0 + 1])
+        if bad.any():
+            out[bad] = np.nan
+        return out
 
     def margin_pmf(self, lh, la):
         return self._interp(self.mpmf, lh, la)

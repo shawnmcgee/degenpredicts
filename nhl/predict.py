@@ -17,10 +17,14 @@ For every game:
 4. **One grid, every market** - the scoreline model turns the published goals into a final-score
    distribution, and the puck line, the total and the win probability are all read off it.
 
+**Who is in net** comes from the day's news (:mod:`nhl.sources.starters`): a confirmed starter
+replaces the model's own guess outright, a likely or projected one moves it most of the way.
+
 A pick is the side with the higher expected value at the posted price. It is staked only when
-that EV clears the threshold and both teams have played enough games for their ratings to mean
-something; everything else is still published, graded and CLV-tracked, so the evidence builds
-whether or not money is at risk.
+that EV clears the threshold, both teams have played enough games for their ratings to mean
+something, and both starting goalies are confirmed or likely - until then it is marked as
+waiting on the goalies. Everything is still published, graded and CLV-tracked, so the evidence
+builds whether or not money is at risk.
 
 The job runs twice a day. The morning run records the number we FIRST published; the evening
 run, a couple of hours before puck drop, refreshes prices that by then know the starting
@@ -40,6 +44,7 @@ from .features import build, sides, unstack
 from .odds_math import decimal_to_american, ev, kelly
 from .scoreline import Table, cover, grids, moneyline, over_under, regulation_split, expected
 from .sources import nhle, odds
+from .sources import starters
 from .train import blend, load_models
 
 log = logging.getLogger("nhl.predict")
@@ -49,11 +54,13 @@ MARKET_COLS = ["commence_time", "home_dec", "away_dec", "p_home", "n_ml", "total
                "pl_away_dec", "p_pl_home", "n_pl"]
 
 
-def _strength(ev_val, minimum, thin, priced) -> str:
+def _strength(ev_val, minimum, thin, priced, wait=False) -> str:
     if not priced or ev_val != ev_val or ev_val < minimum:
         return "pass"
     if thin:
         return "thin"
+    if wait:
+        return "wait"               # clears the bar, but not until both starters are known
     return "bold" if ev_val >= minimum * config.BOLD_MULT else "play"
 
 
@@ -104,6 +111,7 @@ def price_game(F, R, g: dict) -> dict:
                p_ot=round(ot, 4), p_reg_away=round(ra, 4), exp_margin=round(e_m, 3),
                exp_total=round(e_t, 3))
     thin = bool(g.get("thin_data"))
+    wait = bool(g.get("goalies_pending"))
 
     # ---- puck line ----------------------------------------------------------------
     hl = g.get("pl_home")
@@ -127,7 +135,7 @@ def price_game(F, R, g: dict) -> dict:
     evv = ev_h if home_side else ev_a
     mkt_p = (mkt_hc if home_side else 1 - mkt_hc) if mkt_hc == mkt_hc and mkt_hc is not None else np.nan
     team = g["home_team"] if home_side else g["away_team"]
-    st = _strength(evv, config.SPREAD_EV_MIN, thin, priced_pl)
+    st = _strength(evv, config.SPREAD_EV_MIN, thin, priced_pl, wait)
     out.update(spread_side="home" if home_side else "away", spread_team=team,
                spread_line=side_line, spread_pick=f"{team} {side_line:+.1f}",
                spread_p_win=round(p_side, 4), spread_p_push=round(p_push, 4),
@@ -162,7 +170,7 @@ def price_game(F, R, g: dict) -> dict:
     evv = ev_o if take_over else ev_u
     live = max(1 - pp, 1e-9)
     mkt_p = (mkt_o if take_over else 1 - mkt_o) if mkt_o == mkt_o and mkt_o is not None else np.nan
-    st = _strength(evv, config.TOTAL_EV_MIN, thin, priced_t)
+    st = _strength(evv, config.TOTAL_EV_MIN, thin, priced_t, wait)
     out.update(total_side="over" if take_over else "under", total_line_used=line,
                total_pick=f"{'Over' if take_over else 'Under'} {line:g}",
                total_p_win=round(p_side, 4), total_p_push=round(pp, 4),
@@ -205,9 +213,13 @@ def run(dry_run: bool = False, days: int | None = None) -> pd.DataFrame:
         if board.empty:
             return board
 
+    # Who is in net: the day's news where there is any, the model's own guess where not.
+    fresh, covered = starters.pull(board, games, write=not dry_run)
+    news = starters.latest(board["game_id"], fresh=fresh)
+
     theta = meta.get("theta") or {}
     table = Table(theta)
-    _, up, _ = build(games, upcoming=board, table=table)
+    _, up, _ = build(games, upcoming=board, table=table, board_starters=starters.known(news))
     S = sides(up)
     gid = up["game_id"].values
     lh, la = unstack(S, models["nomarket"].predict(S), gid)
@@ -230,6 +242,7 @@ def run(dry_run: bool = False, days: int | None = None) -> pd.DataFrame:
 
     up = up.copy()
     up["thin_data"] = (up["h_games"] < config.MIN_GAMES) | (up["a_games"] < config.MIN_GAMES)
+    up["goalies_pending"] = starters.pending(up, news, covered)
     rows = []
     for i, g in enumerate(up.to_dict("records")):
         r = price_game(F[i], R[i], g)
@@ -241,7 +254,8 @@ def run(dry_run: bool = False, days: int | None = None) -> pd.DataFrame:
     priced = pd.DataFrame(rows, index=up.index)
     keep = ["game_id", "season", "game_type", "date", "home_team", "away_team", "h_games",
             "a_games", "h_rest", "a_rest", "h_b2b", "a_b2b", "h_3in4", "a_3in4", "h_km", "a_km",
-            "h_tz", "a_tz", "g_h_top", "g_a_top", "g_h_conf", "g_a_conf", "thin_data",
+            "h_tz", "a_tz", "g_h_top", "g_a_top", "g_h_conf", "g_a_conf", "g_h_id", "g_a_id",
+            "g_h_status", "g_a_status", "g_h_backup", "g_a_backup", "goalies_pending", "thin_data",
             "m_lh", "m_la"] + MARKET_COLS
     out = pd.concat([up[[c for c in keep if c in up.columns]], priced], axis=1)
     out = out.rename(columns={"p_home": "mkt_p_home", "p_over": "mkt_p_over",
@@ -254,7 +268,8 @@ def run(dry_run: bool = False, days: int | None = None) -> pd.DataFrame:
              out["total_strength"].value_counts().to_dict())
 
     if dry_run:
-        cols = ["puck_drop", "away_team", "home_team", "p_home_win", "spread_pick", "spread_price",
+        cols = ["puck_drop", "away_team", "home_team", "g_a_top", "g_a_status", "g_h_top",
+                "g_h_status", "p_home_win", "spread_pick", "spread_price",
                 "spread_p_win", "spread_mkt_p", "spread_ev", "spread_strength", "total_pick",
                 "total_price", "total_p_win", "total_mkt_p", "total_ev", "total_strength"]
         print(out[[c for c in cols if c in out]].to_string(index=False))

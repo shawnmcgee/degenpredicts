@@ -39,6 +39,13 @@
   .matchup .at{color:var(--dim);font-weight:400;font-size:14px;margin:0 6px}
   .ctx{padding:0 14px 4px;font-size:12px;color:var(--warn)}
   .goalies{padding:0 14px 8px;font-size:12px;color:var(--dim)}
+  .goalies b{color:var(--fg);font-weight:600}
+  /* how sure the board is about who starts: the day's news, or the model's own guess */
+  .gs{display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;text-transform:uppercase;
+      letter-spacing:.03em;font-weight:600;background:var(--line);color:var(--dim);vertical-align:1px}
+  .gs.confirmed{background:var(--good);color:#052e16}
+  .gs.likely{background:var(--accent);color:#06121f}
+  .gs.backup{background:var(--warn);color:#2a1c00}
   /* the probability strip: what we think, before what it is worth */
   .probs{display:flex;align-items:stretch;gap:2px;margin:4px 14px 8px;border-radius:7px;overflow:hidden;height:30px}
   .probs div{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;
@@ -59,7 +66,7 @@
   .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
   .tag.play,.tag.bold{background:var(--good);color:#052e16}
   .tag.pass{background:var(--line);color:var(--dim)}
-  .tag.early,.tag.thin{background:var(--warn);color:#2a1c00}
+  .tag.early,.tag.thin,.tag.wait{background:var(--warn);color:#2a1c00}
   .tag.win{background:var(--good);color:#052e16}
   .tag.loss{background:var(--bad);color:#3f0a0a}
   .tag.push{background:var(--line);color:var(--dim)}
@@ -119,28 +126,36 @@
     <b>The honest backtest.</b> With nothing fitted on the seasons it scores
     (2023&ndash;2025, priced at the noon
     lines this board bets into), every positive-EV puck-line side returned
-    <b>+5.7%</b> on 720 bets
-    (&plusmn;3.31), positive in
+    <b>+5.8%</b> on 768 bets
+    (&plusmn;3.18), positive in
     3 of 3 seasons,
-    and the staking rule +15.3% on
-    143. Suggestive, not proven: a slice
+    and the staking rule +12.5% on
+    153. Suggestive, not proven: a slice
     needs |z| &ge; 2.86 to survive the number of looks taken.
     Closing-line value is what will settle it.
     <br><br>
     
     Against <b>closing</b> moneylines the model
     tied the market (log-loss difference
-    0.0001);
+    under 0.0001);
     against <b>noon</b> prices it was better by
-    0.0007.
+    0.0006.
     On totals the market was as good as the model
-    (log loss 0.69249 against 0.69259), so the published total sits
+    (log loss 0.6925 against 0.6926), so the published total sits
     30% of the way from the market to the model
     and almost never clears the bar.
     The full walk-forward reads higher &mdash;
-    +16.0% on 441 &mdash; because its
+    +14.5% on 379 &mdash; because its
     late-game model and shrinks were fitted on overlapping seasons; the number above is the one
     to trust.
+    <br><br><b>Goalies.</b> From recent
+    starts alone the model names the right starter 65.0% of the
+    time. Knowing the real one sharpens its ratings-only forecast (moneyline log loss
+    0.0003 better) but barely moves the market-aware one
+    against closing lines (+0.0001): the books
+    price the starter too. So the board takes the starter from the day's news and does not stake
+    a pick until both are confirmed or likely &mdash; it is never betting blind into goalie news.
+    
   </div>
 </section>
 
@@ -177,24 +192,24 @@
     
     <tr>
       <td>-1.00 to +0.00</td>
-      <td>2773</td>
+      <td>2725</td>
       <td class="down">-4.7% <span class="sub">&plusmn;1.55</span></td>
       <td>3314</td>
-      <td class="down">-1.9% <span class="sub">&plusmn;1.66</span></td>
+      <td class="down">-2.5% <span class="sub">&plusmn;1.66</span></td>
     </tr>
     
     <tr>
       <td>+0.00 to +0.02</td>
-      <td>495</td>
-      <td class="up">+4.8% <span class="sub">&plusmn;3.71</span></td>
+      <td>523</td>
+      <td class="up">+4.7% <span class="sub">&plusmn;3.6</span></td>
       <td></td>
       <td class=""></td>
     </tr>
     
     <tr>
       <td>+0.02 to +0.04</td>
-      <td>136</td>
-      <td class="up">+0.7% <span class="sub">&plusmn;8.29</span></td>
+      <td>153</td>
+      <td class="up">+0.7% <span class="sub">&plusmn;7.7</span></td>
       <td></td>
       <td class=""></td>
     </tr>
@@ -257,8 +272,8 @@
 </main>
 
 <footer>
-  Data: NHL Stats API &middot; prices via The Odds API &middot; historical lines from
-  SportsbookReviewsOnline and The Odds API archives.
+  Data: NHL Stats API &middot; starting goalies from Daily Faceoff &middot; prices via The Odds
+  API &middot; historical lines from SportsbookReviewsOnline and The Odds API archives.
   <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
   &middot; <a href="../cfb/">college football</a> &middot; <a href="../nfl/">NFL</a> &middot; <a href="../epl/">Premier League</a>
   <br>Models trained 2026-09-23.
@@ -283,7 +298,7 @@
   var q = document.getElementById('q');
   var count = document.getElementById('count');
   var none = document.getElementById('noresults');
-  var state = { day: 'all', plays: false, b2b: false, kick: false, q: '' };
+  var state = { day: 'all', plays: false, b2b: false, backup: false, kick: false, q: '' };
 
   function kickAt(el) {
     // Real time order, never alphabetical on the printed label. No announced time sorts last.
@@ -303,6 +318,7 @@
       if (state.day !== 'all' && el.dataset.day !== state.day) ok = false;
       if (state.plays && el.dataset.play !== '1') ok = false;
       if (state.b2b && el.dataset.b2b !== '1') ok = false;
+      if (state.backup && el.dataset.backup !== '1') ok = false;
       if (state.q && (el.dataset.search || '').indexOf(state.q) === -1) ok = false;
       el.style.display = ok ? '' : 'none';
       if (ok) shown++;

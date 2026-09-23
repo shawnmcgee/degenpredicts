@@ -17,7 +17,7 @@ No server, no manual uploads, no hosting bill.
   epl-grade.yml     daily 6:30am UTC → results → grade → results.csv, metrics.json
   epl-train.yml     Tuesdays        → refit models
   epl-source-check.yml     manual  → confirm football-data's odds columns, runs from a phone
-  nhl-predict.yml   twice daily     → schedule + prices → models → data/nhl/picks.csv → docs/nhl/
+  nhl-predict.yml   twice daily     → schedule + prices + starting goalies → models → data/nhl/picks.csv → docs/nhl/
   nhl-grade.yml     daily 7:45am ET → finals → grade → results.csv, metrics.json
   nhl-train.yml     Tuesdays        → refit models, refit the late-game scoreline model
   test.yml          on push         → offline tests, one job per sport plus the landing page
@@ -951,6 +951,7 @@ Three things are genuinely different, and the third is the one worth reading.
 |---|---|---|
 | Results, schedule, starting goalies, shots | NHL Stats API (`api.nhle.com/stats/rest`) | no key; `/game` returns a whole season **including unplayed games**, `/goalie/summary?isGame=true` every goalie's line for every game |
 | Live prices | The Odds API, `icehockey_nhl` | moneyline, puck line and total from every US book, **3 credits a run** |
+| Tonight's starting goalies | [Daily Faceoff](https://www.dailyfaceoff.com/starting-goalies) | no key; each starter **confirmed**, **likely** or **unconfirmed**, read on every predict run and logged to `starters.csv` |
 | Closing lines 2007-08 → 2022-23 | SportsbookReviewsOnline, compiled by [`ethanbell528-cmd/fda-project-1`](https://github.com/ethanbell528-cmd/fda-project-1) | closing moneyline and total; the ±1.5 puck line from 2014-15 **without its price**; no over/under price |
 | Priced lines 2023-24 → Jan 2026 | The Odds API's historical endpoint, pulled daily by [`nielsenz/odds-api-current-save`](https://github.com/nielsenz/odds-api-current-save) | noon-ET snapshots with prices for all three markets |
 
@@ -969,8 +970,8 @@ can score the model's puck-line *probabilities* but not its *ROI*. The newer row
 but are **noon** prices — an edge against them is an edge against the morning market, which is
 exactly what the morning board bets into, but it is not an edge against the close.
 
-**Set up with `Actions → NHL retrain → Run workflow`.** No new secrets: the NHL's APIs need no
-key, and `ODDS_API_KEY` is the one the other sports already use. The run refreshes the last three
+**Set up with `Actions → NHL retrain → Run workflow`.** No new secrets: the NHL's APIs and the
+starting-goalie page need no key, and `ODDS_API_KEY` is the one the other sports already use. The run refreshes the last three
 seasons (and next season's schedule) from the NHL API, then fits everything in a couple of minutes.
 The predict job runs twice a day, **10:15am and 5:45pm Eastern**: the morning board is the number
 CLV is measured *from*, and the evening run — when prices know the starting goalies — is the
@@ -989,23 +990,39 @@ fixed — shots per game fell from 62.5 to 55.3 between 2021 and 2025 and save p
 to .896. Every learning rate was tuned on 2008-2018 and checked on 2019-2025; the shot model beat
 the goals-only model on both.
 
-**The model never uses the actual starting goalie**, because the morning board does not know it.
-Each team carries an exponentially weighted share of recent starts, with the back-to-back rule on
-top: in 2021-25 the previous night's goalie started the second game of a back-to-back just **9%**
-of the time. The top pick was the actual starter 68% of the time. Knowing the real starter would
-improve moneyline log loss by only 0.0001-0.0003, too little to justify scraping starter news.
+**Who is in net comes from the day's news** (`nhl/sources/starters.py`). The NHL names a starter
+only once the puck drops, so every predict run reads Daily Faceoff's starting-goalie page and
+takes each starter as it is labelled there: a **confirmed** starter replaces the model's own guess
+outright, a **likely** one carries 85% of the weight and an unconfirmed projection half. Names
+are matched to NHL player ids — within the team, then league-wide for a trade, then by surname —
+and a goalie nobody can match (a debut) is rated as a new goalie. Before there is any news the
+model's own guess stands in: each team carries an exponentially weighted share of recent starts,
+with the back-to-back rule on top (in 2021-25 the previous night's goalie started the second
+game of a back-to-back just **9%** of the time). That guess names the starter **65%** of the
+time, and the card shows how sure it is. A goalie who is not his team's clear #1 over the last
+couple of months is flagged as a backup, and the board can be filtered to those games.
+
+**The models are fitted on the starter each game actually had** — which is what a confirmed
+starter is — and scored on the guess, which is all the board knows at noon. On the same
+out-of-sample games, knowing the real starter improved the ratings-only model's moneyline log
+loss by 0.0003 but the market-aware model's by less than 0.0001 against closing lines: **the
+books price the starter too**. So the starter is not a hidden edge; it is information the board
+must not bet without. **A pick is staked only once both starters are confirmed or likely.**
+Until then a pick that clears the bar is shown as *waiting on goalies*, and the evening run — by
+when most starters are confirmed — stakes it. If the page cannot be read at all, the board
+falls back to its own guess and stakes as it did before, and the log says so.
 
 **Two Poisson regressions**, one side of the ice at a time, predict goals scored against a goalie
 in regulation (`nhl/glm.py`). The market-aware one takes the market's implied goals as an
 **offset** — `log E[goals] = log(market goals) + b·x` — so its coefficients describe only where the
 market errs, and with every coefficient at zero it *is* the market. The largest effects it fitted:
-the rating gap the market has not absorbed (+4.8% goals per standard deviation of it), and
+the rating gap the market has not absorbed (+4.9% goals per standard deviation of it), and
 back-to-backs — a side on the second night scores about 2.5% fewer goals and concedes about 2.5%
 more **than the market already charges for**. XGBoost was tried and lost on
 every market — there is nothing in ~2,600 low-count side-rows a season for trees to find but noise.
 Models are plain JSON coefficients, not pickles, and rows are weighted toward recent seasons.
 
-**Two shrinks**, fitted on the pooled walk-forward: the published home/away **split** moves 45% of
+**Two shrinks**, fitted on the pooled walk-forward: the published home/away **split** moves 40% of
 the way from the market to the model; the **total** moves 30%. They are separate because the
 backtest says they deserve different trust.
 
@@ -1059,20 +1076,20 @@ page leads with it.**
 
 | Strict holdout, 2023-26 at noon prices | Bets | ROI | ± 1 s.e. | Seasons positive |
 |---|---:|---:|---:|---:|
-| Puck line, every positive-EV side | 720 | **+5.7%** | 3.3 | 3 of 3 |
-| Puck line, EV ≥ 3% (the staking rule) | 143 | +15.3% | 8.7 | 2 of 2 |
-| Totals, every side | 3,314 | −1.9% | 1.7 | — (none had positive EV) |
+| Puck line, every positive-EV side | 768 | **+5.8%** | 3.2 | 3 of 3 |
+| Puck line, EV ≥ 3% (the staking rule) | 153 | +12.5% | 8.4 | 2 of 2 |
+| Totals, every side | 3,314 | −2.5% | 1.7 | — (none had positive EV) |
 
 - **The puck line is the one place a structural edge shows up**, and it is the strongest result on
-  this site — positive in every season. It is also 1.7 standard errors, and no slice survives
+  this site — positive in every season. It is also 1.8 standard errors, and no slice survives
   correction for the twelve looks taken (a slice needs |z| ≥ 2.86). The mechanism is plausible:
   the books' puck-line prices are less internally consistent with their own moneyline and total
   than the scoreline model is — in the walk-forward, feeding the market's own moneyline and total
   through it gave better puck-line probabilities than the books' puck-line prices did (log loss
-  0.6543 against 0.6547). The walk-forward in `eval` reads +16% on 441 bets; that figure is inflated by the
+  0.6543 against 0.6547). The walk-forward in `eval` reads +14.5% on 379 bets; that figure is inflated by the
   overlap described above and is not the one to quote.
 - **Moneylines:** against *closing* lines (2020-22) the model ties the market (log-loss difference
-  0.0001). Against *noon* lines it is better by 0.0005-0.0007. Not published as a pick.
+  under 0.0001). Against *noon* lines it is better by 0.0005-0.0006. Not published as a pick.
 - **Totals: nothing, against anything.** Log loss 0.6925 against the market's 0.6926, and no side
   reached positive EV after the vig. The published total therefore sits close to the market's.
 
@@ -1121,10 +1138,17 @@ beyond confirming the NHL API endpoints:
 - **A game under way is never re-priced.** The odds feed also lists games in progress, at in-play
   prices, and weekend matinees are mid-game when the evening run fires. Those prices are dropped,
   and a game that has started keeps the row published before puck drop.
-- **Written without reaching the NHL API from the machine it was built on.** Field names follow
-  code that uses those endpoints successfully, and `tests/test_nhl.py` parses payloads of the same
-  shape — but the first Actions run is the real test. Look for
-  `NHL API: N games parsed (… completed, … scheduled)` in the log.
+- **A pick waits for its goalies.** A pick that clears the bar is staked only once both starting
+  goalies are confirmed or likely; an unconfirmed label is never read as a confirmation, and a
+  failed evening read falls back to the morning's news rather than to nothing. The backtest cannot
+  replay this — there are no historical evening prices — so it is scored on the model's own guess
+  about starters, and live CLV will say what waiting is worth.
+- **Written without reaching the NHL API or the starting-goalie page from the machine it was
+  built on.** Field names follow code that uses those endpoints successfully, the goalie page's
+  fields are matched by pattern rather than by exact name, and `tests/test_nhl.py` parses payloads
+  of both shapes — but the first Actions run is the real test. Look for
+  `NHL API: N games parsed (… completed, … scheduled)` and
+  `starting goalies: N of M board games (… confirmed, … likely, … projected)` in the log.
 
 ---
 
@@ -1192,6 +1216,8 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_NHL_SPLIT_SHRINK` / `DEGEN_NHL_TOTAL_SHRINK` | 0.5 / 0.25 | fallback shrinks, used only when too few priced games exist to fit them |
 | `DEGEN_NHL_DOCS` | `docs/nhl` | where the NHL board is written |
 | `DEGEN_NHL_STATS_API` | `https://api.nhle.com/stats/rest/en` | the NHL Stats API base |
+| `DEGEN_NHL_STARTERS` | 1 | 0 stops reading the day's starting goalies; the board uses its own guess from recent starts |
+| `DEGEN_NHL_REQUIRE_STARTERS` | 1 | 0 stakes picks without waiting for both starting goalies to be confirmed or likely |
 | `DEGEN_CFB_DOCS` | `docs/cfb` | where the college football board is written |
 | `DEGEN_KALSHI_ML_SERIES` | `KXNFLGAME` | Kalshi moneyline series (also `..._SPREAD_SERIES`, `..._TOTAL_SERIES`) |
 | `DEGEN_SUPPORT_URL` | (unset) | Buy Me a Coffee link shown at the top; omit and the button hides |

@@ -16,6 +16,12 @@ Three things are fitted, in order:
    SPLIT moves from the market toward the model, and how far the TOTAL does. They are separate
    because the backtest says they deserve different amounts of trust.
 
+**Goalies.** Every model is fitted on the starters games actually had - a confirmed starter is
+exactly that - and every goalie carries his own rating. The evaluation predicts each test game
+twice: with the book's own guess about who starts (what the board knows before the day's news,
+and the view every ROI below is measured on) and with the actual starters, to measure what the
+news is worth (``eval.goalies``).
+
 Everything is evaluated walk-forward - train on every season before S, predict S - over the
 last six complete seasons. The numbers that decide whether to bet, in data/nhl/models/meta.json:
 
@@ -129,7 +135,7 @@ def fit_scoreline(games: pd.DataFrame, before: int | None = None) -> tuple[dict,
 
     ``before`` restricts the fit to seasons before it, for the strict holdout.
     """
-    rows, _, _ = build(games, first_train_season=config.LOAD_FROM_SEASON + 1)
+    rows, _, _ = build(games, first_train_season=config.LOAD_FROM_SEASON + 1, starters="actual")
     seasons = [s for s in complete_seasons(rows["season"].unique()) if before is None or s < before]
     seasons = seasons[-THETA_SEASONS:]
     d = rows[rows["season"].isin(seasons) & (rows["game_type"] == "R")]
@@ -150,26 +156,42 @@ def fit_scoreline(games: pd.DataFrame, before: int | None = None) -> tuple[dict,
 # ---------------------------------------------------------------------------------
 # Walk-forward
 # ---------------------------------------------------------------------------------
-def walk_forward(D: pd.DataFrame, S: pd.DataFrame, n_seasons: int = WALK_FORWARD_SEASONS
+def _predict(models: dict, te: pd.DataFrame, gid, suffix: str = "") -> dict:
+    lh, la = unstack(te, models["nomarket"].predict(te), gid)
+    out = {f"lh_nomarket{suffix}": lh, f"la_nomarket{suffix}": la}
+    if "market" in models:
+        mk = te["log_mkt"].notna().values
+        pred = np.full(len(te), np.nan)
+        if mk.any():
+            pred[mk] = models["market"].predict(te[mk])
+        out[f"lh_market{suffix}"], out[f"la_market{suffix}"] = unstack(te, pred, gid)
+    return out
+
+
+def walk_forward(D: pd.DataFrame, S: pd.DataFrame, n_seasons: int = WALK_FORWARD_SEASONS,
+                 S_eval: pd.DataFrame | None = None, S_known: pd.DataFrame | None = None
                  ) -> pd.DataFrame:
-    """Out-of-sample goals for every game in the last n complete seasons, from both models."""
+    """Out-of-sample goals for every game in the last n complete seasons, from both models.
+
+    The models are fitted on ``S``. Each test season is predicted from ``S_eval`` (default
+    ``S``) - the book's own guess about who starts, which is what the board knows before the
+    day's news - and, when given, from ``S_known``, the same games with the starters they
+    actually had, into ``*_known`` columns: the difference is what the news is worth.
+    """
+    S_eval = S if S_eval is None else S_eval
     comp = complete_seasons(D["season"].unique())
     tests = [s for s in comp[-n_seasons:] if s > comp[0]] if comp else []
     chunks = []
     for s in tests:
-        tr, te = S[S["season"] < s], S[S["season"] == s]
+        tr, te = S[S["season"] < s], S_eval[S_eval["season"] == s]
         if len(tr) < 2 * MIN_TRAIN_GAMES or len(te) < 2 * MIN_TEST_GAMES:
             continue
         models = _fit_pair(tr, s)
         gid = D.loc[D["season"] == s, "game_id"].values
-        lh, la = unstack(te, models["nomarket"].predict(te), gid)
-        chunk = pd.DataFrame({"game_id": gid, "season": s, "lh_nomarket": lh, "la_nomarket": la})
-        if "market" in models:
-            mk = te["log_mkt"].notna().values
-            pred = np.full(len(te), np.nan)
-            pred[mk] = models["market"].predict(te[mk])
-            chunk["lh_market"], chunk["la_market"] = unstack(te, pred, gid)
-        chunks.append(chunk)
+        chunk = {"game_id": gid, "season": s, **_predict(models, te, gid)}
+        if S_known is not None:
+            chunk.update(_predict(models, S_known[S_known["season"] == s], gid, "_known"))
+        chunks.append(pd.DataFrame(chunk))
         log.info("walk-forward %d: %d games", s, len(gid))
     if not chunks:
         return pd.DataFrame()
@@ -354,6 +376,49 @@ def _report(pool: pd.DataFrame, probs: pd.DataFrame, market: str) -> dict:
             "market_softness": soft, "significance": sig}
 
 
+def top_pick_rate(DE: pd.DataFrame, games: pd.DataFrame, seasons) -> float | None:
+    """How often the book's own guess from recent starts named the goalie who started."""
+    ids = games[["game_id", "home_goalie_id", "away_goalie_id"]].copy()
+    ids["game_id"] = ids["game_id"].astype(str)
+    d = DE[DE["season"].isin(list(seasons))].merge(ids, on="game_id", how="left")
+    d = d.dropna(subset=["home_goalie_id", "away_goalie_id", "g_h_id", "g_a_id"])
+    if d.empty:
+        return None
+    hits = np.concatenate([(d["g_h_id"].astype(float) == d["home_goalie_id"].astype(float)).values,
+                           (d["g_a_id"].astype(float) == d["away_goalie_id"].astype(float)).values])
+    return round(100 * float(hits.mean()), 1)
+
+
+def goalie_value(pool: pd.DataFrame, table: Table, shrink: dict) -> dict:
+    """What knowing the starter is worth: the same models, the same games, predicted with the
+    book's guess and with the actual starters. Positive means the actual starter helped."""
+    if "lh_nomarket_known" not in pool:
+        return {}
+    mar = (pool["home_goals"] - pool["away_goals"]).values
+    won = mar > 0
+    out = {"n_games": int(len(pool))}
+    nm = pool["lh_nomarket"].notna().values & pool["lh_nomarket_known"].notna().values
+    guess = _logloss(table.p_home(pool["lh_nomarket"].values[nm], pool["la_nomarket"].values[nm]), won[nm])
+    known = _logloss(table.p_home(pool["lh_nomarket_known"].values[nm],
+                                  pool["la_nomarket_known"].values[nm]), won[nm])
+    out["nomarket_ml_gain"] = round(float(guess.mean() - known.mean()), 5)
+    if "lh_market_known" in pool:
+        closing = pool["source"].astype(str).str.contains("close").values
+        mk = (pool["lh_market"].notna() & pool["lh_market_known"].notna() & pool["m_lh"].notna()
+              & pool["p_home"].notna()).values
+        views = {}
+        for view in ("", "_known"):
+            lh, la = blend(pool["m_lh"], pool["m_la"], pool[f"lh_market{view}"],
+                           pool[f"la_market{view}"], shrink["split"], shrink["total"])
+            views[view] = _logloss(table.p_home(lh, la), won)
+        for label, sel in (("close", mk & closing), ("noon", mk & ~closing)):
+            if sel.sum() >= MIN_TEST_GAMES:
+                out[f"market_ml_gain_{label}"] = round(
+                    float(views[""][sel].mean() - views["_known"][sel].mean()), 5)
+                out[f"n_{label}"] = int(sel.sum())
+    return out
+
+
 def evaluate(pool: pd.DataFrame, table: Table, shrink: dict) -> dict:
     mk = pool["lh_market"].notna() & pool["m_lh"].notna()
     lh, la = blend(pool["m_lh"], pool["m_la"],
@@ -465,8 +530,9 @@ def strict_holdout(games: pd.DataFrame, lines: pd.DataFrame) -> dict:
     first = tests[0]
     theta, _ = fit_scoreline(games, before=first)
     table = Table(theta)
-    D, _, _ = build(games, lines=lines, table=table)
-    pool = walk_forward(D, sides(D))
+    D, _, _ = build(games, lines=lines, table=table, starters="actual")
+    DE, _, _ = build(games, lines=lines, table=table, starters="expected")
+    pool = walk_forward(DE, sides(D), S_eval=sides(DE))
     pre, post = pool[pool["season"] < first], pool[pool["season"] >= first]
     if pre.empty or post.empty:
         return {"skipped": True, "reason": "not enough seasons before the first priced one"}
@@ -491,16 +557,20 @@ def main(argv=None):
     games, lines = assemble(fetch=not args.no_fetch)
     theta, cal = fit_scoreline(games)
     table = Table(theta)
-    D, _, _ = build(games, lines=lines, table=table)
-    S = sides(D)
+    # fitted on the starters games actually had; evaluated on the book's guess about them
+    D, _, _ = build(games, lines=lines, table=table, starters="actual")
+    DE, _, _ = build(games, lines=lines, table=table, starters="expected")
+    S, SE = sides(D), sides(DE)
     log.info("%d training games, seasons %d-%d, %d with a market number", len(D),
              int(D["season"].min()), int(D["season"].max()), int(D["m_lh"].notna().sum()))
 
-    pool = walk_forward(D, S)
+    pool = walk_forward(DE, S, S_eval=SE, S_known=S)
     if pool.empty:
         raise SystemExit("not enough complete seasons to evaluate")
     shrink = fit_shrinks(pool, table)
     ev = evaluate(pool, table, shrink)
+    ev["goalies"] = {"top_pick_started_pct": top_pick_rate(DE, games, ev["test_seasons"]),
+                     **goalie_value(pool, table, shrink)}
 
     last = int(D["season"].max()) + 1
     models = _fit_pair(S, last)
@@ -519,6 +589,7 @@ def main(argv=None):
     log.info("moneyline log loss %.5f vs market %.5f (edge %+.5f) | shrink split %.2f total %.2f",
              ml["log_loss_model"], ml["log_loss_market"], ml["log_loss_edge"],
              shrink["split"], shrink["total"])
+    log.info("goalies: %s", ev["goalies"])
     for name, blk in (("puck line", sp), ("totals", to)):
         for b in blk.get("roi_by_ev", []) + blk.get("rules", []):
             log.info("%s %s: n=%d ROI %+.2f%% (se %s)", name, b.get("ev") or b.get("segment"),

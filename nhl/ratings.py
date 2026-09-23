@@ -25,13 +25,13 @@ both halves.
 between 2021 and 2025 and save percentage from .907 to .896; empty-net goals doubled. Every
 component is centred at each season boundary and a slow league term absorbs the era.
 
-**The expected starter.** The morning board rarely knows who is in net, so the model never
-uses the actual starter either - that would train on information the board cannot have. Each
-team carries an exponentially weighted share of recent starts (half-life 8 games), and the
-back-to-back rule is applied on top: in 2021-2025 the previous night's goalie started the
-second game of a back-to-back just 9% of the time. The share's top goalie was the actual
-starter 68% of the time. Knowing the real starter would have improved moneyline log loss by
-only 0.0001-0.0003 - small enough that the fragility of scraping starters is not worth it.
+**Who starts.** The models are fitted on the starter each game actually had, and the board
+takes the starter from the day's news (:mod:`nhl.sources.starters`). Before there is any news,
+this book's own guess stands in: each team carries an exponentially weighted share of recent
+starts (half-life 8 games), and the back-to-back rule is applied on top - in 2021-2025 the
+previous night's goalie started the second game of a back-to-back just 9% of the time. That
+guess names the actual starter about two times in three, and its confidence is roughly
+calibrated, so an uncertain tandem stays uncertain rather than being rounded to its #1.
 """
 from __future__ import annotations
 
@@ -63,6 +63,7 @@ class RatingConfig:
     hg: float = 0.05           # home goal advantage for the goals-only model, log
     cap: float = 0.6
     share_hl: float = 8.0      # starts half-life, games
+    regular_hl: float = 30.0   # a slower one, for who a team's #1 is - not who is hot this week
     b2b_mult: float = 0.12     # weight on the previous night's starter in a back-to-back
 
 
@@ -84,6 +85,7 @@ class RatingBook:
         self.ls = self.lsh = self.lg = 0.0
         self.season: int | None = None
         self.share: dict[str, dict[int, float]] = defaultdict(dict)
+        self.share_long: dict[str, dict[int, float]] = defaultdict(dict)
         self.last_start: dict[str, int] = {}
         self.last_date: dict[str, object] = {}
         self.games: dict[str, int] = defaultdict(int)
@@ -140,9 +142,28 @@ class RatingBook:
                 for g, pg in self.starter_probs(team, b2b=True, last=k).items():
                     probs[g] += pk * pg
             probs = dict(probs)
+        return self.rating(probs), probs
+
+    def rating(self, probs: dict) -> float:
+        """The expected goalie rating under a distribution over who starts."""
         if not probs:
-            return self.cfg.new_goalie, {}
-        return sum(p * self.goalie(k) for k, p in probs.items()), probs
+            return self.cfg.new_goalie
+        return sum(p * self.goalie(k) for k, p in probs.items())
+
+    def regular(self, team: str):
+        """The team's usual #1: the largest share of its starts over the last couple of months,
+        so a starter back from a fortnight's injury is still the #1, not the backup."""
+        w = self.share_long.get(team) or {}
+        return max(w, key=w.get) if w else None
+
+    def is_backup(self, team: str, gid) -> bool:
+        """True when `gid` is not the team's clear #1 - one with at least 55% of its starts.
+        A genuine tandem has no backup, so a 50/50 split never raises the flag."""
+        w = self.share_long.get(team) or {}
+        top = self.regular(team)
+        if gid is None or gid != gid or top is None or int(gid) == top:
+            return False
+        return w[top] / sum(w.values()) >= 0.55
 
     # ---- expectations ---------------------------------------------------------------
     def expect(self, home: str, away: str, g_vs_home: float, g_vs_away: float) -> dict:
@@ -197,15 +218,16 @@ class RatingBook:
         self.dfn[home] = _c(self.dfn[home] + c.k_def * da, cap)
         self.lg += c.k_lvl * (dh + da) / 2
 
-        decay = 0.5 ** (1 / c.share_hl)
         for team, gid in ((home, home_goalie), (away, away_goalie)):
-            sh = self.share[team]
-            for k in list(sh):
-                sh[k] *= decay
-                if sh[k] < 1e-3:
-                    del sh[k]
+            for sh, hl in ((self.share[team], c.share_hl), (self.share_long[team], c.regular_hl)):
+                decay = 0.5 ** (1 / hl)
+                for k in list(sh):
+                    sh[k] *= decay
+                    if sh[k] < 1e-3:
+                        del sh[k]
+                if gid is not None and gid == gid:
+                    sh[int(gid)] = sh.get(int(gid), 0.0) + (1 - decay)
             if gid is not None and gid == gid:
-                sh[int(gid)] = sh.get(int(gid), 0.0) + (1 - decay)
                 self.last_start[team] = int(gid)
             self.last_date[team] = gdate
             self.games[team] += 1

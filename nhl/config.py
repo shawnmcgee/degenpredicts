@@ -60,6 +60,7 @@ DOCS = Path(_NHL_DOCS) if _NHL_DOCS else \
 GAMES = DATA / "games.csv"          # results, starting goalies, shots - one row per game
 LINES = DATA / "lines.csv"          # historical closing lines, and our own pre-game snapshots
 SNAPSHOTS = DATA / "snapshots.csv"  # every live pull, for closing-line value
+STARTERS = DATA / "starters.csv"    # every starting-goalie pull: who, and how sure
 PICKS = DATA / "picks.csv"
 RESULTS = DATA / "results.csv"
 METRICS = DATA / "metrics.json"
@@ -82,6 +83,21 @@ HTTP_RETRIES = int(os.environ.get("DEGEN_NHL_HTTP_RETRIES",
 # The NHL Stats REST API. One call returns every game in a season, scheduled ones included, and
 # one more returns every goalie's line for every game in it. That is the whole data spine.
 NHL_STATS_API = _env("DEGEN_NHL_STATS_API", "https://api.nhle.com/stats/rest/en").rstrip("/")
+
+# Starting goalies. The NHL names a starter only once the puck drops; Daily Faceoff tracks the
+# day's news and labels each one Confirmed, Likely or Unconfirmed (see sources/starters.py).
+# DEGEN_NHL_STARTERS=0 runs the board on the model's own guess from recent starts instead.
+STARTERS_URL = _env("DEGEN_NHL_STARTERS_URL",
+                    "https://www.dailyfaceoff.com/starting-goalies/{date}")
+STARTERS_ON = _env("DEGEN_NHL_STARTERS", "1").lower() not in ("0", "false", "no", "off")
+# How much of the board's belief about who starts each label carries; the rest stays on the
+# model's own guess. Every pull is logged to starters.csv so these can be checked against who
+# actually started.
+STARTER_WEIGHT = {"confirmed": 1.0, "likely": 0.85, "projected": 0.5}
+# A pick is staked only once both starters are confirmed or likely - whenever the feed is up at
+# all. With the feed down the board falls back to the model's guess and stakes as before.
+REQUIRE_STARTERS = _env("DEGEN_NHL_REQUIRE_STARTERS", "1").lower() not in ("0", "false", "no",
+                                                                            "off")
 
 # Historical lines are imported once and committed (see sources/history.py). Both archives are
 # static files on raw.githubusercontent.com - the host nflverse and the EPL archive are served

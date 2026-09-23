@@ -39,6 +39,13 @@
   .matchup .at{color:var(--dim);font-weight:400;font-size:14px;margin:0 6px}
   .ctx{padding:0 14px 4px;font-size:12px;color:var(--warn)}
   .goalies{padding:0 14px 8px;font-size:12px;color:var(--dim)}
+  .goalies b{color:var(--fg);font-weight:600}
+  /* how sure the board is about who starts: the day's news, or the model's own guess */
+  .gs{display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;text-transform:uppercase;
+      letter-spacing:.03em;font-weight:600;background:var(--line);color:var(--dim);vertical-align:1px}
+  .gs.confirmed{background:var(--good);color:#052e16}
+  .gs.likely{background:var(--accent);color:#06121f}
+  .gs.backup{background:var(--warn);color:#2a1c00}
   /* the probability strip: what we think, before what it is worth */
   .probs{display:flex;align-items:stretch;gap:2px;margin:4px 14px 8px;border-radius:7px;overflow:hidden;height:30px}
   .probs div{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;
@@ -59,7 +66,7 @@
   .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
   .tag.play,.tag.bold{background:var(--good);color:#052e16}
   .tag.pass{background:var(--line);color:var(--dim)}
-  .tag.early,.tag.thin{background:var(--warn);color:#2a1c00}
+  .tag.early,.tag.thin,.tag.wait{background:var(--warn);color:#2a1c00}
   .tag.win{background:var(--good);color:#052e16}
   .tag.loss{background:var(--bad);color:#3f0a0a}
   .tag.push{background:var(--line);color:var(--dim)}
@@ -130,17 +137,25 @@
     {% endif %}
     {% if model.ml_close is not none %}Against <b>closing</b> moneylines the model
     {{ model.ml_close_verdict }} the market (log-loss difference
-    {{ '%.4f'|format(model.ml_close|abs) }}){% endif %}{% if model.ml_pregame is not none %};
+    {% if model.ml_close|abs < 0.0001 %}under 0.0001{% else %}{{ '%.4f'|format(model.ml_close|abs) }}{% endif %}){% endif %}{% if model.ml_pregame is not none %};
     against <b>noon</b> prices it {{ 'was better by' if model.ml_pregame > 0 else 'trailed by' }}
     {{ '%.4f'|format(model.ml_pregame|abs) }}{% endif %}.
     {% if model.total_beats is not none %}On totals the market was as good as the model
-    (log loss {{ model.total_ll }} against {{ model.total_ll_mkt }}), so the published total sits
+    (log loss {{ '%.4f'|format(model.total_ll) }} against {{ '%.4f'|format(model.total_ll_mkt) }}), so the published total sits
     {{ ((model.shrink.total or 0) * 100)|round|int }}% of the way from the market to the model
     and almost never clears the bar.{% endif %}
     {% if model.spread_pos %}The full walk-forward reads higher &mdash;
     {{ '%+.1f'|format(model.spread_pos.roi_pct) }}% on {{ model.spread_pos.n }} &mdash; because its
     late-game model and shrinks were fitted on overlapping seasons; the number above is the one
     to trust.{% endif %}
+    {% if model.goalies and model.goalies.top_pick_started_pct %}<br><br><b>Goalies.</b> From recent
+    starts alone the model names the right starter {{ model.goalies.top_pick_started_pct }}% of the
+    time. Knowing the real one sharpens its ratings-only forecast (moneyline log loss
+    {{ '%.4f'|format(model.goalies.nomarket_ml_gain) }} better) but barely moves the market-aware one
+    against closing lines ({{ '%+.4f'|format(model.goalies.market_ml_gain_close) }}): the books
+    price the starter too. So the board takes the starter from the day's news and does not stake
+    a pick until both are confirmed or likely &mdash; it is never betting blind into goalie news.
+    {% endif %}
   </div>
 </section>
 {% endif %}
@@ -186,6 +201,7 @@
   <div class="controls" role="group" aria-label="Filters">
     <button class="chip" aria-pressed="false" data-f="plays">Plays only</button>
     <button class="chip" aria-pressed="false" data-f="b2b">Back-to-backs</button>
+    <button class="chip" aria-pressed="false" data-f="backup">Backup in net</button>
     <button class="chip" aria-pressed="false" data-f="kick">Sort by puck drop</button>
   </div>
   <div id="count" class="sub" style="margin-bottom:10px"></div>
@@ -198,14 +214,18 @@
   {% for g in picks %}
   <div class="game {% if g.has_play %}hot{% endif %}"
        data-day="{{ g.day_key }}" data-play="{{ 1 if g.has_play else 0 }}" data-b2b="{{ g.b2b }}"
+       data-backup="{{ g.backup }}"
        data-search="{{ g.search }}" data-kick="{{ g.kick_sort or '' }}">
     <div class="ghead">
       <span>{{ g.time_label }}</span>
-      <span>{% if g.has_play %}<span class="tag play">play</span> {% endif %}{% if g.best_ev is not none %}best EV {{ '%+.1f'|format(g.best_ev * 100) }}%{% endif %}{% if g.thin_data %} &middot; early season{% endif %}</span>
+      <span>{% if g.has_play %}<span class="tag play">play</span> {% elif g.waiting %}<span class="tag wait">waiting on goalies</span> {% endif %}{% if g.best_ev is not none %}best EV {{ '%+.1f'|format(g.best_ev * 100) }}%{% endif %}{% if g.thin_data %} &middot; early season{% endif %}</span>
     </div>
     <div class="matchup">{{ g.away_team }}<span class="at">at</span>{{ g.home_team }}</div>
     {% if g.context %}<div class="ctx">{{ g.context }}</div>{% endif %}
-    {% if g.goalies %}<div class="goalies">Likely in net: {{ g.goalies }}</div>{% endif %}
+    {% if g.goalies %}<div class="goalies">In net:
+      {% for x in g.goalies %}{% if not loop.first %} &middot; {% endif %}{{ x.team }} <b title="{{ x.full }}">{{ x.name }}</b>
+      <span class="gs {{ x.status }}">{{ x.label }}</span>{% if x.backup %} <span class="gs backup">backup</span>{% endif %}{% endfor %}
+    </div>{% endif %}
     {% if g.p_reg_home_pct %}
     <div class="probs" title="Our probability of each outcome after 60 minutes">
       <div class="ph" style="flex:{{ g.p_reg_home_pct }}">{{ g.home_team }} {{ g.p_reg_home_pct|round|int }}%</div>
@@ -219,13 +239,13 @@
     {% endif %}
     <div class="bets">
       <div class="bet">
-        <div class="l">Puck line <span class="tag {{ 'early' if g.spread_strength == 'thin' else g.spread_strength }}">{{ 'no play' if g.spread_strength in ('thin','pass') else g.spread_strength }}</span></div>
+        <div class="l">Puck line <span class="tag {{ 'early' if g.spread_strength == 'thin' else g.spread_strength }}">{{ 'no play' if g.spread_strength in ('thin','pass') else ('waiting on goalies' if g.spread_strength == 'wait' else g.spread_strength) }}</span></div>
         <div class="p">{{ g.spread_pick }}{% if g.spread_price %}<span class="px">{{ g.spread_price }}</span>{% endif %}</div>
         <div class="d">ours <b>{{ g.spread_p_win_pct }}%</b>{% if g.spread_mkt_p_pct %} &middot; market {{ g.spread_mkt_p_pct }}%{% endif %}{% if g.spread_ev_pct is not none %} &middot; EV {{ '%+.1f'|format(g.spread_ev_pct) }}%{% endif %}{% if g.spread_stake %} &middot; {{ g.spread_stake }}u{% endif %}</div>
         {% if g.spread_hit and (g.spread_hit.wins + g.spread_hit.losses) %}<div class="hit">Hit <b class="{{ g.spread_hit.tone }}">{{ g.spread_hit.win_pct }}%</b> ({{ g.spread_hit.wins }}-{{ g.spread_hit.losses }}) this season at EV {{ g.spread_hit.label }}</div>{% endif %}
       </div>
       <div class="bet">
-        <div class="l">Total <span class="tag {{ 'early' if g.total_strength == 'thin' else g.total_strength }}">{{ 'no play' if g.total_strength in ('thin','pass') else g.total_strength }}</span></div>
+        <div class="l">Total <span class="tag {{ 'early' if g.total_strength == 'thin' else g.total_strength }}">{{ 'no play' if g.total_strength in ('thin','pass') else ('waiting on goalies' if g.total_strength == 'wait' else g.total_strength) }}</span></div>
         <div class="p">{{ g.total_pick }}{% if g.total_price %}<span class="px">{{ g.total_price }}</span>{% endif %}</div>
         <div class="d">ours <b>{{ g.total_p_live_pct }}%</b>{% if g.total_mkt_p_pct %} &middot; market {{ g.total_mkt_p_pct }}%{% endif %}{% if g.total_ev_pct is not none %} &middot; EV {{ '%+.1f'|format(g.total_ev_pct) }}%{% endif %}{% if g.total_stake %} &middot; {{ g.total_stake }}u{% endif %}</div>
         {% if g.total_hit and (g.total_hit.wins + g.total_hit.losses) %}<div class="hit">Hit <b class="{{ g.total_hit.tone }}">{{ g.total_hit.win_pct }}%</b> ({{ g.total_hit.wins }}-{{ g.total_hit.losses }}) this season at EV {{ g.total_hit.label }}</div>{% endif %}
@@ -242,8 +262,12 @@
     expected return per unit at the posted price. A pick is flagged
     <span class="tag play">play</span> only at EV of {{ (spread_min * 100)|round(1) }}% or more on
     the puck line and {{ (total_min * 100)|round(1) }}% on the total, once both teams have played
-    enough games to rate. Goalies are the model's expectation from recent starts &mdash; the
-    morning board rarely knows the starter, so neither does the model.</p>
+    enough games to rate &mdash; and only once both starting goalies are
+    <span class="gs confirmed">confirmed</span> or <span class="gs likely">likely</span>. Until
+    then a pick that clears the bar is marked <span class="tag wait">waiting on goalies</span>.
+    Starters come from the day's news; with none yet, the model uses its own guess from recent
+    starts and the back-to-back rule, and says how sure it is. Every goalie carries his own
+    rating, which follows him through trades.</p>
   {% endif %}
 </section>
 
@@ -350,8 +374,8 @@
 </main>
 
 <footer>
-  Data: NHL Stats API &middot; prices via The Odds API &middot; historical lines from
-  SportsbookReviewsOnline and The Odds API archives.
+  Data: NHL Stats API &middot; starting goalies from Daily Faceoff &middot; prices via The Odds
+  API &middot; historical lines from SportsbookReviewsOnline and The Odds API archives.
   <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
   &middot; <a href="../cfb/">college football</a> &middot; <a href="../nfl/">NFL</a> &middot; <a href="../epl/">Premier League</a>
   {% if trained %}<br>Models trained {{ trained }}.{% endif %}
@@ -376,7 +400,7 @@
   var q = document.getElementById('q');
   var count = document.getElementById('count');
   var none = document.getElementById('noresults');
-  var state = { day: 'all', plays: false, b2b: false, kick: false, q: '' };
+  var state = { day: 'all', plays: false, b2b: false, backup: false, kick: false, q: '' };
 
   function kickAt(el) {
     // Real time order, never alphabetical on the printed label. No announced time sorts last.
@@ -396,6 +420,7 @@
       if (state.day !== 'all' && el.dataset.day !== state.day) ok = false;
       if (state.plays && el.dataset.play !== '1') ok = false;
       if (state.b2b && el.dataset.b2b !== '1') ok = false;
+      if (state.backup && el.dataset.backup !== '1') ok = false;
       if (state.q && (el.dataset.search || '').indexOf(state.q) === -1) ok = false;
       el.style.display = ok ? '' : 'none';
       if (ok) shown++;

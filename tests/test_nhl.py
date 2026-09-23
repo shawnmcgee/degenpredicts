@@ -45,9 +45,12 @@ def env(tmp_path, monkeypatch):
     importlib.reload(cfg)
     for mod in ("nhl.teams", "nhl.odds_math", "nhl.scoreline", "nhl.ratings", "nhl.features",
                 "nhl.glm", "nhl.sources.nhle", "nhl.sources.odds", "nhl.sources.history",
-                "nhl.train", "nhl.predict", "nhl.grade", "nhl.site"):
+                "nhl.sources.starters", "nhl.train", "nhl.predict", "nhl.grade", "nhl.site"):
         if mod in sys.modules:
             importlib.reload(sys.modules[mod])
+    # Offline: the starting-goalie page is "down" unless a test hands it a page to read.
+    from nhl.sources import starters
+    monkeypatch.setattr(starters, "fetch", lambda day: None)
     cfg.ensure_dirs()
     yield cfg
 
@@ -323,6 +326,137 @@ def test_unplayed_past_games_do_not_tire_anyone():
 
 
 # ---------------------------------------------------------------------------------
+# Starting goalies
+# ---------------------------------------------------------------------------------
+def _dfo_page(games: list[dict]) -> str:
+    payload = {"props": {"pageProps": {"data": games}}, "page": "/starting-goalies/[date]"}
+    return ('<html><body><div id="__next"></div><script id="__NEXT_DATA__" '
+            f'type="application/json">{json.dumps(payload)}</script></body></html>')
+
+
+def test_starting_goalie_pages_parse_by_pattern_not_by_exact_name():
+    """The page's field names could not be checked from where this was written, so they are
+    matched by pattern: the flat names it is known to use and a nested shape must both come
+    through - and an unconfirmed starter must never be read as a confirmed one."""
+    from nhl.sources import starters as st
+    html = _dfo_page([
+        {"homeTeamName": "Boston Bruins", "homeTeamSlug": "boston-bruins",
+         "homeGoalieName": "Jeremy Swayman", "homeNewsStrengthName": "Confirmed",
+         "homeGoalieSavePercentage": 0.915, "awayTeamName": "Toronto Maple Leafs",
+         "awayGoalieName": "Anthony Stolarz", "awayNewsStrengthName": "Likely"},
+        {"homeTeam": {"name": "Utah Mammoth"}, "homeStatus": "Unconfirmed",
+         "homeGoalie": {"firstName": "Karel", "lastName": "Vejmelka"},
+         "awayTeam": {"abbreviation": "VGK"}, "awayGoalie": {"name": "Adin Hill"},
+         "awayStatus": "Expected"},
+        {"homeTeamName": "Bruins", "homeGoalieName": "A", "awayTeamName": "Hartford Whalers",
+         "awayGoalieName": "B"},                           # a team that maps to nothing: skipped
+    ])
+    got = st.parse(st.next_data(html))
+    assert [(g["away_team"], g["home_team"]) for g in got] == [("TOR", "BOS"), ("VGK", "UTA")]
+    bos, uta = got
+    assert (bos["h_goalie"], bos["h_status"], bos["a_status"]) == ("Jeremy Swayman", "confirmed",
+                                                                   "likely")
+    assert (uta["h_goalie"], uta["h_status"], uta["a_goalie"], uta["a_status"]) == (
+        "Karel Vejmelka", "projected", "Adin Hill", "likely")
+    assert st.next_data("<html>no data here</html>") is None
+    assert st.status("Unconfirmed") == "projected" and st.status("CONFIRMED") == "confirmed"
+    assert st.team_code("Bruins") == "BOS" and st.team_code("maple-leafs") == "TOR"
+
+
+def test_goalie_names_resolve_to_nhl_ids_through_accents_nicknames_and_trades():
+    from nhl.sources import starters as st
+    g = pd.DataFrame([
+        {"game_id": "1", "season": 2025, "date": "2026-01-10", "completed": True,
+         "home_team": "CGY", "away_team": "MTL", "home_goalie_id": 11,
+         "home_goalie": "Jacob Markström", "away_goalie_id": 22,
+         "away_goalie": "Samuel Montembeault"},
+        {"game_id": "2", "season": 2025, "date": "2026-02-10", "completed": True,
+         "home_team": "NJD", "away_team": "BOS", "home_goalie_id": 11,
+         "home_goalie": "Jacob Markström", "away_goalie_id": 33, "away_goalie": "Jeremy Swayman"},
+    ])
+    idx = st.goalie_index(g)
+    assert st.resolve("Jacob Markstrom", "NJD", idx) == (11, "name")
+    assert st.resolve("Sam Montembeault", "MTL", idx) == (22, "surname")
+    assert st.resolve("Jeremy Swayman", "TOR", idx) == (33, "name, other team")   # traded
+    gid, how = st.resolve("Brand New Kid", "BOS", idx)
+    assert how == "new" and gid < 0, "a debut is rated as a new goalie, never as someone else"
+    assert gid == st.resolve("Brand New Kid", "SEA", idx)[0]
+
+
+def test_a_confirmed_backup_replaces_the_guess_and_a_likely_one_mostly_does():
+    from types import SimpleNamespace
+
+    from nhl.features import _row
+    from nhl.ratings import RatingBook
+    b = RatingBook()
+    b.share["BOS"] = b.share_long["BOS"] = {1: 0.8, 2: 0.2}
+    b.gk[1], b.gk[2] = -0.05, 0.05                 # a good starter, a weak backup
+    b.goalie_name[1] = "Starter One"
+    r = SimpleNamespace(home_team="BOS", away_team="TOR", game_id="g")
+    guess = _row(b, r, {})
+    conf = _row(b, r, {}, known={"h": {"id": 2, "weight": 1.0, "status": "confirmed",
+                                       "name": "Backup Two"}})
+    likely = _row(b, r, {}, known={"h": {"id": 2, "weight": 0.85, "status": "likely"}})
+    assert (guess["g_h_top"], guess["g_h_status"], guess["g_h_backup"]) == ("Starter One", "", 0)
+    assert conf["g_h_exp"] == pytest.approx(0.05) and conf["g_h_conf"] == 1.0
+    assert (conf["g_h_top"], conf["g_h_status"], conf["g_h_backup"]) == ("Backup Two",
+                                                                         "confirmed", 1)
+    assert likely["g_h_exp"] == pytest.approx(0.85 * 0.05 + 0.15 * (0.8 * -0.05 + 0.2 * 0.05))
+    # the away side shoots at the weaker goalie, and more surely so the firmer the news
+    assert conf["lam_a"] > likely["lam_a"] > guess["lam_a"]
+
+
+def test_training_rows_use_the_starter_each_game_actually_had(env):
+    from nhl.features import build
+    g = _league()
+    actual, _, _ = build(g, first_train_season=2022, today=date(2030, 1, 1), starters="actual")
+    guess, _, _ = build(g, first_train_season=2022, today=date(2030, 1, 1), starters="expected")
+    m = actual.merge(g[["game_id", "home_goalie_id"]], on="game_id")
+    assert (m["g_h_id"] == m["home_goalie_id"]).all() and (m["g_h_conf"] == 1.0).all()
+    assert (guess["g_h_conf"] < 1.0).any(), "the guess is a guess"
+
+
+def test_picks_wait_until_both_starters_are_confirmed_or_likely(env, monkeypatch):
+    from nhl import predict
+    from nhl.scoreline import grids
+    from nhl.sources import starters as st
+    d = date(2026, 11, 7)
+    board = pd.DataFrame({"game_id": ["A", "B", "C", "D"], "date": [d, d, d, d + timedelta(days=1)]})
+    rows = pd.DataFrame([{"game_id": "A", "side": "h", "status": "confirmed"},
+                         {"game_id": "A", "side": "a", "status": "likely"},
+                         {"game_id": "B", "side": "h", "status": "confirmed"},
+                         {"game_id": "B", "side": "a", "status": "projected"}])
+    # C: the feed answered for its date without listing it; D: the feed never answered for its date
+    assert list(st.pending(board, rows, covered={d})) == [False, True, True, False]
+    monkeypatch.setattr(env, "REQUIRE_STARTERS", False)
+    assert not st.pending(board, rows, covered={d}).any()
+
+    F, R = grids([3.6], [2.4])
+    g = {"home_team": "BOS", "away_team": "TOR", "thin_data": False, "pl_home": -1.5,
+         "pl_home_dec": 3.2, "pl_away_dec": 1.45, "p_pl_home": 0.30, "total_line": 6.0,
+         "over_dec": 1.91, "under_dec": 1.91, "p_over": 0.5}
+    ready = predict.price_game(F[0], R[0], {**g, "goalies_pending": False})
+    waiting = predict.price_game(F[0], R[0], {**g, "goalies_pending": True})
+    assert ready["spread_strength"] in ("play", "bold") and ready["spread_stake"] > 0
+    assert waiting["spread_strength"] == "wait" and waiting["spread_stake"] == 0
+    assert waiting["spread_pick"] == ready["spread_pick"], "the pick is still published"
+
+
+def test_a_failed_evening_pull_keeps_the_mornings_news(env):
+    from nhl.sources import starters as st
+    morning = pd.DataFrame([{"pulled_at": "2026-11-07T14:15:00+00:00", "date": "2026-11-07",
+                             "game_id": "A", "side": "h", "team": "BOS",
+                             "goalie": "Jeremy Swayman", "goalie_id": 33, "status": "likely",
+                             "matched_by": "name"}])
+    morning.to_csv(env.STARTERS, index=False)
+    evening = morning.assign(pulled_at="2026-11-07T21:45:00+00:00", status="confirmed")
+    assert st.latest(["A"])["status"].tolist() == ["likely"]
+    assert st.latest(["A"], fresh=evening)["status"].tolist() == ["confirmed"]
+    assert st.known(st.latest(["A"], fresh=evening))["A"]["h"] == {
+        "id": 33, "status": "confirmed", "name": "Jeremy Swayman", "weight": 1.0}
+
+
+# ---------------------------------------------------------------------------------
 # Models
 # ---------------------------------------------------------------------------------
 def test_offset_model_is_the_market_when_the_market_is_right():
@@ -563,6 +697,19 @@ def test_pipeline(env, monkeypatch):
         "under_dec": 1.91, "p_over": 0.5, "n_total": 4, "pl_home": -1.5, "pl_home_dec": 2.6,
         "pl_away_dec": 1.55, "p_pl_home": 0.37, "n_pl": 4} for u in up[:-1]])
     monkeypatch.setattr(odds, "snapshot", lambda *a, **k: snap)
+    # the day's news: the matinee's starters are confirmed, one evening game is half-known, and
+    # nothing is posted for tomorrow yet
+    from nhl.sources import starters
+
+    def page(day):
+        if day != today:
+            return []
+        return [{"home_team": LEAGUE[0], "away_team": LEAGUE[1], "h_goalie": f"{LEAGUE[0]} Starter",
+                 "h_status": "confirmed", "a_goalie": f"{LEAGUE[1]} Starter", "a_status": "confirmed"},
+                {"home_team": LEAGUE[2], "away_team": LEAGUE[3], "h_goalie": "Brand New Kid",
+                 "h_status": "confirmed", "a_goalie": f"{LEAGUE[3]} Starter",
+                 "a_status": "projected"}]
+    monkeypatch.setattr(starters, "fetch", page)
 
     out = predict.run()
     assert len(out) == 7
@@ -581,6 +728,20 @@ def test_pipeline(env, monkeypatch):
     assert tbd["spread_strength"] == "pass" and not tbd["spread_price"]
     # the back-to-back is seen from tonight's game, which has not been played yet
     assert int(tbd["h_b2b"]) == 1
+    # who is in net: the news where there is some, the model's guess where there is none
+    by = out.set_index("game_id")
+    assert (by.loc[up[0]["game_id"], "g_h_status"], by.loc[up[0]["game_id"], "g_a_status"]) == (
+        "confirmed", "confirmed")
+    half = by.loc[up[1]["game_id"]]
+    assert (half["g_h_top"], half["g_h_status"], half["g_a_status"]) == ("Brand New Kid",
+                                                                         "confirmed", "projected")
+    assert not by.loc[up[0]["game_id"], "goalies_pending"] and half["goalies_pending"]
+    assert by.loc[up[2]["game_id"], "goalies_pending"], "the feed answered for today without it"
+    assert not by.loc[up[3]["game_id"], "goalies_pending"], "no news for tomorrow: the guess stands"
+    assert by.loc[up[3]["game_id"], "g_h_status"] == ""
+    logged = pd.read_csv(env.STARTERS, dtype={"game_id": str})
+    assert set(logged["game_id"]) == {up[0]["game_id"], up[1]["game_id"]}
+    assert logged.loc[logged["goalie"] == "Brand New Kid", "goalie_id"].iloc[0] < 0
 
     # the evening run rewrites the rows; the number first published must survive it
     monkeypatch.setattr(env, "now_et", lambda: datetime.combine(today, time(17, 45), env.ET))
@@ -603,6 +764,7 @@ def test_pipeline(env, monkeypatch):
     site.build()
     html = (env.DOCS / "index.html").read_text()
     assert "NHL" in html and 'href="../"' in html
+    assert "In net:" in html and "Brand New Kid" in html and ">confirmed<" in html
     assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
     assert html.count('class="game ') + html.count('class="game"') == 7
 

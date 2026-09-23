@@ -8,8 +8,10 @@ are hockey's own:
 * a **probability strip** per game: home win in regulation, overtime, away win in regulation.
   Overtime is a fifth of all games and the reason a one-goal favourite and a -1.5 favourite are
   such different bets, so it gets its own segment rather than being folded into a win %;
-* the **likely goalies**, with how sure the model is - it never knows the starter for certain in
-  the morning, and says so;
+* **who is in net**, labelled the way the day's news has it - confirmed, likely or projected -
+  or as the model's own guess from recent starts, with its confidence, before there is any
+  news. A backup is flagged, and a pick that clears the bar waits until both starters are
+  confirmed or likely;
 * the puck line and total as **prices**: our probability, the market's, and the EV at the posted
   price, because in hockey the line barely moves and the price is the whole bet.
 """
@@ -81,13 +83,25 @@ def _context(g) -> str:
     return " · ".join(bits)
 
 
-def _goalies(g) -> str:
-    parts = []
+def _goalies(g) -> list[dict]:
+    """Each side's goalie and how sure the board is: the day's news where there is any, the
+    model's own guess with its confidence where there is not."""
+    out = []
     for side, team in (("a", g.get("away_team")), ("h", g.get("home_team"))):
-        name, conf = g.get(f"g_{side}_top"), g.get(f"g_{side}_conf")
-        if name and conf is not None and conf == conf:
-            parts.append(f"{team} {str(name).split(' ')[-1]} {int(round(100 * conf))}%")
-    return " · ".join(parts)
+        name = g.get(f"g_{side}_top")
+        if not name:
+            continue
+        status = g.get(f"g_{side}_status") or ""
+        if status not in ("confirmed", "likely", "projected"):
+            conf = g.get(f"g_{side}_conf")
+            status, label = "guess", ("our guess" if conf is None or conf != conf
+                                      else f"our guess {int(round(100 * conf))}%")
+        else:
+            label = status
+        out.append({"team": team, "name": str(name).split(" ")[-1], "full": str(name),
+                    "status": status, "label": label,
+                    "backup": bool(g.get(f"g_{side}_backup"))})
+    return out
 
 
 def _board() -> list[dict]:
@@ -131,8 +145,14 @@ def _board() -> list[dict]:
     df["search"] = (df["home_team"].fillna("") + " " + df["away_team"].fillna("") + " "
                     + df.get("g_h_top", pd.Series([""] * len(df), index=df.index)).fillna("") + " "
                     + df.get("g_a_top", pd.Series([""] * len(df), index=df.index)).fillna("")).str.lower()
-    b2b = (df.get("h_b2b", 0) == 1) | (df.get("a_b2b", 0) == 1)
-    df["b2b"] = b2b.astype(int)
+    def flag(col):
+        # a picks.csv written before a column existed has no such column: read that as 0
+        return pd.to_numeric(df[col], errors="coerce").fillna(0).eq(1) if col in df \
+            else pd.Series(False, index=df.index)
+
+    df["b2b"] = (flag("h_b2b") | flag("a_b2b")).astype(int)
+    df["backup"] = (flag("g_h_backup") | flag("g_a_backup")).astype(int)
+    df["waiting"] = df["spread_strength"].eq("wait") | df["total_strength"].eq("wait")
     # pandas cannot hold None inside a float64 column, so `where(notna, None)` leaves NaN in place
     # - and bool(nan) is True, which makes every Jinja `{% if %}` pass and renders "nan" on the
     # page. Casting to object first is what actually clears them.
@@ -199,6 +219,7 @@ def _model_note(meta: dict) -> dict:
             "spread_z": (sp.get("significance") or {}).get("z_required"),
             "total_beats": to.get("beats_market"), "total_ll": to.get("log_loss_model"),
             "total_ll_mkt": to.get("log_loss_market"),
+            "goalies": ev.get("goalies") or {},
             "shrink": meta.get("shrink") or {}}
 
 

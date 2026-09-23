@@ -17,10 +17,12 @@ travel without a separate model per venue.
 
 The features, in the order they earn their keep:
 
-* **Ratings** - expected shots, shooting percentage (with the expected opposing goalie) and the
+* **Ratings** - expected shots, shooting percentage (against the opposing goalie) and the
   goals-only rating, in logs because scoring is multiplicative.
-* **The expected goalie** - see :mod:`nhl.ratings`. The confidence of the top pick is a feature
-  too: a coin-flip tandem is worth knowing about.
+* **The goalie in net** - each goalie's own rating (see :mod:`nhl.ratings`). Training rows use
+  the starter each game actually had, which is what a confirmed starter tells the board; the
+  board uses the day's news where there is any and the book's guess from recent starts where
+  there is not.
 * **Back-to-backs, rest and three-in-four** - the schedule effects hockey is known for, and the
   largest non-rating coefficients the models fit. A team on the second night of a back-to-back
   concedes more (tired skaters, usually its backup in net).
@@ -44,8 +46,10 @@ log = logging.getLogger(__name__)
 REST_CAP = 7
 EARLY_GAMES = 10
 
-# Side features for the model used when there is no market number yet.
-BASE_FEATURES = ["log_lam", "log_L", "log_S", "log_p", "opp_goalie", "own_goalie_conf",
+# Side features for the model used when there is no market number yet. The models are fitted
+# on the starters games actually had, so how sure a guess about the starter was is not among
+# them - on a training row the starter is always known.
+BASE_FEATURES = ["log_lam", "log_L", "log_S", "log_p", "opp_goalie",
                  "is_home", "playoff", "own_b2b", "opp_b2b", "own_rest", "opp_rest",
                  "own_km", "opp_km", "own_tz_abs", "opp_tz_abs", "own_3in4", "opp_3in4", "early"]
 # Side features for the market-aware model. The market's own number is not among them: it is
@@ -100,28 +104,65 @@ def schedule_features(games: pd.DataFrame, today=None) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def _row(book: RatingBook, r, sched: dict, pending_today: set | None = None) -> dict:
+def _row(book: RatingBook, r, sched: dict, pending_today: set | None = None,
+         known: dict | None = None) -> dict:
+    """One game's pre-game features from the book's state before it.
+
+    ``known`` says who starts in net - ``{"h": {goalie_id: p}, "a": {...}}``. In training it is
+    the actual starter, which is what a confirmed starter is; on the board it is the
+    starting-goalie feed blended with the book's own guess. Without it, the book's guess alone.
+    """
     h, a = r.home_team, r.away_team
     s = sched.get(r.game_id, {})
     h_b2b, a_b2b = bool(s.get("h_b2b", 0)), bool(s.get("a_b2b", 0))
     pend = pending_today or set()
-    g_h, probs_h = book.expected_goalie(h, h_b2b, pending_today=h in pend)
-    g_a, probs_a = book.expected_goalie(a, a_b2b, pending_today=a in pend)
+    _, probs_h = book.expected_goalie(h, h_b2b, pending_today=h in pend)
+    _, probs_a = book.expected_goalie(a, a_b2b, pending_today=a in pend)
+    known = known or {}
+    probs_h, probs_a = _mix(book, probs_h, known.get("h")), _mix(book, probs_a, known.get("a"))
+    g_h, g_a = book.rating(probs_h), book.rating(probs_a)
     e = book.expect(h, a, g_vs_home=g_a, g_vs_away=g_h)
-    top_h = max(probs_h, key=probs_h.get) if probs_h else None
-    top_a = max(probs_a, key=probs_a.get) if probs_a else None
-    return {
-        "S_h": e["S_h"], "S_a": e["S_a"], "p_h": e["p_h"], "p_a": e["p_a"],
-        "lam_h": e["lam_h"], "lam_a": e["lam_a"], "L_h": e["L_h"], "L_a": e["L_a"],
-        "g_h_exp": g_h, "g_a_exp": g_a,
-        "g_h_conf": probs_h[top_h] if top_h is not None else 0.0,
-        "g_a_conf": probs_a[top_a] if top_a is not None else 0.0,
-        "g_h_top": book.goalie_name.get(top_h, "") if top_h is not None else "",
-        "g_a_top": book.goalie_name.get(top_a, "") if top_a is not None else "",
-        "h_games": book.games[h], "a_games": book.games[a],
-        **{k: s.get(k, np.nan) for k in ("h_rest", "a_rest", "h_b2b", "a_b2b", "h_3in4",
-                                          "a_3in4", "h_km", "a_km", "h_tz", "a_tz")},
-    }
+    out = {"S_h": e["S_h"], "S_a": e["S_a"], "p_h": e["p_h"], "p_a": e["p_a"],
+           "lam_h": e["lam_h"], "lam_a": e["lam_a"], "L_h": e["L_h"], "L_a": e["L_a"],
+           "g_h_exp": g_h, "g_a_exp": g_a, "h_games": book.games[h], "a_games": book.games[a]}
+    for side, team, probs in (("h", h, probs_h), ("a", a, probs_a)):
+        top = max(probs, key=probs.get) if probs else None
+        out[f"g_{side}_id"] = top
+        out[f"g_{side}_conf"] = probs[top] if top is not None else 0.0
+        out[f"g_{side}_top"] = book.goalie_name.get(top, "") if top is not None else ""
+        out[f"g_{side}_backup"] = int(book.is_backup(team, top))
+        out[f"g_{side}_status"] = (known.get(side) or {}).get("status", "")
+    out.update({k: s.get(k, np.nan) for k in ("h_rest", "a_rest", "h_b2b", "a_b2b", "h_3in4",
+                                               "a_3in4", "h_km", "a_km", "h_tz", "a_tz")})
+    return out
+
+
+def _mix(book: RatingBook, probs: dict, k: dict | None) -> dict:
+    """The book's guess about who starts, moved toward a named goalie by ``k["weight"]``.
+
+    Weight 1 is a confirmed starter and replaces the guess outright; a likely or projected one
+    keeps the rest of the guess, so a coin-flip tandem stays uncertain until the news is firm.
+    """
+    if not k or k.get("id") is None or k["id"] != k["id"]:
+        return probs
+    gid, w = int(k["id"]), float(k.get("weight", 1.0))
+    if k.get("name"):
+        book.goalie_name.setdefault(gid, str(k["name"]))
+    if not probs or w >= 1:
+        return {gid: 1.0}
+    out = {g: (1 - w) * p for g, p in probs.items()}
+    out[gid] = out.get(gid, 0.0) + w
+    return out
+
+
+def _actual(r) -> dict:
+    """The starters a game actually had - what a confirmed starter is - where the logs have them."""
+    out = {}
+    for side, gid in (("h", getattr(r, "home_goalie_id", None)),
+                      ("a", getattr(r, "away_goalie_id", None))):
+        if gid is not None and gid == gid:
+            out[side] = {"id": int(gid), "weight": 1.0, "status": "actual"}
+    return out
 
 
 def goalie_goals(g: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
@@ -152,11 +193,17 @@ def goalie_goals(g: pd.DataFrame) -> tuple[pd.Series, pd.Series]:
 def build(games: pd.DataFrame, lines: pd.DataFrame | None = None,
           upcoming: pd.DataFrame | None = None, table=None,
           cfg: RatingConfig | None = None, first_train_season: int | None = None,
-          today=None) -> tuple[pd.DataFrame, pd.DataFrame, RatingBook]:
+          today=None, starters: str = "actual", board_starters: dict | None = None,
+          ) -> tuple[pd.DataFrame, pd.DataFrame, RatingBook]:
     """Replay every completed game; emit one pre-game row per game from the training window.
 
     Seasons before `first_train_season` are warm-up: they advance the ratings and the goalie
     tracker but emit no rows. ``upcoming`` rows (the board) are priced off the final state.
+
+    ``starters`` picks who is in net on the training rows: ``"actual"`` - the starter each game
+    really had, which is what a confirmed starter tells the board - or ``"expected"``, the
+    book's own guess from recent starts and the back-to-back rule. ``board_starters`` maps a
+    board game id to ``{"h": {goalie_id: p}, "a": {...}}`` from the starting-goalie feed.
     """
     first = config.FIRST_SEASON if first_train_season is None else first_train_season
     today = today or config.today_et()
@@ -179,7 +226,7 @@ def build(games: pd.DataFrame, lines: pd.DataFrame | None = None,
             if gid == gid and gid is not None and name == name and name:
                 book.goalie_name[int(gid)] = str(name)
         if int(r.season) >= first:
-            row = _row(book, r, sched)
+            row = _row(book, r, sched, known=_actual(r) if starters == "actual" else None)
             row.update({"game_id": r.game_id, "season": int(r.season), "date": r.date,
                         "game_type": r.game_type, "home_team": r.home_team,
                         "away_team": r.away_team, "home_goals": r.home_goals,
@@ -204,9 +251,10 @@ def build(games: pd.DataFrame, lines: pd.DataFrame | None = None,
                 first_date.setdefault(t, r.date)
         season_now = int(up["season"].max()) if "season" in up else config.season_of(today)
         book.rollover(season_now)
+        board_starters = board_starters or {}
         for r in up.itertuples(index=False):
             pend = {t for t in (r.home_team, r.away_team) if first_date.get(t, r.date) < r.date}
-            row = _row(book, r, sched, pending_today=pend)
+            row = _row(book, r, sched, pending_today=pend, known=board_starters.get(r.game_id))
             row.update({k: v for k, v in r._asdict().items() if k not in row})
             up_rows.append(row)
     board = pd.DataFrame(up_rows)
