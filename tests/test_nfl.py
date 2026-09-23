@@ -1328,3 +1328,47 @@ def _rendered_text(html: str) -> str:
     import re
     body = re.sub(r"<script\b.*?</script>", "", html, flags=re.S | re.I)
     return re.sub(r"<style\b.*?</style>", "", body, flags=re.S | re.I).lower()
+
+
+def test_each_pick_carries_the_season_hit_rate_at_its_own_disagreement(env):
+    """The live cover-rate table sits below the whole board. Each card now shows the row it
+    falls in, uncoloured while the bucket is too thin to say anything, and a floating button
+    jumps to the table itself."""
+    import json
+    from nfl import site
+
+    def edge(bucket, wins, losses):
+        return {"bucket": bucket, "n": wins + losses, "wins": wins, "losses": losses,
+                "pushes": 0, "win_pct": round(100 * wins / (wins + losses), 1)}
+
+    metrics = {"updated": "2026-09-22", "sport": "nfl", "break_even": 51.75,
+               "totals": {"by_edge": [edge("0-1", 4, 5), edge("7-+", 1, 0)]},
+               "spreads": {"by_edge": [edge("1-2", 14, 9), edge("2-3", 1, 4)]}}
+    rows = site._hit_rows(metrics)
+    assert [r["label"] for r in rows] == ["0–1", "1–2", "2–3", "7+"]
+    assert site._hit_for(rows, "spread", -1.6)["tone"] == "up"
+    assert site._hit_for(rows, "spread", 2.8)["tone"] == "", "1-4 is too few games to colour"
+    assert site._hit_for(rows, "total", 9.5)["wins"] == 1
+    assert site._hit_for(rows, "total", 1.5) is None
+    assert site._hit_for(rows, "total", None) is None
+
+    env.ensure_dirs()
+    pd.DataFrame([{
+        "prediction_date": "2026-09-22", "game_id": "g1", "season": 2026, "week": 3,
+        "date": "2026-09-22", "tip_et": "Mon Sep 22, 8:15 PM",
+        "home_team": "KC", "away_team": "IND", "neutral_site": False,
+        "total_line": 45.5, "spread_home": -6.5, "total_raw": 45.1, "total_disagree": -0.4,
+        "total_pick": "Under", "total_strength": "pass", "margin_raw": 8.1,
+        "margin_disagree": 1.6, "spread_pick": "KC -6.5", "spread_strength": "pass",
+        "thin_data": False, "kalshi_incoherent": False,
+    }]).to_csv(env.PICKS, index=False)
+    env.METRICS.write_text(json.dumps(metrics))
+
+    site.build()
+    html = (env.DOCS / "index.html").read_text()
+    assert 'Hit <b class="">44.4%</b> (4-5) this season at 0–1 pts off' in html
+    assert 'Hit <b class="up">60.9%</b> (14-9) this season at 1–2 pts off' in html
+    assert 'id="jump" href="#stats"' in html and 'id="stats"' in html and 'id="top"' in html
+    if "Recent results" in html:
+        assert html.index("Cover rate by model disagreement") < html.index("Recent results")
+    assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"

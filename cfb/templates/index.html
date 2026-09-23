@@ -8,7 +8,9 @@
   :root{--bg:#0d0e11;--card:#171a1f;--card2:#1e2229;--line:#2a2e36;--fg:#e9eaec;--dim:#98a0aa;
         --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:64px}
+  html{scroll-behavior:smooth}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:88px}
   header,main,footer{max-width:960px;margin:0 auto;padding:0 16px}
   .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 6px}
   h1{font-size:21px;font-weight:600}
@@ -40,6 +42,9 @@
   .bet .l{font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;display:flex;gap:6px;align-items:center}
   .bet .p{font-size:18px;font-weight:600;line-height:1.25}
   .bet .d{font-size:12px;color:var(--dim);margin-top:5px}
+  .bet .hit{font-size:12px;color:var(--dim);margin-top:3px}
+  .bet .hit b{color:var(--fg);font-variant-numeric:tabular-nums}
+  .bet .hit .up{color:var(--good)} .bet .hit .down{color:var(--bad)}
   .exch{margin:0 14px 14px;background:var(--card2);border-radius:9px;padding:10px 12px}
   .exrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;padding:4px 0}
   .exrow + .exrow{border-top:1px solid var(--line)}
@@ -63,11 +68,20 @@
   nav.sports{display:flex;gap:8px;margin:0 0 4px;flex-wrap:wrap}
   nav.sports .chip{text-decoration:none}
   nav.sports .chip[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  #stats{scroll-margin-top:12px}
+  /* floating jump: down to the hit-rate and results tables, back up once there */
+  .jump{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:10;
+        display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 16px;border-radius:999px;
+        background:var(--accent);color:#06121f;font-size:14px;font-weight:600;text-decoration:none;
+        box-shadow:0 4px 14px rgba(0,0,0,.5);-webkit-tap-highlight-color:transparent}
+  .jump svg{transition:transform .2s}
+  .jump.up svg{transform:rotate(180deg)}
+  @media print{.jump{display:none}}
   @media(max-width:560px){.bets{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header>
+<header id="top">
   <nav class="sports" aria-label="Sport">
     <a class="chip" href="../">&larr; All sports</a>
     <a class="chip" aria-current="page" href="./">College football</a>
@@ -155,11 +169,13 @@
         <div class="l">Total <span class="tag {{ 'early' if g.total_strength == 'thin' else g.total_strength }}">{{ 'no play' if g.total_strength in ('thin','pass') else g.total_strength }}</span></div>
         <div class="p">{{ g.total_pick }} {{ g.total_line }}</div>
         <div class="d">model {{ g.total_raw }} &middot; {{ '%+.1f'|format(g.total_disagree or 0) }} vs line</div>
+        {% if g.total_hit %}<div class="hit">Hit <b class="{{ g.total_hit.tone }}">{{ g.total_hit.win_pct }}%</b> ({{ g.total_hit.wins }}-{{ g.total_hit.losses }}) this season at {{ g.total_hit.label }} pts off</div>{% endif %}
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag {{ 'early' if g.spread_strength == 'thin' else g.spread_strength }}">{{ 'no play' if g.spread_strength in ('thin','pass') else g.spread_strength }}</span></div>
         <div class="p">{{ g.spread_pick }}</div>
         <div class="d">model margin {{ g.margin_raw }} &middot; {{ '%+.1f'|format(g.margin_disagree or 0) }} vs line</div>
+        {% if g.spread_hit %}<div class="hit">Hit <b class="{{ g.spread_hit.tone }}">{{ g.spread_hit.win_pct }}%</b> ({{ g.spread_hit.wins }}-{{ g.spread_hit.losses }}) this season at {{ g.spread_hit.label }} pts off</div>{% endif %}
       </div>
     </div>
     {% if g.kt_pays or g.ks_pays or g.ml_pays %}
@@ -206,6 +222,27 @@
   {% endif %}
 </section>
 
+<div id="stats">
+{% if hit_rows %}
+<section>
+  <h2>Cover rate by model disagreement</h2>
+  <table>
+    <tr><th>|Model − line|</th><th>Totals</th><th>Win%</th><th>Spreads</th><th>Win%</th></tr>
+    {% for row in hit_rows %}
+    <tr><td>{{ row.label }} pts</td>
+      <td>{% if row.total %}{{ row.total.wins }}-{{ row.total.losses }}{% endif %}</td>
+      <td class="{{ row.total.tone if row.total }}">{% if row.total %}{{ row.total.win_pct }}%{% endif %}</td>
+      <td>{% if row.spread %}{{ row.spread.wins }}-{{ row.spread.losses }}{% endif %}</td>
+      <td class="{{ row.spread.tone if row.spread }}">{% if row.spread %}{{ row.spread.win_pct }}%{% endif %}</td></tr>
+    {% endfor %}
+  </table>
+  <p class="sub" style="margin-top:8px">Every graded game this season, bucketed by how far the
+    model sat from the line &mdash; each pick above shows the row it falls in. Green clears the
+    {{ m.break_even }}% break-even and red falls short; a bucket stays uncoloured until it has
+    {{ hit_min }} games.</p>
+</section>
+{% endif %}
+
 {% if results %}
 <section>
   <h2>Recent results</h2>
@@ -225,20 +262,7 @@
 </section>
 {% endif %}
 
-{% if m.totals and m.totals.by_edge %}
-<section>
-  <h2>Cover rate by model disagreement</h2>
-  <table>
-    <tr><th>|Model − line|</th><th>Totals</th><th>Win%</th><th>Spreads</th><th>Win%</th></tr>
-    {% for row in m.totals.by_edge %}
-    {% set sp = (m.spreads.by_edge | selectattr('bucket','equalto',row.bucket) | list | first) %}
-    <tr><td>{{ row.bucket }}</td><td>{{ row.wins }}-{{ row.losses }}</td><td>{{ row.win_pct }}%</td>
-      <td>{% if sp %}{{ sp.wins }}-{{ sp.losses }}{% endif %}</td>
-      <td>{% if sp %}{{ sp.win_pct }}%{% endif %}</td></tr>
-    {% endfor %}
-  </table>
-</section>
-{% endif %}
+</div>
 
 <section>
   <div class="note">
@@ -254,6 +278,14 @@
   <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
   {% if support_url %}<br><a href="{{ support_url }}" rel="noopener">{{ support_label }}</a>{% endif %}
 </footer>
+
+{% if hit_rows or results %}
+<a class="jump" id="jump" href="#stats"
+   aria-label="Jump to {{ 'hit rate and recent results' if hit_rows else 'recent results' }}">
+  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v11M3.5 9 8 13.5 12.5 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span class="jl">{{ 'Hit rate' if hit_rows else 'Results' }}</span>
+</a>
+{% endif %}
 
 <script>
 (function () {
@@ -313,6 +345,31 @@
   });
   q.addEventListener('input', function () { state.q = q.value.trim().toLowerCase(); apply(); });
   apply();
+})();
+
+(function () {
+  // The jump button is a plain anchor, so it works with scripts off. This only flips it to
+  // "back to top" once the tables it points at are on screen.
+  var fab = document.getElementById('jump');
+  var stats = document.getElementById('stats');
+  if (!fab || !stats) return;
+  var label = fab.querySelector('.jl');
+  var downText = label.textContent, downAria = fab.getAttribute('aria-label');
+  var queued = false;
+  function sync() {
+    queued = false;
+    var down = stats.getBoundingClientRect().top > window.innerHeight / 2;
+    fab.classList.toggle('up', !down);
+    fab.setAttribute('href', down ? '#stats' : '#top');
+    fab.setAttribute('aria-label', down ? downAria : 'Back to top');
+    label.textContent = down ? downText : 'Top';
+  }
+  function queue() { if (!queued) { queued = true; requestAnimationFrame(sync); } }
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  // filtering the board moves the tables without firing a scroll event
+  if (window.ResizeObserver) new ResizeObserver(queue).observe(document.body);
+  sync();
 })();
 </script>
 </body>

@@ -891,3 +891,75 @@ def test_the_fbs_flag_survives_into_picks_for_the_record_split(env):
     src = pathlib.Path(predict.__file__).read_text()
     keep_block = src.split("keep = [", 1)[1].split("]", 1)[0]
     assert '"fbs"' in keep_block, "`fbs` dropped from the keep list - the record split goes blind"
+
+
+def _edge(bucket, wins, losses):
+    return {"bucket": bucket, "n": wins + losses, "wins": wins, "losses": losses, "pushes": 0,
+            "win_pct": round(100 * wins / (wins + losses), 1)}
+
+
+def test_each_pick_carries_the_season_hit_rate_at_its_own_disagreement(env):
+    """The cover-rate-by-disagreement table sat under a board of 70+ games, so on a phone the
+    one number that says how often a pick at this gap has landed was a very long scroll away.
+    Each card now shows the row it falls in, and a floating button jumps to the table."""
+    import json
+    import numpy as np
+    from cfb import site
+
+    metrics = {"updated": "2026-09-04", "break_even": 51.75,
+               "totals": {"by_edge": [_edge("0-1", 37, 29), _edge("1-2", 12, 18),
+                                      _edge("7-+", 3, 1)]},
+               "spreads": {"by_edge": [_edge("2-3", 36, 20), _edge("5-7", 0, 9)]}}
+    rows = site._hit_rows(metrics)
+    # the union of both markets in bucket order, so a bucket one side lacks keeps its row
+    assert [r["label"] for r in rows] == ["0–1", "1–2", "2–3", "5–7", "7+"]
+    # coloured against break-even only once a bucket has enough games to mean something
+    assert site._hit_for(rows, "total", 0.4)["tone"] == "up"
+    assert site._hit_for(rows, "total", -1.9)["tone"] == "down"
+    assert site._hit_for(rows, "total", 12.0)["tone"] == "", "3-1 is not evidence"
+    assert site._hit_for(rows, "spread", 5.0)["tone"] == "", "and 0-9 is not, yet"
+    # sign does not matter, and a bucket is [lo, hi) exactly as the grader cut it
+    assert site._hit_for(rows, "spread", -2.0)["wins"] == 36
+    assert site._hit_for(rows, "spread", 3.0) is None
+    assert site._hit_for(rows, "total", 2.5) is None, "only spreads have games at 2-3"
+    for blank in (None, float("nan"), "", "nan"):
+        assert site._hit_for(rows, "total", blank) is None
+    assert site._bucket_range("garbage") is None
+
+    env.ensure_dirs()
+    pd.DataFrame([{
+        "prediction_date": "2026-09-04", "game_id": "g1", "season": 2026, "week": 1,
+        "date": "2026-09-04", "tip_et": "Fri Sep 04, 6:30 PM",
+        "home_team": "Eastern Michigan", "away_team": "San José State",
+        "neutral_site": False, "total_line": 56.0, "spread_home": -3.0,
+        "total_raw": 56.4, "total_disagree": 0.4, "total_pick": "Over", "total_strength": "pass",
+        "margin_raw": 5.4, "margin_disagree": -2.4, "spread_pick": "San José State +3.0",
+        "spread_strength": "pass", "thin_data": False,
+        "kt_pick": np.nan, "ks_pick": np.nan, "ml_pick": np.nan, "kalshi_incoherent": False,
+    }]).to_csv(env.PICKS, index=False)
+    env.METRICS.write_text(json.dumps(metrics))
+
+    site.build()
+    html = (env.DOCS / "index.html").read_text()
+    assert 'Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off' in html
+    assert "(36-20) this season at 2–3 pts off" in html
+    assert 'id="jump" href="#stats"' in html and 'id="stats"' in html and 'id="top"' in html
+    # the hit-rate table is the jump's first stop, ahead of the results log
+    if "Recent results" in html:
+        assert html.index("Cover rate by model disagreement") < html.index("Recent results")
+    assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
+
+
+def test_no_jump_button_when_there_is_nothing_below_the_board(env):
+    """Before any game is graded there is no table to jump to, so no button pointing at one."""
+    import json
+    from cfb import site
+
+    env.ensure_dirs()
+    env.METRICS.write_text(json.dumps({"updated": "2026-09-04", "break_even": 51.75}))
+    if env.RESULTS.exists():
+        env.RESULTS.unlink()
+    site.build()
+    html = (env.DOCS / "index.html").read_text()
+    assert 'id="jump"' not in html
+    assert 'class="hit"' not in html

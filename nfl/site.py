@@ -240,6 +240,63 @@ def _backtest_buckets() -> dict:
             "break_even": ev.get("break_even_pct")}
 
 
+# A disagreement bucket needs this many graded games before the page colours its hit rate
+# against break-even. The record is printed either way, but colour is what gets read at a
+# glance, and 3-1 is 75% while meaning nothing.
+HIT_RATE_MIN_N = 20
+
+
+def _bucket_range(label) -> tuple[float, float] | None:
+    """Read a grader bucket label back into bounds: "2-3" -> (2, 3), "7-+" -> (7, inf).
+
+    The grader owns the bucket edges. Parsing its labels rather than restating the edges here
+    means a pick can never be matched to a different bucket than the table beside it shows.
+    """
+    lo, _, hi = str(label or "").partition("-")
+    try:
+        return float(lo), (float("inf") if hi == "+" else float(hi))
+    except ValueError:
+        return None
+
+
+def _hit_rows(metrics: dict) -> list[dict]:
+    """This season's hit rate by model-vs-line disagreement, totals and spreads side by side.
+
+    Built from the union of both markets' buckets, so a bucket only one market has reached
+    still gets a row instead of vanishing because the other side had no games in it.
+    """
+    be = metrics.get("break_even")
+    rows: dict[str, dict] = {}
+    for key, side in (("totals", "total"), ("spreads", "spread")):
+        for r in (metrics.get(key) or {}).get("by_edge") or []:
+            bounds = _bucket_range(r.get("bucket"))
+            if bounds is None:
+                continue
+            lo, hi = bounds
+            row = rows.setdefault(r["bucket"], {
+                "lo": lo, "hi": hi, "total": None, "spread": None,
+                "label": f"{lo:g}+" if hi == float("inf") else f"{lo:g}–{hi:g}"})
+            tone = ""
+            if be is not None and (r.get("n") or 0) >= HIT_RATE_MIN_N:
+                tone = "up" if (r.get("win_pct") or 0) > be else "down"
+            row[side] = {**r, "tone": tone}
+    return sorted(rows.values(), key=lambda r: r["lo"])
+
+
+def _hit_for(rows: list[dict], side: str, disagree) -> dict | None:
+    """The season record at a pick's own disagreement, for one market, or None."""
+    try:
+        gap = abs(float(disagree))
+    except (TypeError, ValueError):
+        return None
+    if gap != gap:
+        return None
+    for r in rows:
+        if r["lo"] <= gap < r["hi"]:
+            return {**r[side], "label": r["label"]} if r[side] else None
+    return None
+
+
 def _days(picks: list[dict]) -> list[dict]:
     """Distinct kickoff days in order, for the day tabs."""
     seen: dict[str, str] = {}
@@ -257,8 +314,15 @@ def build() -> None:
     env.filters["money"] = lambda v: ("+" if (v or 0) >= 0 else "") + f"{v or 0:.2f}"
     picks, week = _board()
     metrics = _metrics()
+    # Each card carries the season record at its own disagreement, so the hit rate is read
+    # where the pick is, not in a table below the whole board.
+    hit_rows = _hit_rows(metrics)
+    for g in picks:
+        g["total_hit"] = _hit_for(hit_rows, "total", g.get("total_disagree"))
+        g["spread_hit"] = _hit_for(hit_rows, "spread", g.get("margin_disagree"))
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, m=metrics, week=week,
+        hit_rows=hit_rows, hit_min=HIT_RATE_MIN_N,
         results=_recent_results(), venue=config.VENUE, model=_model_note(),
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL,
         days=_days(picks), updated=metrics.get("updated", ""),
