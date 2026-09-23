@@ -8,7 +8,9 @@
   :root{--bg:#0d0e11;--card:#171a1f;--card2:#1e2229;--line:#2a2e36;--fg:#e9eaec;--dim:#98a0aa;
         --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:64px}
+  html{scroll-behavior:smooth}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:88px}
   header,main,footer{max-width:960px;margin:0 auto;padding:0 16px}
   .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 6px}
   h1{font-size:21px;font-weight:600}
@@ -40,6 +42,9 @@
   .bet .l{font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;display:flex;gap:6px;align-items:center}
   .bet .p{font-size:18px;font-weight:600;line-height:1.25}
   .bet .d{font-size:12px;color:var(--dim);margin-top:5px}
+  .bet .hit{font-size:12px;color:var(--dim);margin-top:3px}
+  .bet .hit b{color:var(--fg);font-variant-numeric:tabular-nums}
+  .bet .hit .up{color:var(--good)} .bet .hit .down{color:var(--bad)}
   .exch{margin:0 14px 14px;background:var(--card2);border-radius:9px;padding:10px 12px}
   .exrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;padding:4px 0}
   .exrow + .exrow{border-top:1px solid var(--line)}
@@ -63,11 +68,20 @@
   nav.sports{display:flex;gap:8px;margin:0 0 4px;flex-wrap:wrap}
   nav.sports .chip{text-decoration:none}
   nav.sports .chip[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  #stats{scroll-margin-top:12px}
+  /* floating jump: down to the hit-rate and results tables, back up once there */
+  .jump{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:10;
+        display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 16px;border-radius:999px;
+        background:var(--accent);color:#06121f;font-size:14px;font-weight:600;text-decoration:none;
+        box-shadow:0 4px 14px rgba(0,0,0,.5);-webkit-tap-highlight-color:transparent}
+  .jump svg{transition:transform .2s}
+  .jump.up svg{transform:rotate(180deg)}
+  @media print{.jump{display:none}}
   @media(max-width:560px){.bets{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<header>
+<header id="top">
   <nav class="sports" aria-label="Sport">
     <a class="chip" href="../">&larr; All sports</a>
     <a class="chip" aria-current="page" href="./">College football</a>
@@ -160,11 +174,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 51.5</div>
         <div class="d">model 52.0 &middot; +0.5 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag play">play</span></div>
         <div class="p">Kent State -3.5</div>
         <div class="d">model margin 7.5 &middot; +4.0 vs line</div>
+        <div class="hit">Hit <b class="up">57.1%</b> (24-18) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -213,11 +229,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 58.5</div>
         <div class="d">model 54.8 &middot; -3.7 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Florida -3.5</div>
         <div class="d">model margin 4.7 &middot; +1.2 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -266,11 +284,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 59.5</div>
         <div class="d">model 59.0 &middot; -0.5 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">West Virginia -1.5</div>
         <div class="d">model margin 4.2 &middot; +2.7 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -319,11 +339,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 50.5</div>
         <div class="d">model 53.0 &middot; +2.5 vs line</div>
+        <div class="hit">Hit <b class="up">59.2%</b> (29-20) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Coastal Carolina +2.5</div>
         <div class="d">model margin -1.2 &middot; +1.3 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -372,11 +394,13 @@
         <div class="l">Total <span class="tag play">play</span></div>
         <div class="p">Under 57.5</div>
         <div class="d">model 51.9 &middot; -5.6 vs line</div>
+        <div class="hit">Hit <b class="up">64.0%</b> (16-9) this season at 5–7 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag bold">bold</span></div>
         <div class="p">Notre Dame -27.5</div>
         <div class="d">model margin -36.0 &middot; -8.5 vs line</div>
+        <div class="hit">Hit <b class="">62.5%</b> (5-3) this season at 7+ pts off</div>
       </div>
     </div>
     
@@ -425,11 +449,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 54.5</div>
         <div class="d">model 59.3 &middot; +4.8 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag play">play</span></div>
         <div class="p">Western Kentucky -37.5</div>
         <div class="d">model margin 44.2 &middot; +6.7 vs line</div>
+        <div class="hit">Hit <b class="">0.0%</b> (0-9) this season at 5–7 pts off</div>
       </div>
     </div>
     
@@ -478,11 +504,13 @@
         <div class="l">Total <span class="tag play">play</span></div>
         <div class="p">Over 51.5</div>
         <div class="d">model 57.9 &middot; +6.4 vs line</div>
+        <div class="hit">Hit <b class="up">64.0%</b> (16-9) this season at 5–7 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Long Island University +34.5</div>
         <div class="d">model margin 32.7 &middot; -1.8 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -531,11 +559,13 @@
         <div class="l">Total <span class="tag play">play</span></div>
         <div class="p">Over 48.5</div>
         <div class="d">model 54.7 &middot; +6.2 vs line</div>
+        <div class="hit">Hit <b class="up">64.0%</b> (16-9) this season at 5–7 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Georgia Tech -3.5</div>
         <div class="d">model margin -5.8 &middot; -2.3 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -584,11 +614,13 @@
         <div class="l">Total <span class="tag play">play</span></div>
         <div class="p">Over 48.5</div>
         <div class="d">model 54.5 &middot; +6.0 vs line</div>
+        <div class="hit">Hit <b class="up">64.0%</b> (16-9) this season at 5–7 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag play">play</span></div>
         <div class="p">Bowling Green +17.5</div>
         <div class="d">model margin -13.0 &middot; +4.5 vs line</div>
+        <div class="hit">Hit <b class="up">57.1%</b> (24-18) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -637,11 +669,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 61.5</div>
         <div class="d">model 61.6 &middot; +0.1 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag early">no play</span></div>
         <div class="p">Incarnate Word +30.5</div>
         <div class="d">model margin 24.6 &middot; -5.9 vs line</div>
+        <div class="hit">Hit <b class="">0.0%</b> (0-9) this season at 5–7 pts off</div>
       </div>
     </div>
     
@@ -690,11 +724,13 @@
         <div class="l">Total <span class="tag play">play</span></div>
         <div class="p">Under 62.5</div>
         <div class="d">model 57.3 &middot; -5.2 vs line</div>
+        <div class="hit">Hit <b class="up">64.0%</b> (16-9) this season at 5–7 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">USC +3.0</div>
         <div class="d">model margin -1.3 &middot; +1.7 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -743,11 +779,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 44.5</div>
         <div class="d">model 49.4 &middot; +4.9 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Wyoming +3.0</div>
         <div class="d">model margin 0.5 &middot; +3.5 vs line</div>
+        <div class="hit">Hit <b class="up">57.1%</b> (24-18) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -796,11 +834,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 53.5</div>
         <div class="d">model 58.0 &middot; +4.5 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag play">play</span></div>
         <div class="p">Howard +42.5</div>
         <div class="d">model margin 37.8 &middot; -4.7 vs line</div>
+        <div class="hit">Hit <b class="up">57.1%</b> (24-18) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -835,11 +875,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 48.5</div>
         <div class="d">model 53.1 &middot; +4.6 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Massachusetts -4.5</div>
         <div class="d">model margin -5.5 &middot; -1.0 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -888,11 +930,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 56.5</div>
         <div class="d">model 61.0 &middot; +4.5 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">UCLA -1.5</div>
         <div class="d">model margin -1.9 &middot; -0.4 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -941,11 +985,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 44.5</div>
         <div class="d">model 45.0 &middot; +0.5 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag play">play</span></div>
         <div class="p">Penn State -9.5</div>
         <div class="d">model margin 13.7 &middot; +4.2 vs line</div>
+        <div class="hit">Hit <b class="up">57.1%</b> (24-18) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -994,11 +1040,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 48.5</div>
         <div class="d">model 52.6 &middot; +4.1 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">UCF +3.0</div>
         <div class="d">model margin -2.4 &middot; +0.6 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -1047,11 +1095,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 48.5</div>
         <div class="d">model 50.2 &middot; +1.7 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag play">play</span></div>
         <div class="p">Louisiana -10.0</div>
         <div class="d">model margin -14.1 &middot; -4.1 vs line</div>
+        <div class="hit">Hit <b class="up">57.1%</b> (24-18) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -1100,11 +1150,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 49.5</div>
         <div class="d">model 53.6 &middot; +4.1 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Nevada +5.5</div>
         <div class="d">model margin -3.5 &middot; +2.0 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -1153,11 +1205,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 53.5</div>
         <div class="d">model 53.4 &middot; -0.1 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag play">play</span></div>
         <div class="p">Ohio State -27.5</div>
         <div class="d">model margin 31.5 &middot; +4.0 vs line</div>
+        <div class="hit">Hit <b class="up">57.1%</b> (24-18) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -1206,11 +1260,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 52.5</div>
         <div class="d">model 56.5 &middot; +4.0 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">UNLV -13.5</div>
         <div class="d">model margin -13.2 &middot; +0.3 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -1259,11 +1315,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 55.0</div>
         <div class="d">model 58.8 &middot; +3.8 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">NC State -14.0</div>
         <div class="d">model margin 14.6 &middot; +0.6 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -1312,11 +1370,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 50.5</div>
         <div class="d">model 54.3 &middot; +3.8 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Eastern Michigan -26.5</div>
         <div class="d">model margin 27.0 &middot; +0.5 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -1365,11 +1425,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 51.5</div>
         <div class="d">model 55.2 &middot; +3.7 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Ohio -32.5</div>
         <div class="d">model margin 35.4 &middot; +2.9 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -1418,11 +1480,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 48.5</div>
         <div class="d">model 52.2 &middot; +3.7 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Boston College +14.0</div>
         <div class="d">model margin -12.4 &middot; +1.6 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -1471,11 +1535,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 54.5</div>
         <div class="d">model 50.8 &middot; -3.7 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Auburn -9.5</div>
         <div class="d">model margin 10.5 &middot; +1.0 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -1524,11 +1590,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 53.5</div>
         <div class="d">model 54.7 &middot; +1.2 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">North Carolina Central +34.5</div>
         <div class="d">model margin 30.9 &middot; -3.6 vs line</div>
+        <div class="hit">Hit <b class="up">57.1%</b> (24-18) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -1577,11 +1645,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 52.5</div>
         <div class="d">model 53.6 &middot; +1.1 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Southern Miss +18.5</div>
         <div class="d">model margin 15.0 &middot; -3.5 vs line</div>
+        <div class="hit">Hit <b class="up">57.1%</b> (24-18) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -1630,11 +1700,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 60.5</div>
         <div class="d">model 63.4 &middot; +2.9 vs line</div>
+        <div class="hit">Hit <b class="up">59.2%</b> (29-20) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Central Arkansas +44.5</div>
         <div class="d">model margin 41.1 &middot; -3.4 vs line</div>
+        <div class="hit">Hit <b class="up">57.1%</b> (24-18) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -1683,11 +1755,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 54.5</div>
         <div class="d">model 55.2 &middot; +0.7 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">South Alabama +20.5</div>
         <div class="d">model margin 17.4 &middot; -3.1 vs line</div>
+        <div class="hit">Hit <b class="up">57.1%</b> (24-18) this season at 3–5 pts off</div>
       </div>
     </div>
     
@@ -1736,11 +1810,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 48.5</div>
         <div class="d">model 51.6 &middot; +3.1 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Michigan State +5.5</div>
         <div class="d">model margin -4.7 &middot; +0.8 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -1789,11 +1865,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 55.5</div>
         <div class="d">model 58.6 &middot; +3.1 vs line</div>
+        <div class="hit">Hit <b class="up">55.8%</b> (29-23) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Texas Tech -34.5</div>
         <div class="d">model margin 36.7 &middot; +2.2 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -1842,11 +1920,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 53.5</div>
         <div class="d">model 56.4 &middot; +2.9 vs line</div>
+        <div class="hit">Hit <b class="up">59.2%</b> (29-20) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Miami -41.5</div>
         <div class="d">model margin 43.2 &middot; +1.7 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -1895,11 +1975,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 49.5</div>
         <div class="d">model 52.4 &middot; +2.9 vs line</div>
+        <div class="hit">Hit <b class="up">59.2%</b> (29-20) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Boise State -7.0</div>
         <div class="d">model margin -8.7 &middot; -1.7 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -1948,11 +2030,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 48.5</div>
         <div class="d">model 45.8 &middot; -2.7 vs line</div>
+        <div class="hit">Hit <b class="up">59.2%</b> (29-20) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Utah -7.5</div>
         <div class="d">model margin -8.9 &middot; -1.4 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -2001,11 +2085,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 60.5</div>
         <div class="d">model 63.2 &middot; +2.7 vs line</div>
+        <div class="hit">Hit <b class="up">59.2%</b> (29-20) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Bucknell +49.5</div>
         <div class="d">model margin 47.6 &middot; -1.9 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -2047,11 +2133,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 62.5</div>
         <div class="d">model 63.7 &middot; +1.2 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">William &amp; Mary +43.5</div>
         <div class="d">model margin 40.9 &middot; -2.6 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -2100,11 +2188,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 51.5</div>
         <div class="d">model 53.9 &middot; +2.4 vs line</div>
+        <div class="hit">Hit <b class="up">59.2%</b> (29-20) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Navy -7.0</div>
         <div class="d">model margin -7.7 &middot; -0.7 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -2153,11 +2243,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 44.5</div>
         <div class="d">model 46.4 &middot; +1.9 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Fresno State -13.5</div>
         <div class="d">model margin 15.9 &middot; +2.4 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -2206,11 +2298,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 51.5</div>
         <div class="d">model 51.4 &middot; -0.1 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Miami (OH) -3.5</div>
         <div class="d">model margin 5.8 &middot; +2.3 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -2259,11 +2353,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 48.5</div>
         <div class="d">model 50.8 &middot; +2.3 vs line</div>
+        <div class="hit">Hit <b class="up">59.2%</b> (29-20) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">New Mexico State +11.5</div>
         <div class="d">model margin -10.3 &middot; +1.2 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -2312,11 +2408,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 38.5</div>
         <div class="d">model 40.1 &middot; +1.6 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Iowa +5.5</div>
         <div class="d">model margin 3.2 &middot; -2.3 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -2365,11 +2463,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 44.5</div>
         <div class="d">model 44.4 &middot; -0.1 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Georgia -14.0</div>
         <div class="d">model margin 16.1 &middot; +2.1 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -2418,11 +2518,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 52.5</div>
         <div class="d">model 53.6 &middot; +1.1 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">San Diego State +3.0</div>
         <div class="d">model margin 0.9 &middot; -2.1 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -2471,11 +2573,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 51.5</div>
         <div class="d">model 51.3 &middot; -0.2 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Gardner-Webb +22.5</div>
         <div class="d">model margin 20.5 &middot; -2.0 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -2524,11 +2628,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 52.5</div>
         <div class="d">model 54.0 &middot; +1.5 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Delaware +19.5</div>
         <div class="d">model margin 17.5 &middot; -2.0 vs line</div>
+        <div class="hit">Hit <b class="up">64.3%</b> (36-20) this season at 2–3 pts off</div>
       </div>
     </div>
     
@@ -2577,11 +2683,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 56.5</div>
         <div class="d">model 58.5 &middot; +2.0 vs line</div>
+        <div class="hit">Hit <b class="up">59.2%</b> (29-20) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Georgia State -10.0</div>
         <div class="d">model margin 11.7 &middot; +1.7 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -2630,11 +2738,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 44.5</div>
         <div class="d">model 46.4 &middot; +1.9 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">James Madison -6.0</div>
         <div class="d">model margin -6.0 &middot; +0.0 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -2683,11 +2793,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 53.5</div>
         <div class="d">model 53.1 &middot; -0.4 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Alabama -12.5</div>
         <div class="d">model margin 14.4 &middot; +1.9 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -2736,11 +2848,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 50.5</div>
         <div class="d">model 52.3 &middot; +1.8 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Tulsa +7.0</div>
         <div class="d">model margin 5.7 &middot; -1.3 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -2789,11 +2903,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 48.5</div>
         <div class="d">model 46.7 &middot; -1.8 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Arizona -10.0</div>
         <div class="d">model margin -10.0 &middot; +0.0 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -2842,11 +2958,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 55.5</div>
         <div class="d">model 57.1 &middot; +1.6 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Baylor -10.0</div>
         <div class="d">model margin 11.3 &middot; +1.3 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -2895,11 +3013,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 50.5</div>
         <div class="d">model 51.7 &middot; +1.2 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Clemson +1.5</div>
         <div class="d">model margin -0.0 &middot; -1.5 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -2948,11 +3068,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 55.5</div>
         <div class="d">model 54.0 &middot; -1.5 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Texas -5.5</div>
         <div class="d">model margin -5.3 &middot; +0.2 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -3001,11 +3123,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 58.0</div>
         <div class="d">model 59.4 &middot; +1.4 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">UTSA -13.0</div>
         <div class="d">model margin 14.5 &middot; +1.5 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -3054,11 +3178,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 51.5</div>
         <div class="d">model 51.8 &middot; +0.3 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Middle Tennessee +7.0</div>
         <div class="d">model margin 5.5 &middot; -1.5 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -3107,11 +3233,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 56.5</div>
         <div class="d">model 56.8 &middot; +0.3 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Georgia Southern +18.5</div>
         <div class="d">model margin -17.1 &middot; +1.4 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -3160,11 +3288,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 48.5</div>
         <div class="d">model 47.9 &middot; -0.6 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Troy +3.0</div>
         <div class="d">model margin 1.7 &middot; -1.3 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -3213,11 +3343,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 58.5</div>
         <div class="d">model 57.9 &middot; -0.6 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Mississippi State -6.5</div>
         <div class="d">model margin 7.8 &middot; +1.3 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -3266,11 +3398,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 48.5</div>
         <div class="d">model 49.4 &middot; +0.9 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Army -3.0</div>
         <div class="d">model margin -4.2 &middot; -1.2 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -3319,11 +3453,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 55.5</div>
         <div class="d">model 54.4 &middot; -1.1 vs line</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (42-28) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Oregon State -10.5</div>
         <div class="d">model margin -10.5 &middot; +0.0 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -3372,11 +3508,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 59.5</div>
         <div class="d">model 59.6 &middot; +0.1 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">SMU -34.5</div>
         <div class="d">model margin 35.6 &middot; +1.1 vs line</div>
+        <div class="hit">Hit <b class="down">49.3%</b> (34-35) this season at 1–2 pts off</div>
       </div>
     </div>
     
@@ -3425,11 +3563,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 49.5</div>
         <div class="d">model 48.9 &middot; -0.6 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Northwestern +21.0</div>
         <div class="d">model margin 20.1 &middot; -0.9 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -3478,11 +3618,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 58.5</div>
         <div class="d">model 58.6 &middot; +0.1 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Wake Forest +12.5</div>
         <div class="d">model margin 11.6 &middot; -0.9 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -3531,11 +3673,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 51.5</div>
         <div class="d">model 52.0 &middot; +0.5 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">LSU -8.5</div>
         <div class="d">model margin 9.4 &middot; +0.9 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -3584,11 +3728,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 57.5</div>
         <div class="d">model 57.8 &middot; +0.3 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">UL Monroe +13.5</div>
         <div class="d">model margin -12.7 &middot; +0.8 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -3610,11 +3756,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 44.5</div>
         <div class="d">model 43.8 &middot; -0.7 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Robert Morris +28.5</div>
         <div class="d">model margin 28.5 &middot; +0.0 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -3663,11 +3811,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 52.5</div>
         <div class="d">model 51.9 &middot; -0.6 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Kennesaw State +6.0</div>
         <div class="d">model margin 5.6 &middot; -0.4 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -3716,11 +3866,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 55.5</div>
         <div class="d">model 55.2 &middot; -0.3 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Kansas State -6.5</div>
         <div class="d">model margin -6.9 &middot; -0.4 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -3769,11 +3921,13 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 46.5</div>
         <div class="d">model 46.2 &middot; -0.3 vs line</div>
+        <div class="hit">Hit <b class="up">56.1%</b> (37-29) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">Minnesota +10.0</div>
         <div class="d">model margin 10.0 &middot; +0.0 vs line</div>
+        <div class="hit">Hit <b class="down">37.5%</b> (30-50) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -3815,6 +3969,57 @@
     than fair is the edge.</p>
   
 </section>
+
+<div id="stats">
+
+<section>
+  <h2>Cover rate by model disagreement</h2>
+  <table>
+    <tr><th>|Model − line|</th><th>Totals</th><th>Win%</th><th>Spreads</th><th>Win%</th></tr>
+    
+    <tr><td>0–1 pts</td>
+      <td>37-29</td>
+      <td class="up">56.1%</td>
+      <td>30-50</td>
+      <td class="down">37.5%</td></tr>
+    
+    <tr><td>1–2 pts</td>
+      <td>42-28</td>
+      <td class="up">60.0%</td>
+      <td>34-35</td>
+      <td class="down">49.3%</td></tr>
+    
+    <tr><td>2–3 pts</td>
+      <td>29-20</td>
+      <td class="up">59.2%</td>
+      <td>36-20</td>
+      <td class="up">64.3%</td></tr>
+    
+    <tr><td>3–5 pts</td>
+      <td>29-23</td>
+      <td class="up">55.8%</td>
+      <td>24-18</td>
+      <td class="up">57.1%</td></tr>
+    
+    <tr><td>5–7 pts</td>
+      <td>16-9</td>
+      <td class="up">64.0%</td>
+      <td>0-9</td>
+      <td class="">0.0%</td></tr>
+    
+    <tr><td>7+ pts</td>
+      <td>3-1</td>
+      <td class="">75.0%</td>
+      <td>5-3</td>
+      <td class="">62.5%</td></tr>
+    
+  </table>
+  <p class="sub" style="margin-top:8px">Every graded game this season, bucketed by how far the
+    model sat from the line &mdash; each pick above shows the row it falls in. Green clears the
+    51.75% break-even and red falls short; a bucket stays uncoloured until it has
+    20 games.</p>
+</section>
+
 
 
 <section>
@@ -3934,45 +4139,7 @@
 </section>
 
 
-
-<section>
-  <h2>Cover rate by model disagreement</h2>
-  <table>
-    <tr><th>|Model − line|</th><th>Totals</th><th>Win%</th><th>Spreads</th><th>Win%</th></tr>
-    
-    
-    <tr><td>0-1</td><td>37-29</td><td>56.1%</td>
-      <td>30-50</td>
-      <td>37.5%</td></tr>
-    
-    
-    <tr><td>1-2</td><td>42-28</td><td>60.0%</td>
-      <td>34-35</td>
-      <td>49.3%</td></tr>
-    
-    
-    <tr><td>2-3</td><td>29-20</td><td>59.2%</td>
-      <td>36-20</td>
-      <td>64.3%</td></tr>
-    
-    
-    <tr><td>3-5</td><td>29-23</td><td>55.8%</td>
-      <td>24-18</td>
-      <td>57.1%</td></tr>
-    
-    
-    <tr><td>5-7</td><td>16-9</td><td>64.0%</td>
-      <td>0-9</td>
-      <td>0.0%</td></tr>
-    
-    
-    <tr><td>7-+</td><td>3-1</td><td>75.0%</td>
-      <td>5-3</td>
-      <td>62.5%</td></tr>
-    
-  </table>
-</section>
-
+</div>
 
 <section>
   <div class="note">
@@ -3988,6 +4155,14 @@
   <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
   <br><a href="https://buymeacoffee.com/smcgee" rel="noopener">Buy me a coffee</a>
 </footer>
+
+
+<a class="jump" id="jump" href="#stats"
+   aria-label="Jump to hit rate and recent results">
+  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v11M3.5 9 8 13.5 12.5 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span class="jl">Hit rate</span>
+</a>
+
 
 <script>
 (function () {
@@ -4047,6 +4222,31 @@
   });
   q.addEventListener('input', function () { state.q = q.value.trim().toLowerCase(); apply(); });
   apply();
+})();
+
+(function () {
+  // The jump button is a plain anchor, so it works with scripts off. This only flips it to
+  // "back to top" once the tables it points at are on screen.
+  var fab = document.getElementById('jump');
+  var stats = document.getElementById('stats');
+  if (!fab || !stats) return;
+  var label = fab.querySelector('.jl');
+  var downText = label.textContent, downAria = fab.getAttribute('aria-label');
+  var queued = false;
+  function sync() {
+    queued = false;
+    var down = stats.getBoundingClientRect().top > window.innerHeight / 2;
+    fab.classList.toggle('up', !down);
+    fab.setAttribute('href', down ? '#stats' : '#top');
+    fab.setAttribute('aria-label', down ? downAria : 'Back to top');
+    label.textContent = down ? downText : 'Top';
+  }
+  function queue() { if (!queued) { queued = true; requestAnimationFrame(sync); } }
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  // filtering the board moves the tables without firing a scroll event
+  if (window.ResizeObserver) new ResizeObserver(queue).observe(document.body);
+  sync();
 })();
 </script>
 </body>
