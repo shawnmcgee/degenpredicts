@@ -17,10 +17,14 @@ No server, no manual uploads, no hosting bill.
   epl-grade.yml     daily 6:30am UTC → results → grade → results.csv, metrics.json
   epl-train.yml     Tuesdays        → refit models
   epl-source-check.yml     manual  → confirm football-data's odds columns, runs from a phone
+  nhl-predict.yml   twice daily     → schedule + prices → models → data/nhl/picks.csv → docs/nhl/
+  nhl-grade.yml     daily 7:45am ET → finals → grade → results.csv, metrics.json
+  nhl-train.yml     Tuesdays        → refit models, refit the late-game scoreline model
   test.yml          on push         → offline tests, one job per sport plus the landing page
 cfb/     college football pipeline (live now)
 nfl/     NFL pipeline (live now)
 epl/     Premier League pipeline (live now)
+nhl/     NHL pipeline (live from the 2026-27 season)
 ncaab/   basketball pipeline (built, dormant until November)
 core/    sport-neutral bits only: the landing page, shared settings
 ```
@@ -35,6 +39,7 @@ docs/
   cfb/index.html  ← college football board
   nfl/index.html  ← NFL board
   epl/index.html  ← Premier League board
+  nhl/index.html  ← NHL board
 ```
 
 `core/landing.py` imports nothing from `cfb`, `nfl` or `ncaab` — it reads the files those
@@ -933,6 +938,196 @@ A season showing matches but zero priced means the layout moved: add the new spe
 
 ---
 
+## NHL
+
+`nhl/` is the same architecture pointed at hockey — Actions as scheduler, repo as database, Pages
+as frontend; ratings replayed chronologically with a leak-free test in CI; market-aware models
+with shrinkage fitted walk-forward. It publishes a **puck line** and a **total** for every game.
+Three things are genuinely different, and the third is the one worth reading.
+
+### 1. Data: the NHL's own API, and two archives of closing lines
+
+| What | Source | Notes |
+|---|---|---|
+| Results, schedule, starting goalies, shots | NHL Stats API (`api.nhle.com/stats/rest`) | no key; `/game` returns a whole season **including unplayed games**, `/goalie/summary?isGame=true` every goalie's line for every game |
+| Live prices | The Odds API, `icehockey_nhl` | moneyline, puck line and total from every US book, **3 credits a run** |
+| Closing lines 2007-08 → 2022-23 | SportsbookReviewsOnline, compiled by [`ethanbell528-cmd/fda-project-1`](https://github.com/ethanbell528-cmd/fda-project-1) | closing moneyline and total; the ±1.5 puck line from 2014-15 **without its price**; no over/under price |
+| Priced lines 2023-24 → Jan 2026 | The Odds API's historical endpoint, pulled daily by [`nielsenz/odds-api-current-save`](https://github.com/nielsenz/odds-api-current-save) | noon-ET snapshots with prices for all three markets |
+
+The goalie logs are what make the NHL API better than a scores feed. Summed per team they give
+shots on goal, goals scored **against a goalie** (so empty-net goals can be separated from real
+ones), and who started. No free source publishes NHL closing lines going back years, so the two
+archives above were imported once (`python -m nhl.sources.history --lines`) and the result is
+committed: 19,281 closing lines and 3,500 fully priced noon lines. From 2026-27 on, the evening
+run's snapshots are promoted into `lines.csv` as games finish, so the training set keeps growing
+without a paid feed.
+
+The difference between the two archives is kept visible. The older rows are true closing numbers
+but have no over price, so their market total is read at the 2023-26 average over price (0.505,
+standard deviation 0.02) and flagged `p_over_assumed`; they have no puck-line price either, so they
+can score the model's puck-line *probabilities* but not its *ROI*. The newer rows are fully priced
+but are **noon** prices — an edge against them is an edge against the morning market, which is
+exactly what the morning board bets into, but it is not an edge against the close.
+
+**Set up with `Actions → NHL retrain → Run workflow`.** No new secrets: the NHL's APIs need no
+key, and `ODDS_API_KEY` is the one the other sports already use. The run refreshes the last three
+seasons (and next season's schedule) from the NHL API, then fits everything in a couple of minutes.
+The predict job runs twice a day, **10:15am and 5:45pm Eastern**: the morning board is the number
+CLV is measured *from*, and the evening run — when prices know the starting goalies — is the
+closing line it is measured *to*. Two runs a day is about 180 Odds API credits a month; with the
+other three sports in season at once that is roughly 480 of the free tier's 500, so watch the
+`Odds API quota used/remaining` line in the logs from October to January.
+
+### 2. The model
+
+**Ratings decompose scoring the way hockey produces it** (`nhl/ratings.py`): goals on a goalie =
+shots on goal × shooting percentage. Shot volume is the most persistent thing a team does and
+learns fastest; finishing is mostly noise and learns slowly; **goaltending is rated per goalie**
+and follows him through trades and signings. A goals-only rating runs alongside because it catches
+what shot counts miss (power plays, shot quality). League levels drift and are tracked rather than
+fixed — shots per game fell from 62.5 to 55.3 between 2021 and 2025 and save percentage from .907
+to .896. Every learning rate was tuned on 2008-2018 and checked on 2019-2025; the shot model beat
+the goals-only model on both.
+
+**The model never uses the actual starting goalie**, because the morning board does not know it.
+Each team carries an exponentially weighted share of recent starts, with the back-to-back rule on
+top: in 2021-25 the previous night's goalie started the second game of a back-to-back just **9%**
+of the time. The top pick was the actual starter 68% of the time. Knowing the real starter would
+improve moneyline log loss by only 0.0001-0.0003, too little to justify scraping starter news.
+
+**Two Poisson regressions**, one side of the ice at a time, predict goals scored against a goalie
+in regulation (`nhl/glm.py`). The market-aware one takes the market's implied goals as an
+**offset** — `log E[goals] = log(market goals) + b·x` — so its coefficients describe only where the
+market errs, and with every coefficient at zero it *is* the market. The largest effects it fitted:
+the rating gap the market has not absorbed (+4.8% goals per standard deviation of it), and
+back-to-backs — a side on the second night scores about 2.5% fewer goals and concedes about 2.5%
+more **than the market already charges for**. XGBoost was tried and lost on
+every market — there is nothing in ~2,600 low-count side-rows a season for trees to find but noise.
+Models are plain JSON coefficients, not pickles, and rows are weighted toward recent seasons.
+
+**Two shrinks**, fitted on the pooled walk-forward: the published home/away **split** moves 45% of
+the way from the market to the model; the **total** moves 30%. They are separate because the
+backtest says they deserve different trust.
+
+### 3. The scoreline: the last ten minutes are the puck line
+
+The Premier League reads every market off a Poisson grid. Hockey breaks that in the last minutes of
+every close game: a team down one or two pulls its goalie, and either ties it or concedes into the
+empty net. Regulation margins across 2021-2025, against independent Poisson at the same rates:
+
+| \|margin\| | actual | Poisson |
+|---|---:|---:|
+| 0 (to overtime) | 22.2% | 16.6% |
+| **1** | **17.7%** | **30.3%** |
+| 2 | 19.4% | 23.2% |
+| **3** | **23.9%** | **15.0%** |
+
+A Poisson or Skellam model puts 30% of games on a one-goal regulation margin when 18% land there,
+so it misprices every −1.5 in the league. Empty-net goals have also **more than doubled** since
+2007 (0.17 to 0.39 a game) as coaches pull earlier.
+
+So `nhl/scoreline.py` plays the last ten minutes out as a Markov chain over the score, stepped
+every 20 seconds: a side down one or two goes into a **chase** (it scores faster, the leader picks
+up extra goals into the empty net), tied games tighten up (the losing side still banks a point in
+overtime), and a tied regulation becomes a one-goal overtime or shootout win that leans toward the
+stronger side. The chase is one effect, not two: box scores carry no goal times, so the ordinary
+score effect and the pulled goalie cannot be told apart, and a fit that tried landed on nonsense.
+The parameters are refitted by maximum likelihood on the last four seasons at every retrain. On
+2022-2025:
+
+| Event | Predicted | Actual |
+|---|---:|---:|
+| goes to overtime | 22.0% | 22.3% |
+| home by 2+ (home −1.5 covers) | 32.7% | 32.7% |
+| away by 2+ (away −1.5 covers) | 27.3% | 27.2% |
+| one-goal final margin | 39.9% | 40.0% |
+| total over 5.5 | 56.0% | 57.0% |
+| total exactly 6 | 10.6% | 11.1% |
+
+Every market is read off the same grid, so the moneyline, puck line and total cannot contradict
+each other — and the grid is also how the market's moneyline and total are inverted into implied
+goals, so "we differ by 0.2 goals" is a meaningful sentence.
+
+### 4. What the backtest found — read the strict holdout first
+
+`data/nhl/models/meta.json` carries two evaluations. `eval` is the walk-forward over the last six
+complete seasons: the Poisson models are out of sample, but the scoreline and the shrinks are
+fitted on the latest seasons, which overlap the priced ones — and the late-game shape turns out to
+matter a great deal to the puck line. `eval_strict` re-runs it with the scoreline fitted only on
+2019-22 and the shrinks only on 2020-22, and scores 2023-26. **That is the number to trust, and the
+page leads with it.**
+
+| Strict holdout, 2023-26 at noon prices | Bets | ROI | ± 1 s.e. | Seasons positive |
+|---|---:|---:|---:|---:|
+| Puck line, every positive-EV side | 720 | **+5.7%** | 3.3 | 3 of 3 |
+| Puck line, EV ≥ 3% (the staking rule) | 143 | +15.3% | 8.7 | 2 of 2 |
+| Totals, every side | 3,314 | −1.9% | 1.7 | — (none had positive EV) |
+
+- **The puck line is the one place a structural edge shows up**, and it is the strongest result on
+  this site — positive in every season. It is also 1.7 standard errors, and no slice survives
+  correction for the twelve looks taken (a slice needs |z| ≥ 2.86). The mechanism is plausible:
+  the books' puck-line prices are less internally consistent with their own moneyline and total
+  than the scoreline model is — in the walk-forward, feeding the market's own moneyline and total
+  through it gave better puck-line probabilities than the books' puck-line prices did (log loss
+  0.6543 against 0.6547). The walk-forward in `eval` reads +16% on 441 bets; that figure is inflated by the
+  overlap described above and is not the one to quote.
+- **Moneylines:** against *closing* lines (2020-22) the model ties the market (log-loss difference
+  0.0001). Against *noon* lines it is better by 0.0005-0.0007. Not published as a pick.
+- **Totals: nothing, against anything.** Log loss 0.6925 against the market's 0.6926, and no side
+  reached positive EV after the vig. The published total therefore sits close to the market's.
+
+Default thresholds (`DEGEN_NHL_SPREAD_EV=0.03`, `DEGEN_NHL_TOTAL_EV=0.05`) are EV per unit at the
+posted price — in hockey the line barely moves and the price is the whole bet. Every game is still
+predicted, graded and CLV-tracked whether or not it is staked. CLV, measured in the market's implied
+goals from the morning number to the evening one, is what will settle whether the puck-line lead is
+real, and it will say so within weeks rather than seasons.
+
+### What happened to the previous NHL model
+
+The uploaded `train_nhl_model.py` / `NHL_OverUnder_Model.py` were reviewed and **not reused**,
+beyond confirming the NHL API endpoints:
+
+- **Its features contained the answer.** The "last five games" averages were taken *after*
+  appending the game being predicted. Its own evaluation would report a 1.58-goal error on totals;
+  on leak-free features the same model scores **2.14 — worse than predicting the league average
+  every night (1.85)**. `tests/test_nhl.py` pins the leak-free replay directly.
+- Goalie stats were one fixed season (2023-24) applied to 2025 games, keyed by team; training
+  started 2025-01-01 (a few hundred games); cross-validation shuffled time; the saved model was
+  XGBoost at library defaults (depth 6, learning rate 0.3); and the final model was fit without
+  the most recent 20% of games.
+- Odds came from whichever bookmaker the feed listed first, with prices ignored, and "Over" meant
+  only "prediction > line" — in hockey, where most totals are 5.5, 6 or 6.5 and the juice carries
+  the information, that decides very little.
+- **The Odds API key is hard-coded in both files.** It is the same key this README already asks
+  you to rotate — please do.
+
+### The guardrails that earned their place
+
+- **Prices are aggregated in decimal, never American.** The first backtest took the median of
+  American odds across books; the median of −115 and +105 is −5, which reads as a 20x payout, and
+  it reported a +2,000% ROI on totals. A test pins decimal aggregation.
+- **Ratings follow the roster.** Atlanta → Winnipeg and Arizona → Utah collapse onto one code, so
+  the 2024-25 Utah club inherits the Coyotes' ratings — the NHL files Utah as a new franchise, which
+  is right for the record books and wrong for a rating. Arenas are looked up by (team, season), so
+  travel is measured from Atlanta, Glendale, Tempe or Salt Lake City as appropriate.
+- **Goals on a goalie are not final goals.** The ratings learn from goals scored against a goalie
+  in regulation; empty-netters, the overtime winner and the shootout goal are the scoreline model's
+  business. The shootout winner is credited one goal in the final score, exactly as the NHL and
+  the books settle it.
+- **Whole-number totals push.** 41% of 2023-26 totals were 6.0. Pricing, EV and grading all carry
+  a push leg.
+- **A bad morning never erases history.** A completed game is never replaced by an incomplete one
+  and goalie columns are never blanked; an empty or refused API response keeps the cache.
+- **A game under way is never re-priced.** The odds feed also lists games in progress, at in-play
+  prices, and weekend matinees are mid-game when the evening run fires. Those prices are dropped,
+  and a game that has started keeps the row published before puck drop.
+- **Written without reaching the NHL API from the machine it was built on.** Field names follow
+  code that uses those endpoints successfully, and `tests/test_nhl.py` parses payloads of the same
+  shape — but the first Actions run is the real test. Look for
+  `NHL API: N games parsed (… completed, … scheduled)` in the log.
+
+---
+
 ## Basketball
 
 `ncaab/` is a complete parallel pipeline, already written and tested, using ncaa-api for
@@ -961,6 +1156,11 @@ python -m epl.predict --dry-run
 python -m epl.site && open docs/epl/index.html
 python -m epl.sources.footballdata --check      # what the odds resolver actually found
 
+python -m nhl.train --no-fetch                  # the NHL's APIs need no key either
+python -m nhl.predict --dry-run
+python -m nhl.site && open docs/nhl/index.html
+python -m nhl.sources.nhle                      # refresh games from the NHL Stats API
+
 python -m core.landing && open docs/index.html  # the chooser, built from what is published
 ```
 
@@ -987,6 +1187,11 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_GOALS_EDGE` | 0.70 | same for total goals |
 | `DEGEN_DC_RHO` | −0.04 | Dixon-Coles low-score correction; more negative lifts 0-0 and 1-1 |
 | `DEGEN_EPL_DOCS` | `docs/epl` | where the Premier League board is written |
+| `DEGEN_NHL_SPREAD_EV` | 0.03 | min expected value, per unit at the posted price, to stake a puck line |
+| `DEGEN_NHL_TOTAL_EV` | 0.05 | same for an NHL total |
+| `DEGEN_NHL_SPLIT_SHRINK` / `DEGEN_NHL_TOTAL_SHRINK` | 0.5 / 0.25 | fallback shrinks, used only when too few priced games exist to fit them |
+| `DEGEN_NHL_DOCS` | `docs/nhl` | where the NHL board is written |
+| `DEGEN_NHL_STATS_API` | `https://api.nhle.com/stats/rest/en` | the NHL Stats API base |
 | `DEGEN_CFB_DOCS` | `docs/cfb` | where the college football board is written |
 | `DEGEN_KALSHI_ML_SERIES` | `KXNFLGAME` | Kalshi moneyline series (also `..._SPREAD_SERIES`, `..._TOTAL_SERIES`) |
 | `DEGEN_SUPPORT_URL` | (unset) | Buy Me a Coffee link shown at the top; omit and the button hides |

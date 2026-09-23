@@ -44,6 +44,8 @@ SPORTS = [
      "blurb": "Spreads and totals, with quarterback, rest, travel and weather context."},
     {"slug": "epl", "name": "Premier League",
      "blurb": "Asian handicap, goals and 1X2, priced off one scoreline model."},
+    {"slug": "nhl", "name": "NHL",
+     "blurb": "Puck lines and totals, with the last ten minutes of every game played out."},
     {"slug": "ncaab", "name": "College Basketball",
      "blurb": "Built and dormant until November."},
 ]
