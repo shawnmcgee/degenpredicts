@@ -256,7 +256,7 @@
         <div class="p">{{ g.spread_pick }}{% if g.spread_price %}<span class="px">{{ g.spread_price }}</span>{% endif %}</div>
         <div class="d">ours <b>{{ g.spread_p_live_pct }}%</b>{% if g.spread_mkt_p_pct %} &middot; market {{ g.spread_mkt_p_pct }}%{% endif %}{% if g.spread_ev_pct is not none %} &middot; EV {{ '%+.1f'|format(g.spread_ev_pct) }}%{% endif %}{% if g.spread_stake %} &middot; {{ g.spread_stake }}u{% endif %}</div>
         <div class="d">{{ '%+.1f'|format(g.spread_disagree or 0) }} pts vs the line</div>
-        {% if g.spread_hit %}<div class="hit">Hit <b class="{{ g.spread_hit.tone }}">{{ g.spread_hit.win_pct }}%</b> ({{ g.spread_hit.wins }}-{{ g.spread_hit.losses }}) this season at {{ g.spread_hit.bucket }} pts</div>{% endif %}
+        {% if g.spread_hit %}<div class="hit">Hit <b class="{{ g.spread_hit.tone }}">{{ g.spread_hit.win_pct }}%</b> ({{ g.spread_hit.wins }}-{{ g.spread_hit.losses }}) this season at {{ g.spread_hit.label }} pts off</div>{% endif %}
         {% else %}<div class="p">&mdash;</div><div class="d">no line posted yet</div>{% endif %}
       </div>
       <div class="bet">
@@ -265,7 +265,7 @@
         <div class="p">{{ g.total_pick }}{% if g.total_price %}<span class="px">{{ g.total_price }}</span>{% endif %}</div>
         <div class="d">ours <b>{{ g.total_p_live_pct }}%</b>{% if g.total_mkt_p_pct %} &middot; market {{ g.total_mkt_p_pct }}%{% endif %}{% if g.total_ev_pct is not none %} &middot; EV {{ '%+.1f'|format(g.total_ev_pct) }}%{% endif %}{% if g.total_stake %} &middot; {{ g.total_stake }}u{% endif %}</div>
         <div class="d">{{ '%+.1f'|format(g.total_disagree or 0) }} pts vs the line</div>
-        {% if g.total_hit %}<div class="hit">Hit <b class="{{ g.total_hit.tone }}">{{ g.total_hit.win_pct }}%</b> ({{ g.total_hit.wins }}-{{ g.total_hit.losses }}) this season at {{ g.total_hit.bucket }} pts</div>{% endif %}
+        {% if g.total_hit %}<div class="hit">Hit <b class="{{ g.total_hit.tone }}">{{ g.total_hit.win_pct }}%</b> ({{ g.total_hit.wins }}-{{ g.total_hit.losses }}) this season at {{ g.total_hit.label }} pts off</div>{% endif %}
         {% else %}<div class="p">&mdash;</div><div class="d">no total posted yet</div>{% endif %}
       </div>
       <div class="bet">
@@ -273,7 +273,7 @@
         {% if g.ml_pick %}
         <div class="p">{{ g.ml_pick }}{% if g.ml_price %}<span class="px">{{ g.ml_price }}</span>{% endif %}</div>
         <div class="d">ours <b>{{ g.ml_p_win_pct }}%</b>{% if g.ml_mkt_p_pct %} &middot; market {{ g.ml_mkt_p_pct }}%{% endif %}{% if g.ml_ev_pct is not none %} &middot; EV {{ '%+.1f'|format(g.ml_ev_pct) }}%{% endif %}{% if g.ml_stake %} &middot; {{ g.ml_stake }}u{% endif %}</div>
-        {% if g.ml_hit %}<div class="hit">Hit <b class="{{ g.ml_hit.tone }}">{{ g.ml_hit.win_pct }}%</b> ({{ g.ml_hit.wins }}-{{ g.ml_hit.losses }}) this season at EV {{ g.ml_hit.bucket }}{% if g.ml_hit.expected_pct is not none %}, {{ g.ml_hit.expected_pct }}% priced{% endif %}</div>{% endif %}
+        {% if g.ml_hit %}<div class="hit">Hit <b class="{{ g.ml_hit.tone }}">{{ g.ml_hit.win_pct }}%</b> ({{ g.ml_hit.wins }}-{{ g.ml_hit.losses }}) this season at {{ g.ml_hit.label }} EV{% if g.ml_hit.expected_pct is not none %}, priced at {{ g.ml_hit.expected_pct }}%{% endif %}</div>{% endif %}
         {% else %}<div class="p">&mdash;</div><div class="d">no moneyline posted yet</div>{% endif %}
       </div>
     </div>
@@ -343,7 +343,7 @@
   <table>
     <tr><th>{{ '|model − line|' if unit == 'pts' else 'EV at the price' }}</th><th>Record</th><th>Win%</th><th>Units</th></tr>
     {% for r in hit_rows[key] %}
-    <tr><td>{{ r.bucket }}{% if unit == 'pts' %} pts{% endif %}</td>
+    <tr><td>{{ r.label }}{% if unit == 'pts' %} pts{% endif %}</td>
       <td>{{ r.wins }}-{{ r.losses }}{% if r.pushes %}-{{ r.pushes }}{% endif %}</td>
       <td class="{{ r.tone }}">{{ r.win_pct }}%{% if unit != 'pts' and r.expected_pct is not none %} <span class="sub">vs {{ r.expected_pct }}</span>{% endif %}</td>
       <td class="{% if r.units > 0 %}up{% elif r.units < 0 %}down{% endif %}">{{ r.units|money }}</td></tr>

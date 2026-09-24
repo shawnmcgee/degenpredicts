@@ -706,7 +706,87 @@ def test_pipeline(env, monkeypatch):
     assert met["spreads"]["season"]["n"] == 0, "nothing was staked, so there is no staked record"
     env.METRICS.write_text(json.dumps(met, default=str))
     site.build()
-    assert "nan" not in _rendered_text((env.DOCS / "index.html").read_text())
+    html = (env.DOCS / "index.html").read_text()
+    assert "nan" not in _rendered_text(html)
+    # every graded game sits in its own bucket, so each of the three priced games shows its
+    # season record on all three bets - through the real predict, grade and site, not a fixture
+    assert html.count('<div class="hit">Hit ') == 9
+    assert html.count(" pts off</div>") == 6 and html.count(" EV, priced at ") == 3
+    assert "Record by disagreement" in html
+
+
+def _edge(lo, hi, wins, losses, expected=None):
+    return {"bucket": f"{lo}-{hi}", "lo": lo, "hi": hi, "n": wins + losses, "wins": wins,
+            "losses": losses, "pushes": 0, "win_pct": round(100 * wins / (wins + losses), 1),
+            "units": 0.0, "expected_pct": expected}
+
+
+def test_each_pick_carries_the_season_hit_rate_at_its_own_disagreement(env):
+    """As on the college football board: each card shows how often a pick at its own gap from
+    the line (or, for the moneyline, its own EV) has landed this season, so the number is read
+    where the pick is rather than in a table below a board of a dozen games."""
+    from nba import grade, site
+
+    metrics = {"updated": "2026-11-20", "break_even": 52.38,
+               "spreads": {"by_edge": [_edge(0.5, 1, 30, 20), _edge(3, 99, 3, 1)]},
+               "totals": {"by_edge": [_edge(0, 1, 40, 45), _edge(4.5, 99, 0, 2)]},
+               "moneyline": {"by_edge": [_edge(-1.0, 0.0, 31, 21, expected=57.9),
+                                         _edge(0.10, 99, 9, 31, expected=19.4)]}}
+    # a bucket is [lo, hi) exactly as the grader cut it, spreads and totals by size, EV by sign
+    assert site._hit_for(metrics, "spreads", -0.7)["wins"] == 30
+    assert site._hit_for(metrics, "spreads", 1.0) is None, "1-2 has no graded games yet"
+    assert site._hit_for(metrics, "spreads", 12.0)["label"] == "3+"
+    assert site._hit_for(metrics, "moneyline", -0.04)["label"] == "negative"
+    assert site._hit_for(metrics, "moneyline", 0.04) is None, "EV is signed, not folded"
+    assert site._hit_for(metrics, "moneyline", 1.7)["label"] == "10%+", "a stale price still lands"
+    for blank in (None, float("nan"), "", "nan"):
+        assert site._hit_for(metrics, "totals", blank) is None
+    # coloured only once a bucket has the games to mean something: spreads and totals against
+    # break-even, the moneyline against the rate its own prices implied
+    assert site._hit_for(metrics, "spreads", 0.6)["tone"] == "up"
+    assert site._hit_for(metrics, "totals", 0.2)["tone"] == "down"
+    assert site._hit_for(metrics, "spreads", 3.5)["tone"] == "", "3-1 is not evidence"
+    assert site._hit_for(metrics, "moneyline", -0.02)["tone"] == "up", "57.9% priced, 59.6% won"
+    assert site._hit_for(metrics, "moneyline", 0.2)["tone"] == "up", "19.4% priced, 22.5% won"
+    # the grader's own edges are open-ended at the top, so no pick can fall outside them all
+    for kind, edges in grade.EDGE_BUCKETS.items():
+        assert edges[-1][1] >= 99, kind
+        assert all(a[1] == b[0] for a, b in zip(edges, edges[1:])), kind
+
+    today = env.today_et()
+    pd.DataFrame([{
+        "prediction_date": str(today), "game_id": "401", "season": 2026, "date": str(today),
+        "tip_label": "Fri Nov 20, 7:30 PM", "home_team": "BOS", "away_team": "NYK",
+        "spread_pick": "NYK +4.5", "spread_strength": "pass", "spread_disagree": 0.7,
+        "spread_p_win": 0.51, "spread_p_push": 0.0, "spread_ev": -0.02, "spread_dec": 1.91,
+        "total_pick": "Under 224.5", "total_strength": "pass", "total_disagree": -0.4,
+        "total_p_win": 0.5, "total_p_push": 0.0, "total_ev": -0.04, "total_dec": 1.91,
+        "ml_pick": "NYK to win", "ml_strength": "play", "ml_ev": 0.12, "ml_dec": 4.8,
+        "ml_p_win": 0.233, "ml_mkt_p": 0.2, "p_home_win": 0.767, "p_away_win": 0.233,
+        "pub_margin": 4.3, "nm_margin": 5.1, "spread_home": -4.5, "total_line": 224.5,
+        "pub_total": 224.1, "nm_total": 226.0, "thin_data": False,
+    }]).to_csv(env.PICKS, index=False)
+    env.METRICS.write_text(json.dumps(metrics))
+    site.build()
+    html = (env.DOCS / "index.html").read_text()
+    assert 'Hit <b class="up">60.0%</b> (30-20) this season at 0.5–1 pts off' in html
+    assert 'Hit <b class="down">47.1%</b> (40-45) this season at 0–1 pts off' in html
+    assert ('Hit <b class="up">22.5%</b> (9-31) this season at 10%+ EV, priced at 19.4%'
+            in html)
+    # the table below names the same buckets the cards do, in words rather than grader keys
+    assert "<td>3+ pts</td>" in html and "<td>negative</td>" in html and "<td>10%+</td>" in html
+    assert "-+" not in _rendered_text(html), "a raw grader key must never reach the page"
+    assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
+
+
+def test_no_hit_rate_before_anything_is_graded(env):
+    """Opening night: nothing graded, so no card claims a record and no table is drawn."""
+    from nba import site
+
+    env.METRICS.write_text(json.dumps({"updated": "2026-10-20", "break_even": 52.38}))
+    site.build()
+    html = (env.DOCS / "index.html").read_text()
+    assert 'class="hit"' not in html and "Record by disagreement" not in html
 
 
 def test_no_injury_report_means_nothing_is_staked(env, monkeypatch):

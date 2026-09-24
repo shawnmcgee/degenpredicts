@@ -30,7 +30,9 @@ from .sources import hoopr, odds
 log = logging.getLogger("nba.grade")
 EDGE_BUCKETS = {"spread": [(0, 0.5), (0.5, 1), (1, 2), (2, 3), (3, 99)],
                 "total": [(0, 1), (1, 2), (2, 3), (3, 4.5), (4.5, 99)],
-                "ml": [(-1.0, 0.0), (0.0, 0.02), (0.02, 0.05), (0.05, 0.10), (0.10, 1.0)]}
+                # open-ended at the top like the others: a pick at 100%+ EV (a stale price) must
+                # still land in a bucket rather than drop out of the record
+                "ml": [(-1.0, 0.0), (0.0, 0.02), (0.02, 0.05), (0.05, 0.10), (0.10, 99)]}
 
 
 def _load(path) -> pd.DataFrame:

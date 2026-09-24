@@ -245,46 +245,59 @@ def _backtest(meta: dict) -> dict:
             "break_even": sp.get("break_even_pct")}
 
 
-def _hit_rows(metrics: dict) -> dict:
-    """This season's record by disagreement (spreads, totals) and by EV (moneyline).
+def _bucket_label(key: str, lo: float, hi: float) -> str:
+    """A grader bucket the way a reader says it: "0.5–1" and "3+" points off the line, or
+    "negative", "2–5%" and "10%+" EV. Built from the row's own bounds, never re-stated edges, so
+    a card and the table beside it always name the same bucket."""
+    if key == "moneyline":
+        if hi <= 0:
+            return "negative"
+        lo_pct, hi_pct = round(100 * lo, 1), round(100 * hi, 1)
+        return f"{lo_pct:g}%+" if hi >= 1 else f"{lo_pct:g}–{hi_pct:g}%"
+    return f"{lo:g}+" if hi >= 99 else f"{lo:g}–{hi:g}"
+
+
+def _hit_row(key: str, r: dict, be: float) -> dict:
+    """One bucket's record, labelled, and coloured against its bar once it has the games to be.
 
     Spreads and totals are coloured against break-even; the moneyline against the rate its own
     prices implied, because a favourite winning 70% of the time is what the price already said.
     """
+    ref = r.get("expected_pct") if key == "moneyline" else be
+    tone = ""
+    if ref is not None and (r.get("n") or 0) >= HIT_RATE_MIN_N:
+        tone = "up" if (r.get("win_pct") or 0) > ref else "down"
+    return {**r, "tone": tone, "label": _bucket_label(key, float(r["lo"]), float(r["hi"]))}
+
+
+def _hit_rows(metrics: dict) -> dict:
+    """This season's record by disagreement (spreads, totals) and by EV (moneyline)."""
     be = metrics.get("break_even") or 52.38
     out = {}
     for key in ("spreads", "totals", "moneyline"):
-        rows = []
-        for r in (metrics.get(key) or {}).get("by_edge") or []:
-            if not (r.get("wins") or 0) + (r.get("losses") or 0):
-                continue
-            ref = r.get("expected_pct") if key == "moneyline" else be
-            tone = ""
-            if ref is not None and (r.get("n") or 0) >= HIT_RATE_MIN_N:
-                tone = "up" if (r.get("win_pct") or 0) > ref else "down"
-            rows.append({**r, "tone": tone})
+        rows = [_hit_row(key, r, be) for r in (metrics.get(key) or {}).get("by_edge") or []
+                if (r.get("wins") or 0) + (r.get("losses") or 0)]
         if rows:
             out[key] = rows
     return out
 
 
-def _hit_for(metrics: dict, key: str, value, absolute: bool = True) -> dict | None:
-    """The season record at a pick's own disagreement (or EV), for one market, or None."""
+def _hit_for(metrics: dict, key: str, value) -> dict | None:
+    """The season record at a pick's own disagreement (or EV), for one market, or None.
+
+    A disagreement is bucketed by size, either side of the line; EV keeps its sign, because a
+    pick priced at -4% is not one priced at +4%.
+    """
     try:
         v = float(value)
     except (TypeError, ValueError):
         return None
     if v != v:
         return None
-    v = abs(v) if absolute else v
+    v = v if key == "moneyline" else abs(v)
     for r in (metrics.get(key) or {}).get("by_edge") or []:
         if r["lo"] <= v < r["hi"] and (r.get("wins") or 0) + (r.get("losses") or 0):
-            be = metrics.get("break_even") or 52.38
-            tone = ""
-            if (r.get("n") or 0) >= HIT_RATE_MIN_N:
-                ref = r.get("expected_pct") if key == "moneyline" else be
-                tone = "up" if ref is not None and (r.get("win_pct") or 0) > ref else "down"
-            return {**r, "tone": tone}
+            return _hit_row(key, r, metrics.get("break_even") or 52.38)
     return None
 
 
@@ -307,7 +320,7 @@ def build() -> None:
     for g in picks:
         g["spread_hit"] = _hit_for(metrics, "spreads", g.get("spread_disagree"))
         g["total_hit"] = _hit_for(metrics, "totals", g.get("total_disagree"))
-        g["ml_hit"] = _hit_for(metrics, "moneyline", g.get("ml_ev"), absolute=False)
+        g["ml_hit"] = _hit_for(metrics, "moneyline", g.get("ml_ev"))
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, m=metrics, model=_model_note(meta),
         backtest=_backtest(meta), hit_rows=_hit_rows(metrics),
