@@ -23,7 +23,8 @@ No server, no manual uploads, no hosting bill.
   nba-predict.yml   twice daily     → schedule + injury report + prices → models → data/nba/picks.csv → docs/nba/
   nba-grade.yml     daily 8:15am ET → finals → grade → results.csv, metrics.json
   nba-train.yml     Tuesdays        → refit models
-  test.yml          on push         → offline tests, one job per sport plus the landing page
+  odds-quota.yml    daily 7pm ET    → Odds API credits left → an issue that @-mentions you before they run out
+  test.yml          on push         → offline tests, one job per sport plus the landing page and quota alert
 cfb/     college football pipeline (live now)
 nfl/     NFL pipeline (live now)
 epl/     Premier League pipeline (live now)
@@ -105,6 +106,21 @@ python -m cfb.predict --dry-run
 ### 6. Let it run
 
 The crons are already set. Predict runs every morning, grade every morning, retrain Tuesdays.
+
+### 7. Get warned before the Odds API credits run out
+
+Nothing to set up: `odds-quota.yml` checks the shared `ODDS_API_KEY` every evening, after the
+day's last board has priced. The check itself is free (it reads the quota from `/v4/sports`, which
+The Odds API does not charge for). When the credits are about to run out, it opens a GitHub issue
+that @-mentions you, which arrives as an email and, with the GitHub mobile app, a push.
+
+"About to run out" means fewer than 100 credits left (`DEGEN_ODDS_ALERT_BELOW`) **and** this
+month's pace would use them up before they reset on the 1st, so a low balance on the 30th does not
+cry wolf. Running out, or the key being refused, is always an alert. There is only ever one issue:
+it refreshes its numbers quietly each day, comments (a new notification) only when things get
+worse, and closes itself after the reset. Close it yourself to say "I know", and it stays quiet
+for the rest of the month unless things get worse. **Actions → Odds API quota → Run workflow**
+shows this month's usage at any time.
 
 ---
 
@@ -981,8 +997,8 @@ seasons (and next season's schedule) from the NHL API, then fits everything in a
 The predict job runs twice a day, **10:15am and 5:45pm Eastern**: the morning board is the number
 CLV is measured *from*, and the evening run — when prices know the starting goalies — is the
 closing line it is measured *to*. Two runs a day is about 180 Odds API credits a month; with the
-other three sports in season at once that is roughly 480 of the free tier's 500, so watch the
-`Odds API quota used/remaining` line in the logs from October to January.
+other three sports in season at once that is roughly 480 of the free tier's 500. The quota alert
+(setup step 7) opens an issue before they run out.
 
 ### 2. The model
 
@@ -1433,6 +1449,7 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_NHL_SPLIT_SHRINK` / `DEGEN_NHL_TOTAL_SHRINK` | 0.5 / 0.25 | fallback shrinks, used only when too few priced games exist to fit them |
 | `DEGEN_NHL_DOCS` | `docs/nhl` | where the NHL board is written |
 | `DEGEN_NHL_STATS_API` | `https://api.nhle.com/stats/rest/en` | the NHL Stats API base |
+| `DEGEN_ODDS_ALERT_BELOW` | 100 | the quota alert opens an issue once fewer credits than this remain and this month's pace would use them up before the reset |
 | `DEGEN_NBA_ODDS` | `espn` | where NBA prices come from: `espn` (free, ESPN's partner book), `oddsapi` (The Odds API consensus, 3 credits a run from the shared key) or `none` |
 | `DEGEN_NBA_SPREAD_EDGE` / `DEGEN_NBA_TOTAL_EDGE` | 3.0 / 5.0 | min points of the market-aware model's raw disagreement with the line to stake an NBA spread / total |
 | `DEGEN_NBA_ML_EV` | 0.10 | min expected value, per unit at the posted price, to stake an NBA moneyline |
