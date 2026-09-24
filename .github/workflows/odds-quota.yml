@@ -1,0 +1,32 @@
+name: Odds API quota
+# Warns before the shared ODDS_API_KEY runs out of credits: see core/odds_quota.py.
+#
+# Costs no credits - the quota is read from GET /v4/sports, which The Odds API does not charge
+# for - and never commits. Its only write is the one alert issue, which @-mentions the repo
+# owner: an email, and a push notification from the GitHub mobile app. Run it by hand
+# (Actions → Odds API quota → Run workflow) to see this month's usage in the job summary.
+on:
+  schedule:
+    # 23:00 UTC = 7pm ET (6pm in winter): after the day's last pricing run (NBA, 22:15 UTC), so
+    # the reading includes everything the boards spent that day. Once a day is plenty: at the
+    # busiest point of the year they use ~16 credits a day, so the default 100-credit warning
+    # is about six days' notice.
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install requests
+      - env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEGEN_ODDS_ALERT_BELOW: ${{ vars.DEGEN_ODDS_ALERT_BELOW }}
+        run: python -m core.odds_quota

@@ -20,12 +20,17 @@ No server, no manual uploads, no hosting bill.
   nhl-predict.yml   twice daily     → schedule + prices + starting goalies → models → data/nhl/picks.csv → docs/nhl/
   nhl-grade.yml     daily 7:45am ET → finals → grade → results.csv, metrics.json
   nhl-train.yml     Tuesdays        → refit models, refit the late-game scoreline model
-  test.yml          on push         → offline tests, one job per sport plus the landing page
+  nba-predict.yml   twice daily     → schedule + injury report + prices → models → data/nba/picks.csv → docs/nba/
+  nba-grade.yml     daily 8:15am ET → finals → grade → results.csv, metrics.json
+  nba-train.yml     Tuesdays        → refit models
+  odds-quota.yml    daily 7pm ET    → Odds API credits left → an issue that @-mentions you before they run out
+  test.yml          on push         → offline tests, one job per sport plus the landing page and quota alert
 cfb/     college football pipeline (live now)
 nfl/     NFL pipeline (live now)
 epl/     Premier League pipeline (live now)
 nhl/     NHL pipeline (live from the 2026-27 season)
-ncaab/   basketball pipeline (built, dormant until November)
+nba/     NBA pipeline (live from the 2026-27 season)
+ncaab/   college basketball pipeline (built, dormant until November)
 core/    sport-neutral bits only: the landing page, shared settings
 ```
 
@@ -40,6 +45,7 @@ docs/
   nfl/index.html  ← NFL board
   epl/index.html  ← Premier League board
   nhl/index.html  ← NHL board
+  nba/index.html  ← NBA board
 ```
 
 `core/landing.py` imports nothing from `cfb`, `nfl` or `ncaab` — it reads the files those
@@ -100,6 +106,21 @@ python -m cfb.predict --dry-run
 ### 6. Let it run
 
 The crons are already set. Predict runs every morning, grade every morning, retrain Tuesdays.
+
+### 7. Get warned before the Odds API credits run out
+
+Nothing to set up: `odds-quota.yml` checks the shared `ODDS_API_KEY` every evening, after the
+day's last board has priced. The check itself is free (it reads the quota from `/v4/sports`, which
+The Odds API does not charge for). When the credits are about to run out, it opens a GitHub issue
+that @-mentions you, which arrives as an email and, with the GitHub mobile app, a push.
+
+"About to run out" means fewer than 100 credits left (`DEGEN_ODDS_ALERT_BELOW`) **and** this
+month's pace would use them up before they reset on the 1st, so a low balance on the 30th does not
+cry wolf. Running out, or the key being refused, is always an alert. There is only ever one issue:
+it refreshes its numbers quietly each day, comments (a new notification) only when things get
+worse, and closes itself after the reset. Close it yourself to say "I know", and it stays quiet
+for the rest of the month unless things get worse. **Actions → Odds API quota → Run workflow**
+shows this month's usage at any time.
 
 ---
 
@@ -976,8 +997,8 @@ seasons (and next season's schedule) from the NHL API, then fits everything in a
 The predict job runs twice a day, **10:15am and 5:45pm Eastern**: the morning board is the number
 CLV is measured *from*, and the evening run — when prices know the starting goalies — is the
 closing line it is measured *to*. Two runs a day is about 180 Odds API credits a month; with the
-other three sports in season at once that is roughly 480 of the free tier's 500, so watch the
-`Odds API quota used/remaining` line in the logs from October to January.
+other three sports in season at once that is roughly 480 of the free tier's 500. The quota alert
+(setup step 7) opens an issue before they run out.
 
 ### 2. The model
 
@@ -1152,7 +1173,213 @@ beyond confirming the NHL API endpoints:
 
 ---
 
-## Basketball
+## NBA
+
+`nba/` is the same architecture pointed at basketball — Actions as scheduler, repo as database,
+Pages as frontend; ratings replayed chronologically with a leak-free test in CI; market-aware
+models with a shrink fitted walk-forward. It publishes a **spread**, a **total** and a
+**moneyline** for every game. Three things are genuinely different about it, and the second is
+the one worth reading.
+
+### 1. Data: hoopR's ESPN archive, and three archives of closing lines
+
+| What | Source | Notes |
+|---|---|---|
+| Schedule, results, possessions, player minutes | [hoopR](https://github.com/sportsdataverse/hoopR-nba-data) (sportsdataverse) release files: `nba_schedule`, `team_box`, `player_box`, `rosters` | no key; ESPN's data republished every morning of the season — the NBA's nflverse. The schedule **includes unplayed games**, so the board needs no second source |
+| Today's prices | ESPN's scoreboard (its partner book: spread, total, moneyline) — or The Odds API on request | free by default; see below |
+| The injury report | ESPN's league injury list | Out / Doubtful / Questionable / Day-To-Day / Probable, keyed by the same player ids as the box scores |
+| Closing spreads and totals, 2019-20 → 2025-26 | The Odds API's historical endpoint, a consensus of 10-21 books snapped **5-15 minutes before tip**, published by hoopR | no prices |
+| Closing spreads and totals, 2017-18 → 2022-23 | a scraped closing archive, also published by hoopR | |
+| Closing moneylines, 2007-08 → Jan 2026 | SportsbookReviewsOnline via `sbrscrape`, compiled into [`kyleskom/NBA-Machine-Learning-Sports-Betting`](https://github.com/kyleskom/NBA-Machine-Learning-Sports-Betting) | both sides |
+
+**Every id is ESPN's.** A game in hoopR's schedule, a player in its box scores, a name on the
+injury report and a price on ESPN's scoreboard all join on ids, so no player is ever matched by
+name. The only names read are clubs', from a fixed table that refuses anything it does not know.
+
+**The line archives were checked against each other before any of it was trusted.** Where the
+first two overlap they agree to a median of 0.0 points on spread and total. The third was the
+interesting one: its spreads before 2022-23 are **unsigned magnitudes** — every favourite and
+every underdog printed as a positive number — and even with the sign restored from the moneyline
+they sit a median point from the close, and its totals 2-4 points from it. They are opening
+numbers, and in 2019-20 many are simply wrong, so **they are not imported**. Its moneylines are
+the close: across 2017-18 to 2021-22 they agree with the closing spread to 1.7 points of win
+probability, against 3.5 for the opener. So the history is closing spreads and totals for nine
+seasons (about 11,500 games) and closing moneylines for nineteen. The import is one command
+(`python -m nba.sources.history`, the only step that needs `pyarrow`) and the result is committed.
+
+**The committed player history is the one big file.** `data/nba/players/` holds minutes and
+box-score value for every player-game since 2003-04 — about 615,000 rows, 21 MB across one file a
+season. Finished seasons never change; the current season's file gains a night's rows each
+morning, which git stores as a small diff. Each run downloads the current season's files from
+hoopR (the player box scores alone reach about 18 MB by April), and as CSV rather than parquet on
+purpose: parquet would put `pyarrow` in the shared requirements, a dependency every other sport's
+jobs would then run under.
+
+**Set up with `Actions → NBA retrain → Run workflow`.** No new secrets. hoopR's files, ESPN's
+scoreboard and its injury list need no key.
+
+**Prices come from ESPN's book unless you ask for The Odds API.** One book is not a consensus,
+but it is a price you can bet, and it costs no quota. The NHL section's arithmetic already has
+the other sports at roughly 480 of the free tier's 500 credits a month from October to January;
+two NBA runs a day would add another 180. A board that quietly exhausted the shared key would
+take the other boards' prices down with it, so the Odds API is opt-in: set the repo variable
+`DEGEN_NBA_ODDS=oddsapi` (after upgrading the plan, or instead of another sport's use of it).
+Both sources write identical snapshot rows.
+
+### 2. The model: who is playing is most of the story
+
+**Ratings decompose scoring the way basketball produces it** (`nba/ratings.py`): possessions
+times points per possession, per team, with offence and defence rated per 100 possessions and
+pace rated separately — so a fast bad team and a slow good one are both priced right. League
+levels drift and are tracked: scoring rose from 186 points a game in 2003-04 to 230 in 2025-26,
+and possessions from 93 to 102. Home court starts the replay at three and a half points per 100
+possessions and drifts too — home sides won by 3.1 to 3.8 points a season from 2003-04 to
+2008-09, and by 1.8 to 2.6 since 2021-22. It is switched off for neutral sites and for the 2020
+Orlando bubble, whose 172 games are not flagged neutral in the source but had no home crowd.
+
+**Then the player layer** (`nba/players.py`), because one player can be worth five points of
+spread and a team rating built from results alone learns an absence two weeks late. Every game
+carries an **availability delta**: today's minutes distribution against the one the team rating
+was built on, each rotation player weighted by his box-score value over a replacement. Training
+rows use who actually played; the board uses the injury report, the current roster and the trade
+wire. The rating replay removes it before learning from a result, so a star's night off does not
+drag his team's rating down for the fortnight after he is back. This was worth **0.21 points of
+margin error walk-forward — the largest single thing found.** Player value is Hollinger's game
+score, shrunk toward a below-average prior; plus-minus was tried and was worse (0.14), and
+blending the two added nothing — a single game's plus-minus is mostly lineup noise.
+
+**The leak this layer is built around.** The first version called a player "available" if he
+logged minutes. Garbage time hands minutes to the end of the bench only in blowouts, so who got
+into the game says how the game went — and gradient-boosted trees found it: they looked 0.14
+points better than ridge on margins (10.50 against 10.64). Rebuilt from rotation players at their
+*usual* minutes, which nothing about tonight can move, the trees fell to 10.66 and ridge held at
+10.60. `test_garbage_time_cannot_move_a_pregame_row` changes only a game's score and its bench
+minutes and asserts nothing in that game's row moves. The same reasoning rejected a tuning
+result: counting 8-minute players as rotation scored 0.03 points better in tuning, but those are
+exactly the players who sit in close games and play in blowouts, and on the holdout the gain
+shrank to 0.016 and was worth nothing against the close. A gain that could be the game script
+leaking in does not go in.
+
+**Two ridge regressions per target, saved as JSON coefficients** (`nba/linear.py`): a
+no-market model (ratings, availability, rest, back-to-backs, three-in-four and four-in-six,
+travel, time zones, altitude, play-in and playoffs), and a market-aware one that takes the closing
+line as its baseline and learns only the residual. Rows are weighted toward recent seasons
+(half-life four). XGBoost lost once the leak was gone, and a linear model on good ratings is the
+right shape for a sport whose scoring is close to additive in what moves it. Every rating and
+player parameter was tuned on 2012-18 only; nothing was tuned on the seasons the report scores.
+
+**What an absence is worth on the card is what the model charges for it**, not a rule of thumb:
+the fitted no-market model prices the league's best players at 5-8 points at home and 3-5 away
+(it charges a home side's absence more) — Jokić 8.1 / 4.8, Wembanyama 8.4 / 4.5, Dončić 7.4 /
+4.5, Antetokounmpo 7.0 / 4.3, Gilgeous-Alexander 5.1 / 3.3, Tatum 5.0 / 2.7. Game score is a box
+score, so it misses what a box score misses: Anthony Edwards comes out at 2.8 / 1.7 and Draymond
+Green at nothing. That is a known limit of box-score value, and one reason the market-aware
+model, not this one, sets the published number.
+
+### 3. What the backtest found — the market is sharper, everywhere
+
+Walk-forward over 2019-20 to 2025-26 — about 8,800 closing lines, every season predicted by
+models trained only on the seasons before it, and the shrink applied to each season fitted only
+on the seasons before that:
+
+| | Model | Closing line |
+|---|---:|---:|
+| Spread error, market-aware (published) | 10.494 | 10.494 |
+| Spread error, ratings + injuries + schedule only | 10.743 | |
+| Total error, market-aware (published) | 14.330 | 14.329 |
+| Total error, no market | 14.626 | |
+| Moneyline log loss | 0.6057 | 0.6058 |
+| Spread / total covered | 50.4% / 50.4% of ~8,800 each (±0.53) | break-even 52.4% |
+
+**The model does not beat the NBA closing line, and no disagreement bucket or situation
+survives correction for the looks taken** — back-to-backs, rest mismatches, key absences,
+spread size, travel, altitude, early season, the play-in and playoffs, all tested. The fitted
+shrink toward the model is 35% on spreads (the market-aware model seldom sits a point from the
+line, so that is a few tenths) and 0% on totals: publish the line. The research behind it also
+tested the obvious escape — maybe the model is sharper than the *opening* number — and it is
+not: 50.6% against openers, and its disagreement with the opener has no correlation with where
+the line then moves. That is the NFL and Premier League result again, and the page says so.
+
+**The one number worth watching is the moneyline's underdog side.** At 10%+ EV — nearly always
+an underdog the closing spread rated better than its moneyline did — the model's side returned
+**+16.3% ± 8.9 on 773 bets, positive in 6 of 7 seasons** (only the disrupted 2020-21 was
+negative), and the market's own calibration leans the same way: dogs it priced at 17.5% won
+18.6%. The 5-10% EV bucket lost, so the moneyline is staked only at 10%+. It is 1.8 standard
+errors and does not survive correction for the four buckets examined, the prices behind it are
+one archive's single-book closes, and ESPN's book may shade its long-shot prices differently. It
+is the NHL puck line again: a book's spread sharper than its long-shot price — suggestive, not
+proven, and closing-line value will settle it.
+
+**Why one-sided significance.** An NBA slice holds thousands of games, and at that size a slice
+covering a plain 50% is "significantly" below the 52.4% break-even. The first run of the report,
+testing |z| like the NFL's, flagged six totals slices as significant for exactly that reason. Only
+a slice significantly *above* break-even is a finding, so that is what the test asks.
+
+**Win probabilities use their own spread.** Margins are fat-tailed — garbage time widens blowouts
+without changing who won — so a normal curve with the residual standard deviation (13.8 points)
+put 25-30% on long-shot underdogs that won 19.9%. The moneyline's σ is fitted by maximum
+likelihood on who won (13.0) rather than taken from the margin's spread.
+
+Default thresholds (`DEGEN_NBA_SPREAD_EDGE=3.0`, `DEGEN_NBA_TOTAL_EDGE=5.0` on the market-aware
+model's raw disagreement; `DEGEN_NBA_ML_EV=0.10`) sit at or above every bucket measured, so
+spreads and totals are almost never flagged. Stakes are eighth-Kelly. Every game is still
+predicted, graded and CLV-tracked.
+
+### 4. The injury report decides when a pick is staked
+
+The predict job runs twice a day, **10am and 5:15pm Eastern** for most of the season (11am and
+6:15pm in October and from mid-March): the morning board is the number CLV is measured *from*;
+the evening run, after the afternoon injury updates and before the 7pm tips, is the closing line
+it is measured *to*. Each report status is a probability the player sits — Out 1.0, Doubtful
+0.75, Questionable 0.5, Day-To-Day 0.4, Probable 0.1 — and every pull is logged to
+`injuries.csv` so those can be checked against who played. A player who has since played for
+another club, or is off the current roster, is gone; one who has sat out his team's last three
+games without appearing on the report is treated as probably still out.
+
+**A pick is staked only when no unresolved report entry could still move its number by 1.5
+points or more.** Until then a pick that clears the bar shows as *waiting on news*, and the
+evening run stakes it. **And no report is not "nobody is hurt".** The NHL board stakes on its own
+guess when the goalie page is down, because the books price the starter and knowing him barely
+moves the market-aware model; here who plays is the largest thing the model knows, so if the
+report cannot be read at all nothing is staked, and the log says so.
+
+### The guardrails that earned their place
+
+- **Unknown team codes raise.** ESPN's schedule carries the All-Star game (`EAST` v `WEST`, Team
+  Shaq v Team Chuck) and unfilled knockout slots (`TBD`); refusing unknown codes is what keeps
+  them out of the ratings. ESPN spells six clubs its own way (`GS`, `NY`, `NO`, `SA`, `UTAH`,
+  `WSH`), and New Jersey → Brooklyn and Seattle → Oklahoma City collapse so a rating follows the
+  roster. CI asserts every club and every venue city in the committed data resolves.
+- **The season is renamed exactly once.** hoopR names a season by the year it ends; this repo by
+  the year it starts. `nba.sources.hoopr._season` is the only place that converts.
+- **The spread sign is flipped exactly once**, in `nba.features.market_view`: -6.5 means home
+  favoured, so the market's expected margin is +6.5. The closing archive's signs are checked
+  against its favourite flag, and the unsigned archive is never imported.
+- **Possessions use player turnovers.** Some seasons' `total_turnovers` count every team turnover
+  twice — one season's files read 30 for a side that committed 15.
+- **Travel is measured from each game's real venue**, so the Hornets' Katrina seasons in Oklahoma
+  City, the Raptors' 2020-21 in Tampa, the bubble, and the Mexico City, London, Paris, Berlin
+  and Las Vegas games need no special case.
+- **Last April's rest days are not October's absences.** The "missed his last three games"
+  counter resets at a season boundary; the first preview of opening night flagged players who
+  had simply rested the final week of the previous season.
+- **A bad refresh never erases history.** A completed game is never replaced by an incomplete
+  one, and a season's player file is never replaced by a smaller one.
+- **A game under way is never re-priced**, from either odds source; it keeps the row published
+  before tip.
+- **Probabilities on whole-number lines are shown net of the push**, as the de-vigged price is —
+  otherwise the chance of landing exactly on 7 makes the model look a point or two of
+  probability worse than the market on a 7-point spread, even when the two agree.
+- **Written without reaching ESPN from the machine it was built on.** The scoreboard parser
+  accepts both shapes ESPN is known to use for odds (flat and nested), the injury parser skips
+  any status it does not recognise, and both are tested against synthetic payloads — but the first
+  Actions run is the real test. Look for `ESPN scoreboard: N games, … with a spread` and
+  `injury report: N players on M clubs` in the log. hoopR itself scrapes ESPN from GitHub Actions
+  every day, so the host answers runners.
+
+---
+
+## College basketball
 
 `ncaab/` is a complete parallel pipeline, already written and tested, using ncaa-api for
 scores, The Odds API for lines, and Barttorvik daily snapshots for tempo/efficiency. It has no
@@ -1185,6 +1412,12 @@ python -m nhl.predict --dry-run
 python -m nhl.site && open docs/nhl/index.html
 python -m nhl.sources.nhle                      # refresh games from the NHL Stats API
 
+python -m nba.train --no-fetch                  # hoopR and ESPN need no key either
+python -m nba.predict --dry-run
+python -m nba.site && open docs/nba/index.html
+python -m nba.sources.hoopr                     # refresh games and player minutes from hoopR
+python -m nba.sources.history                   # rebuild lines.csv from the archives (needs pyarrow)
+
 python -m core.landing && open docs/index.html  # the chooser, built from what is published
 ```
 
@@ -1216,6 +1449,15 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_NHL_SPLIT_SHRINK` / `DEGEN_NHL_TOTAL_SHRINK` | 0.5 / 0.25 | fallback shrinks, used only when too few priced games exist to fit them |
 | `DEGEN_NHL_DOCS` | `docs/nhl` | where the NHL board is written |
 | `DEGEN_NHL_STATS_API` | `https://api.nhle.com/stats/rest/en` | the NHL Stats API base |
+| `DEGEN_ODDS_ALERT_BELOW` | 100 | the quota alert opens an issue once fewer credits than this remain and this month's pace would use them up before the reset |
+| `DEGEN_NBA_ODDS` | `espn` | where NBA prices come from: `espn` (free, ESPN's partner book), `oddsapi` (The Odds API consensus, 3 credits a run from the shared key) or `none` |
+| `DEGEN_NBA_SPREAD_EDGE` / `DEGEN_NBA_TOTAL_EDGE` | 3.0 / 5.0 | min points of the market-aware model's raw disagreement with the line to stake an NBA spread / total |
+| `DEGEN_NBA_ML_EV` | 0.10 | min expected value, per unit at the posted price, to stake an NBA moneyline |
+| `DEGEN_NBA_WAIT_POINTS` | 1.5 | a pick waits while an unresolved injury could still move its number this many points |
+| `DEGEN_NBA_REQUIRE_NEWS` | 1 | 0 stakes picks without waiting on unresolved injuries - or on a missing injury report |
+| `DEGEN_NBA_INJURIES` | 1 | 0 stops reading the injury report and the current rosters |
+| `DEGEN_NBA_DOCS` | `docs/nba` | where the NBA board is written |
+| `DEGEN_HOOPR_RELEASES` | (sportsdataverse releases) | override where hoopR's season files are fetched from |
 | `DEGEN_NHL_STARTERS` | 1 | 0 stops reading the day's starting goalies; the board uses its own guess from recent starts |
 | `DEGEN_NHL_REQUIRE_STARTERS` | 1 | 0 stakes picks without waiting for both starting goalies to be confirmed or likely |
 | `DEGEN_CFB_DOCS` | `docs/cfb` | where the college football board is written |

@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sport: [cfb, nfl, epl, nhl, landing]
+        sport: [cfb, nfl, epl, nhl, nba, landing, quota]
     name: ${{ matrix.sport }}
     runs-on: ubuntu-latest
     steps:
