@@ -46,6 +46,8 @@ SPORTS = [
      "blurb": "Asian handicap, goals and 1X2, priced off one scoreline model."},
     {"slug": "nhl", "name": "NHL",
      "blurb": "Puck lines and totals, with the last ten minutes of every game played out."},
+    {"slug": "nba", "name": "NBA",
+     "blurb": "Spreads, totals and moneylines, with every rotation's injuries priced in."},
     {"slug": "ncaab", "name": "College Basketball",
      "blurb": "Built and dormant until November."},
 ]
