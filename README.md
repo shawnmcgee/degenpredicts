@@ -144,7 +144,7 @@ staked; where nothing cleared the threshold it shows the model's side record, la
 unstaked. Those 105 rows have had their stakes and units zeroed retroactively, because they
 were the output of a bug rather than a decision.
 
-If you want week 1–2 staked anyway, set repo variable `DEGEN_MIN_GAMES` to `0`. I'd let the
+If you want week 1–2 staked anyway, set repo variable `DEGEN_CFB_MIN_GAMES` to `0`. I'd let the
 first two weeks grade themselves first.
 
 ---
@@ -217,6 +217,22 @@ from itself, and all 105 graded games came back with CLV of exactly 0.00 and zer
 A test now fails if graded CLV has no variance across a synthetic line move. The 105 historic
 rows carry CLV of `null` rather than `0.00`: it is genuinely unrecoverable for them, and
 unknown is the honest value.
+
+### A pick is frozen at kickoff
+
+The 9am picks run has been starting three to five hours late (Actions' scheduler, not the
+code), which on a Saturday is after the noon kickoffs. A game under way is not `completed`, so
+it stayed on the board; The Odds API lists live games at **in-play** prices, so the model
+re-ran against those and overwrote the pregame pick the page had shown all morning. Boston
+College–Virginia Tech opened at a 54.5 total and was re-priced at 27.5 fifty-three minutes in;
+the model called Over. 38 of the first 337 graded games were graded on a row priced after
+kickoff, including 5 of the 24 plays and 14 of the 22 Kalshi picks — an in-play exchange quote
+knows the score and the model does not, so those "edges" were the biggest on the board.
+
+`predict.build_board` now leaves any game whose kickoff has passed off the board, so its last
+pregame row is kept rather than rewritten, and `odds.snapshot` skips live events, so an in-play
+number never reaches `snapshots.csv` either. A TBD kickoff (CFBD stamps midnight) never counts
+as started.
 
 ---
 
@@ -309,6 +325,21 @@ The caveats are real and stay stated: n≈88 is thin, these are eight cells look
 and none of the gaps clears two standard errors. What makes shipping it reasonable is that the
 thresholds already carry the risk, and `by_class` in `metrics.json` now reports FBS and FCS
 separately every run — so a season of live data settles it rather than another argument.
+
+**The same lesson, one filter further.** That table conditions on the edge thresholds but not
+on `MIN_GAMES`, so it includes the thin early-season games — which are never staked. Measured
+again with them excluded (three seeds, same walk-forward, 2022–25):
+
+| Market | FBS vs FBS | FBS vs FCS | For contrast: thin games only, both classes |
+| --- | ---: | ---: | ---: |
+| Totals, disagreement ≥ 5.0 | 52.2% (n≈343) | 51.0% (n≈33) | 60.4% (n≈106) |
+| Spreads, disagreement ≥ 4.0 | 51.4% (n≈439) | 47.5% (n≈20) | 53.7% (n≈137) |
+
+The FCS-totals edge lives almost entirely in the weeks the thin flag declines. On what is
+actually staked, no threshold from 2 to 8 points puts either market even one standard error
+above break-even, and spreads drift *down* as disagreement grows (≥ 5.0: 49.9%, ≥ 6.0: 49.6%).
+The thresholds are unchanged — that is a staking decision, not a bug — but read them as
+"unproven", not "tested".
 
 Bucketed by line size, it is also not the FCS that hurts:
 
@@ -1423,10 +1454,16 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 
 ## Knobs (repo variables or env vars)
 
+A repo variable reaches a job only if its workflow names it. `cfb-predict.yml` names these,
+under CFB-prefixed repo variables because `nfl/` reads the same env names with different
+defaults: `DEGEN_CFB_SPREAD_EDGE`, `DEGEN_CFB_TOTAL_EDGE`, `DEGEN_CFB_MIN_GAMES`,
+`DEGEN_CFB_BOARD_FCS`, plus the shared `DEGEN_KELLY`. It named none of them before, so setting
+one did nothing. Blank means "use the default".
+
 | Var | Default | Meaning |
 |---|---|---|
-| `DEGEN_TOTAL_EDGE` | 3.5 | min points of edge to publish a totals play |
-| `DEGEN_SPREAD_EDGE` | 2.5 | same for spreads |
+| `DEGEN_TOTAL_EDGE` | 5.0 (cfb) / 6.0 (nfl) | min points of raw model-vs-line disagreement to stake a totals play |
+| `DEGEN_SPREAD_EDGE` | 4.0 (cfb) / 5.0 (nfl) | same for spreads |
 | `DEGEN_MIN_GAMES` | 2 (cfb) / 3 (nfl) | below this, picks are flagged early-season and not staked |
 | `DEGEN_KELLY` | 0.25 | Kelly fraction |
 | `DEGEN_BOARD_DAYS` | 7 | how far ahead to post games |

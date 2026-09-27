@@ -18,9 +18,18 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.12', cache: pip}
       - run: pip install -r requirements.txt
+      # The knobs are repo variables (Settings -> Secrets and variables -> Actions -> Variables).
+      # Actions exposes none of them unless named here, which is why setting one used to do
+      # nothing. CFB-prefixed because nfl/ reads the same env names with different defaults; an
+      # unset variable arrives as "" and cfb/config.py treats that as unset.
       - env:
           CFBD_API_KEY: ${{ secrets.CFBD_API_KEY }}
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          DEGEN_SPREAD_EDGE: ${{ vars.DEGEN_CFB_SPREAD_EDGE }}
+          DEGEN_TOTAL_EDGE: ${{ vars.DEGEN_CFB_TOTAL_EDGE }}
+          DEGEN_MIN_GAMES: ${{ vars.DEGEN_CFB_MIN_GAMES }}
+          DEGEN_CFB_BOARD_FCS: ${{ vars.DEGEN_CFB_BOARD_FCS }}
+          DEGEN_KELLY: ${{ vars.DEGEN_KELLY }}
         run: |
           python -m cfb.predict ${{ inputs.week && format('--week {0}', inputs.week) || '' }}
           python -m cfb.site

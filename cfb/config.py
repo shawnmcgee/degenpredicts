@@ -6,6 +6,32 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+
+def _env(name: str, default: str) -> str:
+    """Read an environment variable, treating empty as unset.
+
+    ``os.environ.get(name, default)`` returns "" for a variable that is SET but empty, not the
+    default - and GitHub Actions passes an unconfigured repo variable as exactly that. For the
+    numeric knobs that is worse than blank: float("") raises, and the daily job dies on a
+    variable nobody ever set. The same helper nhl/ and nba/ use.
+    """
+    return os.environ.get(name, "").strip() or default
+
+
+def _env_float(name: str, default: float) -> float:
+    try:
+        return float(_env(name, str(default)))
+    except ValueError:
+        return default
+
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(_env(name, str(default)))
+    except ValueError:
+        return default
+
+
 ROOT = Path(os.environ.get("DEGEN_ROOT", Path(__file__).resolve().parent.parent))
 DATA = Path(os.environ.get("DEGEN_DATA", ROOT / "data")) / "cfb"
 # GitHub Pages serves the docs folder. Its ROOT is a sport chooser rendered by
@@ -84,7 +110,7 @@ NO_CROWD_SEASONS = {int(s) for s in os.environ.get("DEGEN_NO_CROWD", "2020").spl
 
 FIRST_SEASON = int(os.environ.get("DEGEN_FIRST_SEASON", "2015"))
 # Games this many days ahead go on the board. CFB weeks run Thu-Mon.
-BOARD_DAYS = int(os.environ.get("DEGEN_BOARD_DAYS", "7"))
+BOARD_DAYS = _env_int("DEGEN_BOARD_DAYS", 7)
 
 # Publish FBS-vs-FCS games on the board as well - ~120 a season, staked on the same edge
 # thresholds as anything else. An initial version showed them but banned staking, on a 50.7%
@@ -96,18 +122,18 @@ BOARD_DAYS = int(os.environ.get("DEGEN_BOARD_DAYS", "7"))
 #
 # Set to 0 for an FBS-only board. Games where NEITHER side is FBS are always dropped - those
 # are the D-II/D-III rows the broken feed filter drags in, and nothing prices them.
-BOARD_FCS = os.environ.get("DEGEN_CFB_BOARD_FCS", "1").lower() not in ("0", "false", "no", "")
+BOARD_FCS = _env("DEGEN_CFB_BOARD_FCS", "1").lower() not in ("0", "false", "no")
 
 # --- modelling / betting -------------------------------------------------------------
-MIN_GAMES = int(os.environ.get("DEGEN_MIN_GAMES", "2"))     # thin-data guard (weeks 1-2)
+MIN_GAMES = _env_int("DEGEN_MIN_GAMES", 2)     # thin-data guard (weeks 1-2)
 # NOTE: these thresholds apply to the model's RAW disagreement with the line
 # (|model - line|), NOT to the shrunk display edge. Set them from the
 # ats_by_disagreement table in models/meta.json - pick the smallest bucket whose
 # cover_pct clears 52.4 by more than ~2 stderr on a decent sample.
-TOTAL_EDGE_MIN = float(os.environ.get("DEGEN_TOTAL_EDGE", "5.0"))
-SPREAD_EDGE_MIN = float(os.environ.get("DEGEN_SPREAD_EDGE", "4.0"))
+TOTAL_EDGE_MIN = _env_float("DEGEN_TOTAL_EDGE", 5.0)
+SPREAD_EDGE_MIN = _env_float("DEGEN_SPREAD_EDGE", 4.0)
 BOLD_MULT = 2.0
-KELLY_FRACTION = float(os.environ.get("DEGEN_KELLY", "0.25"))
+KELLY_FRACTION = _env_float("DEGEN_KELLY", 0.25)
 
 # --- venue / cost model --------------------------------------------------------------
 # Sportsbooks bake their margin into the line (-110 => 52.38% break-even). Prediction-market

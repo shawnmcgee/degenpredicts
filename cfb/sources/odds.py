@@ -17,6 +17,7 @@ from datetime import datetime
 
 import pandas as pd
 
+from .. import config
 from ..config import ET, ODDS_BOOKS, SNAPSHOTS, ODDS_API_KEY, ensure_dirs
 from core.http import get
 
@@ -156,8 +157,17 @@ def snapshot(matcher=None) -> pd.DataFrame:
     log.info("Odds API quota used=%s remaining=%s",
              r.headers.get("x-requests-used"), r.headers.get("x-requests-remaining"))
     pulled = datetime.utcnow().isoformat(timespec="seconds")
-    rows = []
+    now = pd.Timestamp(config.now_et())
+    rows, live = [], 0
     for ev in r.json():
+        ts = pd.Timestamp(ev["commence_time"])
+        ts = ts.tz_localize("UTC") if ts.tzinfo is None else ts
+        # The feed also lists games already under way, at in-play prices. Those are not pregame
+        # lines, and a snapshot of one is not a closing line either: on a Saturday the late
+        # morning run would otherwise price the noon games at whatever the score has made them.
+        if ts <= now:
+            live += 1
+            continue
         tot = {bm["title"]: _market(bm, "totals", ev["home_team"]) for bm in ev.get("bookmakers", [])}
         spr = {bm["title"]: _market(bm, "spreads", ev["home_team"]) for bm in ev.get("bookmakers", [])}
         tot = {k: v for k, v in tot.items() if v}
@@ -174,8 +184,6 @@ def snapshot(matcher=None) -> pd.DataFrame:
 
         t_line, t_over, t_under, t_book, t_n = choose(tot)
         s_line, s_home, s_away, s_book, s_n = choose(spr)
-        ts = pd.Timestamp(ev["commence_time"])
-        ts = ts.tz_localize("UTC") if ts.tzinfo is None else ts
         et = ts.tz_convert(ET)
         home = matcher(ev["home_team"]) if matcher else ev["home_team"]
         away = matcher(ev["away_team"]) if matcher else ev["away_team"]
@@ -191,6 +199,8 @@ def snapshot(matcher=None) -> pd.DataFrame:
                      "spread_away_price": s_away, "spread_book": s_book, "spread_n_books": s_n,
                      "p_over_mkt": p_o, "p_under_mkt": p_u,
                      "p_home_mkt": p_h, "p_away_mkt": p_a})
+    if live:
+        log.info("odds: skipped %d games already under way (in-play prices)", live)
     df = pd.DataFrame(rows)
     if matcher is not None and getattr(matcher, "unmatched", None):
         log.warning("%d Odds API team names unmatched: %s",

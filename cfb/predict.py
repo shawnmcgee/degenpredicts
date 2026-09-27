@@ -73,6 +73,29 @@ def _strength(edge, minimum, thin) -> str:
     return "bold" if e >= minimum * config.BOLD_MULT else "play"
 
 
+def kicked_off(sched: pd.DataFrame, now=None) -> pd.Series:
+    """Games whose announced kickoff has passed.
+
+    A game under way is still ``completed == False``, so a date filter alone keeps it on the
+    board - and the morning cron fires three to five hours late, which on a Saturday lands after
+    the noon kickoffs. The Odds API then serves its IN-PLAY number, the model re-runs against
+    it and the pregame pick the page showed all morning is overwritten by one made mid-game:
+    Boston College-Virginia Tech opened at 54.5 and was re-priced at 27.5 53 minutes in. 38 of
+    the first 337 graded games went through that, including 5 of the 24 graded as plays and 14
+    of the 22 Kalshi picks - an in-play exchange quote knows the score and the model does not.
+
+    A TBD game carries a midnight placeholder rather than a kickoff, so it never counts as
+    started. `now` defaults to ``config.now_et()`` so a test can pin the clock.
+    """
+    now = pd.Timestamp(config.now_et() if now is None else now)
+    if "kickoff_utc" not in sched.columns:
+        return pd.Series(False, index=sched.index)
+    kick = pd.to_datetime(sched["kickoff_utc"], utc=True, errors="coerce")
+    tbd = (sched["start_time_tbd"].astype(str).str.strip().str.lower().isin(["true", "1"])
+           if "start_time_tbd" in sched.columns else pd.Series(False, index=sched.index))
+    return (kick.notna() & ~tbd & (kick <= now)).astype(bool)
+
+
 def build_board(games: pd.DataFrame, lines: pd.DataFrame, week: int | None = None,
                 sp: pd.DataFrame | None = None) -> pd.DataFrame:
     today = config.today_et()
@@ -83,6 +106,13 @@ def build_board(games: pd.DataFrame, lines: pd.DataFrame, week: int | None = Non
     else:
         sched = sched[(sched["date"] >= today) &
                       (sched["date"] <= today + timedelta(days=config.BOARD_DAYS))]
+    # A game already under way keeps the row published before kickoff: leaving it off the board
+    # is what stops `run` overwriting that row, since only board games are rewritten.
+    started = kicked_off(sched)
+    if started.any():
+        log.info("board: %d games already kicked off keep the pick published before kickoff",
+                 int(started.sum()))
+        sched = sched[~started]
     if sched.empty:
         return sched
     # The schedule feed carries every classification, including the D-II and D-III rows the

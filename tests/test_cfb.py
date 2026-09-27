@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import os
 import pathlib
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 import numpy as np
 import pandas as pd
@@ -161,6 +161,22 @@ def test_pipeline(env, monkeypatch):
     # week 1 => no current-season games played => every pick flagged thin, none staked as play
     assert out["thin_data"].all()
     assert set(out["total_strength"]) <= {"pass", "thin"}
+
+    # A later run that lands after one game has kicked off must leave that game's row alone:
+    # the pick graded is the one the page showed at kickoff, not one re-priced mid-game.
+    key = ["total_line", "spread_home", "total_raw", "margin_raw", "total_pick", "spread_pick"]
+    before = pd.read_csv(env.PICKS, dtype={"game_id": str}).set_index("game_id")
+    started = upcoming.copy()
+    first = started["game_id"].iloc[0]
+    started["kickoff_utc"] = ""
+    started.loc[started.index[0], "date"] = env.today_et()
+    started.loc[started.index[0], "kickoff_utc"] = (env.now_et() - timedelta(minutes=30)).isoformat()
+    pd.concat([games, started]).to_csv(env.GAMES, index=False)
+    again = predict.run()
+    assert first not in set(again["game_id"]) and len(again) == 19
+    after = pd.read_csv(env.PICKS, dtype={"game_id": str}).set_index("game_id")
+    pd.testing.assert_series_equal(before.loc[first, key], after.loc[first, key])
+    pd.concat([games, upcoming]).to_csv(env.GAMES, index=False)
 
     # finalise those games so grading has scores
     finished = upcoming.copy()
@@ -862,6 +878,81 @@ def test_board_keeps_fcs_visitors_but_never_the_d3_rows(env, monkeypatch):
     monkeypatch.setattr(C, "BOARD_FCS", False)
     board = build_board(sched, pd.DataFrame({"game_id": []}), sp=sp)
     assert set(board["game_id"]) == {"1"}
+
+
+def test_games_under_way_are_never_priced_in_play(env, monkeypatch):
+    """The morning run has been firing three to five hours late, so on a Saturday it lands after
+    the noon kickoffs. A game under way is still `completed == False` and stayed on the board,
+    where the Odds API's in-play number replaced the pregame line: Boston College-Virginia
+    Tech's 54.5 total came back as 27.5 53 minutes in, and the model called Over. Neither the
+    feed nor the board may treat those as pregame numbers."""
+    from cfb import config as C
+    from cfb import predict
+    from cfb.sources import odds
+
+    now = datetime(2026, 9, 26, 12, 53, tzinfo=C.ET)      # the Saturday run that did it
+    monkeypatch.setattr(C, "now_et", lambda: now)
+
+    def event(eid, start):
+        return {"id": eid, "commence_time": start, "home_team": "Boston College Eagles",
+                "away_team": "Virginia Tech Hokies", "bookmakers": [{"title": "DraftKings",
+                "markets": [{"key": "totals", "outcomes": [
+                    {"name": "Over", "point": 27.5, "price": -113},
+                    {"name": "Under", "point": 27.5, "price": -117}]}]}]}
+
+    class Response:
+        status_code, headers = 200, {}
+
+        def json(self):
+            return [event("noon", "2026-09-26T16:00:00Z"), event("night", "2026-09-26T23:30:00Z")]
+
+    monkeypatch.setattr(odds, "ODDS_API_KEY", "test")
+    monkeypatch.setattr(odds, "get", lambda *a, **k: Response())
+    assert list(odds.snapshot()["event_id"]) == ["night"]
+
+    season = C.season_of(now.date())
+
+    def game(gid, kickoff, tbd=False):
+        return {"game_id": gid, "season": season, "week": 4, "completed": False,
+                "date": now.date(), "kickoff_utc": kickoff, "start_time_tbd": tbd,
+                "home_team": f"{gid} home", "away_team": f"{gid} away"}
+
+    sched = pd.DataFrame([
+        game("noon", "2026-09-26T12:00:00-04:00"),                 # under way: keeps its row
+        game("night", "2026-09-26T19:30:00-04:00"),                # later today: re-priced
+        game("tbd", "2026-09-26T00:00:00-04:00", tbd=True),       # midnight is a placeholder
+        game("unknown", ""),                                      # no time at all: kept
+    ])
+    teams = list(sched["home_team"]) + list(sched["away_team"])
+    board = predict.build_board(sched, pd.DataFrame({"game_id": []}), sp=_sp_table(teams, [season]))
+    assert set(board["game_id"]) == {"night", "tbd", "unknown"}
+    assert predict.kicked_off(sched, now).tolist() == [True, False, False, False]
+
+
+def test_the_knobs_reach_the_predict_job_and_blank_means_unset(env, monkeypatch):
+    """The README said to set repo variables such as DEGEN_MIN_GAMES, but the workflow named
+    none of them, and Actions exposes a repo variable only when the workflow names it - so they
+    did nothing. Named now, an unset one arrives as "", which float() rejects and which used to
+    read as "off" for the FCS switch, so blank has to mean "use the default"."""
+    from pathlib import Path
+    from cfb import config as C
+
+    wf = (Path(__file__).resolve().parent.parent
+          / ".github" / "workflows" / "cfb-predict.yml").read_text()
+    for env_name, var in (("DEGEN_SPREAD_EDGE", "DEGEN_CFB_SPREAD_EDGE"),
+                          ("DEGEN_TOTAL_EDGE", "DEGEN_CFB_TOTAL_EDGE"),
+                          ("DEGEN_MIN_GAMES", "DEGEN_CFB_MIN_GAMES"),
+                          ("DEGEN_CFB_BOARD_FCS", "DEGEN_CFB_BOARD_FCS")):
+        assert f"{env_name}: ${{{{ vars.{var} }}}}" in wf, f"{var} is not forwarded"
+
+    monkeypatch.setenv("DEGEN_SPREAD_EDGE", "")
+    assert C._env_float("DEGEN_SPREAD_EDGE", 4.0) == 4.0
+    monkeypatch.setenv("DEGEN_SPREAD_EDGE", " 6 ")
+    assert C._env_float("DEGEN_SPREAD_EDGE", 4.0) == 6.0
+    monkeypatch.setenv("DEGEN_MIN_GAMES", "")
+    assert C._env_int("DEGEN_MIN_GAMES", 2) == 2
+    monkeypatch.setenv("DEGEN_CFB_BOARD_FCS", "")
+    assert C._env("DEGEN_CFB_BOARD_FCS", "1") == "1"
 
 
 def test_the_matcher_universe_grows_by_this_weeks_opponents_only(env):
