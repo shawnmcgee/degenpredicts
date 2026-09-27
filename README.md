@@ -234,6 +234,14 @@ pregame row is kept rather than rewritten, and `odds.snapshot` skips live events
 number never reaches `snapshots.csv` either. A TBD kickoff (CFBD stamps midnight) never counts
 as started.
 
+The 37 affected rows from weeks 2–4 were restated in `results.csv` with the pick the page
+actually showed at kickoff — the game's row in the last picks commit before it — and re-scored
+with `grade.py`'s own arithmetic (checked for exact parity on every untouched row). Finals,
+kickoff times and the grade-time close were kept. Plays went from 4-4 to 3-5 on totals and from
+8-8 (+1.07u) to 7-8 (−0.16u) on spreads: the in-play rows had been flattering the record. The
+one week-1 row (Prairie View A&M–Texas Southern, two passes, same result either way) was left
+alone, because its pregame version predates the stake-gating fix.
+
 ---
 
 ## What is in `games.csv`, and what the board publishes
