@@ -4695,7 +4695,7 @@ game_id,season,week,season_type,playoff_round,date,tip_et,kickoff_utc,start_time
 2026_04_ATL_NO,2026,4,REG,0,2026-10-05,"Mon Oct 05, 8:15 PM",2026-10-05T20:15:00-04:00,False,Monday,NO,ATL,,,,,False,True,NFC South,NFC South,8.0,11.0,dome,sportturf,,,NOR00,Tyler Shough,Michael Penix Jr.,False
 2026_05_TB_DAL,2026,5,REG,0,2026-10-08,"Thu Oct 08, 8:15 PM",2026-10-08T20:15:00-04:00,False,Thursday,DAL,TB,,,,,False,False,NFC East,NFC South,4.0,4.0,,matrixturf,,,DAL00,,,False
 2026_05_BAL_ATL,2026,5,REG,0,2026-10-11,"Sun Oct 11, 8:20 PM",2026-10-11T20:20:00-04:00,False,Sunday,ATL,BAL,,,,,False,False,NFC South,AFC North,6.0,7.0,,fieldturf,,,ATL97,,,False
-2026_05_CHI_GB,2026,5,REG,0,2026-10-11,"Sun Oct 11, 4:25 PM",2026-10-11T16:25:00-04:00,False,Sunday,GB,CHI,,,,,False,True,NFC North,NFC North,7.0,7.0,outdoors,grass,,,GNB00,,,False
+2026_05_CHI_GB,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,GB,CHI,,,,,False,True,NFC North,NFC North,7.0,7.0,outdoors,grass,,,GNB00,,,False
 2026_05_CIN_MIA,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,MIA,CIN,,,,,False,False,AFC East,AFC North,7.0,7.0,outdoors,grass,,,MIA00,,,False
 2026_05_CLE_NYJ,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,NYJ,CLE,,,,,False,False,AFC East,AFC North,7.0,10.0,outdoors,fieldturf,,,NYC01,,,False
 2026_05_DEN_LAC,2026,5,REG,0,2026-10-11,"Sun Oct 11, 4:05 PM",2026-10-11T16:05:00-04:00,False,Sunday,LAC,DEN,,,,,False,True,AFC West,AFC West,7.0,7.0,dome,matrixturf,,,LAX01,,,False
