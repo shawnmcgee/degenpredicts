@@ -35,3 +35,13 @@ pulled_at,date,game_id,side,team,goalie,goalie_id,status,matched_by
 2026-09-29T19:26:12+00:00,2026-09-30,2026020006,a,PIT,Arturs Silovs,8481668,projected,name
 2026-09-29T19:26:12+00:00,2026-09-30,2026020007,h,COL,Scott Wedgewood,8475809,projected,name
 2026-09-29T19:26:12+00:00,2026-09-30,2026020007,a,LAK,Darcy Kuemper,8475311,projected,name
+2026-09-30T00:45:58+00:00,2026-09-29,2026020004,h,EDM,Tristan Jarry,8477465,confirmed,name
+2026-09-30T00:45:58+00:00,2026-09-29,2026020004,a,VAN,Kevin Lankinen,8480947,likely,name
+2026-09-30T00:45:58+00:00,2026-09-29,2026020005,h,VGK,Carter Hart,8479394,confirmed,name
+2026-09-30T00:45:58+00:00,2026-09-29,2026020005,a,CHI,Spencer Knight,8481519,confirmed,name
+2026-09-30T00:45:58+00:00,2026-09-30,2026020008,h,TOR,Sergei Bobrovsky,8475683,projected,"name, other team"
+2026-09-30T00:45:58+00:00,2026-09-30,2026020008,a,NYI,Ilya Sorokin,8478009,likely,name
+2026-09-30T00:45:58+00:00,2026-09-30,2026020006,h,PHI,Dan Vladar,8478435,projected,name
+2026-09-30T00:45:58+00:00,2026-09-30,2026020006,a,PIT,Arturs Silovs,8481668,projected,name
+2026-09-30T00:45:58+00:00,2026-09-30,2026020007,h,COL,Scott Wedgewood,8475809,projected,name
+2026-09-30T00:45:58+00:00,2026-09-30,2026020007,a,LAK,Darcy Kuemper,8475311,projected,name
