@@ -4682,7 +4682,7 @@ game_id,season,week,season_type,playoff_round,date,tip_et,kickoff_utc,start_time
 2026_04_DAL_HOU,2026,4,REG,0,2026-10-04,"Sun Oct 04, 1:00 PM",2026-10-04T13:00:00-04:00,False,Sunday,HOU,DAL,,,,,False,False,AFC South,NFC East,7.0,7.0,,astroturf,,,HOU00,C.J. Stroud,Dak Prescott,False
 2026_04_DEN_SF,2026,4,REG,0,2026-10-04,"Sun Oct 04, 4:25 PM",2026-10-04T16:25:00-04:00,False,Sunday,SF,DEN,,,,,False,False,NFC West,AFC West,7.0,7.0,outdoors,grass,,,SFO01,Brock Purdy,Bo Nix,False
 2026_04_DET_CAR,2026,4,REG,0,2026-10-04,"Sun Oct 04, 8:20 PM",2026-10-04T20:20:00-04:00,False,Sunday,CAR,DET,,,,,False,False,NFC South,NFC North,7.0,7.0,outdoors,grass,,,CAR00,Bryce Young,Jared Goff,False
-2026_04_GB_TB,2026,4,REG,0,2026-10-04,"Sun Oct 04, 1:00 PM",2026-10-04T13:00:00-04:00,False,Sunday,TB,GB,,,,,False,False,NFC South,NFC North,7.0,10.0,outdoors,grass,,,TAM00,Baker Mayfield,Jordan Love,False
+2026_04_GB_TB,2026,4,REG,0,2026-10-04,"Sun Oct 04, 1:00 PM",2026-10-04T13:00:00-04:00,False,Sunday,TB,GB,,,,,False,False,NFC South,NFC North,7.0,10.0,outdoors,grass,,,TAM00,Jalon Daniels,Jordan Love,False
 2026_04_IND_WAS,2026,4,REG,0,2026-10-04,"Sun Oct 04, 9:30 AM",2026-10-04T09:30:00-04:00,False,Sunday,WAS,IND,,,,,True,False,NFC East,AFC South,7.0,7.0,outdoors,grass,,,LON02,Jayden Daniels,Daniel Jones,False
 2026_04_JAX_CIN,2026,4,REG,0,2026-10-04,"Sun Oct 04, 1:00 PM",2026-10-04T13:00:00-04:00,False,Sunday,CIN,JAX,,,,,False,False,AFC North,AFC South,7.0,7.0,outdoors,fieldturf,,,CIN00,Joe Burrow,Trevor Lawrence,False
 2026_04_KC_LV,2026,4,REG,0,2026-10-04,"Sun Oct 04, 4:25 PM",2026-10-04T16:25:00-04:00,False,Sunday,LV,KC,,,,,False,True,AFC West,AFC West,7.0,7.0,dome,grass,,,VEG00,Kirk Cousins,Patrick Mahomes,False
@@ -4693,21 +4693,21 @@ game_id,season,week,season_type,playoff_round,date,tip_et,kickoff_utc,start_time
 2026_04_NYJ_CHI,2026,4,REG,0,2026-10-04,"Sun Oct 04, 1:00 PM",2026-10-04T13:00:00-04:00,False,Sunday,CHI,NYJ,,,,,False,False,NFC North,AFC East,6.0,7.0,outdoors,grass,,,CHI98,Case Keenum,Geno Smith,False
 2026_04_TEN_BAL,2026,4,REG,0,2026-10-04,"Sun Oct 04, 1:00 PM",2026-10-04T13:00:00-04:00,False,Sunday,BAL,TEN,,,,,False,False,AFC North,AFC South,7.0,7.0,outdoors,grass,,,BAL00,Lamar Jackson,Cam Ward,False
 2026_04_ATL_NO,2026,4,REG,0,2026-10-05,"Mon Oct 05, 8:15 PM",2026-10-05T20:15:00-04:00,False,Monday,NO,ATL,,,,,False,True,NFC South,NFC South,8.0,11.0,dome,sportturf,,,NOR00,Tyler Shough,Michael Penix Jr.,False
-2026_05_TB_DAL,2026,5,REG,0,2026-10-08,"Thu Oct 08, 8:15 PM",2026-10-08T20:15:00-04:00,False,Thursday,DAL,TB,,,,,False,False,NFC East,NFC South,4.0,4.0,,matrixturf,,,DAL00,,,False
-2026_05_BAL_ATL,2026,5,REG,0,2026-10-11,"Sun Oct 11, 8:20 PM",2026-10-11T20:20:00-04:00,False,Sunday,ATL,BAL,,,,,False,False,NFC South,AFC North,6.0,7.0,,fieldturf,,,ATL97,,,False
-2026_05_CHI_GB,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,GB,CHI,,,,,False,True,NFC North,NFC North,7.0,7.0,outdoors,grass,,,GNB00,,,False
-2026_05_CIN_MIA,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,MIA,CIN,,,,,False,False,AFC East,AFC North,7.0,7.0,outdoors,grass,,,MIA00,,,False
-2026_05_CLE_NYJ,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,NYJ,CLE,,,,,False,False,AFC East,AFC North,7.0,10.0,outdoors,fieldturf,,,NYC01,,,False
-2026_05_DEN_LAC,2026,5,REG,0,2026-10-11,"Sun Oct 11, 4:05 PM",2026-10-11T16:05:00-04:00,False,Sunday,LAC,DEN,,,,,False,True,AFC West,AFC West,7.0,7.0,dome,matrixturf,,,LAX01,,,False
-2026_05_DET_ARI,2026,5,REG,0,2026-10-11,"Sun Oct 11, 4:25 PM",2026-10-11T16:25:00-04:00,False,Sunday,ARI,DET,,,,,False,False,NFC West,NFC North,7.0,7.0,,grass,,,PHO00,,,False
-2026_05_HOU_TEN,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,TEN,HOU,,,,,False,True,AFC South,AFC South,7.0,7.0,outdoors,grass,,,NAS00,,,False
-2026_05_IND_PIT,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,PIT,IND,,,,,False,False,AFC North,AFC South,10.0,7.0,outdoors,grass,,,PIT00,,,False
-2026_05_LV_NE,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,NE,LV,,,,,False,False,AFC East,AFC West,7.0,7.0,outdoors,fieldturf,,,BOS00,,,False
-2026_05_MIN_NO,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,NO,MIN,,,,,False,False,NFC South,NFC North,6.0,7.0,dome,sportturf,,,NOR00,,,False
-2026_05_NYG_WAS,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,WAS,NYG,,,,,False,True,NFC East,NFC East,7.0,7.0,outdoors,grass,,,WAS00,,,False
-2026_05_PHI_JAX,2026,5,REG,0,2026-10-11,"Sun Oct 11, 9:30 AM",2026-10-11T09:30:00-04:00,False,Sunday,JAX,PHI,,,,,False,False,AFC South,NFC East,7.0,7.0,outdoors,grass,,,JAX00,,,False
-2026_05_SF_SEA,2026,5,REG,0,2026-10-11,"Sun Oct 11, 4:25 PM",2026-10-11T16:25:00-04:00,False,Sunday,SEA,SF,,,,,False,True,NFC West,NFC West,7.0,7.0,outdoors,fieldturf,,,SEA00,,,False
-2026_05_BUF_LA,2026,5,REG,0,2026-10-12,"Mon Oct 12, 8:15 PM",2026-10-12T20:15:00-04:00,False,Monday,LA,BUF,,,,,False,False,NFC West,AFC East,8.0,8.0,dome,matrixturf,,,LAX01,,,False
+2026_05_TB_DAL,2026,5,REG,0,2026-10-08,"Thu Oct 08, 8:15 PM",2026-10-08T20:15:00-04:00,False,Thursday,DAL,TB,,,,,False,False,NFC East,NFC South,4.0,4.0,,matrixturf,,,DAL00,Dak Prescott,Jalon Daniels,False
+2026_05_BAL_ATL,2026,5,REG,0,2026-10-11,"Sun Oct 11, 8:20 PM",2026-10-11T20:20:00-04:00,False,Sunday,ATL,BAL,,,,,False,False,NFC South,AFC North,6.0,7.0,,fieldturf,,,ATL97,Michael Penix Jr.,Lamar Jackson,False
+2026_05_CHI_GB,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,GB,CHI,,,,,False,True,NFC North,NFC North,7.0,7.0,outdoors,grass,,,GNB00,Jordan Love,Case Keenum,False
+2026_05_CIN_MIA,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,MIA,CIN,,,,,False,False,AFC East,AFC North,7.0,7.0,outdoors,grass,,,MIA00,Malik Willis,Joe Burrow,False
+2026_05_CLE_NYJ,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,NYJ,CLE,,,,,False,False,AFC East,AFC North,7.0,10.0,outdoors,fieldturf,,,NYC01,Geno Smith,Deshaun Watson,False
+2026_05_DEN_LAC,2026,5,REG,0,2026-10-11,"Sun Oct 11, 4:05 PM",2026-10-11T16:05:00-04:00,False,Sunday,LAC,DEN,,,,,False,True,AFC West,AFC West,7.0,7.0,dome,matrixturf,,,LAX01,Justin Herbert,Bo Nix,False
+2026_05_DET_ARI,2026,5,REG,0,2026-10-11,"Sun Oct 11, 4:25 PM",2026-10-11T16:25:00-04:00,False,Sunday,ARI,DET,,,,,False,False,NFC West,NFC North,7.0,7.0,,grass,,,PHO00,Jacoby Brissett,Jared Goff,False
+2026_05_HOU_TEN,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,TEN,HOU,,,,,False,True,AFC South,AFC South,7.0,7.0,outdoors,grass,,,NAS00,Cam Ward,C.J. Stroud,False
+2026_05_IND_PIT,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,PIT,IND,,,,,False,False,AFC North,AFC South,10.0,7.0,outdoors,grass,,,PIT00,Aaron Rodgers,Daniel Jones,False
+2026_05_LV_NE,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,NE,LV,,,,,False,False,AFC East,AFC West,7.0,7.0,outdoors,fieldturf,,,BOS00,Drake Maye,Kirk Cousins,False
+2026_05_MIN_NO,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,NO,MIN,,,,,False,False,NFC South,NFC North,6.0,7.0,dome,sportturf,,,NOR00,Tyler Shough,Kyler Murray,False
+2026_05_NYG_WAS,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,WAS,NYG,,,,,False,True,NFC East,NFC East,7.0,7.0,outdoors,grass,,,WAS00,Jayden Daniels,Jameis Winston,False
+2026_05_PHI_JAX,2026,5,REG,0,2026-10-11,"Sun Oct 11, 9:30 AM",2026-10-11T09:30:00-04:00,False,Sunday,JAX,PHI,,,,,False,False,AFC South,NFC East,7.0,7.0,outdoors,grass,,,JAX00,Trevor Lawrence,Jalen Hurts,False
+2026_05_SF_SEA,2026,5,REG,0,2026-10-11,"Sun Oct 11, 4:25 PM",2026-10-11T16:25:00-04:00,False,Sunday,SEA,SF,,,,,False,True,NFC West,NFC West,7.0,7.0,outdoors,fieldturf,,,SEA00,Drew Lock,Brock Purdy,False
+2026_05_BUF_LA,2026,5,REG,0,2026-10-12,"Mon Oct 12, 8:15 PM",2026-10-12T20:15:00-04:00,False,Monday,LA,BUF,,,,,False,False,NFC West,AFC East,8.0,8.0,dome,matrixturf,,,LAX01,Matthew Stafford,Josh Allen,False
 2026_06_SEA_DEN,2026,6,REG,0,2026-10-15,"Thu Oct 15, 8:15 PM",2026-10-15T20:15:00-04:00,False,Thursday,DEN,SEA,,,,,False,False,AFC West,NFC West,4.0,4.0,outdoors,grass,,,DEN00,,,False
 2026_06_ARI_LA,2026,6,REG,0,2026-10-18,"Sun Oct 18, 4:05 PM",2026-10-18T16:05:00-04:00,False,Sunday,LA,ARI,,,,,False,True,NFC West,NFC West,6.0,7.0,dome,matrixturf,,,LAX01,,,False
 2026_06_BAL_CLE,2026,6,REG,0,2026-10-18,"Sun Oct 18, 1:00 PM",2026-10-18T13:00:00-04:00,False,Sunday,CLE,BAL,,,,,False,True,AFC North,AFC North,7.0,7.0,outdoors,grass,,,CLE00,,,False
