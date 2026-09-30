@@ -1,9 +1,110 @@
 {
-  "updated": "2026-09-29",
+  "updated": "2026-09-30",
   "sport": "nhl",
   "break_even": 52.38,
   "venue": "sportsbook",
-  "spreads": {},
-  "totals": {},
-  "by_week": []
+  "spreads": {
+    "season": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "pushes": 0,
+      "win_pct": 0.0,
+      "units": 0.0,
+      "roi": 0.0,
+      "clv": null
+    },
+    "all_games": {
+      "n": 5,
+      "wins": 2,
+      "losses": 3,
+      "pushes": 0,
+      "win_pct": 40.0,
+      "units": 0.0,
+      "roi": 0.0,
+      "clv": -0.025,
+      "expected_pct": 38.5
+    },
+    "mae": 1.893,
+    "by_edge": [
+      {
+        "bucket": "-1.00-+0.00",
+        "lo": -1.0,
+        "hi": 0.0,
+        "n": 4,
+        "wins": 1,
+        "losses": 3,
+        "pushes": 0,
+        "win_pct": 25.0,
+        "units": 0.0,
+        "roi": 0.0,
+        "clv": -0.008,
+        "expected_pct": 36.4
+      },
+      {
+        "bucket": "+0.02-+0.04",
+        "lo": 0.02,
+        "hi": 0.04,
+        "n": 1,
+        "wins": 1,
+        "losses": 0,
+        "pushes": 0,
+        "win_pct": 100.0,
+        "units": 0.0,
+        "roi": 0.0,
+        "clv": -0.092,
+        "expected_pct": 46.8
+      }
+    ]
+  },
+  "totals": {
+    "season": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "pushes": 0,
+      "win_pct": 0.0,
+      "units": 0.0,
+      "roi": 0.0,
+      "clv": null
+    },
+    "all_games": {
+      "n": 5,
+      "wins": 2,
+      "losses": 3,
+      "pushes": 0,
+      "win_pct": 40.0,
+      "units": 0.0,
+      "roi": 0.0,
+      "clv": 0.023,
+      "expected_pct": 51.3
+    },
+    "mae": 3.039,
+    "by_edge": [
+      {
+        "bucket": "-1.00-+0.00",
+        "lo": -1.0,
+        "hi": 0.0,
+        "n": 5,
+        "wins": 2,
+        "losses": 3,
+        "pushes": 0,
+        "win_pct": 40.0,
+        "units": 0.0,
+        "roi": 0.0,
+        "clv": 0.023,
+        "expected_pct": 51.3
+      }
+    ]
+  },
+  "by_week": [
+    {
+      "week": "2026-W40",
+      "games": 5,
+      "spread_units": 0.0,
+      "total_units": 0.0,
+      "cum_spread": 0.0,
+      "cum_total": 0.0
+    }
+  ]
 }
