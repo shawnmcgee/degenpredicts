@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-30",
+  "updated": "2026-10-01",
   "sport": "nhl",
   "break_even": 52.38,
   "venue": "sportsbook",
@@ -15,31 +15,31 @@
       "clv": null
     },
     "all_games": {
-      "n": 5,
-      "wins": 2,
-      "losses": 3,
+      "n": 8,
+      "wins": 4,
+      "losses": 4,
       "pushes": 0,
-      "win_pct": 40.0,
+      "win_pct": 50.0,
       "units": 0.0,
       "roi": 0.0,
-      "clv": -0.025,
-      "expected_pct": 38.5
+      "clv": -0.042,
+      "expected_pct": 47.9
     },
-    "mae": 1.893,
+    "mae": 2.608,
     "by_edge": [
       {
         "bucket": "-1.00-+0.00",
         "lo": -1.0,
         "hi": 0.0,
-        "n": 4,
-        "wins": 1,
-        "losses": 3,
+        "n": 7,
+        "wins": 3,
+        "losses": 4,
         "pushes": 0,
-        "win_pct": 25.0,
+        "win_pct": 42.9,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.008,
-        "expected_pct": 36.4
+        "clv": -0.034,
+        "expected_pct": 48.0
       },
       {
         "bucket": "+0.02-+0.04",
@@ -69,38 +69,38 @@
       "clv": null
     },
     "all_games": {
-      "n": 5,
-      "wins": 2,
-      "losses": 3,
+      "n": 8,
+      "wins": 4,
+      "losses": 4,
       "pushes": 0,
-      "win_pct": 40.0,
+      "win_pct": 50.0,
       "units": 0.0,
       "roi": 0.0,
-      "clv": 0.023,
-      "expected_pct": 51.3
+      "clv": 0.025,
+      "expected_pct": 50.6
     },
-    "mae": 3.039,
+    "mae": 3.083,
     "by_edge": [
       {
         "bucket": "-1.00-+0.00",
         "lo": -1.0,
         "hi": 0.0,
-        "n": 5,
-        "wins": 2,
-        "losses": 3,
+        "n": 8,
+        "wins": 4,
+        "losses": 4,
         "pushes": 0,
-        "win_pct": 40.0,
+        "win_pct": 50.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.023,
-        "expected_pct": 51.3
+        "clv": 0.025,
+        "expected_pct": 50.6
       }
     ]
   },
   "by_week": [
     {
       "week": "2026-W40",
-      "games": 5,
+      "games": 8,
       "spread_units": 0.0,
       "total_units": 0.0,
       "cum_spread": 0.0,
