@@ -27289,8 +27289,8 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401909128,2026,4,regular,2026-09-26,False,"Sat Sep 26, 2:00 PM",Denison,Ohio Wesleyan,,,,,False,True,North Coast,North Coast,False,2026-09-26T14:00:00-04:00,Sat,,
 401909133,2026,4,regular,2026-09-26,False,"Sat Sep 26, 1:00 PM",Kenyon,DePauw,,,,,False,True,North Coast,North Coast,False,2026-09-26T13:00:00-04:00,Sat,,
 401909146,2026,4,regular,2026-09-26,False,"Sat Sep 26, 2:00 PM",Wabash,Wooster,,,,,False,True,North Coast,North Coast,False,2026-09-26T14:00:00-04:00,Sat,,
-401862786,2026,5,regular,2026-10-01,False,"Thu Oct 01, 9:00 PM",Tulsa,North Texas,,,,,False,True,American Athletic,American Athletic,False,2026-10-01T21:00:00-04:00,Thu,fbs,fbs
-401871049,2026,5,regular,2026-10-01,False,"Thu Oct 01, 8:00 PM",New Mexico State,Western Kentucky,,,,,False,True,Conference USA,Conference USA,False,2026-10-01T20:00:00-04:00,Thu,fbs,fbs
+401862786,2026,5,regular,2026-10-01,False,"Thu Oct 01, 9:00 PM",Tulsa,North Texas,44.0,45.0,89.0,-1.0,False,True,American Athletic,American Athletic,True,2026-10-01T21:00:00-04:00,Thu,fbs,fbs
+401871049,2026,5,regular,2026-10-01,False,"Thu Oct 01, 8:00 PM",New Mexico State,Western Kentucky,34.0,13.0,47.0,21.0,False,True,Conference USA,Conference USA,True,2026-10-01T20:00:00-04:00,Thu,fbs,fbs
 401858245,2026,5,regular,2026-10-02,False,"Fri Oct 02, 7:00 PM",Virginia Tech,Pittsburgh,,,,,False,True,ACC,ACC,False,2026-10-02T19:00:00-04:00,Fri,fbs,fbs
 401858476,2026,5,regular,2026-10-02,False,"Fri Oct 02, 8:00 PM",Northwestern,Penn State,,,,,False,True,Big Ten,Big Ten,False,2026-10-02T20:00:00-04:00,Fri,fbs,fbs
 401868094,2026,5,regular,2026-10-02,False,"Fri Oct 02, 10:30 PM",Idaho,Montana State,,,,,False,True,Big Sky,Big Sky,False,2026-10-02T22:30:00-04:00,Fri,,
@@ -27331,7 +27331,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401860899,2026,5,regular,2026-10-03,False,"Sat Oct 03, 6:00 PM",Colorado State,Oregon State,,,,,False,True,Pac-12,Pac-12,False,2026-10-03T18:00:00-04:00,Sat,fbs,fbs
 401860900,2026,5,regular,2026-10-03,False,"Sat Oct 03, 10:30 PM",San Diego State,Texas State,,,,,False,True,Pac-12,Pac-12,False,2026-10-03T22:30:00-04:00,Sat,fbs,fbs
 401860921,2026,5,regular,2026-10-03,False,"Sat Oct 03, 9:30 PM",Washington State,Fresno State,,,,,False,True,Pac-12,Pac-12,False,2026-10-03T21:30:00-04:00,Sat,fbs,fbs
-401862787,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Charlotte,Memphis,,,,,False,True,American Athletic,American Athletic,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401862787,2026,5,regular,2026-10-03,False,"Sat Oct 03, 11:00 AM",Charlotte,Memphis,,,,,False,True,American Athletic,American Athletic,False,2026-10-03T11:00:00-04:00,Sat,fbs,fbs
 401862788,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",Rice,UTSA,,,,,False,True,American Athletic,American Athletic,False,2026-10-03T19:00:00-04:00,Sat,fbs,fbs
 401862790,2026,5,regular,2026-10-03,False,"Sat Oct 03, 6:00 PM",Florida Atlantic,Texas Southern,,,,,False,False,American Athletic,SWAC,False,2026-10-03T18:00:00-04:00,Sat,fbs,fcs
 401862791,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",Air Force,Navy,,,,,False,False,Mountain West,American Athletic,False,2026-10-03T12:00:00-04:00,Sat,fbs,fbs

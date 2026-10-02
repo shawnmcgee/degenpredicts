@@ -1,38 +1,38 @@
 {
-  "updated": "2026-10-01",
+  "updated": "2026-10-02",
   "break_even": 51.75,
   "venue": "kalshi_taker",
   "totals": {
     "season": {
-      "n": 8,
+      "n": 9,
       "wins": 4,
-      "losses": 4,
+      "losses": 5,
       "pushes": 0,
-      "win_pct": 50.0,
-      "units": -1.29,
-      "roi": -20.9,
-      "clv": -0.94
+      "win_pct": 44.4,
+      "units": -1.81,
+      "roi": -27.0,
+      "clv": -0.67
     },
     "all_games": {
-      "n": 337,
+      "n": 339,
       "wins": 184,
-      "losses": 153,
+      "losses": 155,
       "pushes": 0,
-      "win_pct": 54.6,
-      "units": -1.29,
-      "roi": -20.9,
-      "clv": -0.01
+      "win_pct": 54.3,
+      "units": -1.81,
+      "roi": -27.0,
+      "clv": 0.0
     },
     "by_class": {
       "fbs": {
-        "n": 203,
+        "n": 205,
         "wins": 103,
-        "losses": 100,
+        "losses": 102,
         "pushes": 0,
-        "win_pct": 50.7,
-        "units": 0.02,
-        "roi": 0.8,
-        "clv": -0.45
+        "win_pct": 50.2,
+        "units": -0.5,
+        "roi": -16.1,
+        "clv": -0.42
       },
       "fcs": {
         "n": 134,
@@ -46,27 +46,27 @@
       }
     },
     "last2weeks": {
-      "n": 8,
-      "wins": 4,
-      "losses": 4,
+      "n": 5,
+      "wins": 2,
+      "losses": 3,
       "pushes": 0,
-      "win_pct": 50.0,
-      "units": -1.29,
-      "roi": -20.9,
-      "clv": -0.94
+      "win_pct": 40.0,
+      "units": -1.65,
+      "roi": -42.8,
+      "clv": -1.0
     },
-    "mae": 11.84,
+    "mae": 11.89,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 91,
+        "n": 92,
         "wins": 48,
-        "losses": 43,
+        "losses": 44,
         "pushes": 0,
-        "win_pct": 52.7,
+        "win_pct": 52.2,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.22
+        "clv": -0.18
       },
       {
         "bucket": "1-2",
@@ -103,14 +103,14 @@
       },
       {
         "bucket": "5-7",
-        "n": 27,
+        "n": 28,
         "wins": 17,
-        "losses": 10,
+        "losses": 11,
         "pushes": 0,
-        "win_pct": 63.0,
-        "units": -0.61,
-        "roi": -17.3,
-        "clv": 0.47
+        "win_pct": 60.7,
+        "units": -1.13,
+        "roi": -27.9,
+        "clv": 0.53
       },
       {
         "bucket": "7-+",
@@ -127,35 +127,35 @@
   },
   "spreads": {
     "season": {
-      "n": 16,
-      "wins": 8,
+      "n": 17,
+      "wins": 9,
       "losses": 8,
       "pushes": 0,
-      "win_pct": 50.0,
+      "win_pct": 52.9,
       "units": 1.07,
       "roi": 79.3,
-      "clv": 0.66
+      "clv": 0.76
     },
     "all_games": {
-      "n": 337,
-      "wins": 170,
-      "losses": 163,
+      "n": 339,
+      "wins": 171,
+      "losses": 164,
       "pushes": 4,
-      "win_pct": 51.1,
+      "win_pct": 51.0,
       "units": 1.07,
       "roi": 79.3,
-      "clv": -0.06
+      "clv": -0.05
     },
     "by_class": {
       "fbs": {
-        "n": 203,
-        "wins": 106,
-        "losses": 93,
+        "n": 205,
+        "wins": 107,
+        "losses": 94,
         "pushes": 4,
-        "win_pct": 53.3,
+        "win_pct": 53.2,
         "units": 1.07,
         "roi": 79.3,
-        "clv": -0.06
+        "clv": -0.04
       },
       "fcs": {
         "n": 134,
@@ -169,16 +169,16 @@
       }
     },
     "last2weeks": {
-      "n": 16,
-      "wins": 8,
-      "losses": 8,
+      "n": 8,
+      "wins": 5,
+      "losses": 3,
       "pushes": 0,
-      "win_pct": 50.0,
-      "units": 1.07,
-      "roi": 79.3,
-      "clv": 0.66
+      "win_pct": 62.5,
+      "units": 0.84,
+      "roi": 75.9,
+      "clv": 1.25
     },
-    "mae": 11.55,
+    "mae": 11.54,
     "by_edge": [
       {
         "bucket": "0-1",
@@ -204,14 +204,14 @@
       },
       {
         "bucket": "2-3",
-        "n": 75,
+        "n": 76,
         "wins": 47,
-        "losses": 27,
+        "losses": 28,
         "pushes": 1,
-        "win_pct": 63.5,
+        "win_pct": 62.7,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.31
+        "clv": 0.3
       },
       {
         "bucket": "3-5",
@@ -237,14 +237,14 @@
       },
       {
         "bucket": "7-+",
-        "n": 9,
-        "wins": 6,
+        "n": 10,
+        "wins": 7,
         "losses": 3,
         "pushes": 0,
-        "win_pct": 66.7,
+        "win_pct": 70.0,
         "units": 0.95,
         "roi": 95.2,
-        "clv": 0.57
+        "clv": 0.81
       }
     ]
   },
@@ -284,8 +284,17 @@
       "played": 10,
       "cum_total": -1.3,
       "cum_spread": 1.07
+    },
+    {
+      "week": 5,
+      "games": 2,
+      "total_units": -0.52,
+      "spread_units": 0.0,
+      "played": 1,
+      "cum_total": -1.82,
+      "cum_spread": 1.07
     }
   ],
-  "graded_games": 337,
+  "graded_games": 339,
   "fcs_games": 134
 }
