@@ -27291,10 +27291,10 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401909146,2026,4,regular,2026-09-26,False,"Sat Sep 26, 2:00 PM",Wabash,Wooster,,,,,False,True,North Coast,North Coast,False,2026-09-26T14:00:00-04:00,Sat,,
 401862786,2026,5,regular,2026-10-01,False,"Thu Oct 01, 9:00 PM",Tulsa,North Texas,44.0,45.0,89.0,-1.0,False,True,American Athletic,American Athletic,True,2026-10-01T21:00:00-04:00,Thu,fbs,fbs
 401871049,2026,5,regular,2026-10-01,False,"Thu Oct 01, 8:00 PM",New Mexico State,Western Kentucky,34.0,13.0,47.0,21.0,False,True,Conference USA,Conference USA,True,2026-10-01T20:00:00-04:00,Thu,fbs,fbs
-401858245,2026,5,regular,2026-10-02,False,"Fri Oct 02, 7:00 PM",Virginia Tech,Pittsburgh,,,,,False,True,ACC,ACC,False,2026-10-02T19:00:00-04:00,Fri,fbs,fbs
-401858476,2026,5,regular,2026-10-02,False,"Fri Oct 02, 8:00 PM",Northwestern,Penn State,,,,,False,True,Big Ten,Big Ten,False,2026-10-02T20:00:00-04:00,Fri,fbs,fbs
+401858245,2026,5,regular,2026-10-02,False,"Fri Oct 02, 7:00 PM",Virginia Tech,Pittsburgh,33.0,35.0,68.0,-2.0,False,True,ACC,ACC,True,2026-10-02T19:00:00-04:00,Fri,fbs,fbs
+401858476,2026,5,regular,2026-10-02,False,"Fri Oct 02, 8:00 PM",Northwestern,Penn State,34.0,13.0,47.0,21.0,False,True,Big Ten,Big Ten,True,2026-10-02T20:00:00-04:00,Fri,fbs,fbs
 401868094,2026,5,regular,2026-10-02,False,"Fri Oct 02, 10:30 PM",Idaho,Montana State,,,,,False,True,Big Sky,Big Sky,False,2026-10-02T22:30:00-04:00,Fri,,
-401871050,2026,5,regular,2026-10-02,False,"Fri Oct 02, 7:00 PM",Delaware,Liberty,,,,,False,True,Conference USA,Conference USA,False,2026-10-02T19:00:00-04:00,Fri,fbs,fbs
+401871050,2026,5,regular,2026-10-02,False,"Fri Oct 02, 7:00 PM",Delaware,Liberty,14.0,30.0,44.0,-16.0,False,True,Conference USA,Conference USA,True,2026-10-02T19:00:00-04:00,Fri,fbs,fbs
 401908333,2026,5,regular,2026-10-02,False,"Fri Oct 02, 6:00 PM",Dickinson,Johns Hopkins,,,,,False,True,Centennial,Centennial,False,2026-10-02T18:00:00-04:00,Fri,,
 401908367,2026,5,regular,2026-10-02,False,"Fri Oct 02, 7:00 PM",Ursinus,Muhlenberg,,,,,False,True,Centennial,Centennial,False,2026-10-02T19:00:00-04:00,Fri,,
 401908686,2026,5,regular,2026-10-02,False,"Fri Oct 02, 7:00 PM",St. Lawrence,Union,,,,,False,True,Liberty League,Liberty League,False,2026-10-02T19:00:00-04:00,Fri,,
