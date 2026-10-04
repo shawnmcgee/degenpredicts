@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-03",
+  "updated": "2026-10-04",
   "sport": "nhl",
   "break_even": 52.38,
   "venue": "sportsbook",
@@ -15,31 +15,31 @@
       "clv": null
     },
     "all_games": {
-      "n": 21,
-      "wins": 11,
-      "losses": 10,
+      "n": 34,
+      "wins": 22,
+      "losses": 12,
       "pushes": 0,
-      "win_pct": 52.4,
+      "win_pct": 64.7,
       "units": 0.0,
       "roi": 0.0,
-      "clv": -0.058,
-      "expected_pct": 52.3
+      "clv": -0.012,
+      "expected_pct": 53.2
     },
-    "mae": 2.674,
+    "mae": 2.387,
     "by_edge": [
       {
         "bucket": "-1.00-+0.00",
         "lo": -1.0,
         "hi": 0.0,
-        "n": 18,
-        "wins": 9,
-        "losses": 9,
+        "n": 31,
+        "wins": 20,
+        "losses": 11,
         "pushes": 0,
-        "win_pct": 50.0,
+        "win_pct": 64.5,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.046,
-        "expected_pct": 52.3
+        "clv": -0.0,
+        "expected_pct": 53.3
       },
       {
         "bucket": "+0.00-+0.02",
@@ -83,31 +83,31 @@
       "clv": null
     },
     "all_games": {
-      "n": 21,
-      "wins": 12,
-      "losses": 8,
-      "pushes": 1,
-      "win_pct": 60.0,
+      "n": 34,
+      "wins": 16,
+      "losses": 16,
+      "pushes": 2,
+      "win_pct": 50.0,
       "units": 0.0,
       "roi": 0.0,
-      "clv": 0.041,
-      "expected_pct": 51.0
+      "clv": 0.042,
+      "expected_pct": 50.5
     },
-    "mae": 2.381,
+    "mae": 2.15,
     "by_edge": [
       {
         "bucket": "-1.00-+0.00",
         "lo": -1.0,
         "hi": 0.0,
-        "n": 18,
-        "wins": 10,
-        "losses": 7,
-        "pushes": 1,
-        "win_pct": 58.8,
+        "n": 31,
+        "wins": 14,
+        "losses": 15,
+        "pushes": 2,
+        "win_pct": 48.3,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.051,
-        "expected_pct": 51.2
+        "clv": 0.048,
+        "expected_pct": 50.5
       },
       {
         "bucket": "+0.00-+0.02",
@@ -128,7 +128,7 @@
   "by_week": [
     {
       "week": "2026-W40",
-      "games": 21,
+      "games": 34,
       "spread_units": 0.0,
       "total_units": 0.0,
       "cum_spread": 0.0,
