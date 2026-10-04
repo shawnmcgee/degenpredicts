@@ -27299,53 +27299,53 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401908367,2026,5,regular,2026-10-02,False,"Fri Oct 02, 7:00 PM",Ursinus,Muhlenberg,,,,,False,True,Centennial,Centennial,False,2026-10-02T19:00:00-04:00,Fri,,
 401908686,2026,5,regular,2026-10-02,False,"Fri Oct 02, 7:00 PM",St. Lawrence,Union,,,,,False,True,Liberty League,Liberty League,False,2026-10-02T19:00:00-04:00,Fri,,
 401856705,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:45 PM",Georgia,Vanderbilt,38.0,14.0,52.0,24.0,False,True,SEC,SEC,True,2026-10-03T12:45:00-04:00,Sat,fbs,fbs
-401856706,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:45 PM",LSU,McNeese,,,,,False,False,SEC,Southland,False,2026-10-03T19:45:00-04:00,Sat,fbs,fcs
+401856706,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:45 PM",LSU,McNeese,63.0,14.0,77.0,49.0,False,False,SEC,Southland,True,2026-10-03T19:45:00-04:00,Sat,fbs,fcs
 401856707,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",Mississippi State,Alabama,23.0,56.0,79.0,-33.0,False,True,SEC,SEC,True,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
-401856708,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Missouri,Florida,,,,,False,True,SEC,SEC,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
-401856709,2026,5,regular,2026-10-03,False,"Sat Oct 03, 4:15 PM",South Carolina,Kentucky,,,,,False,True,SEC,SEC,False,2026-10-03T16:15:00-04:00,Sat,fbs,fbs
-401856710,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Tennessee,Auburn,,,,,False,True,SEC,SEC,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
-401856711,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",Texas A&M,Arkansas,,,,,False,True,SEC,SEC,False,2026-10-03T19:00:00-04:00,Sat,fbs,fbs
+401856708,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Missouri,Florida,45.0,17.0,62.0,28.0,False,True,SEC,SEC,True,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401856709,2026,5,regular,2026-10-03,False,"Sat Oct 03, 4:15 PM",South Carolina,Kentucky,34.0,35.0,69.0,-1.0,False,True,SEC,SEC,True,2026-10-03T16:15:00-04:00,Sat,fbs,fbs
+401856710,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Tennessee,Auburn,24.0,14.0,38.0,10.0,False,True,SEC,SEC,True,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401856711,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",Texas A&M,Arkansas,34.0,7.0,41.0,27.0,False,True,SEC,SEC,True,2026-10-03T19:00:00-04:00,Sat,fbs,fbs
 401856807,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",Kansas,Middle Tennessee,55.0,0.0,55.0,55.0,False,False,Big 12,Conference USA,True,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
-401856817,2026,5,regular,2026-10-03,False,"Sat Oct 03, 10:30 PM",Arizona State,Baylor,,,,,False,True,Big 12,Big 12,False,2026-10-03T22:30:00-04:00,Sat,fbs,fbs
-401856818,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",TCU,BYU,,,,,False,True,Big 12,Big 12,False,2026-10-03T19:00:00-04:00,Sat,fbs,fbs
+401856817,2026,5,regular,2026-10-03,False,"Sat Oct 03, 10:30 PM",Arizona State,Baylor,19.0,55.0,74.0,-36.0,False,True,Big 12,Big 12,True,2026-10-03T22:30:00-04:00,Sat,fbs,fbs
+401856818,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",TCU,BYU,10.0,17.0,27.0,-7.0,False,True,Big 12,Big 12,True,2026-10-03T19:00:00-04:00,Sat,fbs,fbs
 401856819,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",Houston,UCF,27.0,17.0,44.0,10.0,False,True,Big 12,Big 12,True,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
-401856820,2026,5,regular,2026-10-03,False,"Sat Oct 03, 11:00 PM",Arizona,Cincinnati,,,,,False,True,Big 12,Big 12,False,2026-10-03T23:00:00-04:00,Sat,fbs,fbs
-401856821,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",Colorado,Texas Tech,,,,,False,True,Big 12,Big 12,False,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
+401856820,2026,5,regular,2026-10-03,False,"Sat Oct 03, 11:00 PM",Arizona,Cincinnati,34.0,7.0,41.0,27.0,False,True,Big 12,Big 12,True,2026-10-03T23:00:00-04:00,Sat,fbs,fbs
+401856821,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",Colorado,Texas Tech,7.0,29.0,36.0,-22.0,False,True,Big 12,Big 12,True,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
 401856822,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",Iowa State,West Virginia,45.0,42.0,87.0,3.0,False,True,Big 12,Big 12,True,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
 401858246,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",SMU,Boston College,25.0,16.0,41.0,9.0,False,True,ACC,ACC,True,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
-401858247,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",UNLV,California,,,,,False,False,Mountain West,ACC,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
-401858248,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",NC State,Louisville,,,,,False,True,ACC,ACC,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
-401858249,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",Clemson,Miami,,,,,False,True,ACC,ACC,False,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
+401858247,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",UNLV,California,39.0,31.0,70.0,8.0,False,False,Mountain West,ACC,True,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401858248,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",NC State,Louisville,31.0,28.0,59.0,3.0,False,True,ACC,ACC,True,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401858249,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",Clemson,Miami,13.0,41.0,54.0,-28.0,False,True,ACC,ACC,True,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
 401858250,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",North Carolina,Notre Dame,26.0,37.0,63.0,-11.0,False,False,ACC,FBS Independents,True,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
 401858251,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",Wake Forest,Stanford,57.0,3.0,60.0,54.0,False,True,ACC,ACC,True,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
 401858252,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",UConn,Syracuse,41.0,42.0,83.0,-1.0,False,False,FBS Independents,ACC,True,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
-401858253,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Florida State,Virginia,,,,,False,True,ACC,ACC,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
-401858472,2026,5,regular,2026-10-03,False,"Sat Oct 03, 4:15 PM",Illinois,Purdue,,,,,False,True,Big Ten,Big Ten,False,2026-10-03T16:15:00-04:00,Sat,fbs,fbs
-401858473,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Iowa,Ohio State,,,,,False,True,Big Ten,Big Ten,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401858253,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Florida State,Virginia,38.0,7.0,45.0,31.0,False,True,ACC,ACC,True,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401858472,2026,5,regular,2026-10-03,False,"Sat Oct 03, 4:15 PM",Illinois,Purdue,17.0,24.0,41.0,-7.0,False,True,Big Ten,Big Ten,True,2026-10-03T16:15:00-04:00,Sat,fbs,fbs
+401858473,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Iowa,Ohio State,14.0,31.0,45.0,-17.0,False,True,Big Ten,Big Ten,True,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
 401858474,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",Minnesota,Michigan,20.0,14.0,34.0,6.0,False,True,Big Ten,Big Ten,True,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
-401858475,2026,5,regular,2026-10-03,False,"Sat Oct 03, 4:00 PM",Nebraska,Maryland,,,,,False,True,Big Ten,Big Ten,False,2026-10-03T16:00:00-04:00,Sat,fbs,fbs
-401858477,2026,5,regular,2026-10-03,False,"Sat Oct 03, 8:00 PM",Rutgers,Indiana,,,,,False,True,Big Ten,Big Ten,False,2026-10-03T20:00:00-04:00,Sat,fbs,fbs
-401858478,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",USC,Washington,,,,,False,True,Big Ten,Big Ten,False,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
+401858475,2026,5,regular,2026-10-03,False,"Sat Oct 03, 4:00 PM",Nebraska,Maryland,48.0,23.0,71.0,25.0,False,True,Big Ten,Big Ten,True,2026-10-03T16:00:00-04:00,Sat,fbs,fbs
+401858477,2026,5,regular,2026-10-03,False,"Sat Oct 03, 8:00 PM",Rutgers,Indiana,15.0,47.0,62.0,-32.0,False,True,Big Ten,Big Ten,True,2026-10-03T20:00:00-04:00,Sat,fbs,fbs
+401858478,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",USC,Washington,25.0,21.0,46.0,4.0,False,True,Big Ten,Big Ten,True,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
 401858479,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:30 PM",Wisconsin,Michigan State,31.0,3.0,34.0,28.0,False,True,Big Ten,Big Ten,True,2026-10-03T12:30:00-04:00,Sat,fbs,fbs
-401860898,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",Boise State,Utah State,,,,,False,True,Pac-12,Pac-12,False,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
-401860899,2026,5,regular,2026-10-03,False,"Sat Oct 03, 6:00 PM",Colorado State,Oregon State,,,,,False,True,Pac-12,Pac-12,False,2026-10-03T18:00:00-04:00,Sat,fbs,fbs
-401860900,2026,5,regular,2026-10-03,False,"Sat Oct 03, 10:30 PM",San Diego State,Texas State,,,,,False,True,Pac-12,Pac-12,False,2026-10-03T22:30:00-04:00,Sat,fbs,fbs
-401860921,2026,5,regular,2026-10-03,False,"Sat Oct 03, 9:30 PM",Washington State,Fresno State,,,,,False,True,Pac-12,Pac-12,False,2026-10-03T21:30:00-04:00,Sat,fbs,fbs
+401860898,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",Boise State,Utah State,37.0,18.0,55.0,19.0,False,True,Pac-12,Pac-12,True,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
+401860899,2026,5,regular,2026-10-03,False,"Sat Oct 03, 6:00 PM",Colorado State,Oregon State,26.0,56.0,82.0,-30.0,False,True,Pac-12,Pac-12,True,2026-10-03T18:00:00-04:00,Sat,fbs,fbs
+401860900,2026,5,regular,2026-10-03,False,"Sat Oct 03, 10:30 PM",San Diego State,Texas State,31.0,29.0,60.0,2.0,False,True,Pac-12,Pac-12,True,2026-10-03T22:30:00-04:00,Sat,fbs,fbs
+401860921,2026,5,regular,2026-10-03,False,"Sat Oct 03, 9:30 PM",Washington State,Fresno State,6.0,26.0,32.0,-20.0,False,True,Pac-12,Pac-12,True,2026-10-03T21:30:00-04:00,Sat,fbs,fbs
 401862787,2026,5,regular,2026-10-03,False,"Sat Oct 03, 11:00 AM",Charlotte,Memphis,8.0,59.0,67.0,-51.0,False,True,American Athletic,American Athletic,True,2026-10-03T11:00:00-04:00,Sat,fbs,fbs
-401862788,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",Rice,UTSA,,,,,False,True,American Athletic,American Athletic,False,2026-10-03T19:00:00-04:00,Sat,fbs,fbs
-401862790,2026,5,regular,2026-10-03,False,"Sat Oct 03, 6:00 PM",Florida Atlantic,Texas Southern,,,,,False,False,American Athletic,SWAC,False,2026-10-03T18:00:00-04:00,Sat,fbs,fcs
+401862788,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",Rice,UTSA,14.0,16.0,30.0,-2.0,False,True,American Athletic,American Athletic,True,2026-10-03T19:00:00-04:00,Sat,fbs,fbs
+401862790,2026,5,regular,2026-10-03,False,"Sat Oct 03, 6:00 PM",Florida Atlantic,Texas Southern,66.0,10.0,76.0,56.0,False,False,American Athletic,SWAC,True,2026-10-03T18:00:00-04:00,Sat,fbs,fcs
 401862791,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",Air Force,Navy,14.0,9.0,23.0,5.0,False,False,Mountain West,American Athletic,True,2026-10-03T12:00:00-04:00,Sat,fbs,fbs
-401862792,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",South Florida,Temple,,,,,False,True,American Athletic,American Athletic,False,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
-401862793,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",UAB,Samford,,,,,False,False,American Athletic,Southern,False,2026-10-03T15:30:00-04:00,Sat,fbs,fcs
-401864513,2026,5,regular,2026-10-03,False,"Sat Oct 03, 11:59 PM",Hawai'i,San José State,,,,,False,True,Mountain West,Mountain West,False,2026-10-03T23:59:00-04:00,Sat,fbs,fbs
-401864514,2026,5,regular,2026-10-03,False,"Sat Oct 03, 4:00 PM",New Mexico,UTEP,,,,,False,True,Mountain West,Mountain West,False,2026-10-03T16:00:00-04:00,Sat,fbs,fbs
-401864515,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",North Dakota State,Wyoming,,,,,False,True,Mountain West,Mountain West,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
-401866430,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Central Michigan,Akron,,,,,False,True,Mid-American,Mid-American,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401862792,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",South Florida,Temple,13.0,17.0,30.0,-4.0,False,True,American Athletic,American Athletic,True,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
+401862793,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",UAB,Samford,33.0,14.0,47.0,19.0,False,False,American Athletic,Southern,True,2026-10-03T15:30:00-04:00,Sat,fbs,fcs
+401864513,2026,5,regular,2026-10-03,False,"Sat Oct 03, 11:59 PM",Hawai'i,San José State,16.0,20.0,36.0,-4.0,False,True,Mountain West,Mountain West,True,2026-10-03T23:59:00-04:00,Sat,fbs,fbs
+401864514,2026,5,regular,2026-10-03,False,"Sat Oct 03, 4:00 PM",New Mexico,UTEP,61.0,7.0,68.0,54.0,False,True,Mountain West,Mountain West,True,2026-10-03T16:00:00-04:00,Sat,fbs,fbs
+401864515,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",North Dakota State,Wyoming,28.0,0.0,28.0,28.0,False,True,Mountain West,Mountain West,True,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401866430,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Central Michigan,Akron,41.0,17.0,58.0,24.0,False,True,Mid-American,Mid-American,True,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
 401866431,2026,5,regular,2026-10-03,False,"Sat Oct 03, 2:00 PM",Ball State,Toledo,24.0,39.0,63.0,-15.0,False,True,Mid-American,Mid-American,True,2026-10-03T14:00:00-04:00,Sat,fbs,fbs
 401866432,2026,5,regular,2026-10-03,False,"Sat Oct 03, 1:00 PM",Buffalo,Western Michigan,17.0,20.0,37.0,-3.0,False,True,Mid-American,Mid-American,True,2026-10-03T13:00:00-04:00,Sat,fbs,fbs
-401866433,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Massachusetts,Eastern Michigan,,,,,False,True,Mid-American,Mid-American,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
-401866434,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Kent State,Ohio,,,,,False,True,Mid-American,Mid-American,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
-401866477,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Miami (OH),Bowling Green,,,,,False,True,Mid-American,Mid-American,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401866433,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Massachusetts,Eastern Michigan,14.0,38.0,52.0,-24.0,False,True,Mid-American,Mid-American,True,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401866434,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Kent State,Ohio,10.0,13.0,23.0,-3.0,False,True,Mid-American,Mid-American,True,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401866477,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Miami (OH),Bowling Green,20.0,24.0,44.0,-4.0,False,True,Mid-American,Mid-American,True,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
 401866650,2026,5,regular,2026-10-03,False,"Sat Oct 03, 1:00 PM",New Hampshire,Elon,,,,,False,True,Coastal Athletic,Coastal Athletic,False,2026-10-03T13:00:00-04:00,Sat,,
 401866651,2026,5,regular,2026-10-03,False,"Sat Oct 03, 1:00 PM",Monmouth,Towson,,,,,False,True,Coastal Athletic,Coastal Athletic,False,2026-10-03T13:00:00-04:00,Sat,,
 401866652,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Maine,Sacred Heart,,,,,False,True,Coastal Athletic,Coastal Athletic,False,2026-10-03T15:30:00-04:00,Sat,,
@@ -27399,13 +27399,13 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401868965,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:00 PM",Mississippi Valley State,Prairie View A&M,,,,,False,True,SWAC,SWAC,False,2026-10-03T15:00:00-04:00,Sat,,
 401869131,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",Lamar,Northwestern State,,,,,False,True,Southland,Southland,False,2026-10-03T19:00:00-04:00,Sat,,
 401869151,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",Houston Christian,Nicholls,,,,,False,True,Southland,Southland,False,2026-10-03T19:00:00-04:00,Sat,,
-401869842,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",Louisiana Tech,Army,,,,,False,False,Sun Belt,American Athletic,False,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
-401869932,2026,5,regular,2026-10-03,False,"Sat Oct 03, 8:00 PM",Louisiana,Arkansas State,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-03T20:00:00-04:00,Sat,fbs,fbs
-401869942,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",Coastal Carolina,Georgia Southern,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-03T19:00:00-04:00,Sat,fbs,fbs
-401869956,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Georgia State,Old Dominion,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
-401869962,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:45 PM",James Madison,Marshall,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-03T15:45:00-04:00,Sat,fbs,fbs
+401869842,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:30 PM",Louisiana Tech,Army,31.0,29.0,60.0,2.0,False,False,Sun Belt,American Athletic,True,2026-10-03T19:30:00-04:00,Sat,fbs,fbs
+401869932,2026,5,regular,2026-10-03,False,"Sat Oct 03, 8:00 PM",Louisiana,Arkansas State,23.0,20.0,43.0,3.0,False,True,Sun Belt,Sun Belt,True,2026-10-03T20:00:00-04:00,Sat,fbs,fbs
+401869942,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",Coastal Carolina,Georgia Southern,24.0,31.0,55.0,-7.0,False,True,Sun Belt,Sun Belt,True,2026-10-03T19:00:00-04:00,Sat,fbs,fbs
+401869956,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:30 PM",Georgia State,Old Dominion,42.0,10.0,52.0,32.0,False,True,Sun Belt,Sun Belt,True,2026-10-03T15:30:00-04:00,Sat,fbs,fbs
+401869962,2026,5,regular,2026-10-03,False,"Sat Oct 03, 3:45 PM",James Madison,Marshall,45.0,17.0,62.0,28.0,False,True,Sun Belt,Sun Belt,True,2026-10-03T15:45:00-04:00,Sat,fbs,fbs
 401870840,2026,5,regular,2026-10-03,False,"Sat Oct 03, 12:00 PM",Yale,Merrimack,,,,,False,False,Ivy,FCS Independents,False,2026-10-03T12:00:00-04:00,Sat,,
-401871089,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",South Alabama,UL Monroe,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-03T19:00:00-04:00,Sat,fbs,fbs
+401871089,2026,5,regular,2026-10-03,False,"Sat Oct 03, 7:00 PM",South Alabama,UL Monroe,52.0,35.0,87.0,17.0,False,True,Sun Belt,Sun Belt,True,2026-10-03T19:00:00-04:00,Sat,fbs,fbs
 401873231,2026,5,regular,2026-10-03,False,"Sat Oct 03, 1:00 PM",Puget Sound,Lewis & Clark,,,,,False,True,Northwest,Northwest,False,2026-10-03T13:00:00-04:00,Sat,,
 401873397,2026,5,regular,2026-10-03,False,"Sat Oct 03, 2:00 PM",Rockford,St. Norbert,,,,,False,True,NACC,NACC,False,2026-10-03T14:00:00-04:00,Sat,,
 401873406,2026,5,regular,2026-10-03,False,"Sat Oct 03, 5:00 PM",Montclair State,Kean,,,,,False,True,New Jersey,New Jersey,False,2026-10-03T17:00:00-04:00,Sat,,
@@ -27608,9 +27608,9 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401868265,2026,6,regular,2026-10-09,False,"Fri Oct 09, 7:00 PM",Marist,Columbia,,,,,False,False,Pioneer,Ivy,False,2026-10-09T19:00:00-04:00,Fri,,
 401856712,2026,6,regular,2026-10-10,False,"Sat Oct 10, 7:30 PM",Alabama,Georgia,,,,,False,True,SEC,SEC,False,2026-10-10T19:30:00-04:00,Sat,fbs,fbs
 401856713,2026,6,regular,2026-10-10,False,"Sat Oct 10, 4:15 PM",Arkansas,Tennessee,,,,,False,True,SEC,SEC,False,2026-10-10T16:15:00-04:00,Sat,fbs,fbs
-401856714,2026,6,regular,2026-10-10,True,,Florida,South Carolina,,,,,False,True,SEC,SEC,False,2026-10-10T00:00:00-04:00,Sat,fbs,fbs
+401856714,2026,6,regular,2026-10-10,False,"Sat Oct 10, 12:45 PM",Florida,South Carolina,,,,,False,True,SEC,SEC,False,2026-10-10T12:45:00-04:00,Sat,fbs,fbs
 401856715,2026,6,regular,2026-10-10,False,"Sat Oct 10, 7:00 PM",Kentucky,LSU,,,,,False,True,SEC,SEC,False,2026-10-10T19:00:00-04:00,Sat,fbs,fbs
-401856716,2026,6,regular,2026-10-10,True,,Missouri,Texas A&M,,,,,False,True,SEC,SEC,False,2026-10-10T00:00:00-04:00,Sat,fbs,fbs
+401856716,2026,6,regular,2026-10-10,False,"Sat Oct 10, 12:00 PM",Missouri,Texas A&M,,,,,False,True,SEC,SEC,False,2026-10-10T12:00:00-04:00,Sat,fbs,fbs
 401856717,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:30 PM",Oklahoma,Texas,,,,,True,True,SEC,SEC,False,2026-10-10T15:30:00-04:00,Sat,fbs,fbs
 401856718,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:30 PM",Vanderbilt,Ole Miss,,,,,False,True,SEC,SEC,False,2026-10-10T15:30:00-04:00,Sat,fbs,fbs
 401856808,2026,6,regular,2026-10-10,False,"Sat Oct 10, 10:30 PM",Arizona State,Hawai'i,,,,,False,False,Big 12,Mountain West,False,2026-10-10T22:30:00-04:00,Sat,fbs,fbs
@@ -27637,7 +27637,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401862795,2026,6,regular,2026-10-10,False,"Sat Oct 10, 12:00 PM",Army,Tulane,,,,,False,True,American Athletic,American Athletic,False,2026-10-10T12:00:00-04:00,Sat,fbs,fbs
 401862796,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:30 PM",North Texas,Charlotte,,,,,False,True,American Athletic,American Athletic,False,2026-10-10T15:30:00-04:00,Sat,fbs,fbs
 401862797,2026,6,regular,2026-10-10,False,"Sat Oct 10, 4:00 PM",East Carolina,Rice,,,,,False,True,American Athletic,American Athletic,False,2026-10-10T16:00:00-04:00,Sat,fbs,fbs
-401862798,2026,6,regular,2026-10-10,True,,Memphis,UAB,,,,,False,True,American Athletic,American Athletic,False,2026-10-10T00:00:00-04:00,Sat,fbs,fbs
+401862798,2026,6,regular,2026-10-10,False,"Sat Oct 10, 7:00 PM",Memphis,UAB,,,,,False,True,American Athletic,American Athletic,False,2026-10-10T19:00:00-04:00,Sat,fbs,fbs
 401862799,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:30 PM",Navy,Tulsa,,,,,False,True,American Athletic,American Athletic,False,2026-10-10T15:30:00-04:00,Sat,fbs,fbs
 401864516,2026,6,regular,2026-10-10,False,"Sat Oct 10, 7:30 PM",Northern Illinois,Air Force,,,,,False,True,Mountain West,Mountain West,False,2026-10-10T19:30:00-04:00,Sat,fbs,fbs
 401864517,2026,6,regular,2026-10-10,False,"Sat Oct 10, 7:00 PM",UTEP,Nevada,,,,,False,True,Mountain West,Mountain West,False,2026-10-10T19:00:00-04:00,Sat,fbs,fbs
@@ -27698,7 +27698,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401869144,2026,6,regular,2026-10-10,False,"Sat Oct 10, 4:00 PM",Lamar,Incarnate Word,,,,,False,True,Southland,Southland,False,2026-10-10T16:00:00-04:00,Sat,,
 401869843,2026,6,regular,2026-10-10,False,"Sat Oct 10, 1:00 PM",App State,Old Dominion,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-10T13:00:00-04:00,Sat,fbs,fbs
 401869943,2026,6,regular,2026-10-10,False,"Sat Oct 10, 7:00 PM",Marshall,Coastal Carolina,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-10T19:00:00-04:00,Sat,fbs,fbs
-401869949,2026,6,regular,2026-10-10,True,,Georgia Southern,James Madison,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-10T00:00:00-04:00,Sat,fbs,fbs
+401869949,2026,6,regular,2026-10-10,False,"Sat Oct 10, 7:30 PM",Georgia Southern,James Madison,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-10T19:30:00-04:00,Sat,fbs,fbs
 401869965,2026,6,regular,2026-10-10,False,"Sat Oct 10, 7:30 PM",Louisiana Tech,Louisiana,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-10T19:30:00-04:00,Sat,fbs,fbs
 401871473,2026,6,regular,2026-10-10,False,"Sat Oct 10, 2:00 PM",Lindenwood,Southeast Missouri State,,,,,False,True,OVC,OVC,False,2026-10-10T14:00:00-04:00,Sat,,
 401873232,2026,6,regular,2026-10-10,False,"Sat Oct 10, 1:00 PM",Pacific Lutheran,Puget Sound,,,,,False,True,Northwest,Northwest,False,2026-10-10T13:00:00-04:00,Sat,,
