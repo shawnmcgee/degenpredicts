@@ -4683,7 +4683,7 @@ game_id,season,week,season_type,playoff_round,date,tip_et,kickoff_utc,start_time
 2026_04_DEN_SF,2026,4,REG,0,2026-10-04,"Sun Oct 04, 4:25 PM",2026-10-04T16:25:00-04:00,False,Sunday,SF,DEN,,,,,False,False,NFC West,AFC West,7.0,7.0,outdoors,grass,,,SFO01,Brock Purdy,Bo Nix,False
 2026_04_DET_CAR,2026,4,REG,0,2026-10-04,"Sun Oct 04, 8:20 PM",2026-10-04T20:20:00-04:00,False,Sunday,CAR,DET,,,,,False,False,NFC South,NFC North,7.0,7.0,outdoors,grass,,,CAR00,Bryce Young,Jared Goff,False
 2026_04_GB_TB,2026,4,REG,0,2026-10-04,"Sun Oct 04, 1:00 PM",2026-10-04T13:00:00-04:00,False,Sunday,TB,GB,,,,,False,False,NFC South,NFC North,7.0,10.0,outdoors,grass,,,TAM00,Jalon Daniels,Jordan Love,False
-2026_04_IND_WAS,2026,4,REG,0,2026-10-04,"Sun Oct 04, 9:30 AM",2026-10-04T09:30:00-04:00,False,Sunday,WAS,IND,,,,,True,False,NFC East,AFC South,7.0,7.0,outdoors,grass,,,LON02,Marcus Mariota,Daniel Jones,False
+2026_04_IND_WAS,2026,4,REG,0,2026-10-04,"Sun Oct 04, 9:30 AM",2026-10-04T09:30:00-04:00,False,Sunday,WAS,IND,13.0,30.0,43.0,-17.0,True,False,NFC East,AFC South,7.0,7.0,outdoors,grass,,,LON02,Marcus Mariota,Daniel Jones,True
 2026_04_JAX_CIN,2026,4,REG,0,2026-10-04,"Sun Oct 04, 1:00 PM",2026-10-04T13:00:00-04:00,False,Sunday,CIN,JAX,,,,,False,False,AFC North,AFC South,7.0,7.0,outdoors,fieldturf,,,CIN00,Joe Burrow,Trevor Lawrence,False
 2026_04_KC_LV,2026,4,REG,0,2026-10-04,"Sun Oct 04, 4:25 PM",2026-10-04T16:25:00-04:00,False,Sunday,LV,KC,,,,,False,True,AFC West,AFC West,7.0,7.0,dome,grass,,,VEG00,Kirk Cousins,Patrick Mahomes,False
 2026_04_LAC_SEA,2026,4,REG,0,2026-10-04,"Sun Oct 04, 4:25 PM",2026-10-04T16:25:00-04:00,False,Sunday,SEA,LAC,,,,,False,False,NFC West,AFC West,7.0,7.0,outdoors,fieldturf,,,SEA00,Drew Lock,Justin Herbert,False
