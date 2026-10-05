@@ -27613,7 +27613,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401856716,2026,6,regular,2026-10-10,False,"Sat Oct 10, 12:00 PM",Missouri,Texas A&M,,,,,False,True,SEC,SEC,False,2026-10-10T12:00:00-04:00,Sat,fbs,fbs
 401856717,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:30 PM",Oklahoma,Texas,,,,,True,True,SEC,SEC,False,2026-10-10T15:30:00-04:00,Sat,fbs,fbs
 401856718,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:30 PM",Vanderbilt,Ole Miss,,,,,False,True,SEC,SEC,False,2026-10-10T15:30:00-04:00,Sat,fbs,fbs
-401856808,2026,6,regular,2026-10-10,False,"Sat Oct 10, 10:30 PM",Arizona State,Hawai'i,,,,,False,False,Big 12,Mountain West,False,2026-10-10T22:30:00-04:00,Sat,fbs,fbs
+401856808,2026,6,regular,2026-10-10,False,"Sat Oct 10, 9:30 PM",Arizona State,Hawai'i,,,,,False,False,Big 12,Mountain West,False,2026-10-10T21:30:00-04:00,Sat,fbs,fbs
 401856823,2026,6,regular,2026-10-10,False,"Sat Oct 10, 12:00 PM",West Virginia,Arizona,,,,,False,True,Big 12,Big 12,False,2026-10-10T12:00:00-04:00,Sat,fbs,fbs
 401856824,2026,6,regular,2026-10-10,False,"Sat Oct 10, 12:00 PM",Oklahoma State,UCF,,,,,False,True,Big 12,Big 12,False,2026-10-10T12:00:00-04:00,Sat,fbs,fbs
 401856825,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:30 PM",Kansas State,Houston,,,,,False,True,Big 12,Big 12,False,2026-10-10T15:30:00-04:00,Sat,fbs,fbs
