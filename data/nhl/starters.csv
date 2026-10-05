@@ -267,3 +267,13 @@ pulled_at,date,game_id,side,team,goalie,goalie_id,status,matched_by
 2026-10-04T18:10:06+00:00,2026-10-05,2026020041,a,OTT,Linus Ullmark,8476999,projected,name
 2026-10-04T18:10:06+00:00,2026-10-05,2026020043,h,DAL,Jake Oettinger,8479979,projected,name
 2026-10-04T18:10:06+00:00,2026-10-05,2026020043,a,SJS,Yaroslav Askarov,8482137,projected,name
+2026-10-05T00:10:00+00:00,2026-10-04,2026020039,h,VAN,Kevin Lankinen,8480947,projected,name
+2026-10-05T00:10:00+00:00,2026-10-04,2026020039,a,VGK,Adin Hill,8478499,projected,name
+2026-10-05T00:10:00+00:00,2026-10-05,2026020040,h,TBL,Andrei Vasilevskiy,8476883,projected,name
+2026-10-05T00:10:00+00:00,2026-10-05,2026020040,a,PHI,Joseph Woll,8479361,projected,name
+2026-10-05T00:10:00+00:00,2026-10-05,2026020042,h,PIT,Arturs Silovs,8481668,projected,name
+2026-10-05T00:10:00+00:00,2026-10-05,2026020042,a,WPG,Stuart Skinner,8479973,projected,name
+2026-10-05T00:10:00+00:00,2026-10-05,2026020041,h,BOS,Michael DiPietro,8480022,projected,name
+2026-10-05T00:10:00+00:00,2026-10-05,2026020041,a,OTT,Linus Ullmark,8476999,projected,name
+2026-10-05T00:10:00+00:00,2026-10-05,2026020043,h,DAL,Jake Oettinger,8479979,projected,name
+2026-10-05T00:10:00+00:00,2026-10-05,2026020043,a,SJS,Yaroslav Askarov,8482137,projected,name
