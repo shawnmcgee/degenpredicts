@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-04",
+  "updated": "2026-10-05",
   "sport": "nfl",
   "break_even": 51.75,
   "venue": "kalshi_taker",
@@ -15,14 +15,14 @@
       "clv": null
     },
     "all_games": {
-      "n": 49,
-      "wins": 25,
-      "losses": 24,
+      "n": 63,
+      "wins": 31,
+      "losses": 32,
       "pushes": 0,
-      "win_pct": 51.0,
+      "win_pct": 49.2,
       "units": 0.0,
       "roi": 0.0,
-      "clv": -0.37
+      "clv": -0.33
     },
     "last2weeks": {
       "n": 0,
@@ -34,51 +34,51 @@
       "roi": 0.0,
       "clv": null
     },
-    "mae": 11.04,
+    "mae": 10.32,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 12,
-        "wins": 5,
+        "n": 15,
+        "wins": 8,
         "losses": 7,
         "pushes": 0,
-        "win_pct": 41.7,
+        "win_pct": 53.3,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.0
+        "clv": 0.13
       },
       {
         "bucket": "1-2",
-        "n": 15,
-        "wins": 7,
-        "losses": 8,
+        "n": 19,
+        "wins": 9,
+        "losses": 10,
         "pushes": 0,
-        "win_pct": 46.7,
+        "win_pct": 47.4,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.53
+        "clv": -0.74
       },
       {
         "bucket": "2-3",
-        "n": 12,
+        "n": 16,
         "wins": 8,
-        "losses": 4,
+        "losses": 8,
         "pushes": 0,
-        "win_pct": 66.7,
+        "win_pct": 50.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.58
+        "clv": -0.38
       },
       {
         "bucket": "3-5",
-        "n": 3,
-        "wins": 2,
-        "losses": 1,
+        "n": 6,
+        "wins": 3,
+        "losses": 3,
         "pushes": 0,
-        "win_pct": 66.7,
+        "win_pct": 50.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.33
+        "clv": -0.17
       },
       {
         "bucket": "5-7",
@@ -116,14 +116,14 @@
       "clv": null
     },
     "all_games": {
-      "n": 49,
-      "wins": 26,
-      "losses": 21,
-      "pushes": 2,
-      "win_pct": 55.3,
+      "n": 63,
+      "wins": 31,
+      "losses": 29,
+      "pushes": 3,
+      "win_pct": 51.7,
       "units": 0.0,
       "roi": 0.0,
-      "clv": 0.05
+      "clv": 0.14
     },
     "last2weeks": {
       "n": 0,
@@ -135,51 +135,51 @@
       "roi": 0.0,
       "clv": null
     },
-    "mae": 10.36,
+    "mae": 9.56,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 14,
-        "wins": 8,
-        "losses": 6,
-        "pushes": 0,
-        "win_pct": 57.1,
+        "n": 20,
+        "wins": 11,
+        "losses": 8,
+        "pushes": 1,
+        "win_pct": 57.9,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.11
+        "clv": -0.03
       },
       {
         "bucket": "1-2",
-        "n": 10,
+        "n": 12,
         "wins": 5,
-        "losses": 3,
+        "losses": 5,
         "pushes": 2,
-        "win_pct": 62.5,
+        "win_pct": 50.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.05
+        "clv": 0.08
       },
       {
         "bucket": "2-3",
-        "n": 10,
-        "wins": 5,
-        "losses": 5,
+        "n": 12,
+        "wins": 6,
+        "losses": 6,
         "pushes": 0,
         "win_pct": 50.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.5
+        "clv": -0.25
       },
       {
         "bucket": "3-5",
-        "n": 11,
-        "wins": 5,
-        "losses": 6,
+        "n": 15,
+        "wins": 6,
+        "losses": 9,
         "pushes": 0,
-        "win_pct": 45.5,
+        "win_pct": 40.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.64
+        "clv": 0.67
       },
       {
         "bucket": "5-7",
@@ -235,7 +235,7 @@
     },
     {
       "week": 4,
-      "games": 1,
+      "games": 15,
       "total_units": 0.0,
       "spread_units": 0.0,
       "played": 0,
