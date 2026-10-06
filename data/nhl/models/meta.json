@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-09-29T19:43:03+00:00",
+  "trained_at": "2026-10-06T19:54:39+00:00",
   "sport": "nhl",
   "models": [
     "market",
@@ -42,7 +42,7 @@
     "own_km",
     "own_tz_abs"
   ],
-  "n_rows": 24542,
+  "n_rows": 24585,
   "seasons": [
     2007,
     2008,
@@ -62,7 +62,8 @@
     2022,
     2023,
     2024,
-    2025
+    2025,
+    2026
   ],
   "half_life_seasons": 4.0,
   "theta": {
@@ -70,15 +71,15 @@
     "w": 1.0,
     "t1": 9.0,
     "t2": 9.0,
-    "m6": 1.6000973676940384,
-    "en": 0.07440565945201555,
-    "tie": 0.35994022107146606,
-    "c": 1.011541444297115,
-    "ot0": 0.031412050591249345,
-    "ot1": 1.1000826507000816,
-    "c_home_fit": 0.9970079128143835,
-    "c_away_fit": 1.0260749757798464,
-    "nll": 3.6560974411867124,
+    "m6": 1.600097367692272,
+    "en": 0.0744056594525699,
+    "tie": 0.35994022106847434,
+    "c": 1.0115414442995707,
+    "ot0": 0.03141205059144038,
+    "ot1": 1.100082650708099,
+    "c_home_fit": 0.9970079128158714,
+    "c_away_fit": 1.02607497578327,
+    "nll": 3.656097441186711,
     "n_games": 5248,
     "converged": true,
     "seasons": [
@@ -140,46 +141,47 @@
   },
   "effects": {
     "nomarket": {
-      "log_lam": 6.07,
-      "log_L": 1.16,
-      "log_S": 4.64,
-      "log_p": 3.16,
-      "opp_goalie": 0.34,
-      "is_home": -1.63,
-      "playoff": -1.21,
-      "own_b2b": -1.31,
-      "opp_b2b": 1.36,
-      "own_rest": 0.42,
-      "opp_rest": 0.11,
-      "own_km": -0.03,
-      "opp_km": 0.82,
-      "own_tz_abs": 0.28,
-      "opp_tz_abs": -0.6,
-      "own_3in4": -0.83,
-      "opp_3in4": 0.1,
-      "early": 0.53
+      "log_lam": 5.94,
+      "log_L": 1.45,
+      "log_S": 4.62,
+      "log_p": 2.99,
+      "opp_goalie": 0.44,
+      "is_home": -1.68,
+      "playoff": -1.19,
+      "own_b2b": -1.36,
+      "opp_b2b": 1.29,
+      "own_rest": 0.47,
+      "opp_rest": -0.01,
+      "own_km": -0.05,
+      "opp_km": 0.68,
+      "own_tz_abs": 0.31,
+      "opp_tz_abs": -0.42,
+      "own_3in4": -0.78,
+      "opp_3in4": 0.07,
+      "early": 0.43
     },
     "market": {
-      "dev_lam": 4.91,
-      "dev_L": -1.43,
-      "log_S": -0.33,
-      "opp_goalie": -0.36,
-      "opp_b2b": 0.87,
-      "own_b2b": -0.97,
-      "own_rest": 0.29,
-      "opp_rest": 0.32,
-      "own_3in4": -0.72,
-      "opp_3in4": 0.22,
+      "dev_lam": 4.73,
+      "dev_L": -1.24,
+      "log_S": -0.15,
+      "opp_goalie": -0.27,
+      "opp_b2b": 0.77,
+      "own_b2b": -1.03,
+      "own_rest": 0.35,
+      "opp_rest": 0.17,
+      "own_3in4": -0.66,
+      "opp_3in4": 0.17,
       "playoff": -0.74,
-      "early": 0.47,
-      "is_home": -0.12,
-      "own_km": 0.87,
-      "own_tz_abs": -0.6
+      "early": 0.38,
+      "is_home": -0.2,
+      "own_km": 0.81,
+      "own_tz_abs": -0.52
     }
   },
   "lines": {
     "sbr_close": 19281,
-    "oddsapi_noon": 3500
+    "oddsapi_noon": 3500,
+    "oddsapi_pregame": 43
   },
   "eval": {
     "test_seasons": [
@@ -510,14 +512,14 @@
       "log_loss_market": 0.65468,
       "roi_by_ev": [
         {
-          "n": 2725,
+          "n": 2726,
           "hit_pct": 60.3,
-          "roi_pct": -4.66,
+          "roi_pct": -4.63,
           "stderr": 1.55,
-          "vs_zero_se": -3.0,
+          "vs_zero_se": -2.98,
           "season_roi_pct": {
             "2023": -4.4,
-            "2024": -8.3,
+            "2024": -8.2,
             "2025": 1.9
           },
           "seasons_measured": 3,
@@ -527,14 +529,14 @@
           "significant": false
         },
         {
-          "n": 523,
-          "hit_pct": 62.7,
-          "roi_pct": 4.66,
+          "n": 522,
+          "hit_pct": 62.6,
+          "roi_pct": 4.55,
           "stderr": 3.6,
-          "vs_zero_se": 1.29,
+          "vs_zero_se": 1.26,
           "season_roi_pct": {
             "2023": 0.2,
-            "2024": 5.4,
+            "2024": 5.1,
             "2025": 11.3
           },
           "seasons_measured": 3,
@@ -563,14 +565,14 @@
       "rules": [
         {
           "segment": "every positive-EV side",
-          "n": 768,
-          "hit_pct": 60.3,
-          "roi_pct": 5.83,
-          "stderr": 3.18,
-          "vs_zero_se": 1.83,
+          "n": 767,
+          "hit_pct": 60.2,
+          "roi_pct": 5.75,
+          "stderr": 3.19,
+          "vs_zero_se": 1.81,
           "season_roi_pct": {
             "2023": 0.2,
-            "2024": 8.5,
+            "2024": 8.3,
             "2025": 12.8
           },
           "seasons_measured": 3,
