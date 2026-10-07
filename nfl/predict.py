@@ -69,6 +69,15 @@ def _strength(edge, minimum, thin) -> str:
     return "bold" if e >= minimum * config.BOLD_MULT else "play"
 
 
+def started(board: pd.DataFrame, now) -> pd.Series:
+    """Games whose kickoff has passed. A game with no announced time (``start_time_tbd``)
+    has not started: its date is today or later, or it would not be on the board."""
+    now = pd.Timestamp(now)
+    iso = board["kickoff_utc"] if "kickoff_utc" in board else pd.Series("", index=board.index)
+    return pd.Series([isinstance(k, str) and bool(k.strip()) and pd.Timestamp(k) <= now
+                      for k in iso], index=board.index, dtype=bool)
+
+
 def build_board(games: pd.DataFrame, lines: pd.DataFrame, week: int | None = None) -> pd.DataFrame:
     today = config.today_et()
     season = config.season_of(today)
@@ -109,6 +118,16 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     if board.empty:
         log.info("no upcoming games on the board")
         return board
+    # A game already under way keeps the row published before kickoff. The scheduled run
+    # starts hours late, so on a Sunday it lands mid-way through the 1pm slate; re-pricing
+    # those games then priced them off in-play lines and graded them against those lines too.
+    live = started(board, config.now_et())
+    if live.any():
+        log.info("%d games already under way keep the rows published before kickoff",
+                 int(live.sum()))
+        board = board[~live]
+        if board.empty:
+            return board
 
     live = odds.snapshot(odds.build_matcher(sorted(nfl_teams(games, config.season_of(today)))))
     if not dry_run:

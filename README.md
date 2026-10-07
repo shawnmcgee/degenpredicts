@@ -554,6 +554,19 @@ real during the build:
 - **Source modules read `config.NAME` at call time.** Importing paths by value froze them at
   import, which let the test suite train on committed production data while believing it was
   sandboxed.
+- **A game that has kicked off is never re-priced.** The daily run is scheduled for 9:30am ET,
+  but GitHub started it three to five hours late, so on Sundays it landed in the middle of the
+  1pm and London games and the odds feed returned in-play prices. Those replaced the published
+  picks and the games were graded against them — 26 of the first 64 graded games, among them
+  IND −13.5 on a game that closed HOU −1.5 and a 28.5 total on one that closed 42.5. The odds
+  snapshot and the board now both skip anything under way, and the affected rows were
+  regraded from the last `picks.csv` committed before each kickoff: the record went from
+  32-29-3 to 28-32-4 on spreads and 31-33 to 30-34 on totals.
+- **Spread CLV is `first − close` for a home pick.** `spread_home` is negative for a home
+  favourite, so the market moving toward the home side makes it *more* negative. The grader
+  had the subtraction the other way round and reported every spread CLV with the wrong sign —
+  +0.12 on the page when the truth was −0.12. CLV is now recomputed for every graded row, so
+  a fix to how it is measured reaches the games already graded.
 
 ### Confirming the Kalshi tickers
 

@@ -587,6 +587,8 @@ def test_pipeline(env, monkeypatch):
     upcoming["season"] = THIS
     upcoming["week"] = 1
     upcoming["date"] = env.today_et() + timedelta(days=2)
+    # the copied rows' kickoffs are in the past; a game that has kicked off is never re-priced
+    upcoming["kickoff_utc"] = f"{env.today_et() + timedelta(days=2)}T17:00:00+00:00"
     for c in ("home_points", "away_points", "total_points", "home_margin"):
         upcoming[c] = np.nan
     up_lines = lines.iloc[:16].copy()
@@ -642,6 +644,68 @@ def test_pipeline(env, monkeypatch):
     html = (env.DOCS / "index.html").read_text()
     assert "NFL" in html
     assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
+
+
+def test_games_under_way_are_never_priced_in_play(env, monkeypatch):
+    """The scheduled run starts hours late, and on Sundays it landed mid-way through the 1pm
+    slate: the feed's in-play prices replaced the published picks and the games were graded
+    against them - IND -13.5 on a game that closed HOU -1.5, a 28.5 total on one that closed
+    42.5. Neither the feed nor the board may treat an in-play number as a pre-game line."""
+    from datetime import datetime
+    from nfl import predict
+    from nfl.sources import odds
+
+    now = datetime(2026, 9, 27, 13, 54, tzinfo=env.ET)       # a Sunday, 54 minutes in
+
+    def event(eid, start):
+        line = lambda k, outs: {"key": k, "outcomes": outs}       # noqa: E731
+        return {"id": eid, "commence_time": start, "home_team": "Indianapolis Colts",
+                "away_team": "Houston Texans", "bookmakers": [{"title": "DraftKings", "markets": [
+                    line("spreads", [{"name": "Indianapolis Colts", "price": -110, "point": 1.5},
+                                     {"name": "Houston Texans", "price": -110, "point": -1.5}]),
+                    line("totals", [{"name": "Over", "price": -110, "point": 42.5},
+                                    {"name": "Under", "price": -110, "point": 42.5}])]}]}
+
+    class Response:
+        status_code, headers = 200, {}
+
+        def json(self):
+            return [event("early", "2026-09-27T17:00:00Z"), event("late", "2026-09-27T20:25:00Z")]
+
+    monkeypatch.setattr(env, "ODDS_API_KEY", "test")
+    monkeypatch.setattr(env, "now_et", lambda: now)
+    monkeypatch.setattr(odds, "get", lambda *a, **k: Response())
+    assert list(odds.snapshot()["event_id"]) == ["late"]
+
+    board = pd.DataFrame({"kickoff_utc": ["2026-09-27T13:00:00-04:00",      # under way
+                                          "2026-09-27T16:25:00-04:00",      # this afternoon
+                                          "", np.nan]})                      # time not set
+    assert predict.started(board, now).tolist() == [True, False, False, False]
+
+
+def test_spread_clv_is_positive_when_the_line_moves_toward_our_side(env):
+    """`spread_home` is negative for a home favourite, so the market moving toward the home
+    side makes the number MORE negative. The grader once read that as a loss of value and
+    reported every spread CLV with the wrong sign."""
+    from nfl import grade
+    df = pd.DataFrame({
+        "first_seen_spread": [-3.0, -3.0, -3.0, -3.0], "spread_home": [-3.0] * 4,
+        "close_spread": [-4.0, -2.0, -4.0, -2.0], "margin_side_val": [0.4, 0.4, -0.4, -0.4],
+        "first_seen_total": [44.0, 44.0, 44.0, 44.0], "total_line": [44.0] * 4,
+        "close_total": [45.0, 43.0, 45.0, 43.0], "total_pick": ["Over", "Over", "Under", "Under"]})
+    out = grade.with_clv(df)
+    # home -3 closing -4 got the better number; away +3 closing +4 got the worse one
+    assert out["spread_clv"].tolist() == [1.0, -1.0, -1.0, 1.0]
+    assert out["total_clv"].tolist() == [1.0, -1.0, -1.0, 1.0]
+    # the metrics read results.csv the current way, whatever an older grader wrote into it
+    stale = out.assign(spread_clv=-out["spread_clv"], season=THIS, week=1,
+                       spread_result="win", total_result="win", spread_stake=0.0,
+                       total_stake=0.0, spread_units=0.0, total_units=0.0,
+                       spread_strength="pass", total_strength="pass", margin_disagree=1.0,
+                       total_disagree=1.0, margin_abs_err=1.0, total_abs_err=1.0)
+    assert grade.metrics(stale)["spreads"]["all_games"]["clv"] == 0.0
+    one = stale.iloc[[0]]
+    assert grade.metrics(one)["spreads"]["all_games"]["clv"] == 1.0
 
 
 def test_odds_matcher():

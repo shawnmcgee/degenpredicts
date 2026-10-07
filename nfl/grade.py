@@ -65,12 +65,7 @@ def grade() -> pd.DataFrame:
     # home covers when home_margin + spread_home > 0 (spread_home is the CFBD convention:
     # -3 means home favoured by 3, so a 7-point home win gives 7 + (-3) = +4, a cover)
     cover = m["home_margin"] + m["spread_home"]
-    # Must reproduce exactly the side predict.py published. It decides from the unrounded
-    # difference (`margin_side_val`); grading off the rounded `margin_edge` would score the
-    # opposite side on any game where the edge rounded to 0.0. Older picks predate the column,
-    # so fall back to what they were actually published with.
-    took_home = (m["margin_side_val"] if "margin_side_val" in m
-                 else m["margin_edge"]) > 0
+    took_home = _took_home(m)
     m["spread_result"] = "push"
     m.loc[(took_home & (cover > 0)) | (~took_home & (cover < 0)), "spread_result"] = "win"
     m.loc[(took_home & (cover < 0)) | (~took_home & (cover > 0)), "spread_result"] = "loss"
@@ -91,22 +86,50 @@ def grade() -> pd.DataFrame:
     closing = nflverse.load_lines()[["game_id", "spread_home", "total_line"]].rename(
         columns={"spread_home": "close_spread", "total_line": "close_total"})
     m = m.merge(closing, on="game_id", how="left")
-    first_total = (m["first_seen_total"] if "first_seen_total" in m
-                   else pd.Series(np.nan, index=m.index)).fillna(m["total_line"])
-    first_spread = (m["first_seen_spread"] if "first_seen_spread" in m
-                    else pd.Series(np.nan, index=m.index)).fillna(m["spread_home"])
-    m["total_clv"] = np.where(m.total_pick == "Over",
-                              m.close_total - first_total, first_total - m.close_total)
-    m["spread_clv"] = np.where(took_home, m.close_spread - first_spread,
-                               first_spread - m.close_spread)
     m["graded_at"] = str(config.today_et())
 
-    done = pd.concat([done, m], ignore_index=True) if len(done) else m
+    # CLV is recomputed for every row, not only the new ones, so a correction to how it is
+    # measured reaches the games already graded rather than only the next ones.
+    done = with_clv(pd.concat([done, m], ignore_index=True) if len(done) else m)
     config.ensure_dirs()
     done.to_csv(config.RESULTS, index=False)
     log.info("graded %d | totals %s | spreads %s", len(m),
              m.total_result.value_counts().to_dict(), m.spread_result.value_counts().to_dict())
     return done
+
+
+def _took_home(df: pd.DataFrame) -> pd.Series:
+    """The side predict.py published. It decides from the unrounded difference
+    (`margin_side_val`); grading off the rounded `margin_edge` would score the opposite side on
+    any game where the edge rounded to 0.0. Older picks predate the column, so fall back to
+    what they were actually published with."""
+    side = df["margin_side_val"] if "margin_side_val" in df else df["margin_edge"]
+    if "margin_side_val" in df and "margin_edge" in df:
+        side = side.fillna(df["margin_edge"])
+    return side > 0
+
+
+def with_clv(df: pd.DataFrame) -> pd.DataFrame:
+    """Closing-line value for each graded row, in points, positive when the line moved toward
+    the side we took after we FIRST published it.
+
+    `spread_home` is the CFBD convention - -3 means home favoured by 3 - so the market moving
+    toward the home side makes the number MORE negative. A home pick at -3 that closes -4 got
+    the better number: +1. This was once `close - first` for a home pick, which reversed every
+    spread CLV the page reported.
+    """
+    if "close_spread" not in df or "close_total" not in df:
+        return df
+    df = df.copy()
+    first_total = (df["first_seen_total"] if "first_seen_total" in df
+                   else pd.Series(np.nan, index=df.index)).fillna(df["total_line"])
+    first_spread = (df["first_seen_spread"] if "first_seen_spread" in df
+                    else pd.Series(np.nan, index=df.index)).fillna(df["spread_home"])
+    df["total_clv"] = np.where(df["total_pick"] == "Over", df["close_total"] - first_total,
+                               first_total - df["close_total"])
+    df["spread_clv"] = np.where(_took_home(df), first_spread - df["close_spread"],
+                                df["close_spread"] - first_spread)
+    return df
 
 
 def _rec(df, kind) -> dict:
@@ -133,6 +156,8 @@ def metrics(done: pd.DataFrame) -> dict:
     season = done[done["season"] == config.season_of(today)]
     if season.empty:
         season = done[done["season"] == done["season"].max()]
+    # results.csv may predate a fix to how CLV is measured; read it the current way
+    season = with_clv(season)
 
     for kind, edge_col, err_col, strength_col in (
             ("total", "total_disagree", "total_abs_err", "total_strength"),

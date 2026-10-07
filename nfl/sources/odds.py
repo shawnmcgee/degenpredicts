@@ -20,7 +20,7 @@ import logging
 import re
 import statistics
 import unicodedata
-from datetime import datetime, timezone
+from datetime import timezone
 
 import pandas as pd
 
@@ -190,8 +190,9 @@ def snapshot(matcher=None) -> pd.DataFrame:
         return pd.DataFrame()
     log.info("Odds API quota used=%s remaining=%s",
              r.headers.get("x-requests-used"), r.headers.get("x-requests-remaining"))
-    pulled = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    rows = []
+    now = config.now_et()
+    pulled = now.astimezone(timezone.utc).isoformat(timespec="seconds")
+    rows, in_play = [], 0
     for ev in r.json():
         tot = {bm["title"]: _market(bm, "totals", ev["home_team"])
                for bm in ev.get("bookmakers", [])}
@@ -213,6 +214,12 @@ def snapshot(matcher=None) -> pd.DataFrame:
         s_line, s_home, s_away, s_book, s_n = choose(spr)
         ts = pd.Timestamp(ev["commence_time"])
         ts = ts.tz_localize("UTC") if ts.tzinfo is None else ts
+        # The feed also lists games already under way, at in-play prices. Those are not
+        # pre-game lines: the daily run starts hours late, and on a Sunday it has priced the
+        # 1pm slate in the second quarter - IND -13.5 on a game that closed HOU -1.5.
+        if ts <= now:
+            in_play += 1
+            continue
         et = ts.tz_convert(config.ET)
         home = matcher(ev["home_team"]) if matcher else ev["home_team"]
         away = matcher(ev["away_team"]) if matcher else ev["away_team"]
@@ -228,6 +235,8 @@ def snapshot(matcher=None) -> pd.DataFrame:
                      "spread_away_price": s_away, "spread_book": s_book, "spread_n_books": s_n,
                      "p_over_mkt": p_o, "p_under_mkt": p_u,
                      "p_home_mkt": p_h, "p_away_mkt": p_a})
+    if in_play:
+        log.info("odds: skipped %d games already under way (in-play prices)", in_play)
     df = pd.DataFrame(rows)
     if matcher is not None and getattr(matcher, "unmatched", None):
         log.warning("%d Odds API team names unmatched: %s",
