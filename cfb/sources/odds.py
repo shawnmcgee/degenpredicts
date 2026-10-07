@@ -17,6 +17,7 @@ from datetime import datetime
 
 import pandas as pd
 
+from .. import config
 from ..config import ET, ODDS_BOOKS, SNAPSHOTS, ODDS_API_KEY, ensure_dirs
 from core.http import get
 
@@ -156,7 +157,8 @@ def snapshot(matcher=None) -> pd.DataFrame:
     log.info("Odds API quota used=%s remaining=%s",
              r.headers.get("x-requests-used"), r.headers.get("x-requests-remaining"))
     pulled = datetime.utcnow().isoformat(timespec="seconds")
-    rows = []
+    now = config.now_et()
+    rows, in_play = [], 0
     for ev in r.json():
         tot = {bm["title"]: _market(bm, "totals", ev["home_team"]) for bm in ev.get("bookmakers", [])}
         spr = {bm["title"]: _market(bm, "spreads", ev["home_team"]) for bm in ev.get("bookmakers", [])}
@@ -176,6 +178,12 @@ def snapshot(matcher=None) -> pd.DataFrame:
         s_line, s_home, s_away, s_book, s_n = choose(spr)
         ts = pd.Timestamp(ev["commence_time"])
         ts = ts.tz_localize("UTC") if ts.tzinfo is None else ts
+        # The feed also lists games already under way, at in-play prices. Those are not
+        # pre-game lines: the daily run starts hours late, and on a Saturday it lands just
+        # after the noon kickoffs.
+        if ts <= now:
+            in_play += 1
+            continue
         et = ts.tz_convert(ET)
         home = matcher(ev["home_team"]) if matcher else ev["home_team"]
         away = matcher(ev["away_team"]) if matcher else ev["away_team"]
@@ -191,6 +199,8 @@ def snapshot(matcher=None) -> pd.DataFrame:
                      "spread_away_price": s_away, "spread_book": s_book, "spread_n_books": s_n,
                      "p_over_mkt": p_o, "p_under_mkt": p_u,
                      "p_home_mkt": p_h, "p_away_mkt": p_a})
+    if in_play:
+        log.info("odds: skipped %d games already under way (in-play prices)", in_play)
     df = pd.DataFrame(rows)
     if matcher is not None and getattr(matcher, "unmatched", None):
         log.warning("%d Odds API team names unmatched: %s",

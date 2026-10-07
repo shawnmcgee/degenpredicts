@@ -73,6 +73,23 @@ def _strength(edge, minimum, thin) -> str:
     return "bold" if e >= minimum * config.BOLD_MULT else "play"
 
 
+def started(board: pd.DataFrame, now) -> pd.Series:
+    """Games whose kickoff has passed. A TBD game has not: CFBD stamps those with a placeholder
+    time (usually midnight ET), which would otherwise read as kicked off all of game day."""
+    now = pd.Timestamp(now)
+    iso = board["kickoff_utc"] if "kickoff_utc" in board else pd.Series("", index=board.index)
+    tbd = board["start_time_tbd"] if "start_time_tbd" in board \
+        else pd.Series(False, index=board.index)
+    return pd.Series([isinstance(k, str) and bool(k.strip()) and not _true(t)
+                      and pd.Timestamp(k) <= now for k, t in zip(iso, tbd)],
+                     index=board.index, dtype=bool)
+
+
+def _true(v) -> bool:
+    """A flag from a CSV round-trip: True, "True", 1 or 1.0 - and NaN is not set."""
+    return str(v).strip().lower() in ("true", "1", "1.0")
+
+
 def build_board(games: pd.DataFrame, lines: pd.DataFrame, week: int | None = None,
                 sp: pd.DataFrame | None = None) -> pd.DataFrame:
     today = config.today_et()
@@ -151,6 +168,16 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     if board.empty:
         log.info("no upcoming games on the board")
         return board
+    # A game already under way keeps the row published before kickoff. The scheduled run
+    # starts hours late, so on a Saturday it lands just after the noon kickoffs; re-pricing
+    # those games then priced them off in-play lines and graded them against those lines too.
+    live = started(board, config.now_et())
+    if live.any():
+        log.info("%d games already under way keep the rows published before kickoff",
+                 int(live.sum()))
+        board = board[~live]
+        if board.empty:
+            return board
 
     # optional live prices, joined on team names
     live = odds.snapshot(odds.build_matcher(sorted(board_teams(board, games, season, sp))))

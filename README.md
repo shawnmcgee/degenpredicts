@@ -218,6 +218,18 @@ A test now fails if graded CLV has no variance across a synthetic line move. The
 rows carry CLV of `null` rather than `0.00`: it is genuinely unrecoverable for them, and
 unknown is the honest value.
 
+Two later fixes, both found in the NFL port first. **Spread CLV had the wrong sign.**
+`spread_home` is negative for a home favourite, so the market moving toward the home side makes
+it *more* negative; the grader subtracted the other way round, and the test pinned the wrong
+answer. CLV is now recomputed for every graded row that has a first-published number (the 105
+above stay unknown). **Games were priced in-play.** The daily run is scheduled for 9am ET but
+starts hours late, and on Saturdays it landed just after the noon kickoffs, so the odds feed's
+in-play prices replaced the published picks and the games were graded against them — 48 of the
+first 397. The odds snapshot and the board now skip anything under way, and those rows were
+regraded from the last `picks.csv` whose odds were pulled before kickoff. Four pre-game plays
+the rewrite had erased are back on the record, two plays that only existed in-play are gone,
+and staked units went from +1.07 to −0.65 on spreads and −1.81 to −2.87 on totals.
+
 ---
 
 ## What is in `games.csv`, and what the board publishes
