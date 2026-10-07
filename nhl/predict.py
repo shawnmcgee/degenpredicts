@@ -42,7 +42,8 @@ import pandas as pd
 from . import config
 from .features import build, sides, unstack
 from .odds_math import decimal_to_american, ev, kelly
-from .scoreline import Table, cover, grids, moneyline, over_under, regulation_split, expected
+from .scoreline import (Table, cover, expected, expected_totals, grids, moneyline, over_under,
+                        regulation_split)
 from .sources import nhle, odds
 from .sources import starters
 from .train import blend, load_models
@@ -239,6 +240,7 @@ def run(dry_run: bool = False, days: int | None = None) -> pd.DataFrame:
                    sh.get("split", config.DEFAULT_SPLIT_SHRINK),
                    sh.get("total", config.DEFAULT_TOTAL_SHRINK))
     F, R = grids(lh, la, theta)
+    mkt_total = expected_totals(up["m_lh"], up["m_la"], theta)
 
     up = up.copy()
     up["thin_data"] = (up["h_games"] < config.MIN_GAMES) | (up["a_games"] < config.MIN_GAMES)
@@ -250,6 +252,10 @@ def run(dry_run: bool = False, days: int | None = None) -> pd.DataFrame:
         r.update(puck_drop=label, puck_drop_utc=iso, lam_home=round(float(lh[i]), 3),
                  lam_away=round(float(la[i]), 3), raw_lam_home=round(float(raw_h[i]), 3),
                  raw_lam_away=round(float(raw_a[i]), 3), model=model_name[i])
+        # The market's expected total, read through the same grid as ours: how far our goals
+        # sit from the market's is the hockey version of the other boards' disagreement.
+        mt = round(float(mkt_total[i]), 3) if np.isfinite(mkt_total[i]) else np.nan
+        r.update(mkt_exp_total=mt, total_disagree=round(r["exp_total"] - mt, 3))
         rows.append(r)
     priced = pd.DataFrame(rows, index=up.index)
     keep = ["game_id", "season", "game_type", "date", "home_team", "away_team", "h_games",

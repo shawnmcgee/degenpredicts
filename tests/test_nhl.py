@@ -209,6 +209,53 @@ def test_table_matches_exact_grids_and_inverts_the_market():
     assert np.allclose(rh, lh, atol=0.05) and np.allclose(ra, la, atol=0.05)
 
 
+def test_totals_are_measured_against_the_markets_goals_not_the_line():
+    """The first live week showed our goals against the posted line, and most games looked like
+    overs: a 6.0 at even money expects more than six goals, because empty-netters and the
+    shootout goal pull the average above the middle outcome. Our goals are compared with the
+    market's own, read through the same grid, and the record is bucketed by that gap."""
+    from nhl import grade, site
+    from nhl.scoreline import Table, expected, expected_totals, grids
+
+    lh, la = Table().invert(np.array([0.55]), np.array([6.0]), np.array([0.5]))
+    mt = expected_totals(lh, la)[0]
+    assert mt > 6.1, "an even-money 6.0 is not a six-goal market"
+    F, _ = grids(lh, la)
+    assert mt == pytest.approx(expected(F[0])[1])
+    assert np.isnan(expected_totals([np.nan, 3.0], [3.0, np.nan])).all()
+
+    # a recorded gap stands; a row graded before the board recorded one has it rebuilt
+    df = pd.DataFrame({"m_lh": [3.0, 3.0, np.nan], "m_la": [2.8, 2.8, np.nan],
+                       "lam_home": [3.05, 3.05, 3.1], "lam_away": [2.8, 2.8, 2.9],
+                       "total_disagree": [0.05, np.nan, np.nan]})
+    gap = grade.total_disagreement(df)
+    assert gap[0] == 0.05
+    assert gap[1] == pytest.approx(np.diff(expected_totals([3.0, 3.05], [2.8, 2.8]))[0], abs=2e-3)
+    assert gap[1] > 0, "more goals than the market is a positive gap"
+    assert np.isnan(gap[2]), "an unpriced game has no market to differ from"
+
+    # graded games bucket by the size of the gap either way, and a card finds its own row
+    n = 5
+    season = pd.DataFrame({
+        "season": 2026, "date": "2026-10-10", "spread_strength": "pass",
+        "spread_result": "win", "spread_stake": 0.0, "spread_units": 0.0, "spread_ev": -0.01,
+        "spread_mkt_p": 0.5, "total_strength": "pass", "total_stake": 0.0, "total_units": 0.0,
+        "total_result": ["win", "loss", "win", "push", "loss"], "total_ev": -0.02,
+        "total_mkt_p": 0.5, "total_disagree": [0.01, -0.04, 0.045, 0.2, np.nan]},
+        index=range(n))
+    met = grade.metrics(season)
+    by = {r["bucket"]: r for r in met["totals"]["by_disagree"]}
+    assert set(by) == {"0.00-0.03", "0.03-0.06", "0.10-+"}
+    assert (by["0.03-0.06"]["wins"], by["0.03-0.06"]["losses"]) == (1, 1)
+    assert sum(r["n"] for r in by.values()) == 4
+    assert len(met["totals"]["by_edge"]) == 1, "by EV the whole season sits in one row"
+    rows = site._hit_rows(met)
+    assert [r["label"] for r in rows["total"]] == ["under 0.03", "0.03–0.06", "0.10+"]
+    assert site._hit_for(rows["total"], abs(-0.04))["label"] == "0.03–0.06"
+    assert site._hit_for(rows["spread"], -0.01)["label"] == "below 0%"
+    assert site._hit_for(rows["total"], None) is None
+
+
 # ---------------------------------------------------------------------------------
 # Features
 # ---------------------------------------------------------------------------------
@@ -715,8 +762,13 @@ def test_pipeline(env, monkeypatch):
     assert len(out) == 7
     for c in ("spread_pick", "spread_ev", "spread_p_win", "spread_stake", "total_pick", "total_ev",
               "total_p_win", "p_home_win", "p_reg_home", "p_ot", "p_reg_away", "first_m_lh",
-              "g_h_top", "puck_drop"):
+              "g_h_top", "puck_drop", "mkt_exp_total", "total_disagree"):
         assert c in out.columns, c
+    priced = out["m_lh"].notna()
+    assert priced.any() and out.loc[priced, "mkt_exp_total"].notna().all()
+    assert np.allclose(out.loc[priced, "total_disagree"],
+                       out.loc[priced, "exp_total"] - out.loc[priced, "mkt_exp_total"], atol=1e-3)
+    assert out.loc[~priced, "total_disagree"].isna().all()
     probs = out[["p_reg_home", "p_ot", "p_reg_away"]].sum(axis=1)
     assert np.allclose(probs, 1.0, atol=5e-4)      # each is stored to four decimals
     # a new season: nobody has played, so nothing may be staked
@@ -767,6 +819,8 @@ def test_pipeline(env, monkeypatch):
     assert "In net:" in html and "Brand New Kid" in html and ">confirmed<" in html
     assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
     assert html.count('class="game ') + html.count('class="game"') == 7
+    # every priced game shows the market's goals beside ours; the unpriced one has none to show
+    assert len(re.findall(r"Goals <b>[\d.]+</b> &middot; market [\d.]+", html)) == 6
 
     # finish the slate and grade it
     fin = allg.copy()
@@ -787,9 +841,12 @@ def test_pipeline(env, monkeypatch):
     met = grade.metrics(done)
     assert met["sport"] == "nhl" and met["spreads"]["all_games"]["n"] == 7
     assert met["spreads"]["season"]["n"] == 0, "nothing was staked, so there is no staked record"
+    assert sum(r["n"] for r in met["totals"]["by_disagree"]) == int(done["m_lh"].notna().sum())
     env.METRICS.write_text(json.dumps(met, default=str))
     site.build()
-    assert "nan" not in _rendered_text((env.DOCS / "index.html").read_text())
+    html = (env.DOCS / "index.html").read_text()
+    assert "nan" not in _rendered_text(html)
+    assert "Goals off the market" in html and "EV at the price" in html
 
 
 def test_games_under_way_are_never_priced_in_play(env, monkeypatch):
