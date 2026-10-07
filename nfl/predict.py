@@ -60,9 +60,19 @@ def _stakes(p_win, payout, strength):
             for p, b, st in zip(p_win, payout, strength)]
 
 
-def _strength(edge, minimum, thin) -> str:
+def _strength(edge, minimum, thin, ev=None) -> str:
+    """How the board labels a pick. A play needs the model's raw disagreement with the line to
+    clear the bar AND positive EV at the posted price.
+
+    The disagreement bar alone was not enough. The published probability is the line moved
+    only `shrink` of the way toward the model (0.10 on spreads), so at -110 a spread needs
+    about 7.6 points of disagreement before its EV turns positive - a 5-point "play" was
+    shown to users with a 0u stake, on the bucket that covered worst in the walk-forward.
+    """
     e = abs(edge) if edge == edge else 0.0
     if e < minimum:
+        return "pass"
+    if ev is not None and not (ev == ev and ev > 0):
         return "pass"
     if thin:
         return "thin"
@@ -205,16 +215,10 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         out[f"{kind}_model"] = name
         out[f"{kind}_p_over"] = np.round(norm.cdf((blended - line) / sigma), 4)
 
-    # Strength decides whether anything is staked, so it is settled before the Kelly numbers
-    # are computed rather than after them. The thin-data flag also has to exist before the
-    # exchange pricing runs: the Kalshi path refuses to publish a pick on a game the model
-    # itself considers unplayable.
+    # The thin-data flag has to exist before the exchange pricing runs: the Kalshi path refuses
+    # to publish a pick on a game the model itself considers unplayable.
     thin = (out["h_games"] < config.MIN_GAMES) | (out["a_games"] < config.MIN_GAMES)
     out["thin_data"] = thin
-    out["total_strength"] = [_strength(d, config.TOTAL_EDGE_MIN, t)
-                             for d, t in zip(out["total_disagree"], thin)]
-    out["spread_strength"] = [_strength(d, config.SPREAD_EDGE_MIN, t)
-                              for d, t in zip(out["margin_disagree"], thin)]
 
     took_over = out["total_side_val"] > 0
     out["total_pick"] = np.where(took_over, "Over", "Under")
@@ -222,7 +226,6 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     out["total_price"] = np.where(took_over, out["over_price"], out["under_price"])
     out["total_payout"] = out["total_price"].apply(american_payout)
     out["total_ev"] = (out["total_p_win"] * out["total_payout"] - (1 - out["total_p_win"])).round(3)
-    out["total_stake"] = _stakes(out["total_p_win"], out["total_payout"], out["total_strength"])
 
     took_home = out["margin_side_val"] > 0
     out["spread_side"] = np.where(took_home, out["home_team"], out["away_team"])
@@ -233,6 +236,14 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     out["spread_price"] = np.where(took_home, out["spread_home_price"], out["spread_away_price"])
     out["spread_payout"] = out["spread_price"].apply(american_payout)
     out["spread_ev"] = (out["spread_p_win"] * out["spread_payout"] - (1 - out["spread_p_win"])).round(3)
+
+    # Strength decides whether anything is staked, so it is settled before the Kelly numbers are
+    # computed - and after the EV, because a pick with no positive EV at the price is not a play.
+    out["total_strength"] = [_strength(d, config.TOTAL_EDGE_MIN, t, ev) for d, t, ev
+                             in zip(out["total_disagree"], thin, out["total_ev"])]
+    out["spread_strength"] = [_strength(d, config.SPREAD_EDGE_MIN, t, ev) for d, t, ev
+                              in zip(out["margin_disagree"], thin, out["spread_ev"])]
+    out["total_stake"] = _stakes(out["total_p_win"], out["total_payout"], out["total_strength"])
     out["spread_stake"] = _stakes(out["spread_p_win"], out["spread_payout"], out["spread_strength"])
 
     if "margin_pred" in out:

@@ -819,6 +819,8 @@ def test_pipeline(env, monkeypatch):
     assert "In net:" in html and "Brand New Kid" in html and ">confirmed<" in html
     assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
     assert html.count('class="game ') + html.count('class="game"') == 7
+    assert "not betting advice" in html and "1-800-GAMBLER" in html, \
+        "the page is public: it must carry the responsible-gambling notice"
     # every priced game shows the market's goals beside ours; the unpriced one has none to show
     assert len(re.findall(r"Goals <b>[\d.]+</b> &middot; market [\d.]+", html)) == 6
 

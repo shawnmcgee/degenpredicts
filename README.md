@@ -498,6 +498,12 @@ that showed anything**, so almost nothing is flagged as a play. Deliberate. Ever
 predicted, graded and CLV-tracked whether or not it is staked, so evidence accumulates without
 money at risk. Lower them only when `ats_by_disagreement` gives you a reason.
 
+Clearing the bar is necessary but not sufficient: a pick is a **play** only if it also has
+positive EV at the posted price. The published probability is the line moved `shrink` of the way
+toward the model — 0.10 on spreads — so at −110 a spread needs about 7.6 points of disagreement
+before its EV turns positive. Without the EV check the board labelled 5–7.6-point spreads "play"
+and staked them 0u, in the very bucket (5–7) that covered worst in the walk-forward, 44.6%.
+
 ### 4. Sample size and calibration
 
 272 games a season against college's ~800. So: the walk-forward pools **six** seasons rather

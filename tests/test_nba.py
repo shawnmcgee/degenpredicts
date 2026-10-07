@@ -683,6 +683,8 @@ def test_pipeline(env, monkeypatch):
     site.build()
     html = (env.DOCS / "index.html").read_text()
     assert "NBA" in html and 'href="../"' in html and 'href="../nhl/"' in html
+    assert "not betting advice" in html and "1-800-GAMBLER" in html, \
+        "the page is public: it must carry the responsible-gambling notice"
     assert "Boston Star" in html or "Star" in html
     assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
     assert html.count('class="game ') + html.count('class="game"') == 4

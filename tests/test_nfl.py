@@ -465,6 +465,23 @@ def test_stake_sizing_is_eighth_kelly(env):
     assert kelly(0.60, 0.909) == pytest.approx(full * 0.125)
 
 
+def test_a_play_needs_positive_ev_not_just_disagreement(env):
+    """The published probability is the line moved only `shrink` of the way to the model, so
+    a spread can clear the 5-point disagreement bar and still be a losing bet at -110. The
+    board used to call that a "play" and size it at 0u."""
+    from nfl.predict import _stakes, _strength
+    bar = env.SPREAD_EDGE_MIN
+    assert _strength(bar + 1, bar, False, -0.02) == "pass", "over the bar, negative EV"
+    assert _strength(bar + 1, bar, False, 0.0) == "pass", "break-even is not a play"
+    assert _strength(bar + 1, bar, False, 0.01) == "play"
+    assert _strength(2 * bar, bar, False, 0.01) == "bold"
+    assert _strength(bar + 1, bar, True, 0.01) == "thin", "early season stays unstaked"
+    assert _strength(bar - 1, bar, False, 0.20) == "pass", "the bar still applies"
+    assert _strength(float("nan"), bar, False, 0.05) == "pass"
+    # whatever it is labelled, a play is staked and nothing else is
+    assert _stakes([0.53, 0.53], [0.909, 0.909], ["play", "pass"])[1] == 0.0
+
+
 def test_epa_opponent_adjustment(env):
     """The adjustment has to move a rating toward what the schedule justifies.
 
@@ -644,6 +661,14 @@ def test_pipeline(env, monkeypatch):
     html = (env.DOCS / "index.html").read_text()
     assert "NFL" in html
     assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
+    assert "not betting advice" in html and "1-800-GAMBLER" in html, \
+        "the page is public: it must carry the responsible-gambling notice"
+    # a negative CLV is the line moving AGAINST us, and the caption has to say so
+    m["spreads"]["all_games"]["clv"], m["totals"]["all_games"]["clv"] = -0.5, 0.25
+    env.METRICS.write_text(json.dumps(m, default=str))
+    site.build()
+    html = (env.DOCS / "index.html").read_text()
+    assert html.count("line moved against us") == 1 and html.count("line moved our way") == 1
 
 
 def test_games_under_way_are_never_priced_in_play(env, monkeypatch):

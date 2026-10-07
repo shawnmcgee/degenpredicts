@@ -1063,6 +1063,8 @@ def test_site_renders_without_any_data():
     html = (config.DOCS / "index.html").read_text()
     assert "Premier League" in html
     assert "No fixtures on the board" in html
+    assert "not betting advice" in html and "1-800-GAMBLER" in html, \
+        "the page is public: it must carry the responsible-gambling notice"
 
 
 def test_workflows_exist_and_are_wired():
