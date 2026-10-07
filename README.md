@@ -528,6 +528,36 @@ Everything the model sees is a rate or a per-game figure, so the 2021 move from 
 17-game season cannot leak in through a season total: EPA is per play, continuity is a ratio,
 form is a mean, and week numbers are normalised.
 
+### 5. Where to bet it: line shopping, key numbers and teasers
+
+The model does not beat the NFL close, so the board's job for a reader is the next-best thing:
+getting the most out of the number. A half-point across 3 is worth more than anything the model
+adds — since 2015, 14.8% of games have ended on exactly 3 and 8.7% on 7, and against a 3-point
+favourite the underdog covers 46% at +2.5 and 56% at +3.5.
+
+- **Every pick is priced off real margins** (`nfl/keynumbers.py`), not a bell curve. For an
+  expected margin *m* the distribution is the final margins of past games that closed near *m*;
+  totals work the same way. It supplies the *shape* — where the spikes are, how often a number
+  pushes — and is tilted so the market's own number is its midpoint, because history's slight
+  under lean (48.9% overs) would otherwise make every under on the board look like a bet. Win,
+  push and EV on the card come from it; the normal approximation put a 3-point favourite at −3
+  at 50% to cover when it covers 45% and pushes 9%.
+- **Best price across the venues users bet at.** The odds call asks The Odds API for DraftKings,
+  FanDuel, Kalshi, Polymarket and Novig by name (`DEGEN_NFL_SHOP_BOOKS`), plus the US books the
+  consensus line has always come from. Up to ten named books bill as one region, so this costs
+  the same 2 credits a run as before — the shared key runs near the free tier's 500, and a second
+  region would have run it dry. Each quote on the pick's side is valued at the model's number and
+  the best is shown with its EV; a move across 3 or 7 is flagged. DraftKings Predictions and
+  FanDuel Predicts are in no feed this pipeline can reach, so their sportsbooks stand in. A refused
+  book list falls back to `regions=us`.
+- **"Worth it at"** is the worst number the pick still has positive EV at, at −110: take it there
+  or better.
+- **Teasers** (`nfl/teasers.py`): underdogs at +1.5/+2.5 teased six points to +7.5/+8.5, in games
+  totalled 49 or less. Against closing lines the legs won 76.7% (2010-15), 80.2% (2016-20) and
+  78.5% (2021-25), against a 73.9% break-even for a two-team teaser at −120. The favourite side
+  of the same teaser covered 64.8% after 2020 and is not tracked. Sportsbooks only: an exchange's
+  +7.5 is its own contract, priced on its own, so the mispricing does not exist there.
+
 ### Isolation over shared code
 
 Each sport is a **self-contained package** — its own ratings engine, config, sources, HTTP

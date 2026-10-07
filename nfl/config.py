@@ -61,6 +61,26 @@ MODEL_DIR = DATA / "models"
 # static files on GitHub releases, so the pipeline has no key to rotate and no quota to blow.
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")   # optional: live prices for EV/Kelly
 ODDS_BOOKS = ["Pinnacle", "DraftKings", "FanDuel", "BetMGM", "Caesars", "Bovada"]
+# Where the board shops for the best number: the venues the site's users bet at. Kalshi,
+# Polymarket and Novig are The Odds API's US exchanges ("us_ex"); DraftKings and FanDuel are
+# their sportsbooks - their prediction-market products are in no feed this pipeline can reach.
+SHOP_BOOKS = [b.strip().lower() for b in
+              _env("DEGEN_NFL_SHOP_BOOKS", "draftkings,fanduel,kalshi,polymarket,novig").split(",")
+              if b.strip()]
+# The books the consensus line is read from, by Odds API key - the US books in ODDS_BOOKS.
+LINE_BOOKS = ["draftkings", "fanduel", "betmgm", "williamhill_us", "bovada"]
+# Teasers: an underdog at +1.5 or +2.5 teased six points to +7.5 or +8.5 crosses both 3 and 7,
+# the margins NFL games land on most, in a game whose total keeps those numbers decisive. Books
+# price every teased point alike; these are not alike. Two-team six-point teasers usually cost
+# -120, which needs each leg to win 73.9%.
+TEASER_POINTS = _env_float("DEGEN_NFL_TEASER_POINTS", 6.0)
+TEASER_PRICE = _env_float("DEGEN_NFL_TEASER_PRICE", -120.0)
+TEASER_MAX_TOTAL = _env_float("DEGEN_NFL_TEASER_MAX_TOTAL", 49.0)
+TEASER_DOG_LINES = (1.5, 2.5)
+# The Odds API bills a named list of up to ten books as one region, so asking for these by name
+# costs the 2 credits a run that `regions=us` did while adding the exchanges. The shared key
+# runs at about 480 of the free tier's 500 credits a month, so a second region is not an option.
+ODDS_BOOKMAKERS = list(dict.fromkeys(LINE_BOOKS + SHOP_BOOKS))[:10]
 
 # nflverse serves multi-megabyte static CSVs (players.csv is ~7 MB), so this pipeline gets a
 # longer default timeout than the college one's small JSON calls need. Sport-local, so raising

@@ -617,6 +617,10 @@ def test_pipeline(env, monkeypatch):
 
     out = predict.run()
     assert len(out) == 16
+    # key-number pricing ran: every priced pick carries its push chance and its "worth it at"
+    for c in ("spread_p_push", "total_p_push", "spread_worth", "total_worth", "teaser_team"):
+        assert c in out.columns, c
+    assert out["spread_worth"].notna().all() and out["spread_p_push"].between(0, 0.2).all()
     for c in ("total_pred", "total_edge", "total_disagree", "total_p_win", "total_stake",
               "margin_pred", "margin_edge", "margin_disagree", "spread_pick", "spread_stake",
               "h_qb_new", "rest_diff", "a_travel_km"):
@@ -663,6 +667,7 @@ def test_pipeline(env, monkeypatch):
     assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
     assert "not betting advice" in html and "1-800-GAMBLER" in html, \
         "the page is public: it must carry the responsible-gambling notice"
+    assert "Worth it at" in html and "<h2>Teasers</h2>" in html
     # a negative CLV is the line moving AGAINST us, and the caption has to say so
     m["spreads"]["all_games"]["clv"], m["totals"]["all_games"]["clv"] = -0.5, 0.25
     env.METRICS.write_text(json.dumps(m, default=str))
@@ -1461,3 +1466,152 @@ def test_each_pick_carries_the_season_hit_rate_at_its_own_disagreement(env):
     if "Recent results" in html:
         assert html.index("Cover rate by model disagreement") < html.index("Recent results")
     assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
+
+
+# ---------------------------------------------------------------------------------
+# Key numbers, line shopping and teasers
+# ---------------------------------------------------------------------------------
+def _key_history(n=1200, seed=11):
+    """Games closing at home -3 whose margins land on exactly 3 one time in seven - the
+    real NFL's shape at that number - and totals closing at 44.5."""
+    rng = np.random.default_rng(seed)
+    margin = np.where(rng.random(n) < 1 / 7, 3, np.round(rng.normal(3, 13, n))).astype(int)
+    total = np.round(rng.normal(44.5, 13, n)).clip(3).astype(int)
+    away = rng.integers(10, 30, n)
+    games = pd.DataFrame({"game_id": [f"k{i}" for i in range(n)], "season": 2020,
+                          "completed": True, "home_points": away + margin,
+                          "away_points": away})
+    games["away_points"] = (total - margin) / 2
+    games["home_points"] = games["away_points"] + margin
+    lines = pd.DataFrame({"game_id": games["game_id"], "spread_home": -3.0, "total_line": 44.5})
+    return games, lines
+
+
+def test_key_numbers_put_the_push_on_3_and_centre_on_the_market():
+    """A bell curve gives a 3-point favourite at -3 a 50% chance to cover and no push. In the
+    NFL it pushes about one game in seven, which is the whole value of +3.5 over +2.5."""
+    from nfl.keynumbers import KeyNumbers
+    kn = KeyNumbers(*_key_history())
+    assert kn.usable
+    win, push, loss = kn.spread(3.0, -3.0, home=True)
+    assert push > 0.10, "the spike at 3 must survive"
+    assert win == pytest.approx(loss, abs=0.01), "the market's own number is the midpoint"
+    assert sum((win, push, loss)) == pytest.approx(1.0)
+    # the half-point across 3 is worth the push mass; one away from it is worth little
+    dog_35, dog_25 = kn.spread(3.0, 3.5, home=False)[0], kn.spread(3.0, 2.5, home=False)[0]
+    assert dog_35 - dog_25 > 0.10
+    # the away side mirrors the home side
+    assert kn.spread(-3.0, 3.5, home=True)[0] == pytest.approx(dog_35)
+    # totals: the market's number is the midpoint whatever history leaned
+    over, _, under = kn.total(44.5, 44.5, over=True)
+    assert over == pytest.approx(under, abs=0.01)
+    # "worth it at": at the market's own number neither side is a bet at -110; a half-point
+    # through 3 is
+    assert kn.worst_spread(3.0, home=False) == 3.5
+    assert kn.worst_spread(3.0, home=True) == -2.5
+    assert kn.ev(kn.spread(3.0, 3.5, False), -110) > 0 > kn.ev(kn.spread(3.0, 2.5, False), -110)
+
+
+def test_every_shop_book_is_asked_for_at_one_regions_cost(env, monkeypatch):
+    """The shared key runs near the free tier's limit, so the exchanges must come in a named
+    book list (billed as one region), and a refusal must fall back rather than go dark."""
+    from datetime import datetime
+    from nfl.sources import odds
+
+    assert len(env.ODDS_BOOKMAKERS) <= 10, "eleven books bill as two regions"
+    assert {"kalshi", "polymarket", "novig", "draftkings", "fanduel"} <= set(env.ODDS_BOOKMAKERS)
+    now = datetime(2026, 10, 10, 9, 0, tzinfo=env.ET)
+
+    def book(key, title, home_pt, home_px, away_px, total, o, u):
+        return {"key": key, "title": title, "markets": [
+            {"key": "spreads", "outcomes": [
+                {"name": "Indianapolis Colts", "point": home_pt, "price": home_px},
+                {"name": "Houston Texans", "point": -home_pt, "price": away_px}]},
+            {"key": "totals", "outcomes": [{"name": "Over", "point": total, "price": o},
+                                           {"name": "Under", "point": total, "price": u}]}]}
+
+    event = {"id": "e1", "commence_time": "2026-10-11T17:00:00Z",
+             "home_team": "Indianapolis Colts", "away_team": "Houston Texans", "bookmakers": [
+                 book("draftkings", "DraftKings", 2.5, -110, -110, 44.5, -110, -110),
+                 book("novig", "Novig", 3.5, -118, -102, 44.0, -105, -115),
+                 book("betmgm", "BetMGM", 3.0, -115, -105, 44.5, -110, -110)]}
+    calls = []
+
+    class Response:
+        def __init__(self, code):
+            self.status_code, self.headers = code, {}
+
+        def json(self):
+            return [event]
+
+    def get(url, params=None):
+        calls.append(params)
+        return Response(422 if "bookmakers" in params and len(calls) == 1 and refuse else 200)
+
+    monkeypatch.setattr(env, "ODDS_API_KEY", "test")
+    monkeypatch.setattr(env, "now_et", lambda: now)
+    monkeypatch.setattr(odds, "get", get)
+    refuse = False
+    snap = odds.snapshot()
+    assert "bookmakers" in calls[0] and "regions" not in calls[0]
+    assert snap["spread_book"].iloc[0] == "DraftKings", "the model's line comes from the same book"
+    q = json.loads(snap["quotes"].iloc[0])
+    assert {x["key"] for x in q} == {"draftkings", "novig"}, "only the shop books are quoted"
+    nov = {(x["m"], x["side"]): x for x in q if x["key"] == "novig"}
+    assert nov[("spread", "home")]["point"] == 3.5 and nov[("spread", "away")]["point"] == -3.5
+    assert nov[("total", "over")]["point"] == 44.0
+    # a refused book list falls back to the plain US region
+    calls.clear()
+    refuse = True
+    assert len(odds.snapshot()) == 1 and calls[1].get("regions") == "us"
+
+
+def test_a_new_snapshot_column_never_corrupts_the_file(env, tmp_path, monkeypatch):
+    from nfl.sources import odds
+    monkeypatch.setattr(env, "SNAPSHOTS", tmp_path / "snapshots.csv")
+    odds.append_snapshot(pd.DataFrame([{"pulled_at": "a", "date": "2026-10-01", "live_total": 44.5}]))
+    odds.append_snapshot(pd.DataFrame([{"pulled_at": "b", "date": "2026-10-02", "live_total": 45.5,
+                                        "quotes": "[]"}]))
+    odds.append_snapshot(pd.DataFrame([{"pulled_at": "c", "date": "2026-10-03", "live_total": 46.5}]))
+    back = pd.read_csv(env.SNAPSHOTS)
+    assert list(back["pulled_at"]) == ["a", "b", "c"]
+    assert back["quotes"].tolist()[1] == "[]" and back["quotes"].isna().tolist() == [True, False, True]
+
+
+def test_the_best_quote_is_the_most_valuable_not_the_biggest_number(env):
+    """+3.5 at -120 against +3 at -102 on a 3-point underdog: the half-point off 3 is worth more
+    than the 18 cents, and the card must say so - while a better price at the same number wins
+    on price."""
+    from nfl.keynumbers import KeyNumbers
+    from nfl.predict import _key_number_prices
+    kn = KeyNumbers(*_key_history())
+    q = [{"book": "A", "key": "a", "m": "spread", "side": "away", "point": 3.0, "price": -102},
+         {"book": "B", "key": "b", "m": "spread", "side": "away", "point": 3.5, "price": -120},
+         {"book": "C", "key": "c", "m": "total", "side": "under", "point": 44.5, "price": -110},
+         {"book": "D", "key": "d", "m": "total", "side": "under", "point": 44.5, "price": -102}]
+    out = pd.DataFrame([{"margin_pred": 3.0, "spread_number": 3.0, "total_pred": 44.5,
+                         "total_line": 44.5}])
+    res = _key_number_prices(out, kn, [False], [False], pd.Series([json.dumps(q)]))
+    r = res.iloc[0]
+    assert (r["spread_best_book"], r["spread_best_number"]) == ("B", 3.5)
+    assert r["spread_best_ev"] > 0
+    assert r["total_best_book"] == "D", "same number: the better price wins"
+    assert r["spread_worth"] == 3.5 and r["n_quotes"] == 4
+    assert r["spread_p_push"] > 0.10, "the pick at +3 carries the push"
+
+
+def test_teaser_legs_cross_3_and_7_and_grade_without_pushes(env):
+    from nfl import teasers
+    df = pd.DataFrame({
+        "home_team": ["A", "C", "E", "G", "I"], "away_team": ["B", "D", "F", "H", "J"],
+        "spread_home": [1.5, -2.5, 2.5, -3.0, 1.5], "total_line": [44.5, 47.0, 51.5, 41.0, np.nan],
+        "home_margin": [-8, 8, 0, 0, 0]})
+    lg = teasers.legs(df)
+    assert lg["teaser_team"].tolist()[:2] == ["A", "D"], "home and away underdogs qualify"
+    assert lg["teaser_to"].tolist()[:2] == [7.5, 8.5]
+    assert lg["teaser_team"].iloc[2:].isna().all(), "high total, a favourite's -3, no total"
+    # A +7.5 losing by 8 loses; D +8.5 with C winning by 8 wins
+    assert teasers.grade(df).tolist()[:2] == ["loss", "win"]
+    assert teasers.break_even() == pytest.approx(0.7385, abs=1e-3)
+    rec = teasers.record(pd.Series(["win"] * 3 + ["loss"]))
+    assert (rec["wins"], rec["losses"], rec["win_pct"]) == (3, 1, 75.0)

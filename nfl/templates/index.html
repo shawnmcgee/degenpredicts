@@ -44,6 +44,9 @@
   .bet .p{font-size:18px;font-weight:600;line-height:1.25}
   .bet .d{font-size:12px;color:var(--dim);margin-top:5px}
   .bet .hit{font-size:12px;color:var(--dim);margin-top:3px}
+  .bet .shop{font-size:12px;color:var(--dim);margin-top:3px}
+  .bet .shop b{color:var(--fg)}
+  .key{background:var(--warn);color:#2a1c00;border-radius:4px;padding:0 5px;font-size:11px;font-weight:600}
   .bet .hit b{color:var(--fg);font-variant-numeric:tabular-nums}
   .bet .hit .up{color:var(--good)} .bet .hit .down{color:var(--bad)}
   .exch{margin:0 14px 14px;background:var(--card2);border-radius:9px;padding:10px 12px}
@@ -194,12 +197,16 @@
         <div class="l">Total <span class="tag {{ 'early' if g.total_strength == 'thin' else g.total_strength }}">{{ 'no play' if g.total_strength in ('thin','pass') else g.total_strength }}</span></div>
         <div class="p">{{ g.total_pick }} {{ g.total_line }}</div>
         <div class="d">model {{ g.total_raw }} &middot; {{ '%+.1f'|format(g.total_disagree or 0) }} vs line</div>
+        {% if g.total_best_label %}<div class="shop">Best: <b>{{ g.total_best_book }}</b> {{ g.total_best_label }}{% if g.total_best_ev_pct is not none %} &middot; <span class="{{ 'up' if g.total_best_ev_pct > 0 else 'down' }}">EV {{ '%+.1f'|format(g.total_best_ev_pct) }}%</span>{% endif %}</div>{% endif %}
+        {% if g.total_worth_label %}<div class="shop">Worth it at {{ g.total_worth_label }}</div>{% endif %}
         {% if g.total_hit %}<div class="hit">Hit <b class="{{ g.total_hit.tone }}">{{ g.total_hit.win_pct }}%</b> ({{ g.total_hit.wins }}-{{ g.total_hit.losses }}) this season at {{ g.total_hit.label }} pts off</div>{% endif %}
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag {{ 'early' if g.spread_strength == 'thin' else g.spread_strength }}">{{ 'no play' if g.spread_strength in ('thin','pass') else g.spread_strength }}</span></div>
         <div class="p">{{ g.spread_pick }}</div>
         <div class="d">model margin {{ g.margin_raw }} &middot; {{ '%+.1f'|format(g.margin_disagree or 0) }} vs line</div>
+        {% if g.spread_best_label %}<div class="shop">Best: <b>{{ g.spread_best_book }}</b> {{ g.spread_best_label }}{% if g.spread_key_note %} <span class="key">{{ g.spread_key_note }}</span>{% endif %}{% if g.spread_best_ev_pct is not none %} &middot; <span class="{{ 'up' if g.spread_best_ev_pct > 0 else 'down' }}">EV {{ '%+.1f'|format(g.spread_best_ev_pct) }}%</span>{% endif %}</div>{% endif %}
+        {% if g.spread_worth_label %}<div class="shop">Worth it at {{ g.spread_worth_label }}</div>{% endif %}
         {% if g.spread_hit %}<div class="hit">Hit <b class="{{ g.spread_hit.tone }}">{{ g.spread_hit.win_pct }}%</b> ({{ g.spread_hit.wins }}-{{ g.spread_hit.losses }}) this season at {{ g.spread_hit.label }} pts off</div>{% endif %}
       </div>
     </div>
@@ -246,6 +253,62 @@
     than fair is the edge. The amber line under a matchup flags the situational facts the model
     weights and a glance at the line does not show: quarterback changes, rest mismatches, long
     trips, wind.</p>
+  {% endif %}
+</section>
+
+{% if picks %}
+<section>
+  <p class="sub" style="margin-top:-6px"><b>Best</b> is the most valuable price for the pick across
+    {{ shop_books }}, with its expected value at the model's number. <b>Worth it
+    at</b> is the worst number the pick still has positive EV at, at a standard &minus;110 price &mdash; take
+    it there or better, and pass on anything worse. Both read off real NFL margins rather than a bell
+    curve: about one game in seven ends on exactly 3 and one in eleven on 7, so a half-point across
+    either (<span class="key">through 3</span>) is worth several points of cover rate, and any other
+    half-point one or two.</p>
+</section>
+{% endif %}
+
+<section>
+  <h2>Teasers</h2>
+  <p class="sub" style="margin-bottom:10px">Underdogs at +1.5 or +2.5, teased {{ '%g'|format(teaser_points) }}
+    points to +7.5 or +8.5, in games totalled {{ '%g'|format(teaser_max_total) }} or less. Those
+    {{ '%g'|format(teaser_points) }} points cross both 3 and 7, the margins NFL games land on most, while
+    books price every teased point alike. A two-team teaser at {{ teaser_price }} needs each leg to win
+    {{ teaser_be }}%. Sportsbooks only &mdash; exchanges don't sell teasers.</p>
+  {% if teaser_legs %}
+  <div class="wrap">
+  <table>
+    <tr><th>This week</th><th>Leg</th><th>Kickoff</th></tr>
+    {% for g in teaser_legs %}
+    <tr><td>{{ g.away_team }} at {{ g.home_team }}</td>
+      <td><b>{{ g.teaser_team }} {{ '%+g'|format(g.teaser_to) }}</b> <span class="sub">from {{ '%+g'|format(g.teaser_line) }}</span></td>
+      <td>{{ g.time_label }}</td></tr>
+    {% endfor %}
+  </table>
+  </div>
+  {% else %}
+  <div class="note">No qualifying legs on the board right now.</div>
+  {% endif %}
+  {% if teaser_season and teaser_season.legs %}
+  <p class="sub" style="margin-top:10px">This season: <b>{{ teaser_season.wins }}-{{ teaser_season.losses }}</b>
+    ({{ teaser_season.win_pct }}%) against a {{ teaser_season.break_even }}% break-even, graded at each
+    game's own line &mdash; a two-team teaser at that rate returns {{ '%+.1f'|format(teaser_season.two_team_ev) }}%.</p>
+  {% endif %}
+  {% if teaser_backtest %}
+  <div class="wrap" style="margin-top:10px">
+  <table>
+    <tr><th>Backtest, closing lines</th><th>Legs</th><th>Won</th><th>Two-team EV</th></tr>
+    {% for r in teaser_backtest %}
+    <tr><td>{{ r.era }}</td><td>{{ r.legs }}</td>
+      <td class="{{ 'up' if r.win_pct > r.break_even else 'down' }}">{{ r.win_pct }}%</td>
+      <td class="{{ 'up' if r.two_team_ev > 0 else 'down' }}">{{ '%+.1f'|format(r.two_team_ev) }}%</td></tr>
+    {% endfor %}
+  </table>
+  </div>
+  <p class="sub" style="margin-top:8px">Closing lines are the numbers nflverse keeps; a live bet takes an
+    earlier one, and books shade teaser prices or limit them, so read this as the rule's long-run shape
+    rather than a promise. The favourite side of the same teaser stopped working after 2020 and is not
+    shown.</p>
   {% endif %}
 </section>
 
