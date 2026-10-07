@@ -182,6 +182,8 @@ def test_pipeline(env, monkeypatch):
     site.build()
     html = (env.DOCS / "index.html").read_text()
     assert "College Football" in html and "Team " in html
+    assert "not betting advice" in html and "1-800-GAMBLER" in html, \
+        "the page is public: it must carry the responsible-gambling notice"
 
 
 def test_odds_matcher():

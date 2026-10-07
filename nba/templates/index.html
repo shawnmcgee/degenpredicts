@@ -174,7 +174,7 @@
 {% macro clv(r, label, unit) %}
   <div class="stat"><div class="l">{{ label }}</div>
     <div class="v {% if r.clv and r.clv > 0 %}up{% elif r.clv and r.clv < 0 %}down{% endif %}">{% if r.clv is not none %}{{ '%+.2f'|format(r.clv) }}{% else %}—{% endif %}</div>
-    <div class="l">{{ unit }}</div></div>
+    <div class="l">{{ unit.replace('our way', 'against us') if r.clv and r.clv < 0 else unit }}</div></div>
 {% endmacro %}
 
 {% if m.spreads and m.spreads.all_games and m.spreads.all_games.n %}
@@ -400,6 +400,7 @@
   &middot; <a href="../nhl/">NHL</a>
   {% if trained %}<br>Models trained {{ trained }}.{% endif %}
   {% if support_url %}<br><a href="{{ support_url }}" rel="noopener">{{ support_label }}</a>{% endif %}
+  <p style="margin-top:10px;line-height:1.5">For information and entertainment only &mdash; not betting advice. Past results don't guarantee future ones and no pick is a sure thing; never bet more than you can afford to lose. You must be of legal betting age where you live (21+ in most US states). Gambling problem? Call <a href="tel:+18004262537">1-800-GAMBLER</a>.</p>
 </footer>
 
 {% set has_hit = hit_rows or backtest %}

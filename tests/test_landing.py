@@ -118,6 +118,8 @@ def test_renders_a_chooser_with_a_link_per_sport(tmp_path):
 
     html = landing.build(docs).read_text()
     assert 'href="cfb/"' in html and 'href="nfl/"' in html
+    assert "not betting advice" in html and "1-800-GAMBLER" in html, \
+        "the page is public: it must carry the responsible-gambling notice"
     assert "College Football" in html and "NFL" in html
     # units come from the STAKED record, never from all_games
     assert "+2.50u" in html and "-1.25u" in html          # signed units, both directions

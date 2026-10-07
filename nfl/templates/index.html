@@ -143,10 +143,10 @@
     {{ record(m.spreads.all_games, "Spreads (all games)") }}
     <div class="stat"><div class="l">Totals CLV</div>
       <div class="v {% if m.totals.all_games.clv and m.totals.all_games.clv > 0 %}up{% elif m.totals.all_games.clv and m.totals.all_games.clv < 0 %}down{% endif %}">{% if m.totals.all_games.clv is not none %}{{ '%+.2f'|format(m.totals.all_games.clv) }}{% else %}—{% endif %}</div>
-      <div class="l">line moved our way</div></div>
+      <div class="l">{{ 'line moved against us' if m.totals.all_games.clv and m.totals.all_games.clv < 0 else 'line moved our way' }}</div></div>
     <div class="stat"><div class="l">Spreads CLV</div>
       <div class="v {% if m.spreads.all_games.clv and m.spreads.all_games.clv > 0 %}up{% elif m.spreads.all_games.clv and m.spreads.all_games.clv < 0 %}down{% endif %}">{% if m.spreads.all_games.clv is not none %}{{ '%+.2f'|format(m.spreads.all_games.clv) }}{% else %}—{% endif %}</div>
-      <div class="l">line moved our way</div></div>
+      <div class="l">{{ 'line moved against us' if m.spreads.all_games.clv and m.spreads.all_games.clv < 0 else 'line moved our way' }}</div></div>
   </div>
   <p class="sub">Break-even at {{ m.venue or venue }} is {{ m.break_even }}%. Every game is
     predicted and graded whether or not it is staked, so CLV accumulates from the whole board —
@@ -336,6 +336,7 @@
   &middot; <a href="../cfb/">college football</a> &middot; <a href="../epl/">Premier League</a>
   &middot; <a href="../nhl/">NHL</a> &middot; <a href="../nba/">NBA</a>
   {% if support_url %}<br><a href="{{ support_url }}" rel="noopener">{{ support_label }}</a>{% endif %}
+  <p style="margin-top:10px;line-height:1.5">For information and entertainment only &mdash; not betting advice. Past results don't guarantee future ones and no pick is a sure thing; never bet more than you can afford to lose. You must be of legal betting age where you live (21+ in most US states). Gambling problem? Call <a href="tel:+18004262537">1-800-GAMBLER</a>.</p>
 </footer>
 
 {% set has_hit = hit_rows or (backtest and backtest.rows) %}
