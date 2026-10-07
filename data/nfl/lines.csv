@@ -4699,7 +4699,7 @@ game_id,season,week,date,home_team,away_team,provider,spread_home,spread_open,to
 2026_05_CIN_MIA,2026,5,2026-10-11,MIA,CIN,nflverse_close,6.5,,42.5,,270.0,-340.0,1
 2026_05_CLE_NYJ,2026,5,2026-10-11,NYJ,CLE,nflverse_close,-2.5,,39.5,,-130.0,110.0,1
 2026_05_DEN_LAC,2026,5,2026-10-11,LAC,DEN,nflverse_close,3.5,,42.5,,154.0,-185.0,1
-2026_05_DET_ARI,2026,5,2026-10-11,ARI,DET,nflverse_close,5.5,,54.5,,210.0,-258.0,1
+2026_05_DET_ARI,2026,5,2026-10-11,ARI,DET,nflverse_close,5.5,,54.5,,205.0,-250.0,1
 2026_05_HOU_TEN,2026,5,2026-10-11,TEN,HOU,nflverse_close,7.5,,37.5,,295.0,-375.0,1
 2026_05_IND_PIT,2026,5,2026-10-11,PIT,IND,nflverse_close,-2.5,,44.5,,-148.0,124.0,1
 2026_05_LV_NE,2026,5,2026-10-11,NE,LV,nflverse_close,-3.5,,45.5,,-198.0,164.0,1

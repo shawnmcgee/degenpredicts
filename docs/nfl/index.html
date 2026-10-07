@@ -44,6 +44,9 @@
   .bet .p{font-size:18px;font-weight:600;line-height:1.25}
   .bet .d{font-size:12px;color:var(--dim);margin-top:5px}
   .bet .hit{font-size:12px;color:var(--dim);margin-top:3px}
+  .bet .shop{font-size:12px;color:var(--dim);margin-top:3px}
+  .bet .shop b{color:var(--fg)}
+  .key{background:var(--warn);color:#2a1c00;border-radius:4px;padding:0 5px;font-size:11px;font-weight:600}
   .bet .hit b{color:var(--fg);font-variant-numeric:tabular-nums}
   .bet .hit .up{color:var(--good)} .bet .hit .down{color:var(--bad)}
   .exch{margin:0 14px 14px;background:var(--card2);border-radius:9px;padding:10px 12px}
@@ -145,10 +148,10 @@
 
     <div class="stat"><div class="l">Totals CLV</div>
       <div class="v down">-0.28</div>
-      <div class="l">line moved our way</div></div>
+      <div class="l">line moved against us</div></div>
     <div class="stat"><div class="l">Spreads CLV</div>
       <div class="v down">-0.20</div>
-      <div class="l">line moved our way</div></div>
+      <div class="l">line moved against us</div></div>
   </div>
   <p class="sub">Break-even at kalshi_taker is 51.75%. Every game is
     predicted and graded whether or not it is staked, so CLV accumulates from the whole board —
@@ -194,13 +197,17 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 54.5</div>
         <div class="d">model 49.6 &middot; -4.9 vs line</div>
+        <div class="shop">Best: <b>Kalshi</b> Under 54.5 +100 &middot; <span class="up">EV +4.6%</span></div>
+        <div class="shop">Worth it at Under 55 or higher</div>
         <div class="hit">Hit <b class="">50.0%</b> (3-3) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
-        <div class="p">ARI +4.5</div>
-        <div class="d">model margin -3.0 &middot; +1.5 vs line</div>
-        <div class="hit">Hit <b class="">27.3%</b> (3-8) this season at 1–2 pts off</div>
+        <div class="p">DET -5.5</div>
+        <div class="d">model margin -5.7 &middot; -0.2 vs line</div>
+        <div class="shop">Best: <b>Novig</b> DET -5.5 -102 &middot; <span class="down">EV -1.0%</span></div>
+        <div class="shop">Worth it at DET -4.5 or better</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (12-8) this season at 0–1 pts off</div>
       </div>
     </div>
     
@@ -208,25 +215,25 @@
       
       <div class="exrow">
         <span>Over 54.5</span>
-        <span>pays <b class="mult">1.93x</b>
+        <span>pays <b class="mult">1.90x</b>
           <span style="color:var(--dim)">fair 2.09x</span>
-          <b class="down">-8%</b></span>
+          <b class="down">-9%</b></span>
       </div>
       
       
       <div class="exrow">
-        <span>DET by over 4.5</span>
+        <span>DET by over 5.5</span>
         <span>pays <b class="mult">1.90x</b>
-          <span style="color:var(--dim)">fair 2.01x</span>
-          <b class="down">-6%</b></span>
+          <span style="color:var(--dim)">fair 2.00x</span>
+          <b class="down">-5%</b></span>
       </div>
       
       
       <div class="exrow">
         <span>ARI to win</span>
-        <span>pays <b class="mult">2.98x</b>
-          <span style="color:var(--dim)">fair 2.74x</span>
-          <b class="up">+9%</b></span>
+        <span>pays <b class="mult">3.08x</b>
+          <span style="color:var(--dim)">fair 3.00x</span>
+          <b class="up">+3%</b></span>
       </div>
       
     </div>
@@ -250,12 +257,16 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 54.5</div>
         <div class="d">model 50.6 &middot; -3.9 vs line</div>
+        <div class="shop">Best: <b>DraftKings</b> Under 54.5 -102 &middot; <span class="up">EV +3.0%</span></div>
+        <div class="shop">Worth it at Under 55 or higher</div>
         <div class="hit">Hit <b class="">50.0%</b> (3-3) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
-        <div class="p">LA -2.5</div>
-        <div class="d">model margin 2.9 &middot; +0.4 vs line</div>
+        <div class="p">LA -3.0</div>
+        <div class="d">model margin 3.8 &middot; +0.8 vs line</div>
+        <div class="shop">Best: <b>Kalshi</b> LA -3.5 +122 &middot; <span class="up">EV +2.7%</span></div>
+        <div class="shop">Worth it at LA -2.5 or better</div>
         <div class="hit">Hit <b class="up">60.0%</b> (12-8) this season at 0–1 pts off</div>
       </div>
     </div>
@@ -272,17 +283,17 @@
       
       <div class="exrow">
         <span>LA by over 2.5</span>
-        <span>pays <b class="mult">1.76x</b>
-          <span style="color:var(--dim)">fair 2.00x</span>
-          <b class="down">-12%</b></span>
+        <span>pays <b class="mult">1.73x</b>
+          <span style="color:var(--dim)">fair 1.93x</span>
+          <b class="down">-10%</b></span>
       </div>
       
       
       <div class="exrow">
         <span>BUF to win</span>
         <span>pays <b class="mult">2.34x</b>
-          <span style="color:var(--dim)">fair 2.37x</span>
-          <b class="down">-1%</b></span>
+          <span style="color:var(--dim)">fair 2.47x</span>
+          <b class="down">-5%</b></span>
       </div>
       
     </div>
@@ -297,90 +308,52 @@
        data-search="ten hou afc south afc south cam ward c.j. stroud" data-kick="2026-10-11T13:00:00-04:00">
     <div class="ghead">
       <span>Sun Oct 11, 1:00 PM</span>
-      <span>&#916;3.0</span>
+      <span>&#916;3.2</span>
     </div>
     <div class="matchup">HOU<span class="at">at</span>TEN</div>
     <div class="ctx">divisional</div>
     <div class="bets">
       <div class="bet">
         <div class="l">Total <span class="tag pass">no play</span></div>
-        <div class="p">Over 38.5</div>
-        <div class="d">model 41.5 &middot; +3.0 vs line</div>
+        <div class="p">Over 37.5</div>
+        <div class="d">model 40.7 &middot; +3.2 vs line</div>
+        <div class="shop">Best: <b>Novig</b> Over 37.5 +100 &middot; <span class="up">EV +1.5%</span></div>
+        <div class="shop">Worth it at Over 37 or lower</div>
         <div class="hit">Hit <b class="">50.0%</b> (3-3) this season at 3–5 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
-        <div class="p">HOU -7.0</div>
-        <div class="d">model margin -8.3 &middot; -1.3 vs line</div>
-        <div class="hit">Hit <b class="">27.3%</b> (3-8) this season at 1–2 pts off</div>
+        <div class="p">HOU -7.5</div>
+        <div class="d">model margin -8.4 &middot; -0.9 vs line</div>
+        <div class="shop">Best: <b>Kalshi</b> HOU -7.5 +104 &middot; <span class="up">EV +2.6%</span></div>
+        <div class="shop">Worth it at HOU -7 or better</div>
+        <div class="hit">Hit <b class="up">60.0%</b> (12-8) this season at 0–1 pts off</div>
       </div>
     </div>
     
     <div class="exch">
       
       <div class="exrow">
-        <span>Over 38.5</span>
-        <span>pays <b class="mult">1.93x</b>
-          <span style="color:var(--dim)">fair 1.95x</span>
-          <b class="down">-1%</b></span>
+        <span>Over 37.5</span>
+        <span>pays <b class="mult">1.90x</b>
+          <span style="color:var(--dim)">fair 1.94x</span>
+          <b class="down">-2%</b></span>
       </div>
       
       
       <div class="exrow">
         <span>TEN by over 7.5</span>
-        <span>pays <b class="mult">8.56x</b>
-          <span style="color:var(--dim)">fair 7.86x</span>
-          <b class="up">+9%</b></span>
+        <span>pays <b class="mult">9.41x</b>
+          <span style="color:var(--dim)">fair 8.39x</span>
+          <b class="up">+12%</b></span>
       </div>
       
       
       <div class="exrow">
         <span>TEN to win</span>
-        <span>pays <b class="mult">3.66x</b>
-          <span style="color:var(--dim)">fair 3.45x</span>
-          <b class="up">+6%</b></span>
-      </div>
-      
-    </div>
-    
-    
-  </div>
-  
-  
-  <div class="game "
-       data-day="2026-10-11" data-play="0"
-       data-div="1" data-ctx="1"
-       data-search="gb chi nfc north nfc north jordan love tyson bagent" data-kick="2026-10-11T13:00:00-04:00">
-    <div class="ghead">
-      <span>Sun Oct 11, 1:00 PM</span>
-      <span>&#916;2.9</span>
-    </div>
-    <div class="matchup">CHI<span class="at">at</span>GB</div>
-    <div class="ctx">new CHI QB (Tyson Bagent) · divisional</div>
-    <div class="bets">
-      <div class="bet">
-        <div class="l">Total <span class="tag pass">no play</span></div>
-        <div class="p">Under 45.5</div>
-        <div class="d">model 43.8 &middot; -1.7 vs line</div>
-        <div class="hit">Hit <b class="">42.1%</b> (8-11) this season at 1–2 pts off</div>
-      </div>
-      <div class="bet">
-        <div class="l">Spread <span class="tag pass">no play</span></div>
-        <div class="p">GB +3.0</div>
-        <div class="d">model margin -0.1 &middot; +2.9 vs line</div>
-        <div class="hit">Hit <b class="">53.8%</b> (7-6) this season at 2–3 pts off</div>
-      </div>
-    </div>
-    
-    <div class="exch">
-      
-      
-      
-      <div class="exrow">
-        <span>CHI to win</span>
-        <span>pays <b class="mult">1.65x</b>
-          <span style="color:var(--dim)">fair 1.71x</span>
-          <b class="down">-4%</b></span>
+        <span>pays <b class="mult">3.96x</b>
+          <span style="color:var(--dim)">fair 3.62x</span>
+          <b class="up">+9%</b></span>
       </div>
       
     </div>
@@ -404,12 +377,16 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 39.5</div>
         <div class="d">model 41.8 &middot; +2.3 vs line</div>
+        <div class="shop">Best: <b>Polymarket</b> Over 40.5 +108 &middot; <span class="down">EV +0.0%</span></div>
+        <div class="shop">Worth it at Over 39 or lower</div>
         <div class="hit">Hit <b class="">53.3%</b> (8-7) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">CLE +2.5</div>
         <div class="d">model margin -0.3 &middot; -2.8 vs line</div>
+        <div class="shop">Best: <b>Kalshi</b> CLE +2.5 -108 &middot; <span class="down">EV -2.0%</span></div>
+        <div class="shop">Worth it at CLE +3 or better</div>
         <div class="hit">Hit <b class="">53.8%</b> (7-6) this season at 2–3 pts off</div>
       </div>
     </div>
@@ -426,9 +403,9 @@
       
       <div class="exrow">
         <span>NYJ by over 2.5</span>
-        <span>pays <b class="mult">2.01x</b>
+        <span>pays <b class="mult">1.97x</b>
           <span style="color:var(--dim)">fair 2.04x</span>
-          <b class="down">-1%</b></span>
+          <b class="down">-3%</b></span>
       </div>
       
       
@@ -460,12 +437,16 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 45.5</div>
         <div class="d">model 48.1 &middot; +2.6 vs line</div>
+        <div class="shop">Best: <b>Novig</b> Over 45.5 +106 &middot; <span class="up">EV +5.1%</span></div>
+        <div class="shop">Worth it at Over 45 or lower</div>
         <div class="hit">Hit <b class="">53.3%</b> (8-7) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">NE -3.5</div>
         <div class="d">model margin 5.8 &middot; +2.3 vs line</div>
+        <div class="shop">Best: <b>Polymarket</b> NE -3.5 -104 &middot; <span class="down">EV -0.8%</span></div>
+        <div class="shop">Worth it at NE -3 or better</div>
         <div class="hit">Hit <b class="">53.8%</b> (7-6) this season at 2–3 pts off</div>
       </div>
     </div>
@@ -504,6 +485,52 @@
   <div class="game "
        data-day="2026-10-11" data-play="0"
        data-div="1" data-ctx="1"
+       data-search="gb chi nfc north nfc north jordan love tyson bagent" data-kick="2026-10-11T13:00:00-04:00">
+    <div class="ghead">
+      <span>Sun Oct 11, 1:00 PM</span>
+      <span>&#916;2.5</span>
+    </div>
+    <div class="matchup">CHI<span class="at">at</span>GB</div>
+    <div class="ctx">new CHI QB (Tyson Bagent) · divisional</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 45.5</div>
+        <div class="d">model 43.7 &middot; -1.8 vs line</div>
+        <div class="shop">Best: <b>Novig</b> Under 45.5 +100 &middot; <span class="up">EV +1.5%</span></div>
+        <div class="shop">Worth it at Under 46.5 or higher</div>
+        <div class="hit">Hit <b class="">42.1%</b> (8-11) this season at 1–2 pts off</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">GB +2.5</div>
+        <div class="d">model margin -0.0 &middot; +2.5 vs line</div>
+        <div class="shop">Best: <b>Novig</b> GB +2.5 +102 &middot; <span class="up">EV +2.2%</span></div>
+        <div class="shop">Worth it at GB +3 or better</div>
+        <div class="hit">Hit <b class="">53.8%</b> (7-6) this season at 2–3 pts off</div>
+      </div>
+    </div>
+    
+    <div class="exch">
+      
+      
+      
+      <div class="exrow">
+        <span>GB to win</span>
+        <span>pays <b class="mult">2.29x</b>
+          <span style="color:var(--dim)">fair 2.33x</span>
+          <b class="down">-2%</b></span>
+      </div>
+      
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-10-11" data-play="0"
+       data-div="1" data-ctx="1"
        data-search="lac den afc west afc west justin herbert bo nix" data-kick="2026-10-11T16:05:00-04:00">
     <div class="ghead">
       <span>Sun Oct 11, 4:05 PM</span>
@@ -516,12 +543,16 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 42.5</div>
         <div class="d">model 40.7 &middot; -1.8 vs line</div>
+        <div class="shop">Best: <b>Polymarket</b> Under 42.5 -108 &middot; <span class="down">EV -2.5%</span></div>
+        <div class="shop">Worth it at Under 43 or higher</div>
         <div class="hit">Hit <b class="">42.1%</b> (8-11) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">LAC +3.5</div>
         <div class="d">model margin -1.3 &middot; +2.2 vs line</div>
+        <div class="shop">Best: <b>Polymarket</b> LAC +3.5 -108 &middot; <span class="down">EV -0.1%</span></div>
+        <div class="shop">Worth it at LAC +4 or better</div>
         <div class="hit">Hit <b class="">53.8%</b> (7-6) this season at 2–3 pts off</div>
       </div>
     </div>
@@ -530,17 +561,17 @@
       
       <div class="exrow">
         <span>Over 42.5</span>
-        <span>pays <b class="mult">1.93x</b>
+        <span>pays <b class="mult">1.97x</b>
           <span style="color:var(--dim)">fair 2.04x</span>
-          <b class="down">-5%</b></span>
+          <b class="down">-3%</b></span>
       </div>
       
       
       <div class="exrow">
         <span>LAC by over 3.5</span>
-        <span>pays <b class="mult">3.52x</b>
+        <span>pays <b class="mult">3.40x</b>
           <span style="color:var(--dim)">fair 3.36x</span>
-          <b class="up">+5%</b></span>
+          <b class="up">+1%</b></span>
       </div>
       
       
@@ -549,6 +580,126 @@
         <span>pays <b class="mult">2.52x</b>
           <span style="color:var(--dim)">fair 2.51x</span>
           <b class="up">+0%</b></span>
+      </div>
+      
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-10-11" data-play="0"
+       data-div="0" data-ctx="0"
+       data-search="no min nfc south nfc north tyler shough kyler murray" data-kick="2026-10-11T13:00:00-04:00">
+    <div class="ghead">
+      <span>Sun Oct 11, 1:00 PM</span>
+      <span>&#916;2.2</span>
+    </div>
+    <div class="matchup">MIN<span class="at">at</span>NO</div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 42.5</div>
+        <div class="d">model 41.0 &middot; -1.5 vs line</div>
+        <div class="shop">Best: <b>Novig</b> Under 41.5 +102 &middot; <span class="down">EV -2.5%</span></div>
+        <div class="shop">Worth it at Under 43.5 or higher</div>
+        <div class="hit">Hit <b class="">42.1%</b> (8-11) this season at 1–2 pts off</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">NO +1.5</div>
+        <div class="d">model margin 0.7 &middot; +2.2 vs line</div>
+        <div class="shop">Best: <b>Polymarket</b> NO +2.5 -104 &middot; <span class="up">EV +4.0%</span></div>
+        <div class="shop">Worth it at NO +2.5 or better</div>
+        <div class="hit">Hit <b class="">53.8%</b> (7-6) this season at 2–3 pts off</div>
+      </div>
+    </div>
+    
+    <div class="exch">
+      
+      <div class="exrow">
+        <span>Over 42.5</span>
+        <span>pays <b class="mult">1.97x</b>
+          <span style="color:var(--dim)">fair 2.02x</span>
+          <b class="down">-3%</b></span>
+      </div>
+      
+      
+      <div class="exrow">
+        <span>NO by over 1.5</span>
+        <span>pays <b class="mult">2.24x</b>
+          <span style="color:var(--dim)">fair 2.42x</span>
+          <b class="down">-8%</b></span>
+      </div>
+      
+      
+      <div class="exrow">
+        <span>NO to win</span>
+        <span>pays <b class="mult">2.09x</b>
+          <span style="color:var(--dim)">fair 2.18x</span>
+          <b class="down">-4%</b></span>
+      </div>
+      
+    </div>
+    
+    
+  </div>
+  
+  
+  <div class="game "
+       data-day="2026-10-11" data-play="0"
+       data-div="1" data-ctx="1"
+       data-search="sea sf nfc west nfc west drew lock brock purdy" data-kick="2026-10-11T16:25:00-04:00">
+    <div class="ghead">
+      <span>Sun Oct 11, 4:25 PM</span>
+      <span>&#916;2.0</span>
+    </div>
+    <div class="matchup">SF<span class="at">at</span>SEA</div>
+    <div class="ctx">divisional</div>
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 45.5</div>
+        <div class="d">model 44.7 &middot; -0.8 vs line</div>
+        <div class="shop">Best: <b>Polymarket</b> Under 46.5 -108 &middot; <span class="up">EV +1.7%</span></div>
+        <div class="shop">Worth it at Under 46.5 or higher</div>
+        <div class="hit">Hit <b class="down">47.6%</b> (10-11) this season at 0–1 pts off</div>
+      </div>
+      <div class="bet">
+        <div class="l">Spread <span class="tag pass">no play</span></div>
+        <div class="p">SF +2.5</div>
+        <div class="d">model margin 0.5 &middot; -2.0 vs line</div>
+        <div class="shop">Best: <b>Novig</b> SF +3.5 -120 <span class="key">through 3</span> &middot; <span class="up">EV +9.4%</span></div>
+        <div class="shop">Worth it at SF +3 or better</div>
+        <div class="hit">Hit <b class="">53.8%</b> (7-6) this season at 2–3 pts off</div>
+      </div>
+    </div>
+    
+    <div class="exch">
+      
+      <div class="exrow">
+        <span>Over 45.5</span>
+        <span>pays <b class="mult">1.83x</b>
+          <span style="color:var(--dim)">fair 2.01x</span>
+          <b class="down">-9%</b></span>
+      </div>
+      
+      
+      <div class="exrow">
+        <span>SF by over 2.5</span>
+        <span>pays <b class="mult">2.59x</b>
+          <span style="color:var(--dim)">fair 2.83x</span>
+          <b class="down">-8%</b></span>
+      </div>
+      
+      
+      <div class="exrow">
+        <span>SF to win</span>
+        <span>pays <b class="mult">2.40x</b>
+          <span style="color:var(--dim)">fair 2.33x</span>
+          <b class="up">+3%</b></span>
       </div>
       
     </div>
@@ -572,12 +723,16 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 47.5</div>
         <div class="d">model 49.5 &middot; +2.0 vs line</div>
+        <div class="shop">Best: <b>Polymarket</b> Over 47.5 -104 &middot; <span class="down">EV -0.5%</span></div>
+        <div class="shop">Worth it at Over 47 or lower</div>
         <div class="hit">Hit <b class="">53.3%</b> (8-7) this season at 2–3 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">TB +8.5</div>
         <div class="d">model margin 8.3 &middot; -0.2 vs line</div>
+        <div class="shop">Best: <b>DraftKings</b> TB +8.5 -105 &middot; <span class="down">EV -2.4%</span></div>
+        <div class="shop">Worth it at TB +10.5 or better</div>
         <div class="hit">Hit <b class="up">60.0%</b> (12-8) this season at 0–1 pts off</div>
       </div>
     </div>
@@ -628,12 +783,16 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 42.5</div>
         <div class="d">model 44.4 &middot; +1.9 vs line</div>
+        <div class="shop">Best: <b>Novig</b> Over 42.5 -106 &middot; <span class="down">EV -0.7%</span></div>
+        <div class="shop">Worth it at Over 41.5 or lower</div>
         <div class="hit">Hit <b class="">42.1%</b> (8-11) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
-        <div class="p">MIA +7.0</div>
-        <div class="d">model margin -5.5 &middot; +1.5 vs line</div>
+        <div class="p">MIA +6.5</div>
+        <div class="d">model margin -5.5 &middot; +1.0 vs line</div>
+        <div class="shop">Best: <b>Kalshi</b> MIA +6.5 +108 &middot; <span class="up">EV +4.9%</span></div>
+        <div class="shop">Worth it at MIA +7 or better</div>
         <div class="hit">Hit <b class="">27.3%</b> (3-8) this season at 1–2 pts off</div>
       </div>
     </div>
@@ -642,25 +801,25 @@
       
       <div class="exrow">
         <span>Over 42.5</span>
-        <span>pays <b class="mult">1.90x</b>
+        <span>pays <b class="mult">1.86x</b>
           <span style="color:var(--dim)">fair 1.96x</span>
-          <b class="down">-4%</b></span>
+          <b class="down">-5%</b></span>
       </div>
       
       
       <div class="exrow">
-        <span>MIA by over 7.5</span>
-        <span>pays <b class="mult">10.45x</b>
-          <span style="color:var(--dim)">fair 7.57x</span>
-          <b class="up">+38%</b></span>
+        <span>MIA by over 6.5</span>
+        <span>pays <b class="mult">7.25x</b>
+          <span style="color:var(--dim)">fair 6.37x</span>
+          <b class="up">+14%</b></span>
       </div>
       
       
       <div class="exrow">
         <span>MIA to win</span>
         <span>pays <b class="mult">3.80x</b>
-          <span style="color:var(--dim)">fair 3.36x</span>
-          <b class="up">+13%</b></span>
+          <span style="color:var(--dim)">fair 3.24x</span>
+          <b class="up">+17%</b></span>
       </div>
       
     </div>
@@ -684,12 +843,16 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 43.5</div>
         <div class="d">model 41.6 &middot; -1.9 vs line</div>
+        <div class="shop">Best: <b>Polymarket</b> Under 43.5 +100 &middot; <span class="up">EV +2.2%</span></div>
+        <div class="shop">Worth it at Under 44 or higher</div>
         <div class="hit">Hit <b class="">42.1%</b> (8-11) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">WAS -3.5</div>
         <div class="d">model margin 3.8 &middot; +0.3 vs line</div>
+        <div class="shop">Best: <b>Novig</b> WAS -3.5 +102 &middot; <span class="up">EV +1.0%</span></div>
+        <div class="shop">Worth it at WAS -3 or better</div>
         <div class="hit">Hit <b class="up">60.0%</b> (12-8) this season at 0–1 pts off</div>
       </div>
     </div>
@@ -706,9 +869,9 @@
       
       <div class="exrow">
         <span>WAS by over 3.5</span>
-        <span>pays <b class="mult">1.97x</b>
+        <span>pays <b class="mult">1.93x</b>
           <span style="color:var(--dim)">fair 2.00x</span>
-          <b class="down">-2%</b></span>
+          <b class="down">-3%</b></span>
       </div>
       
       
@@ -728,66 +891,10 @@
   <div class="game "
        data-day="2026-10-11" data-play="0"
        data-div="0" data-ctx="0"
-       data-search="no min nfc south nfc north tyler shough kyler murray" data-kick="2026-10-11T13:00:00-04:00">
-    <div class="ghead">
-      <span>Sun Oct 11, 1:00 PM</span>
-      <span>&#916;1.8</span>
-    </div>
-    <div class="matchup">MIN<span class="at">at</span>NO</div>
-    
-    <div class="bets">
-      <div class="bet">
-        <div class="l">Total <span class="tag pass">no play</span></div>
-        <div class="p">Under 42.5</div>
-        <div class="d">model 41.0 &middot; -1.5 vs line</div>
-        <div class="hit">Hit <b class="">42.1%</b> (8-11) this season at 1–2 pts off</div>
-      </div>
-      <div class="bet">
-        <div class="l">Spread <span class="tag pass">no play</span></div>
-        <div class="p">NO +1.5</div>
-        <div class="d">model margin 0.3 &middot; +1.8 vs line</div>
-        <div class="hit">Hit <b class="">27.3%</b> (3-8) this season at 1–2 pts off</div>
-      </div>
-    </div>
-    
-    <div class="exch">
-      
-      <div class="exrow">
-        <span>Over 42.5</span>
-        <span>pays <b class="mult">1.97x</b>
-          <span style="color:var(--dim)">fair 2.02x</span>
-          <b class="down">-3%</b></span>
-      </div>
-      
-      
-      <div class="exrow">
-        <span>NO by over 1.5</span>
-        <span>pays <b class="mult">2.24x</b>
-          <span style="color:var(--dim)">fair 2.42x</span>
-          <b class="down">-8%</b></span>
-      </div>
-      
-      
-      <div class="exrow">
-        <span>NO to win</span>
-        <span>pays <b class="mult">2.14x</b>
-          <span style="color:var(--dim)">fair 2.18x</span>
-          <b class="down">-2%</b></span>
-      </div>
-      
-    </div>
-    
-    
-  </div>
-  
-  
-  <div class="game "
-       data-day="2026-10-11" data-play="0"
-       data-div="0" data-ctx="0"
        data-search="jax phi afc south nfc east trevor lawrence jalen hurts" data-kick="2026-10-11T09:30:00-04:00">
     <div class="ghead">
       <span>Sun Oct 11, 9:30 AM</span>
-      <span>&#916;1.4</span>
+      <span>&#916;1.7</span>
     </div>
     <div class="matchup">PHI<span class="at">at</span>JAX</div>
     
@@ -795,13 +902,17 @@
       <div class="bet">
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 42.5</div>
-        <div class="d">model 43.9 &middot; +1.4 vs line</div>
+        <div class="d">model 44.2 &middot; +1.7 vs line</div>
+        <div class="shop">Best: <b>Polymarket</b> Over 42.5 +108 &middot; <span class="up">EV +6.3%</span></div>
+        <div class="shop">Worth it at Over 41.5 or lower</div>
         <div class="hit">Hit <b class="">42.1%</b> (8-11) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
-        <div class="p">JAX -6.5</div>
-        <div class="d">model margin 7.7 &middot; +1.2 vs line</div>
+        <div class="p">JAX -7.0</div>
+        <div class="d">model margin 8.6 &middot; +1.6 vs line</div>
+        <div class="shop">Best: <b>Novig</b> JAX -7.5 +102 &middot; <span class="down">EV -3.0%</span></div>
+        <div class="shop">Worth it at JAX -6.5 or better</div>
         <div class="hit">Hit <b class="">27.3%</b> (3-8) this season at 1–2 pts off</div>
       </div>
     </div>
@@ -810,81 +921,25 @@
       
       <div class="exrow">
         <span>Over 42.5</span>
-        <span>pays <b class="mult">1.86x</b>
-          <span style="color:var(--dim)">fair 1.98x</span>
-          <b class="down">-6%</b></span>
+        <span>pays <b class="mult">1.97x</b>
+          <span style="color:var(--dim)">fair 1.96x</span>
+          <b class="up">+0%</b></span>
       </div>
       
       
       <div class="exrow">
-        <span>PHI by over 6.5</span>
-        <span>pays <b class="mult">6.74x</b>
-          <span style="color:var(--dim)">fair 6.53x</span>
-          <b class="up">+3%</b></span>
+        <span>PHI by over 7.5</span>
+        <span>pays <b class="mult">9.41x</b>
+          <span style="color:var(--dim)">fair 7.96x</span>
+          <b class="up">+18%</b></span>
       </div>
       
       
       <div class="exrow">
         <span>PHI to win</span>
-        <span>pays <b class="mult">3.66x</b>
-          <span style="color:var(--dim)">fair 3.30x</span>
-          <b class="up">+11%</b></span>
-      </div>
-      
-    </div>
-    
-    
-  </div>
-  
-  
-  <div class="game "
-       data-day="2026-10-11" data-play="0"
-       data-div="1" data-ctx="1"
-       data-search="sea sf nfc west nfc west drew lock brock purdy" data-kick="2026-10-11T16:25:00-04:00">
-    <div class="ghead">
-      <span>Sun Oct 11, 4:25 PM</span>
-      <span>&#916;1.4</span>
-    </div>
-    <div class="matchup">SF<span class="at">at</span>SEA</div>
-    <div class="ctx">divisional</div>
-    <div class="bets">
-      <div class="bet">
-        <div class="l">Total <span class="tag pass">no play</span></div>
-        <div class="p">Over 47.5</div>
-        <div class="d">model 48.1 &middot; +0.6 vs line</div>
-        <div class="hit">Hit <b class="down">47.6%</b> (10-11) this season at 0–1 pts off</div>
-      </div>
-      <div class="bet">
-        <div class="l">Spread <span class="tag pass">no play</span></div>
-        <div class="p">SF +3.0</div>
-        <div class="d">model margin 1.6 &middot; -1.4 vs line</div>
-        <div class="hit">Hit <b class="">27.3%</b> (3-8) this season at 1–2 pts off</div>
-      </div>
-    </div>
-    
-    <div class="exch">
-      
-      <div class="exrow">
-        <span>Over 47.5</span>
-        <span>pays <b class="mult">1.97x</b>
-          <span style="color:var(--dim)">fair 1.99x</span>
-          <b class="down">-1%</b></span>
-      </div>
-      
-      
-      <div class="exrow">
-        <span>SF by over 2.5</span>
-        <span>pays <b class="mult">2.52x</b>
-          <span style="color:var(--dim)">fair 2.97x</span>
-          <b class="down">-15%</b></span>
-      </div>
-      
-      
-      <div class="exrow">
-        <span>SEA to win</span>
-        <span>pays <b class="mult">1.65x</b>
-          <span style="color:var(--dim)">fair 1.70x</span>
-          <b class="down">-3%</b></span>
+        <span>pays <b class="mult">3.80x</b>
+          <span style="color:var(--dim)">fair 3.48x</span>
+          <b class="up">+9%</b></span>
       </div>
       
     </div>
@@ -908,12 +963,16 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Under 44.5</div>
         <div class="d">model 43.3 &middot; -1.2 vs line</div>
+        <div class="shop">Best: <b>Polymarket</b> Under 44.5 +100 &middot; <span class="up">EV +1.4%</span></div>
+        <div class="shop">Worth it at Under 45.5 or higher</div>
         <div class="hit">Hit <b class="">42.1%</b> (8-11) this season at 1–2 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">PIT -2.5</div>
-        <div class="d">model margin 2.7 &middot; +0.2 vs line</div>
+        <div class="d">model margin 3.1 &middot; +0.6 vs line</div>
+        <div class="shop">Best: <b>FanDuel</b> PIT -2.5 -105 &middot; <span class="down">EV -0.6%</span></div>
+        <div class="shop">Worth it at PIT -2 or better</div>
         <div class="hit">Hit <b class="up">60.0%</b> (12-8) this season at 0–1 pts off</div>
       </div>
     </div>
@@ -922,25 +981,25 @@
       
       <div class="exrow">
         <span>Over 44.5</span>
-        <span>pays <b class="mult">1.90x</b>
+        <span>pays <b class="mult">1.93x</b>
           <span style="color:var(--dim)">fair 2.02x</span>
-          <b class="down">-6%</b></span>
+          <b class="down">-4%</b></span>
       </div>
       
       
       <div class="exrow">
         <span>PIT by over 2.5</span>
-        <span>pays <b class="mult">1.90x</b>
-          <span style="color:var(--dim)">fair 2.00x</span>
-          <b class="down">-5%</b></span>
+        <span>pays <b class="mult">1.83x</b>
+          <span style="color:var(--dim)">fair 1.99x</span>
+          <b class="down">-8%</b></span>
       </div>
       
       
       <div class="exrow">
         <span>PIT to win</span>
-        <span>pays <b class="mult">1.70x</b>
-          <span style="color:var(--dim)">fair 1.73x</span>
-          <b class="down">-2%</b></span>
+        <span>pays <b class="mult">1.67x</b>
+          <span style="color:var(--dim)">fair 1.72x</span>
+          <b class="down">-3%</b></span>
       </div>
       
     </div>
@@ -964,12 +1023,16 @@
         <div class="l">Total <span class="tag pass">no play</span></div>
         <div class="p">Over 43.5</div>
         <div class="d">model 44.0 &middot; +0.5 vs line</div>
+        <div class="shop">Best: <b>Polymarket</b> Over 43.5 -108 &middot; <span class="down">EV -3.0%</span></div>
+        <div class="shop">Worth it at Over 42.5 or lower</div>
         <div class="hit">Hit <b class="down">47.6%</b> (10-11) this season at 0–1 pts off</div>
       </div>
       <div class="bet">
         <div class="l">Spread <span class="tag pass">no play</span></div>
         <div class="p">ATL -3.5</div>
-        <div class="d">model margin 3.9 &middot; +0.4 vs line</div>
+        <div class="d">model margin 3.5 &middot; +0.0 vs line</div>
+        <div class="shop">Best: <b>Polymarket</b> ATL -3.5 +104 &middot; <span class="up">EV +2.0%</span></div>
+        <div class="shop">Worth it at ATL -3 or better</div>
         <div class="hit">Hit <b class="up">60.0%</b> (12-8) this season at 0–1 pts off</div>
       </div>
     </div>
@@ -986,9 +1049,9 @@
       
       <div class="exrow">
         <span>BAL by over 3.5</span>
-        <span>pays <b class="mult">3.40x</b>
+        <span>pays <b class="mult">3.52x</b>
           <span style="color:var(--dim)">fair 3.42x</span>
-          <b class="down">-1%</b></span>
+          <b class="up">+3%</b></span>
       </div>
       
       
@@ -1012,6 +1075,80 @@
     than fair is the edge. The amber line under a matchup flags the situational facts the model
     weights and a glance at the line does not show: quarterback changes, rest mismatches, long
     trips, wind.</p>
+  
+</section>
+
+
+<section>
+  <p class="sub" style="margin-top:-6px"><b>Best</b> is the most valuable price for the pick across
+    DraftKings, FanDuel, Kalshi, Polymarket, Novig, with its expected value at the model's number. <b>Worth it
+    at</b> is the worst number the pick still has positive EV at, at a standard &minus;110 price &mdash; take
+    it there or better, and pass on anything worse. Both read off real NFL margins rather than a bell
+    curve: about one game in seven ends on exactly 3 and one in eleven on 7, so a half-point across
+    either (<span class="key">through 3</span>) is worth several points of cover rate, and any other
+    half-point one or two.</p>
+</section>
+
+
+<section>
+  <h2>Teasers</h2>
+  <p class="sub" style="margin-bottom:10px">Underdogs at +1.5 or +2.5, teased 6
+    points to +7.5 or +8.5, in games totalled 49 or less. Those
+    6 points cross both 3 and 7, the margins NFL games land on most, while
+    books price every teased point alike. A two-team teaser at -120 needs each leg to win
+    73.9%. Sportsbooks only &mdash; exchanges don't sell teasers.</p>
+  
+  <div class="wrap">
+  <table>
+    <tr><th>This week</th><th>Leg</th><th>Kickoff</th></tr>
+    
+    <tr><td>CLE at NYJ</td>
+      <td><b>CLE +8.5</b> <span class="sub">from +2.5</span></td>
+      <td>Sun Oct 11, 1:00 PM</td></tr>
+    
+    <tr><td>CHI at GB</td>
+      <td><b>GB +8.5</b> <span class="sub">from +2.5</span></td>
+      <td>Sun Oct 11, 1:00 PM</td></tr>
+    
+    <tr><td>MIN at NO</td>
+      <td><b>NO +7.5</b> <span class="sub">from +1.5</span></td>
+      <td>Sun Oct 11, 1:00 PM</td></tr>
+    
+    <tr><td>SF at SEA</td>
+      <td><b>SF +8.5</b> <span class="sub">from +2.5</span></td>
+      <td>Sun Oct 11, 4:25 PM</td></tr>
+    
+    <tr><td>IND at PIT</td>
+      <td><b>IND +8.5</b> <span class="sub">from +2.5</span></td>
+      <td>Sun Oct 11, 1:00 PM</td></tr>
+    
+  </table>
+  </div>
+  
+  
+  
+  <div class="wrap" style="margin-top:10px">
+  <table>
+    <tr><th>Backtest, closing lines</th><th>Legs</th><th>Won</th><th>Two-team EV</th></tr>
+    
+    <tr><td>2010-15</td><td>129</td>
+      <td class="up">76.7%</td>
+      <td class="up">+8.0%</td></tr>
+    
+    <tr><td>2016-20</td><td>116</td>
+      <td class="up">80.2%</td>
+      <td class="up">+17.8%</td></tr>
+    
+    <tr><td>2021-25</td><td>205</td>
+      <td class="up">78.5%</td>
+      <td class="up">+13.1%</td></tr>
+    
+  </table>
+  </div>
+  <p class="sub" style="margin-top:8px">Closing lines are the numbers nflverse keeps; a live bet takes an
+    earlier one, and books shade teaser prices or limit them, so read this as the rule's long-run shape
+    rather than a promise. The favourite side of the same teaser stopped working after 2020 and is not
+    shown.</p>
   
 </section>
 
@@ -1198,6 +1335,7 @@
   &middot; <a href="../cfb/">college football</a> &middot; <a href="../epl/">Premier League</a>
   &middot; <a href="../nhl/">NHL</a> &middot; <a href="../nba/">NBA</a>
   <br><a href="https://buymeacoffee.com/smcgee" rel="noopener">Buy me a coffee</a>
+  <p style="margin-top:10px;line-height:1.5">For information and entertainment only &mdash; not betting advice. Past results don't guarantee future ones and no pick is a sure thing; never bet more than you can afford to lose. You must be of legal betting age where you live (21+ in most US states). Gambling problem? Call <a href="tel:+18004262537">1-800-GAMBLER</a>.</p>
 </footer>
 
 
