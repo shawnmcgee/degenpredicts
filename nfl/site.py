@@ -16,7 +16,7 @@ from pathlib import Path
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from . import config
+from . import config, teasers
 
 log = logging.getLogger("nfl.site")
 TEMPLATES = Path(__file__).resolve().parent / "templates"  # ships with the package
@@ -114,6 +114,9 @@ def _board() -> tuple[list[dict], int | None]:
     if df.empty:
         return [], None
     df["date"] = pd.to_datetime(df["date"]).dt.date
+    # rows predicted before the board flagged teaser legs get them read off their own line
+    if "teaser_team" not in df and {"spread_home", "total_line"} <= set(df.columns):
+        df = df.join(teasers.legs(df))
     upcoming = df[df["date"] >= config.today_et()]
     df = upcoming if len(upcoming) else df[df["week"] == df["week"].max()]
     week = int(df["week"].mode().iloc[0]) if len(df) else None
@@ -172,7 +175,81 @@ def _board() -> tuple[list[dict], int | None]:
     records = df.to_dict("records")
     for r in records:
         r["context"] = _context(r)
+        r.update(_shop(r))
     return records, week
+
+
+KEY_NUMBERS = (3, 7)
+BOOK_NAMES = {"draftkings": "DraftKings", "fanduel": "FanDuel", "kalshi": "Kalshi",
+              "polymarket": "Polymarket", "novig": "Novig", "betmgm": "BetMGM",
+              "williamhill_us": "Caesars", "bovada": "Bovada"}
+
+
+def _price(p) -> str:
+    try:
+        return f"{float(p):+.0f}"
+    except (TypeError, ValueError):
+        return ""
+
+
+def _num(v):
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return None if f != f else f
+
+
+def _key_note(posted, best) -> str:
+    """"through 3" when shopping moves a side across a key number, "off 7" when it moves it
+    off one it would have pushed on. Those half-points are worth several points of cover rate;
+    any other half-point is worth one or two."""
+    if posted is None or best is None or best <= posted:
+        return ""
+    for k in KEY_NUMBERS:
+        for key in (k, -k):
+            if posted < key < best:
+                return f"through {k}"
+            if posted == key < best:
+                return f"off {k}"
+    return ""
+
+
+def _shop(r: dict) -> dict:
+    """What the card says about where to bet each pick: the best price across the shop books
+    and the worst number it is still worth taking. Empty for a row predicted before either
+    existed, or with no shop book quoting it."""
+    out = {}
+    side = r.get("spread_side")
+    num, best = _num(r.get("spread_number")), _num(r.get("spread_best_number"))
+    if r.get("spread_best_book") and best is not None and side:
+        out["spread_best_label"] = f"{side} {best:+g} {_price(r.get('spread_best_price'))}"
+        out["spread_key_note"] = _key_note(num, best)
+    worth = _num(r.get("spread_worth"))
+    if worth is not None and side:
+        out["spread_worth_label"] = f"{side} {worth:+g} or better"
+    pick = r.get("total_pick")
+    tbest = _num(r.get("total_best_number"))
+    if r.get("total_best_book") and tbest is not None and pick:
+        out["total_best_label"] = f"{pick} {tbest:g} {_price(r.get('total_best_price'))}"
+    tworth = _num(r.get("total_worth"))
+    if tworth is not None and pick:
+        out["total_worth_label"] = (f"{pick} {tworth:g} or "
+                                    f"{'lower' if pick == 'Over' else 'higher'}")
+    for k in ("spread", "total"):
+        ev = _num(r.get(f"{k}_best_ev"))
+        out[f"{k}_best_ev_pct"] = round(100 * ev, 1) if ev is not None else None
+    return out
+
+
+def _teaser_backtest() -> list[dict]:
+    """The teaser rule against nflverse's closing lines and finals, by era."""
+    try:
+        from .sources import nflverse
+        return teasers.backtest(nflverse.load_games(), nflverse.load_lines())
+    except Exception as e:                       # the page must render without history
+        log.warning("teaser backtest unavailable: %s", e)
+        return []
 
 
 def _metrics() -> dict:
@@ -328,6 +405,11 @@ def build() -> None:
         days=_days(picks), updated=metrics.get("updated", ""),
         backtest=_backtest_buckets(),
         total_min=config.TOTAL_EDGE_MIN, spread_min=config.SPREAD_EDGE_MIN,
+        teaser_legs=[g for g in picks if g.get("teaser_team")],
+        teaser_season=(metrics.get("teasers") or {}), teaser_backtest=_teaser_backtest(),
+        teaser_be=round(100 * teasers.break_even(), 1), teaser_price=_price(config.TEASER_PRICE),
+        teaser_points=config.TEASER_POINTS, teaser_max_total=config.TEASER_MAX_TOTAL,
+        shop_books=", ".join(BOOK_NAMES.get(b, b.title()) for b in config.SHOP_BOOKS),
     )
     (config.DOCS / "index.html").write_text(html)
     (config.DOCS / ".nojekyll").touch()

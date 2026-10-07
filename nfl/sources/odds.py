@@ -16,6 +16,7 @@ Every pull is appended to snapshots.csv so closing-line value is measurable late
 from __future__ import annotations
 
 import difflib
+import json
 import logging
 import re
 import statistics
@@ -173,6 +174,49 @@ def _market(bm, key, home):
     return None
 
 
+def quotes(ev: dict, books=None) -> list[dict]:
+    """Every shop book's number and price on each side of one event, for the best-line search.
+
+    One entry per book, market and side: ``{"book", "key", "m", "side", "point", "price"}``,
+    where ``m`` is "spread" or "total", a spread side is "home" or "away" with its own point
+    (an away +3.5 is ``point=3.5``) and a total side is "over" or "under".
+    """
+    books = config.SHOP_BOOKS if books is None else books
+    out = []
+    for bm in ev.get("bookmakers", []):
+        key = str(bm.get("key", "")).lower()
+        if key not in books:
+            continue
+        title = bm.get("title") or key
+        for m in bm.get("markets", []):
+            for o in m.get("outcomes", []):
+                if o.get("point") is None or o.get("price") is None:
+                    continue
+                if m.get("key") == "spreads":
+                    side = "home" if o.get("name") == ev["home_team"] else "away"
+                    out.append({"book": title, "key": key, "m": "spread", "side": side,
+                                "point": float(o["point"]), "price": float(o["price"])})
+                elif m.get("key") == "totals" and o.get("name") in ("Over", "Under"):
+                    out.append({"book": title, "key": key, "m": "total",
+                                "side": o["name"].lower(), "point": float(o["point"]),
+                                "price": float(o["price"])})
+    return out
+
+
+def _fetch():
+    """The odds call. Books are asked for by name - the line books plus the exchanges, at the
+    cost of one region - and a refusal falls back to the plain US region, so the board can
+    never lose its prices to the book list."""
+    base = {"apiKey": config.ODDS_API_KEY, "markets": "totals,spreads", "oddsFormat": "american",
+            "dateFormat": "iso"}
+    r = get(URL, params={**base, "bookmakers": ",".join(config.ODDS_BOOKMAKERS)})
+    if r is not None and r.status_code == 200:
+        return r
+    log.warning("Odds API refused the book list (%s) - falling back to regions=us",
+                getattr(r, "status_code", "no response"))
+    return get(URL, params={**base, "regions": "us"})
+
+
 def snapshot(matcher=None) -> pd.DataFrame:
     """Live spreads and totals.
 
@@ -183,8 +227,7 @@ def snapshot(matcher=None) -> pd.DataFrame:
     if not config.ODDS_API_KEY:
         log.info("config.ODDS_API_KEY unset - skipping live prices, using nflverse numbers at -110")
         return pd.DataFrame()
-    r = get(URL, params={"apiKey": config.ODDS_API_KEY, "regions": "us", "markets": "totals,spreads",
-                         "oddsFormat": "american", "dateFormat": "iso"})
+    r = _fetch()
     if r is None or r.status_code != 200:
         log.warning("Odds API unavailable: %s", getattr(r, "status_code", "no response"))
         return pd.DataFrame()
@@ -234,7 +277,8 @@ def snapshot(matcher=None) -> pd.DataFrame:
                      "live_spread_home": s_line, "spread_home_price": s_home,
                      "spread_away_price": s_away, "spread_book": s_book, "spread_n_books": s_n,
                      "p_over_mkt": p_o, "p_under_mkt": p_u,
-                     "p_home_mkt": p_h, "p_away_mkt": p_a})
+                     "p_home_mkt": p_h, "p_away_mkt": p_a,
+                     "quotes": json.dumps(quotes(ev), separators=(",", ":"))})
     if in_play:
         log.info("odds: skipped %d games already under way (in-play prices)", in_play)
     df = pd.DataFrame(rows)
@@ -245,9 +289,19 @@ def snapshot(matcher=None) -> pd.DataFrame:
 
 
 def append_snapshot(df: pd.DataFrame) -> None:
+    """Append a pull. A pull with a column the file has never had - `quotes` arrived after
+    a month of snapshots - rewrites the file with the union of columns instead, because a
+    plain append would leave rows longer than the header and the file unreadable."""
     if df.empty:
         return
     ensure_dirs()
+    if config.SNAPSHOTS.exists():
+        header = pd.read_csv(config.SNAPSHOTS, nrows=0).columns.tolist()
+        if set(df.columns) - set(header):
+            old = pd.read_csv(config.SNAPSHOTS, low_memory=False)
+            pd.concat([old, df], ignore_index=True).to_csv(config.SNAPSHOTS, index=False)
+            return
+        df = df.reindex(columns=header)
     df.to_csv(config.SNAPSHOTS, mode="a", header=not config.SNAPSHOTS.exists(), index=False)
 
 

@@ -18,6 +18,7 @@ NFL close is the sharpest number in sports:
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 from datetime import timedelta
 
@@ -26,7 +27,9 @@ import pandas as pd
 from scipy.stats import norm
 
 from . import config
+from . import teasers
 from .features import BASE_FEATURES, MARKET_FEATURES, build, nfl_teams
+from .keynumbers import KeyNumbers
 from .sources import kalshi, nflverse, odds
 from .train import load_models
 
@@ -146,7 +149,7 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         board = board.merge(
             live[["date", "home_team", "away_team", "live_total", "over_price", "under_price",
                   "total_book", "live_spread_home", "spread_home_price", "spread_away_price",
-                  "spread_book"]],
+                  "spread_book"] + (["quotes"] if "quotes" in live else [])],
             on=["date", "home_team", "away_team"], how="left")
         # prefer the live number when we have it; it is fresher than the nflverse snapshot
         board["total_line"] = board["live_total"].combine_first(board["total_line"])
@@ -223,9 +226,9 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     took_over = out["total_side_val"] > 0
     out["total_pick"] = np.where(took_over, "Over", "Under")
     out["total_p_win"] = np.where(took_over, out["total_p_over"], 1 - out["total_p_over"])
+    out["total_p_push"] = 0.0
     out["total_price"] = np.where(took_over, out["over_price"], out["under_price"])
     out["total_payout"] = out["total_price"].apply(american_payout)
-    out["total_ev"] = (out["total_p_win"] * out["total_payout"] - (1 - out["total_p_win"])).round(3)
 
     took_home = out["margin_side_val"] > 0
     out["spread_side"] = np.where(took_home, out["home_team"], out["away_team"])
@@ -233,9 +236,22 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     out["spread_pick"] = out["spread_side"] + " " + out["spread_number"].map(
         lambda x: f"{x:+.1f}" if x == x else "")
     out["spread_p_win"] = np.where(took_home, out["margin_p_over"], 1 - out["margin_p_over"])
+    out["spread_p_push"] = 0.0
     out["spread_price"] = np.where(took_home, out["spread_home_price"], out["spread_away_price"])
     out["spread_payout"] = out["spread_price"].apply(american_payout)
-    out["spread_ev"] = (out["spread_p_win"] * out["spread_payout"] - (1 - out["spread_p_win"])).round(3)
+
+    # Win, push and loss off real NFL margins and totals rather than a bell curve, which put a
+    # 3-point favourite at -3 at 50% to cover when it covers 45% and pushes 9%.
+    kn = KeyNumbers(games, lines)
+    if kn.usable:
+        out = _key_number_prices(out, kn, took_home, took_over, up.get("quotes"))
+    else:
+        log.warning("too little history for key-number pricing (%d games) - using the normal "
+                    "approximation", kn.n_margin)
+    for k in ("total", "spread"):
+        lose = 1 - out[f"{k}_p_win"] - out[f"{k}_p_push"]
+        out[f"{k}_ev"] = (out[f"{k}_p_win"] * out[f"{k}_payout"] - lose).round(3)
+    out = out.join(teasers.legs(out))
 
     # Strength decides whether anything is staked, so it is settled before the Kelly numbers are
     # computed - and after the EV, because a pick with no positive EV at the price is not a play.
@@ -283,6 +299,68 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         out.to_csv(config.PICKS, index=False)
     log.info("wrote %d picks to %s", len(out), config.PICKS)
     return out
+
+
+def _key_number_prices(out: pd.DataFrame, kn: KeyNumbers, took_home, took_over,
+                       quotes=None) -> pd.DataFrame:
+    """The pick's win and push chances off real margins, the best price for it across the
+    shop books, and the worst number it is still worth taking at -110.
+
+    Every quote on the pick's side is valued at the model's own number, so a +3.5 at -115 and
+    a +3 at -105 are compared on what they are worth rather than on which looks bigger - across
+    3 those two are ten points of cover rate apart.
+    """
+    out = out.copy()
+    cols = {c: [] for c in ("spread_p_win", "spread_p_push", "total_p_win", "total_p_push",
+                            "spread_worth", "total_worth", "spread_best_book",
+                            "spread_best_number", "spread_best_price", "spread_best_ev",
+                            "total_best_book", "total_best_number", "total_best_price",
+                            "total_best_ev", "n_quotes")}
+    qs = quotes if quotes is not None else pd.Series([None] * len(out), index=out.index)
+    for (i, r), home, over in zip(out.iterrows(), took_home, took_over):
+        mu, tot = r.get("margin_pred"), r.get("total_pred")
+        num, tl = r.get("spread_number"), r.get("total_line")
+        sp = kn.spread(mu, num, bool(home)) if mu == mu and num == num else (np.nan, np.nan, np.nan)
+        tp = kn.total(tot, tl, bool(over)) if tot == tot and tl == tl else (np.nan, np.nan, np.nan)
+        cols["spread_p_win"].append(round(sp[0], 4))
+        cols["spread_p_push"].append(round(sp[1], 4))
+        cols["total_p_win"].append(round(tp[0], 4))
+        cols["total_p_push"].append(round(tp[1], 4))
+        cols["spread_worth"].append(kn.worst_spread(mu, bool(home)) if mu == mu else np.nan)
+        cols["total_worth"].append(kn.worst_total(tot, bool(over)) if tot == tot else np.nan)
+
+        q = _parse_quotes(qs.get(i))
+        cols["n_quotes"].append(len(q))
+        best = {}
+        for kind, side, value in (("spread", "home" if home else "away",
+                                   lambda x: kn.spread(mu, x, bool(home))),
+                                  ("total", "over" if over else "under",
+                                   lambda x: kn.total(tot, x, bool(over)))):
+            centre = mu if kind == "spread" else tot
+            cand = [x for x in q if x["m"] == kind and x["side"] == side] if centre == centre else []
+            scored = [(round(kn.ev(value(x["point"]), x["price"]), 3), x) for x in cand]
+            best[kind] = max(scored, key=lambda t: (t[0], t[1]["price"])) if scored else None
+        for kind in ("spread", "total"):
+            ev, x = best[kind] if best[kind] else (np.nan, {})
+            cols[f"{kind}_best_book"].append(x.get("book"))
+            cols[f"{kind}_best_number"].append(x.get("point", np.nan))
+            cols[f"{kind}_best_price"].append(x.get("price", np.nan))
+            cols[f"{kind}_best_ev"].append(ev)
+    for c, v in cols.items():
+        out[c] = v
+    return out
+
+
+def _parse_quotes(raw) -> list[dict]:
+    """The `quotes` JSON a snapshot row carries, or nothing - a row from before it existed, or
+    a run without an Odds API key, simply has no venues to compare."""
+    if not isinstance(raw, str) or not raw.strip():
+        return []
+    try:
+        q = json.loads(raw)
+    except ValueError:
+        return []
+    return [x for x in q if isinstance(x, dict) and {"m", "side", "point", "price"} <= set(x)]
 
 
 FIRST_SEEN = ("first_seen_spread", "first_seen_total", "first_seen_at")

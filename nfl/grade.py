@@ -16,7 +16,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from . import config
+from . import config, teasers
 from .sources import nflverse
 
 log = logging.getLogger("nfl.grade")
@@ -181,6 +181,11 @@ def metrics(done: pd.DataFrame) -> dict:
             if len(b):
                 out[key]["by_edge"].append(
                     {"bucket": f"{lo}-{hi if hi < 999 else '+'}", **_rec(b, kind)})
+
+    # Teaser legs are read off each row's own line, so every graded game counts - including
+    # the ones graded before the board started flagging legs.
+    out["teasers"] = teasers.record(teasers.grade(season)) if "home_margin" in season \
+        else teasers.record(pd.Series(dtype=object))
 
     for wk, grp in season.groupby("week"):
         played = grp[grp["total_strength"].isin(["play", "bold"]) |
