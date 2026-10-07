@@ -92,25 +92,49 @@ def grade() -> pd.DataFrame:
     closing = cfbd.update_lines()[["game_id", "spread_home", "total_line"]].rename(
         columns={"spread_home": "close_spread", "total_line": "close_total"})
     m = m.merge(closing, on="game_id", how="left")
-    # fall back to the pick's own number for rows published before first_seen_* existed
-    blank = pd.Series(np.nan, index=m.index)
-    first_total = (m["first_seen_total"] if "first_seen_total" in m else blank)
-    first_spread = (m["first_seen_spread"] if "first_seen_spread" in m else blank)
-    first_total = first_total.fillna(m["total_line"])
-    first_spread = first_spread.fillna(m["spread_home"])
-    m["total_clv"] = np.where(m.total_pick == "Over",
-                              m.close_total - first_total, first_total - m.close_total)
-    m["spread_clv"] = np.where(took_home, m.close_spread - first_spread,
-                               first_spread - m.close_spread)
     m["graded_at"] = str(config.today_et())
 
-    done = pd.concat([done, m], ignore_index=True) if len(done) else m
+    # CLV is recomputed for every row, not only the new ones, so a correction to how it is
+    # measured reaches the games already graded rather than only the next ones.
+    done = with_clv(pd.concat([done, m], ignore_index=True) if len(done) else m)
     done = tag_fbs(done, games, cfbd.load_sp())
     config.ensure_dirs()
     done.to_csv(config.RESULTS, index=False)
     log.info("graded %d | totals %s | spreads %s", len(m),
              m.total_result.value_counts().to_dict(), m.spread_result.value_counts().to_dict())
     return done
+
+
+def with_clv(df: pd.DataFrame) -> pd.DataFrame:
+    """Closing-line value for each graded row, in points, positive when the line moved toward
+    the side we took after we FIRST published it.
+
+    `spread_home` is the CFBD convention - -3 means home favoured by 3 - so the market moving
+    toward the home side makes the number MORE negative. A home pick at -3.5 that closes -5
+    got the better number: +1.5. This was once `close - first` for a home pick, which reversed
+    every spread CLV the page reported.
+
+    Only rows with a first-published number are measured. The 105 picks graded before
+    first_seen_* existed carry a close read from the very snapshot they were built from, so
+    measuring them against their own line would put back the 0.00 that hid that bug; their CLV
+    stays unknown.
+    """
+    if "close_spread" not in df or "close_total" not in df:
+        return df
+    df = df.copy()
+    for c in ("total_clv", "spread_clv"):
+        if c not in df:
+            df[c] = np.nan
+    took_home = df["margin_edge"] > 0
+    if "first_seen_total" in df:
+        f = df["first_seen_total"]
+        clv = np.where(df["total_pick"] == "Over", df["close_total"] - f, f - df["close_total"])
+        df["total_clv"] = np.where(f.notna(), clv, df["total_clv"])
+    if "first_seen_spread" in df:
+        f = df["first_seen_spread"]
+        clv = np.where(took_home, f - df["close_spread"], df["close_spread"] - f)
+        df["spread_clv"] = np.where(f.notna(), clv, df["spread_clv"])
+    return df
 
 
 def tag_fbs(done: pd.DataFrame, games=None, sp=None) -> pd.DataFrame:
@@ -158,7 +182,8 @@ def metrics(done: pd.DataFrame) -> dict:
            "totals": {}, "spreads": {}, "by_week": []}
     if done.empty:
         return out
-    done = tag_fbs(done)
+    # results.csv may predate a fix to how CLV is measured; read it the current way
+    done = with_clv(tag_fbs(done))
     season = done[done["season"] == config.season_of(today)]
     if season.empty:
         season = done[done["season"] == done["season"].max()]

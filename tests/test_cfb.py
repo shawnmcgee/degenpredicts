@@ -653,8 +653,65 @@ def test_clv_moves_when_the_line_moves(env, monkeypatch):
                                                        "total_line": 55.5}]))
     done = G.grade()
     assert done["total_clv"].iloc[0] == pytest.approx(2.0)    # Over 55.5, closed 57.5
-    assert done["spread_clv"].iloc[0] == pytest.approx(-1.5)  # took home -3.5, closed -5.0
+    # took home -3.5, closed -5.0: the market moved toward us and we hold the better number.
+    # This once read -1.5 - `spread_home` is negative for a home favourite, and the grader had
+    # the subtraction the wrong way round for every spread CLV it reported.
+    assert done["spread_clv"].iloc[0] == pytest.approx(1.5)
     assert done[["total_clv", "spread_clv"]].abs().to_numpy().sum() > 0
+
+
+def test_clv_is_recomputed_for_every_row_but_never_invented(env):
+    """A fix to how CLV is measured has to reach the games already graded - and the 105 legacy
+    picks whose close was read from their own snapshot must stay unknown, not become 0.00."""
+    from cfb import grade as G
+    df = pd.DataFrame({
+        "first_seen_spread": [-3.0, -3.0, np.nan], "spread_home": [-3.0, -3.0, -7.0],
+        "close_spread": [-4.0, -4.0, -7.0], "margin_edge": [0.5, -0.5, 0.5],
+        "first_seen_total": [44.0, 44.0, np.nan], "total_line": [44.0, 44.0, 50.0],
+        "close_total": [45.0, 45.0, 50.0], "total_pick": ["Over", "Under", "Over"],
+        "spread_clv": [-1.0, 1.0, np.nan], "total_clv": [1.0, -1.0, np.nan]})
+    out = G.with_clv(df)
+    assert out["spread_clv"].tolist()[:2] == [1.0, -1.0]      # the stale signs, corrected
+    assert out["total_clv"].tolist()[:2] == [1.0, -1.0]
+    assert out[["spread_clv", "total_clv"]].iloc[2].isna().all(), "unknown stays unknown"
+
+
+def test_games_under_way_are_never_priced_in_play(env, monkeypatch):
+    """The scheduled run starts hours late and lands just after Saturday's noon kickoffs. The
+    feed's in-play prices replaced the published picks and those games were graded against
+    them. Neither the feed nor the board may treat an in-play number as a pre-game line - and
+    a TBD game's placeholder midnight kickoff must not read as started."""
+    from datetime import datetime
+    from cfb import predict
+    from cfb.sources import odds
+
+    now = datetime(2026, 9, 26, 12, 40, tzinfo=env.ET)       # a Saturday, 40 minutes in
+
+    def event(eid, start):
+        line = lambda k, outs: {"key": k, "outcomes": outs}       # noqa: E731
+        return {"id": eid, "commence_time": start, "home_team": "Team 001",
+                "away_team": "Team 002", "bookmakers": [{"title": "DraftKings", "markets": [
+                    line("spreads", [{"name": "Team 001", "price": -110, "point": -3.5},
+                                     {"name": "Team 002", "price": -110, "point": 3.5}]),
+                    line("totals", [{"name": "Over", "price": -110, "point": 55.5},
+                                    {"name": "Under", "price": -110, "point": 55.5}])]}]}
+
+    class Response:
+        status_code, headers = 200, {}
+
+        def json(self):
+            return [event("noon", "2026-09-26T16:00:00Z"), event("night", "2026-09-26T23:30:00Z")]
+
+    monkeypatch.setattr(odds, "ODDS_API_KEY", "test")
+    monkeypatch.setattr(env, "now_et", lambda: now)
+    monkeypatch.setattr(odds, "get", lambda *a, **k: Response())
+    assert list(odds.snapshot()["event_id"]) == ["night"]
+
+    board = pd.DataFrame({
+        "kickoff_utc": ["2026-09-26T12:00:00-04:00", "2026-09-26T19:30:00-04:00",
+                        "2026-09-26T00:00:00-04:00", ""],
+        "start_time_tbd": [False, False, True, False]})
+    assert predict.started(board, now).tolist() == [True, False, False, False]
 
 
 def test_first_published_number_survives_the_daily_overwrite(env):
