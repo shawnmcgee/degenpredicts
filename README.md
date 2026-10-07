@@ -1120,6 +1120,26 @@ predicted, graded and CLV-tracked whether or not it is staked. CLV, measured in 
 goals from the morning number to the evening one, is what will settle whether the puck-line lead is
 real, and it will say so within weeks rather than seasons.
 
+**Reading a total on the page.** The card puts our expected goals beside the *market's* expected
+goals, read through the same scoreline model, not beside the posted line. A 5.5 or a 6.0 at even
+money already expects about 5.9 or 6.2 goals, because empty-netters and the shootout goal pull the
+average above the middle outcome, so against the line most games would look like an over. The
+season's totals record is grouped by that gap, either way (under 0.03, 0.03–0.06, 0.06–0.10 and
+0.10+ goals), rather than by EV: the published total moves only part of the way to the model, so
+almost every total pays more vig than its edge and by EV the whole season sits in one row. In the
+walk-forward half of all games sat within 0.03 goals of the market and 99% within 0.13. The puck
+line stays grouped by EV, because there the price is the bet.
+
+**The model leans over at the start of a season.** In the first week of 2026-27 the market-aware
+model put more goals on every game than the market did, +0.27 a game before the shrink and +0.08
+after it. That is not a bug: four small learned effects all point the same way in October — the
+ratings still carry last season's scoring, the early-season flag, every team rested for its
+opener, and the intercept. Out of sample over the last eight seasons, games played before both
+teams had ten behind them leaned +0.05 goals on average and came in +0.05 ± 0.06 over the market —
+right on average, but noisy from one season to the next (−0.19 in 2021, +0.25 in 2024). The rest
+effect ends with each team's opener and the early-season flag once both teams have played ten, so
+the lean should fade by itself; re-check it then rather than refit on a few dozen games.
+
 ### What happened to the previous NHL model
 
 The uploaded `train_nhl_model.py` / `NHL_OverUnder_Model.py` were reviewed and **not reused**,

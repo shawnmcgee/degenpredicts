@@ -19,6 +19,7 @@
           background:var(--warn);color:#2a1c00;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
   section{margin-top:22px}
   h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:10px}
+  h3{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin:14px 0 8px}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
   .stat{background:var(--card);border-radius:10px;padding:13px;text-align:center}
   .stat .v{font-size:22px;font-weight:600;margin:3px 0}
@@ -235,7 +236,7 @@
     </div>
     <div class="scoreline">
       <span>Win incl. OT <b>{{ g.home_team }} {{ g.p_home_win_pct }}%</b>{% if g.mkt_p_home_pct %} &middot; market {{ g.mkt_p_home_pct }}%{% endif %}</span>
-      <span>Goals <b>{{ '%.2f'|format(g.exp_total) }}</b> &middot; margin <b>{{ '%+.2f'|format(g.exp_margin) }}</b></span>
+      <span>Goals <b>{{ '%.2f'|format(g.exp_total) }}</b>{% if g.mkt_exp_total is not none %} &middot; market {{ '%.2f'|format(g.mkt_exp_total) }}{% endif %} &middot; margin <b>{{ '%+.2f'|format(g.exp_margin) }}</b></span>
     </div>
     {% endif %}
     <div class="bets">
@@ -249,7 +250,7 @@
         <div class="l">Total <span class="tag {{ 'early' if g.total_strength == 'thin' else g.total_strength }}">{{ 'no play' if g.total_strength in ('thin','pass') else ('waiting on goalies' if g.total_strength == 'wait' else g.total_strength) }}</span></div>
         <div class="p">{{ g.total_pick }}{% if g.total_price %}<span class="px">{{ g.total_price }}</span>{% endif %}</div>
         <div class="d">ours <b>{{ g.total_p_live_pct }}%</b>{% if g.total_mkt_p_pct %} &middot; market {{ g.total_mkt_p_pct }}%{% endif %}{% if g.total_ev_pct is not none %} &middot; EV {{ '%+.1f'|format(g.total_ev_pct) }}%{% endif %}{% if g.total_stake %} &middot; {{ g.total_stake }}u{% endif %}</div>
-        {% if g.total_hit and (g.total_hit.wins + g.total_hit.losses) %}<div class="hit">Hit <b class="{{ g.total_hit.tone }}">{{ g.total_hit.win_pct }}%</b> ({{ g.total_hit.wins }}-{{ g.total_hit.losses }}) this season at EV {{ g.total_hit.label }}</div>{% endif %}
+        {% if g.total_hit and (g.total_hit.wins + g.total_hit.losses) %}<div class="hit">Hit <b class="{{ g.total_hit.tone }}">{{ g.total_hit.win_pct }}%</b> ({{ g.total_hit.wins }}-{{ g.total_hit.losses }}) this season when we're {{ g.total_hit.label }} goals off the market</div>{% endif %}
       </div>
     </div>
   </div>
@@ -260,7 +261,11 @@
   <p class="sub" style="margin-top:10px">The bar is our probability of each result after 60
     minutes. <b>ours</b> is the chance the pick wins (a total's is net of a push on a whole-number
     line), <b>market</b> is the same chance from the de-vigged price, and <b>EV</b> is the
-    expected return per unit at the posted price. A pick is flagged
+    expected return per unit at the posted price. <b>Goals</b> is our expected final total,
+    empty-netters and the shootout goal included, and <b>market</b> is the same number read from
+    the market's prices through the same model &mdash; compare those two, not our goals with the
+    posted line. A 5.5 or a 6.0 at even money already expects about 5.9 or 6.2 goals, so against
+    the line most games would look like an over. A pick is flagged
     <span class="tag play">play</span> only at EV of {{ (spread_min * 100)|round(1) }}% or more on
     the puck line and {{ (total_min * 100)|round(1) }}% on the total, once both teams have played
     enough games to rate &mdash; and only once both starting goalies are
@@ -323,21 +328,29 @@
 
 {% if hit_rows %}
 <section>
-  <h2>Record by expected value</h2>
+  <h2>Record this season</h2>
+  {% for key, label, head in [('spread', 'Puck line, by EV at the price', 'EV at the price'), ('total', "Totals, by our goals vs the market's", 'Goals off the market')] %}
+  {% if hit_rows[key] %}
+  <h3>{{ label }}</h3>
   <div class="wrap">
   <table>
-    <tr><th>EV at the price</th><th>Puck line</th><th>Win%</th><th>Totals</th><th>Win%</th></tr>
-    {% for row in hit_rows %}
-    <tr><td>{{ row.label }}</td>
-      <td>{% if row.spread %}{{ row.spread.wins }}-{{ row.spread.losses }}{% endif %}</td>
-      <td class="{{ row.spread.tone if row.spread }}">{% if row.spread %}{{ row.spread.win_pct }}%{% if row.spread.expected_pct is not none %} <span class="sub">vs {{ row.spread.expected_pct }}</span>{% endif %}{% endif %}</td>
-      <td>{% if row.total %}{{ row.total.wins }}-{{ row.total.losses }}{% endif %}</td>
-      <td class="{{ row.total.tone if row.total }}">{% if row.total %}{{ row.total.win_pct }}%{% if row.total.expected_pct is not none %} <span class="sub">vs {{ row.total.expected_pct }}</span>{% endif %}{% endif %}</td></tr>
+    <tr><th>{{ head }}</th><th>Record</th><th>Win%</th></tr>
+    {% for r in hit_rows[key] %}
+    <tr><td>{{ r.label }}</td>
+      <td>{{ r.wins }}-{{ r.losses }}{% if r.pushes %}-{{ r.pushes }}{% endif %}</td>
+      <td class="{{ r.tone }}">{{ r.win_pct }}%{% if r.expected_pct is not none %} <span class="sub">vs {{ r.expected_pct }}</span>{% endif %}</td></tr>
     {% endfor %}
   </table>
   </div>
-  <p class="sub" style="margin-top:8px">Every graded game this season, bucketed by the expected
-    value of the side we took. Green beats the rate the prices implied and red falls short; a
+  {% endif %}
+  {% endfor %}
+  <p class="sub" style="margin-top:8px">Every graded game this season, staked or not; each pick
+    above shows the row it falls in. The puck line is grouped by the EV of the side we took,
+    because its prices run from long shots to heavy favourites. The total is grouped by how far
+    our expected goals sat from the market's, either way: the published total moves only part of
+    the way toward the model, so nearly every total pays more vig than its edge, and by EV the
+    whole season would sit in one row. The figure after <b>vs</b> is what the market's own prices
+    expected for the same picks &mdash; the bar to beat. Green beats it and red falls short; a
     bucket stays uncoloured until it has {{ hit_min }} games.</p>
 </section>
 {% endif %}

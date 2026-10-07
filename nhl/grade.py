@@ -28,6 +28,11 @@ from .sources import nhle, odds
 
 log = logging.getLogger("nhl.grade")
 EDGE_BUCKETS = [(-1.0, 0.0), (0.0, 0.02), (0.02, 0.04), (0.04, 0.06), (0.06, 1.0)]
+# Totals are also bucketed by how far our expected total sits from the market's, in goals,
+# either side. The published total moves only part of the way from the market toward the
+# model, so these are small: in the walk-forward half of all games sat within 0.03 goals of
+# the market and 99% within 0.13. The last bucket is open-ended; 10 goals stands in for "+".
+DISAGREE_BUCKETS = [(0.0, 0.03), (0.03, 0.06), (0.06, 0.10), (0.10, 10.0)]
 
 
 def _load(path) -> pd.DataFrame:
@@ -96,12 +101,7 @@ def grade() -> pd.DataFrame:
     if len(close) and "first_m_lh" in m:
         from .features import market_view
         from .scoreline import Table
-        from .train import load_models
-        try:
-            theta = load_models()[1].get("theta")
-        except (OSError, ValueError, KeyError):
-            theta = None
-        c = market_view(close, Table(theta))[["game_id", "m_lh", "m_la"]]
+        c = market_view(close, Table(_theta()))[["game_id", "m_lh", "m_la"]]
         c = c.rename(columns={"m_lh": "close_lh", "m_la": "close_la"})
         c["game_id"] = c["game_id"].astype(str)
         m = m.merge(c, on="game_id", how="left")
@@ -122,6 +122,39 @@ def grade() -> pd.DataFrame:
     log.info("graded %d | puck line %s | totals %s", len(m),
              m["spread_result"].value_counts().to_dict(), m["total_result"].value_counts().to_dict())
     return done
+
+
+def _theta() -> dict | None:
+    """The late-game model's parameters from the last training run, or None for its defaults."""
+    from .train import load_models
+    try:
+        return load_models()[1].get("theta")
+    except (OSError, ValueError, KeyError):
+        return None
+
+
+def total_disagreement(df: pd.DataFrame) -> pd.Series:
+    """Our expected total minus the market's, in goals, for each row.
+
+    Picks published before the board recorded it have it rebuilt from the goals stored with
+    the pick - ours and the market's, both through the current late-game model, so the two
+    are read off the same grid as they are when the board records the gap itself.
+    """
+    d = pd.to_numeric(df["total_disagree"], errors="coerce") if "total_disagree" in df \
+        else pd.Series(np.nan, index=df.index)
+    rates = ["lam_home", "lam_away", "m_lh", "m_la"]
+    if not set(rates) <= set(df.columns):
+        return d
+    miss = d.isna() & df[rates].notna().all(axis=1)
+    if miss.any():
+        from .scoreline import expected_totals
+        th = _theta()
+        x = df.loc[miss, rates].astype(float)
+        ours = expected_totals(x["lam_home"], x["lam_away"], th).round(3)
+        mkt = expected_totals(x["m_lh"], x["m_la"], th).round(3)
+        d = d.copy()
+        d[miss] = (ours - mkt).round(3)
+    return d
 
 
 def _rec(df: pd.DataFrame, kind: str) -> dict:
@@ -161,6 +194,15 @@ def metrics(done: pd.DataFrame) -> dict:
             if len(b):
                 out[key]["by_edge"].append({"bucket": f"{lo:+.2f}-{hi:+.2f}" if hi < 1 else f"{lo:+.2f}-+",
                                             "lo": lo, "hi": hi, **_rec(b, kind)})
+    # The total also by distance from the market in goals. Nearly every total is negative EV -
+    # the vig is bigger than the model's edge - so EV alone puts the whole season in one row.
+    gap = total_disagreement(season).abs()
+    out["totals"]["by_disagree"] = []
+    for lo, hi in DISAGREE_BUCKETS:
+        b = season[(gap >= lo) & (gap < hi)]
+        if len(b):
+            out["totals"]["by_disagree"].append({"bucket": f"{lo:.2f}-{hi:.2f}" if hi < 10 else f"{lo:.2f}-+",
+                                                 "lo": lo, "hi": hi, **_rec(b, "total")})
     # ISO weeks, for the cumulative-units line; hockey has no rounds to number
     wk = pd.to_datetime(season["date"]).dt.strftime("%G-W%V")
     cum_t = cum_s = 0.0

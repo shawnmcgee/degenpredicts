@@ -13,7 +13,10 @@ are hockey's own:
   news. A backup is flagged, and a pick that clears the bar waits until both starters are
   confirmed or likely;
 * the puck line and total as **prices**: our probability, the market's, and the EV at the posted
-  price, because in hockey the line barely moves and the price is the whole bet.
+  price, because in hockey the line barely moves and the price is the whole bet;
+* our expected goals beside the **market's own**, read through the same model. The posted total
+  is not that number - a 5.5 or a 6.0 at even money expects about 5.9 or 6.2 goals - so goals
+  against the line would make most games look like an over.
 """
 from __future__ import annotations
 
@@ -26,6 +29,7 @@ import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import config
+from .grade import total_disagreement
 
 log = logging.getLogger("nhl.site")
 TEMPLATES = Path(__file__).resolve().parent / "templates"
@@ -116,6 +120,10 @@ def _board() -> list[dict]:
     if df.empty:
         return []
     df = df.sort_values("prediction_date").drop_duplicates("game_id", keep="last").copy()
+    # our expected total against the market's, read through the same grid - rebuilt for a row
+    # predicted before the board recorded it
+    df["total_disagree"] = total_disagreement(df)
+    df["mkt_exp_total"] = df["exp_total"].astype(float) - df["total_disagree"]
     evs = df[["spread_ev", "total_ev"]].astype(float)
     df["best_ev"] = evs.max(axis=1)
     df["has_play"] = df["spread_strength"].isin(["play", "bold"]) | \
@@ -247,18 +255,29 @@ def _backtest(meta: dict) -> dict:
             "rules": (sp.get("rules") or [])}
 
 
-def _hit_rows(metrics: dict) -> list[dict]:
-    """This season's record by EV at the posted price, puck line and totals side by side."""
-    rows: dict[str, dict] = {}
-    for key, side in (("spreads", "spread"), ("totals", "total")):
-        for r in (metrics.get(key) or {}).get("by_edge") or []:
-            row = rows.setdefault(r["bucket"], {"lo": r["lo"], "hi": r["hi"], "spread": None,
-                                                "total": None, "label": _ev_label(r["lo"], r["hi"])})
-            tone = ""
-            if (r.get("n") or 0) >= HIT_RATE_MIN_N and r.get("expected_pct") is not None:
-                tone = "up" if (r.get("win_pct") or 0) > r["expected_pct"] else "down"
-            row[side] = {**r, "tone": tone}
-    return sorted(rows.values(), key=lambda r: r["lo"])
+def _tone(r: dict) -> str:
+    """Coloured against the rate the prices implied, once a bucket has the games to mean it."""
+    if (r.get("n") or 0) >= HIT_RATE_MIN_N and r.get("expected_pct") is not None:
+        return "up" if (r.get("win_pct") or 0) > r["expected_pct"] else "down"
+    return ""
+
+
+def _hit_rows(metrics: dict) -> dict:
+    """This season's record: the puck line by EV at the posted price, the total by how far our
+    expected goals sat from the market's.
+
+    The two are bucketed differently on purpose. A puck-line price runs from -250 to +200, so
+    EV is what separates one bet from another. A total barely moves off the market and nearly
+    always pays more vig than the model's edge, so by EV the whole season sits in one row.
+    """
+    spread = [{**r, "tone": _tone(r), "label": _ev_label(r["lo"], r["hi"])}
+              for r in (metrics.get("spreads") or {}).get("by_edge") or []]
+    total = [{**r, "tone": _tone(r), "label": _goals_label(r["lo"], r["hi"])}
+             for r in (metrics.get("totals") or {}).get("by_disagree") or []]
+    if not (spread or total):
+        return {}
+    return {"spread": sorted(spread, key=lambda r: r["lo"]),
+            "total": sorted(total, key=lambda r: r["lo"])}
 
 
 def _ev_label(lo, hi) -> str:
@@ -267,16 +286,25 @@ def _ev_label(lo, hi) -> str:
     return f"{100 * lo:g}%+" if hi >= 1 else f"{100 * lo:g}–{100 * hi:g}%"
 
 
-def _hit_for(rows: list[dict], side: str, ev) -> dict | None:
+def _goals_label(lo, hi) -> str:
+    """A grader bucket as a reader says it: "under 0.03", "0.03–0.06", "0.10+" goals. Built
+    from the row's own bounds, so a card and the table beside it always name the same bucket."""
+    if lo <= 0:
+        return f"under {hi:.2f}"
+    return f"{lo:.2f}+" if hi >= 10 else f"{lo:.2f}–{hi:.2f}"
+
+
+def _hit_for(rows: list[dict], v) -> dict | None:
+    """The season record in the bucket ``v`` falls in, or None."""
     try:
-        v = float(ev)
+        v = float(v)
     except (TypeError, ValueError):
         return None
     if v != v:
         return None
     for r in rows:
         if r["lo"] <= v < r["hi"]:
-            return {**r[side], "label": r["label"]} if r[side] else None
+            return r
     return None
 
 
@@ -298,8 +326,9 @@ def build() -> None:
     meta = _meta()
     hit_rows = _hit_rows(metrics)
     for g in picks:
-        g["spread_hit"] = _hit_for(hit_rows, "spread", g.get("spread_ev"))
-        g["total_hit"] = _hit_for(hit_rows, "total", g.get("total_ev"))
+        g["spread_hit"] = _hit_for(hit_rows.get("spread") or [], g.get("spread_ev"))
+        gap = g.get("total_disagree")
+        g["total_hit"] = _hit_for(hit_rows.get("total") or [], None if gap is None else abs(gap))
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, m=metrics, model=_model_note(meta),
         backtest=_backtest(meta), calibration=meta.get("scoreline_calibration") or [],

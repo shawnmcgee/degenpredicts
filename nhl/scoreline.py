@@ -160,6 +160,25 @@ def expected(F: np.ndarray) -> tuple[float, float]:
     return float((F * d).sum()), float((F * t).sum())
 
 
+def expected_totals(lh, la, th: dict | None = None) -> np.ndarray:
+    """Expected final total for arrays of base rates, NaN where either rate is missing.
+
+    Fed the market's implied goals it gives the market's own expected total - the number ours
+    is compared with. The posted line is not that number: a 5.5 or a 6.0 at even money
+    expects about 5.9 or 6.2 goals, because empty-netters and the shootout goal pull the
+    average above the middle outcome.
+    """
+    lh = np.atleast_1d(np.asarray(lh, float))
+    la = np.atleast_1d(np.asarray(la, float))
+    out = np.full(len(lh), np.nan)
+    ok = np.isfinite(lh) & np.isfinite(la)
+    if ok.any():
+        F, _ = grids(lh[ok], la[ok], th)
+        _, t = _dt()
+        out[ok] = (F * t).sum(axis=(1, 2))
+    return out
+
+
 # ---------------------------------------------------------------------------------
 # A lookup table for pricing thousands of games at once, and for inverting the market
 # ---------------------------------------------------------------------------------
