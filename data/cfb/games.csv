@@ -27594,8 +27594,8 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401909134,2026,5,regular,2026-10-03,False,"Sat Oct 03, 1:00 PM",DePauw,Oberlin,,,,,False,True,North Coast,North Coast,False,2026-10-03T13:00:00-04:00,Sat,,
 401909144,2026,5,regular,2026-10-03,False,"Sat Oct 03, 2:00 PM",Ohio Wesleyan,Wooster,,,,,False,True,North Coast,North Coast,False,2026-10-03T14:00:00-04:00,Sat,,
 401871090,2026,6,regular,2026-10-06,False,"Tue Oct 06, 8:00 PM",Troy,Southern Miss,55.0,34.0,89.0,21.0,False,True,Sun Belt,Sun Belt,True,2026-10-06T20:00:00-04:00,Tue,fbs,fbs
-401871051,2026,6,regular,2026-10-07,False,"Wed Oct 07, 7:00 PM",Kennesaw State,Jacksonville State,,,,,False,True,Conference USA,Conference USA,False,2026-10-07T19:00:00-04:00,Wed,fbs,fbs
-401871066,2026,6,regular,2026-10-07,False,"Wed Oct 07, 7:30 PM",Florida International,New Mexico State,,,,,False,True,Conference USA,Conference USA,False,2026-10-07T19:30:00-04:00,Wed,fbs,fbs
+401871051,2026,6,regular,2026-10-07,False,"Wed Oct 07, 7:00 PM",Kennesaw State,Jacksonville State,26.0,27.0,53.0,-1.0,False,True,Conference USA,Conference USA,True,2026-10-07T19:00:00-04:00,Wed,fbs,fbs
+401871066,2026,6,regular,2026-10-07,False,"Wed Oct 07, 7:30 PM",Florida International,New Mexico State,22.0,3.0,25.0,19.0,False,True,Conference USA,Conference USA,True,2026-10-07T19:30:00-04:00,Wed,fbs,fbs
 401862794,2026,6,regular,2026-10-08,False,"Thu Oct 08, 7:30 PM",UTSA,South Florida,,,,,False,True,American Athletic,American Athletic,False,2026-10-08T19:30:00-04:00,Thu,fbs,fbs
 401869933,2026,6,regular,2026-10-08,False,"Thu Oct 08, 7:30 PM",Arkansas State,South Alabama,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-08T19:30:00-04:00,Thu,fbs,fbs
 401870766,2026,6,regular,2026-10-08,False,"Thu Oct 08, 7:00 PM",Liberty,Sam Houston,,,,,False,True,Conference USA,Conference USA,False,2026-10-08T19:00:00-04:00,Thu,fbs,fbs
