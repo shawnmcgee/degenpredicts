@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-07",
+  "updated": "2026-10-08",
   "sport": "nfl",
   "break_even": 51.75,
   "venue": "kalshi_taker",
@@ -220,5 +220,13 @@
       "cum_total": 0.0,
       "cum_spread": 0.0
     }
-  ]
+  ],
+  "teasers": {
+    "legs": 14,
+    "wins": 11,
+    "losses": 3,
+    "win_pct": 78.6,
+    "break_even": 73.9,
+    "two_team_ev": 13.2
+  }
 }
