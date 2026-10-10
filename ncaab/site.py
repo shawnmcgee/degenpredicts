@@ -45,12 +45,15 @@ def build() -> None:
     env.filters["money"] = lambda v: ("+" if (v or 0) >= 0 else "") + f"{v or 0:.2f}"
     picks = _picks_for_today()
     metrics = _metrics()
+    published = str(config.today_et())
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, m=metrics,
-        updated=metrics.get("updated", ""),
+        updated=published,
         total_min=config.TOTAL_EDGE_MIN, spread_min=config.SPREAD_EDGE_MIN,
     )
     (config.DOCS / "index.html").write_text(html)
+    # the chooser's card reads this; metrics.json's `updated` only moves when grading runs
+    (config.DOCS / "published.json").write_text(json.dumps({"published": published}) + "\n")
     (config.DOCS / ".nojekyll").touch()
     # expose the raw data so the page (or you) can fetch it
     for src in (config.PICKS, config.METRICS, config.RESULTS):

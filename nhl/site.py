@@ -329,15 +329,18 @@ def build() -> None:
         g["spread_hit"] = _hit_for(hit_rows.get("spread") or [], g.get("spread_ev"))
         gap = g.get("total_disagree")
         g["total_hit"] = _hit_for(hit_rows.get("total") or [], None if gap is None else abs(gap))
+    published = str(config.today_et())
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, m=metrics, model=_model_note(meta),
         backtest=_backtest(meta), calibration=meta.get("scoreline_calibration") or [],
         hit_rows=hit_rows, hit_min=HIT_RATE_MIN_N, results=_recent_results(),
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL,
-        days=_days(picks), updated=metrics.get("updated", "") or str(config.today_et()),
+        days=_days(picks), updated=published,
         spread_min=config.SPREAD_EV_MIN, total_min=config.TOTAL_EV_MIN,
         trained=(meta.get("trained_at") or "")[:10])
     (config.DOCS / "index.html").write_text(html)
+    # the chooser's card reads this; metrics.json's `updated` only moves when grading runs
+    (config.DOCS / "published.json").write_text(json.dumps({"published": published}) + "\n")
     (config.DOCS / ".nojekyll").touch()
     for src in (config.PICKS, config.METRICS, config.RESULTS):
         if src.exists():

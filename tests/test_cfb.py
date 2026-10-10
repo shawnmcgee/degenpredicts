@@ -184,6 +184,10 @@ def test_pipeline(env, monkeypatch):
     assert "College Football" in html and "Team " in html
     assert "not betting advice" in html and "1-800-GAMBLER" in html, \
         "the page is public: it must carry the responsible-gambling notice"
+    # the board's date is the day it was rebuilt, which is what the chooser's card shows
+    today = str(env.today_et())
+    assert f"updated {today}" in html
+    assert json.loads((env.DOCS / "published.json").read_text()) == {"published": today}
 
 
 def test_odds_matcher():

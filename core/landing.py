@@ -53,6 +53,12 @@ SPORTS = [
 ]
 
 
+# Each sport's site build stamps the day it last rebuilt its board here. metrics.json carries
+# an `updated` too, but that is the day grading last ran, so a picks run that refreshed the
+# whole board still left the card saying yesterday.
+PUBLISHED = "published.json"
+
+
 def _json(path: Path) -> dict:
     try:
         return json.loads(path.read_text())
@@ -131,7 +137,10 @@ def collect(docs: Path | None = None, today: str | None = None) -> list[dict]:
         metrics = _json(folder / "metrics.json")
         card = dict(sport)
         card["href"] = f"{sport['slug']}/"
-        card["updated"] = metrics.get("updated")
+        # metrics' grading date only covers a board that has not been rebuilt since this
+        # stamp existed
+        card["updated"] = (_json(folder / PUBLISHED).get("published")
+                           or metrics.get("updated"))
         card["board"] = _board_summary(folder / "picks.csv", today)
         card["totals"] = _record(metrics, "totals")
         card["spreads"] = _record(metrics, "spreads")

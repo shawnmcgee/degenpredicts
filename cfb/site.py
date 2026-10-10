@@ -268,15 +268,18 @@ def build() -> None:
     for g in picks:
         g["total_hit"] = _hit_for(hit_rows, "total", g.get("total_disagree"))
         g["spread_hit"] = _hit_for(hit_rows, "spread", g.get("margin_disagree"))
+    published = str(config.today_et())
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, m=metrics, week=week,
         hit_rows=hit_rows, hit_min=HIT_RATE_MIN_N,
         results=_recent_results(), venue=config.VENUE,
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL,
-        days=_days(picks), updated=metrics.get("updated", ""),
+        days=_days(picks), updated=published,
         total_min=config.TOTAL_EDGE_MIN, spread_min=config.SPREAD_EDGE_MIN,
     )
     (config.DOCS / "index.html").write_text(html)
+    # the chooser's card reads this; metrics.json's `updated` only moves when grading runs
+    (config.DOCS / "published.json").write_text(json.dumps({"published": published}) + "\n")
     (config.DOCS / ".nojekyll").touch()
     # expose the raw data so the page (or you) can fetch it
     for src in (config.PICKS, config.METRICS, config.RESULTS):
