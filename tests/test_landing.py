@@ -100,6 +100,29 @@ def test_survives_missing_and_malformed_files(tmp_path):
     assert (docs / "index.html").exists()
 
 
+def test_card_date_is_the_last_rebuild_not_the_last_grade(tmp_path):
+    """metrics.json's `updated` is the day grading last ran. A manual CFB picks run refreshed
+    the whole board, plays and all, and the card still said yesterday because the grade run
+    had not fired yet."""
+    docs = tmp_path / "docs"
+    folder = _publish(docs, "cfb", metrics={"updated": "2026-10-09"}, picks=HEADER)
+    _publish(docs, "nfl", metrics={"updated": "2026-10-09"}, picks=HEADER)
+    (folder / landing.PUBLISHED).write_text(json.dumps({"published": "2026-10-10"}))
+
+    cards = {c["slug"]: c for c in landing.collect(docs, today="2026-10-10")}
+    assert cards["cfb"]["updated"] == "2026-10-10"
+    # a board not rebuilt since the stamp existed still shows its grading date
+    assert cards["nfl"]["updated"] == "2026-10-09"
+    assert "Last update 2026-10-10." in landing.build(docs).read_text()
+
+
+def test_every_board_stamps_its_rebuild():
+    """The card's date only moves if the sport's own site build writes the stamp."""
+    for slug in [*LIVE_SPORTS, "ncaab"]:
+        src = (ROOT / slug / "site.py").read_text()
+        assert '"published.json"' in src, f"{slug}/site.py never stamps its board"
+
+
 def test_renders_a_chooser_with_a_link_per_sport(tmp_path):
     docs = tmp_path / "docs"
     # build() counts games against the real date, so the play has to stay upcoming. It was

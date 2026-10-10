@@ -204,15 +204,18 @@ def build() -> None:
     env.filters["money"] = lambda v: ("+" if (v or 0) >= 0 else "") + f"{v or 0:.2f}"
     picks, week = _board()
     metrics = _metrics()
+    published = str(config.today_et())
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, league=config.LEAGUE_NAME, picks=picks, m=metrics, week=week,
         results=_recent_results(), venue=config.VENUE, model=_model_note(),
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL,
-        days=_days(picks), updated=metrics.get("updated", ""),
+        days=_days(picks), updated=published,
         backtest=_backtest(), calibration=_calibration(),
         sup_min=config.SUP_EDGE_MIN, total_min=config.GOALS_EDGE_MIN,
     )
     (config.DOCS / "index.html").write_text(html)
+    # the chooser's card reads this; metrics.json's `updated` only moves when grading runs
+    (config.DOCS / "published.json").write_text(json.dumps({"published": published}) + "\n")
     (config.DOCS / ".nojekyll").touch()
     for src in (config.PICKS, config.METRICS, config.RESULTS):
         if src.exists():

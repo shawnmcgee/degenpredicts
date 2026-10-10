@@ -321,17 +321,20 @@ def build() -> None:
         g["spread_hit"] = _hit_for(metrics, "spreads", g.get("spread_disagree"))
         g["total_hit"] = _hit_for(metrics, "totals", g.get("total_disagree"))
         g["ml_hit"] = _hit_for(metrics, "moneyline", g.get("ml_ev"))
+    published = str(config.today_et())
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, m=metrics, model=_model_note(meta),
         backtest=_backtest(meta), hit_rows=_hit_rows(metrics),
         hit_min=HIT_RATE_MIN_N, results=_recent_results(),
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL,
-        days=_days(picks), updated=metrics.get("updated", "") or str(config.today_et()),
+        days=_days(picks), updated=published,
         spread_min=config.SPREAD_EDGE_MIN, total_min=config.TOTAL_EDGE_MIN,
         ml_min=config.ML_EV_MIN, wait_points=config.WAIT_POINTS,
         season=config.season_label(config.season_of(config.today_et())),
         trained=(meta.get("trained_at") or "")[:10], odds_source=config.ODDS_SOURCE)
     (config.DOCS / "index.html").write_text(html)
+    # the chooser's card reads this; metrics.json's `updated` only moves when grading runs
+    (config.DOCS / "published.json").write_text(json.dumps({"published": published}) + "\n")
     (config.DOCS / ".nojekyll").touch()
     for src in (config.PICKS, config.METRICS, config.RESULTS):
         if src.exists():
