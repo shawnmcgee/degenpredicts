@@ -27600,11 +27600,11 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401869933,2026,6,regular,2026-10-08,False,"Thu Oct 08, 7:30 PM",Arkansas State,South Alabama,49.0,56.0,105.0,-7.0,False,True,Sun Belt,Sun Belt,True,2026-10-08T19:30:00-04:00,Thu,fbs,fbs
 401870766,2026,6,regular,2026-10-08,False,"Thu Oct 08, 7:00 PM",Liberty,Sam Houston,35.0,3.0,38.0,32.0,False,True,Conference USA,Conference USA,True,2026-10-08T19:00:00-04:00,Thu,fbs,fbs
 401871052,2026,6,regular,2026-10-08,False,"Thu Oct 08, 7:00 PM",Western Kentucky,Missouri State,34.0,13.0,47.0,21.0,False,True,Conference USA,Conference USA,True,2026-10-08T19:00:00-04:00,Thu,fbs,fbs
-401856826,2026,6,regular,2026-10-09,False,"Fri Oct 09, 10:15 PM",BYU,Iowa State,,,,,False,True,Big 12,Big 12,False,2026-10-09T22:15:00-04:00,Fri,fbs,fbs
-401858254,2026,6,regular,2026-10-09,False,"Fri Oct 09, 7:00 PM",Louisville,Florida State,,,,,False,True,ACC,ACC,False,2026-10-09T19:00:00-04:00,Fri,fbs,fbs
-401858487,2026,6,regular,2026-10-09,False,"Fri Oct 09, 9:00 PM",Washington,Iowa,,,,,False,True,Big Ten,Big Ten,False,2026-10-09T21:00:00-04:00,Fri,fbs,fbs
-401860922,2026,6,regular,2026-10-09,False,"Fri Oct 09, 9:00 PM",Utah State,Washington State,,,,,False,True,Pac-12,Pac-12,False,2026-10-09T21:00:00-04:00,Fri,fbs,fbs
-401864519,2026,6,regular,2026-10-09,False,"Fri Oct 09, 9:00 PM",San José State,Wyoming,,,,,False,True,Mountain West,Mountain West,False,2026-10-09T21:00:00-04:00,Fri,fbs,fbs
+401856826,2026,6,regular,2026-10-09,False,"Fri Oct 09, 10:15 PM",BYU,Iowa State,24.0,10.0,34.0,14.0,False,True,Big 12,Big 12,True,2026-10-09T22:15:00-04:00,Fri,fbs,fbs
+401858254,2026,6,regular,2026-10-09,False,"Fri Oct 09, 7:00 PM",Louisville,Florida State,44.0,20.0,64.0,24.0,False,True,ACC,ACC,True,2026-10-09T19:00:00-04:00,Fri,fbs,fbs
+401858487,2026,6,regular,2026-10-09,False,"Fri Oct 09, 9:00 PM",Washington,Iowa,24.0,41.0,65.0,-17.0,False,True,Big Ten,Big Ten,True,2026-10-09T21:00:00-04:00,Fri,fbs,fbs
+401860922,2026,6,regular,2026-10-09,False,"Fri Oct 09, 9:00 PM",Utah State,Washington State,17.0,16.0,33.0,1.0,False,True,Pac-12,Pac-12,True,2026-10-09T21:00:00-04:00,Fri,fbs,fbs
+401864519,2026,6,regular,2026-10-09,False,"Fri Oct 09, 9:00 PM",San José State,Wyoming,13.0,16.0,29.0,-3.0,False,True,Mountain West,Mountain West,True,2026-10-09T21:00:00-04:00,Fri,fbs,fbs
 401868265,2026,6,regular,2026-10-09,False,"Fri Oct 09, 7:00 PM",Marist,Columbia,,,,,False,False,Pioneer,Ivy,False,2026-10-09T19:00:00-04:00,Fri,,
 401856712,2026,6,regular,2026-10-10,False,"Sat Oct 10, 7:30 PM",Alabama,Georgia,,,,,False,True,SEC,SEC,False,2026-10-10T19:30:00-04:00,Sat,fbs,fbs
 401856713,2026,6,regular,2026-10-10,False,"Sat Oct 10, 4:15 PM",Arkansas,Tennessee,,,,,False,True,SEC,SEC,False,2026-10-10T16:15:00-04:00,Sat,fbs,fbs
@@ -27617,7 +27617,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401856823,2026,6,regular,2026-10-10,False,"Sat Oct 10, 12:00 PM",West Virginia,Arizona,,,,,False,True,Big 12,Big 12,False,2026-10-10T12:00:00-04:00,Sat,fbs,fbs
 401856824,2026,6,regular,2026-10-10,False,"Sat Oct 10, 12:00 PM",Oklahoma State,UCF,,,,,False,True,Big 12,Big 12,False,2026-10-10T12:00:00-04:00,Sat,fbs,fbs
 401856825,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:30 PM",Kansas State,Houston,,,,,False,True,Big 12,Big 12,False,2026-10-10T15:30:00-04:00,Sat,fbs,fbs
-401856827,2026,6,regular,2026-10-10,False,"Sat Oct 10, 10:15 PM",Utah,Kansas,,,,,False,True,Big 12,Big 12,False,2026-10-10T22:15:00-04:00,Sat,fbs,fbs
+401856827,2026,6,regular,2026-10-10,False,"Sat Oct 10, 8:00 PM",Utah,Kansas,,,,,False,True,Big 12,Big 12,False,2026-10-10T20:00:00-04:00,Sat,fbs,fbs
 401858255,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:30 PM",Georgia Tech,Duke,,,,,False,True,ACC,ACC,False,2026-10-10T15:30:00-04:00,Sat,fbs,fbs
 401858256,2026,6,regular,2026-10-10,False,"Sat Oct 10, 12:00 PM",Pittsburgh,North Carolina,,,,,False,True,ACC,ACC,False,2026-10-10T12:00:00-04:00,Sat,fbs,fbs
 401858257,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:30 PM",Notre Dame,Stanford,,,,,False,False,FBS Independents,ACC,False,2026-10-10T15:30:00-04:00,Sat,fbs,fbs
@@ -27636,7 +27636,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401861964,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:45 PM",Temple,UConn,,,,,False,False,American Athletic,FBS Independents,False,2026-10-10T15:45:00-04:00,Sat,fbs,fbs
 401862795,2026,6,regular,2026-10-10,False,"Sat Oct 10, 12:00 PM",Army,Tulane,,,,,False,True,American Athletic,American Athletic,False,2026-10-10T12:00:00-04:00,Sat,fbs,fbs
 401862796,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:30 PM",North Texas,Charlotte,,,,,False,True,American Athletic,American Athletic,False,2026-10-10T15:30:00-04:00,Sat,fbs,fbs
-401862797,2026,6,regular,2026-10-10,False,"Sat Oct 10, 4:00 PM",East Carolina,Rice,,,,,False,True,American Athletic,American Athletic,False,2026-10-10T16:00:00-04:00,Sat,fbs,fbs
+401862797,2026,6,regular,2026-10-10,False,"Sat Oct 10, 1:00 PM",East Carolina,Rice,,,,,False,True,American Athletic,American Athletic,False,2026-10-10T13:00:00-04:00,Sat,fbs,fbs
 401862798,2026,6,regular,2026-10-10,False,"Sat Oct 10, 7:00 PM",Memphis,UAB,,,,,False,True,American Athletic,American Athletic,False,2026-10-10T19:00:00-04:00,Sat,fbs,fbs
 401862799,2026,6,regular,2026-10-10,False,"Sat Oct 10, 3:30 PM",Navy,Tulsa,,,,,False,True,American Athletic,American Athletic,False,2026-10-10T15:30:00-04:00,Sat,fbs,fbs
 401864516,2026,6,regular,2026-10-10,False,"Sat Oct 10, 7:30 PM",Northern Illinois,Air Force,,,,,False,True,Mountain West,Mountain West,False,2026-10-10T19:30:00-04:00,Sat,fbs,fbs
