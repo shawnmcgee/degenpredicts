@@ -1,0 +1,2735 @@
+{
+ "close": {
+  "games": 12702,
+  "decided": 11634,
+  "over_rate_pct": 49.77,
+  "models": {
+   "base": {
+    "log_loss": 0.69492,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 11634,
+      "share_of_games": 1.0,
+      "hit_pct": 51.44,
+      "se_pct": 0.46,
+      "z_vs_50": 3.12
+     },
+     {
+      "min_edge": 0.01,
+      "n": 9147,
+      "share_of_games": 0.786,
+      "hit_pct": 51.83,
+      "se_pct": 0.52,
+      "z_vs_50": 3.5
+     },
+     {
+      "min_edge": 0.02,
+      "n": 7556,
+      "share_of_games": 0.649,
+      "hit_pct": 52.02,
+      "se_pct": 0.58,
+      "z_vs_50": 3.52
+     },
+     {
+      "min_edge": 0.03,
+      "n": 5090,
+      "share_of_games": 0.438,
+      "hit_pct": 52.18,
+      "se_pct": 0.7,
+      "z_vs_50": 3.11
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1879,
+      "share_of_games": 0.162,
+      "hit_pct": 52.32,
+      "se_pct": 1.15,
+      "z_vs_50": 2.01
+     },
+     {
+      "min_edge": 0.05,
+      "n": 764,
+      "share_of_games": 0.066,
+      "hit_pct": 51.44,
+      "se_pct": 1.81,
+      "z_vs_50": 0.8
+     },
+     {
+      "min_edge": 0.06,
+      "n": 301,
+      "share_of_games": 0.026,
+      "hit_pct": 47.51,
+      "se_pct": 2.88,
+      "z_vs_50": -0.86
+     },
+     {
+      "min_edge": 0.08,
+      "n": 102,
+      "share_of_games": 0.009,
+      "hit_pct": 48.04,
+      "se_pct": 4.95,
+      "z_vs_50": -0.4
+     }
+    ],
+    "by_season_hit_pct": {
+     "2012": 51.5,
+     "2013": 51.7,
+     "2014": 50.0,
+     "2015": 54.5,
+     "2016": 52.9,
+     "2017": 49.7,
+     "2018": 54.2,
+     "2019": 50.7,
+     "2020": 51.3,
+     "2021": 49.4,
+     "2022": 48.0
+    }
+   },
+   "logit": {
+    "log_loss": 0.69638,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 11634,
+      "share_of_games": 1.0,
+      "hit_pct": 52.4,
+      "se_pct": 0.46,
+      "z_vs_50": 5.17
+     },
+     {
+      "min_edge": 0.01,
+      "n": 10327,
+      "share_of_games": 0.888,
+      "hit_pct": 52.75,
+      "se_pct": 0.49,
+      "z_vs_50": 5.58
+     },
+     {
+      "min_edge": 0.02,
+      "n": 9063,
+      "share_of_games": 0.779,
+      "hit_pct": 52.87,
+      "se_pct": 0.53,
+      "z_vs_50": 5.47
+     },
+     {
+      "min_edge": 0.03,
+      "n": 7770,
+      "share_of_games": 0.668,
+      "hit_pct": 53.26,
+      "se_pct": 0.57,
+      "z_vs_50": 5.74
+     },
+     {
+      "min_edge": 0.04,
+      "n": 6596,
+      "share_of_games": 0.567,
+      "hit_pct": 53.09,
+      "se_pct": 0.62,
+      "z_vs_50": 5.02
+     },
+     {
+      "min_edge": 0.05,
+      "n": 5609,
+      "share_of_games": 0.482,
+      "hit_pct": 53.5,
+      "se_pct": 0.67,
+      "z_vs_50": 5.25
+     },
+     {
+      "min_edge": 0.06,
+      "n": 4669,
+      "share_of_games": 0.401,
+      "hit_pct": 53.78,
+      "se_pct": 0.73,
+      "z_vs_50": 5.17
+     },
+     {
+      "min_edge": 0.08,
+      "n": 3046,
+      "share_of_games": 0.262,
+      "hit_pct": 53.87,
+      "se_pct": 0.91,
+      "z_vs_50": 4.28
+     }
+    ],
+    "by_season_hit_pct": {
+     "2012": 54.4,
+     "2013": 53.3,
+     "2014": 54.5,
+     "2015": 52.0,
+     "2016": 52.4,
+     "2017": 48.9,
+     "2018": 52.4,
+     "2019": 54.6,
+     "2020": 53.4,
+     "2021": 50.8,
+     "2022": 49.2
+    }
+   },
+   "gbm": {
+    "log_loss": 0.69308,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 11634,
+      "share_of_games": 1.0,
+      "hit_pct": 51.87,
+      "se_pct": 0.46,
+      "z_vs_50": 4.04
+     },
+     {
+      "min_edge": 0.01,
+      "n": 9685,
+      "share_of_games": 0.832,
+      "hit_pct": 51.93,
+      "se_pct": 0.51,
+      "z_vs_50": 3.79
+     },
+     {
+      "min_edge": 0.02,
+      "n": 7910,
+      "share_of_games": 0.68,
+      "hit_pct": 52.78,
+      "se_pct": 0.56,
+      "z_vs_50": 4.95
+     },
+     {
+      "min_edge": 0.03,
+      "n": 6210,
+      "share_of_games": 0.534,
+      "hit_pct": 53.09,
+      "se_pct": 0.63,
+      "z_vs_50": 4.87
+     },
+     {
+      "min_edge": 0.04,
+      "n": 4772,
+      "share_of_games": 0.41,
+      "hit_pct": 53.67,
+      "se_pct": 0.72,
+      "z_vs_50": 5.07
+     },
+     {
+      "min_edge": 0.05,
+      "n": 3566,
+      "share_of_games": 0.307,
+      "hit_pct": 53.87,
+      "se_pct": 0.84,
+      "z_vs_50": 4.62
+     },
+     {
+      "min_edge": 0.06,
+      "n": 2570,
+      "share_of_games": 0.221,
+      "hit_pct": 54.24,
+      "se_pct": 0.99,
+      "z_vs_50": 4.3
+     },
+     {
+      "min_edge": 0.08,
+      "n": 1208,
+      "share_of_games": 0.104,
+      "hit_pct": 54.8,
+      "se_pct": 1.44,
+      "z_vs_50": 3.34
+     }
+    ],
+    "by_season_hit_pct": {
+     "2012": 52.6,
+     "2013": 51.5,
+     "2014": 54.5,
+     "2015": 53.0,
+     "2016": 52.6,
+     "2017": 48.7,
+     "2018": 50.9,
+     "2019": 52.0,
+     "2020": 53.2,
+     "2021": 50.9,
+     "2022": 52.9
+    }
+   },
+   "pois": {
+    "log_loss": 0.69584,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 11634,
+      "share_of_games": 1.0,
+      "hit_pct": 51.92,
+      "se_pct": 0.46,
+      "z_vs_50": 4.13
+     },
+     {
+      "min_edge": 0.01,
+      "n": 10021,
+      "share_of_games": 0.861,
+      "hit_pct": 52.34,
+      "se_pct": 0.5,
+      "z_vs_50": 4.69
+     },
+     {
+      "min_edge": 0.02,
+      "n": 8389,
+      "share_of_games": 0.721,
+      "hit_pct": 52.27,
+      "se_pct": 0.55,
+      "z_vs_50": 4.16
+     },
+     {
+      "min_edge": 0.03,
+      "n": 6909,
+      "share_of_games": 0.594,
+      "hit_pct": 52.63,
+      "se_pct": 0.6,
+      "z_vs_50": 4.37
+     },
+     {
+      "min_edge": 0.04,
+      "n": 5545,
+      "share_of_games": 0.477,
+      "hit_pct": 52.79,
+      "se_pct": 0.67,
+      "z_vs_50": 4.15
+     },
+     {
+      "min_edge": 0.05,
+      "n": 4371,
+      "share_of_games": 0.376,
+      "hit_pct": 52.76,
+      "se_pct": 0.76,
+      "z_vs_50": 3.65
+     },
+     {
+      "min_edge": 0.06,
+      "n": 3406,
+      "share_of_games": 0.293,
+      "hit_pct": 52.99,
+      "se_pct": 0.86,
+      "z_vs_50": 3.5
+     },
+     {
+      "min_edge": 0.08,
+      "n": 1951,
+      "share_of_games": 0.168,
+      "hit_pct": 53.56,
+      "se_pct": 1.13,
+      "z_vs_50": 3.15
+     }
+    ],
+    "by_season_hit_pct": {
+     "2012": 54.1,
+     "2013": 52.5,
+     "2014": 53.9,
+     "2015": 51.2,
+     "2016": 53.3,
+     "2017": 49.7,
+     "2018": 49.7,
+     "2019": 53.2,
+     "2020": 52.1,
+     "2021": 50.9,
+     "2022": 52.3
+    }
+   },
+   "ens": {
+    "log_loss": 0.6929,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 11634,
+      "share_of_games": 1.0,
+      "hit_pct": 52.14,
+      "se_pct": 0.46,
+      "z_vs_50": 4.62
+     },
+     {
+      "min_edge": 0.01,
+      "n": 9897,
+      "share_of_games": 0.851,
+      "hit_pct": 52.53,
+      "se_pct": 0.5,
+      "z_vs_50": 5.04
+     },
+     {
+      "min_edge": 0.02,
+      "n": 8178,
+      "share_of_games": 0.703,
+      "hit_pct": 52.8,
+      "se_pct": 0.55,
+      "z_vs_50": 5.06
+     },
+     {
+      "min_edge": 0.03,
+      "n": 6624,
+      "share_of_games": 0.569,
+      "hit_pct": 53.68,
+      "se_pct": 0.61,
+      "z_vs_50": 6.0
+     },
+     {
+      "min_edge": 0.04,
+      "n": 5166,
+      "share_of_games": 0.444,
+      "hit_pct": 53.93,
+      "se_pct": 0.7,
+      "z_vs_50": 5.65
+     },
+     {
+      "min_edge": 0.05,
+      "n": 3991,
+      "share_of_games": 0.343,
+      "hit_pct": 54.22,
+      "se_pct": 0.79,
+      "z_vs_50": 5.33
+     },
+     {
+      "min_edge": 0.06,
+      "n": 2958,
+      "share_of_games": 0.254,
+      "hit_pct": 54.97,
+      "se_pct": 0.92,
+      "z_vs_50": 5.41
+     },
+     {
+      "min_edge": 0.08,
+      "n": 1477,
+      "share_of_games": 0.127,
+      "hit_pct": 55.72,
+      "se_pct": 1.3,
+      "z_vs_50": 4.4
+     }
+    ],
+    "by_season_hit_pct": {
+     "2012": 56.2,
+     "2013": 52.6,
+     "2014": 54.8,
+     "2015": 50.9,
+     "2016": 52.5,
+     "2017": 49.0,
+     "2018": 50.2,
+     "2019": 53.5,
+     "2020": 53.5,
+     "2021": 51.0,
+     "2022": 52.0
+    }
+   }
+  }
+ },
+ "noon": {
+  "games": 3587,
+  "decided": 3405,
+  "over_rate_pct": 49.63,
+  "models": {
+   "base": {
+    "log_loss": 0.69398,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 50.28,
+      "se_pct": 0.86,
+      "z_vs_50": 0.33
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2479,
+      "share_of_games": 0.728,
+      "hit_pct": 48.97,
+      "se_pct": 1.0,
+      "z_vs_50": -1.02
+     },
+     {
+      "min_edge": 0.02,
+      "n": 683,
+      "share_of_games": 0.201,
+      "hit_pct": 48.02,
+      "se_pct": 1.91,
+      "z_vs_50": -1.03
+     },
+     {
+      "min_edge": 0.03,
+      "n": 179,
+      "share_of_games": 0.053,
+      "hit_pct": 50.28,
+      "se_pct": 3.74,
+      "z_vs_50": 0.07
+     },
+     {
+      "min_edge": 0.04,
+      "n": 106,
+      "share_of_games": 0.031,
+      "hit_pct": 52.83,
+      "se_pct": 4.86,
+      "z_vs_50": 0.58
+     },
+     {
+      "min_edge": 0.05,
+      "n": 52,
+      "share_of_games": 0.015,
+      "hit_pct": 51.92,
+      "se_pct": 6.93,
+      "z_vs_50": 0.28
+     },
+     {
+      "min_edge": 0.06,
+      "n": 35,
+      "share_of_games": 0.01,
+      "hit_pct": 54.29,
+      "se_pct": 8.45,
+      "z_vs_50": 0.51
+     },
+     {
+      "min_edge": 0.08,
+      "n": 24,
+      "share_of_games": 0.007,
+      "hit_pct": 58.33,
+      "se_pct": 10.21,
+      "z_vs_50": 0.82
+     }
+    ],
+    "by_season_hit_pct": {
+     "2023": 50.4,
+     "2024": 50.9,
+     "2025": 48.9,
+     "2026": 49.4
+    },
+    "vs_market_log_loss": 0.69253,
+    "blend_log_loss": 0.69253,
+    "blend_hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 52.39,
+      "se_pct": 0.86,
+      "z_vs_50": 2.79
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2739,
+      "share_of_games": 0.804,
+      "hit_pct": 52.39,
+      "se_pct": 0.96,
+      "z_vs_50": 2.5
+     },
+     {
+      "min_edge": 0.02,
+      "n": 1537,
+      "share_of_games": 0.451,
+      "hit_pct": 53.03,
+      "se_pct": 1.28,
+      "z_vs_50": 2.37
+     },
+     {
+      "min_edge": 0.03,
+      "n": 452,
+      "share_of_games": 0.133,
+      "hit_pct": 49.78,
+      "se_pct": 2.35,
+      "z_vs_50": -0.09
+     },
+     {
+      "min_edge": 0.04,
+      "n": 166,
+      "share_of_games": 0.049,
+      "hit_pct": 47.59,
+      "se_pct": 3.88,
+      "z_vs_50": -0.62
+     },
+     {
+      "min_edge": 0.05,
+      "n": 89,
+      "share_of_games": 0.026,
+      "hit_pct": 48.31,
+      "se_pct": 5.3,
+      "z_vs_50": -0.32
+     },
+     {
+      "min_edge": 0.06,
+      "n": 27,
+      "share_of_games": 0.008,
+      "hit_pct": 51.85,
+      "se_pct": 9.62,
+      "z_vs_50": 0.19
+     },
+     {
+      "min_edge": 0.08,
+      "n": 3,
+      "share_of_games": 0.001,
+      "hit_pct": 66.67,
+      "se_pct": 28.87,
+      "z_vs_50": 0.58
+     }
+    ],
+    "blend_price": [
+     {
+      "min_ev": 0.0,
+      "bets": 0
+     },
+     {
+      "min_ev": 0.02,
+      "bets": 0
+     },
+     {
+      "min_ev": 0.04,
+      "bets": 0
+     },
+     {
+      "min_ev": 0.06,
+      "bets": 0
+     }
+    ]
+   },
+   "logit": {
+    "log_loss": 0.69814,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 50.01,
+      "se_pct": 0.86,
+      "z_vs_50": 0.02
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2874,
+      "share_of_games": 0.844,
+      "hit_pct": 50.0,
+      "se_pct": 0.93,
+      "z_vs_50": 0.0
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2327,
+      "share_of_games": 0.683,
+      "hit_pct": 50.19,
+      "se_pct": 1.04,
+      "z_vs_50": 0.19
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1812,
+      "share_of_games": 0.532,
+      "hit_pct": 49.61,
+      "se_pct": 1.17,
+      "z_vs_50": -0.33
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1352,
+      "share_of_games": 0.397,
+      "hit_pct": 50.15,
+      "se_pct": 1.36,
+      "z_vs_50": 0.11
+     },
+     {
+      "min_edge": 0.05,
+      "n": 978,
+      "share_of_games": 0.287,
+      "hit_pct": 48.77,
+      "se_pct": 1.6,
+      "z_vs_50": -0.77
+     },
+     {
+      "min_edge": 0.06,
+      "n": 669,
+      "share_of_games": 0.196,
+      "hit_pct": 49.48,
+      "se_pct": 1.93,
+      "z_vs_50": -0.27
+     },
+     {
+      "min_edge": 0.08,
+      "n": 312,
+      "share_of_games": 0.092,
+      "hit_pct": 50.64,
+      "se_pct": 2.83,
+      "z_vs_50": 0.23
+     }
+    ],
+    "by_season_hit_pct": {
+     "2023": 48.3,
+     "2024": 51.3,
+     "2025": 51.1,
+     "2026": 49.4
+    },
+    "vs_market_log_loss": 0.69253,
+    "blend_log_loss": 0.69782,
+    "blend_hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 50.72,
+      "se_pct": 0.86,
+      "z_vs_50": 0.84
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2863,
+      "share_of_games": 0.841,
+      "hit_pct": 50.75,
+      "se_pct": 0.93,
+      "z_vs_50": 0.8
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2387,
+      "share_of_games": 0.701,
+      "hit_pct": 50.86,
+      "se_pct": 1.02,
+      "z_vs_50": 0.84
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1977,
+      "share_of_games": 0.581,
+      "hit_pct": 51.19,
+      "se_pct": 1.12,
+      "z_vs_50": 1.06
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1590,
+      "share_of_games": 0.467,
+      "hit_pct": 51.38,
+      "se_pct": 1.25,
+      "z_vs_50": 1.1
+     },
+     {
+      "min_edge": 0.05,
+      "n": 1226,
+      "share_of_games": 0.36,
+      "hit_pct": 50.73,
+      "se_pct": 1.43,
+      "z_vs_50": 0.51
+     },
+     {
+      "min_edge": 0.06,
+      "n": 924,
+      "share_of_games": 0.271,
+      "hit_pct": 51.62,
+      "se_pct": 1.64,
+      "z_vs_50": 0.99
+     },
+     {
+      "min_edge": 0.08,
+      "n": 470,
+      "share_of_games": 0.138,
+      "hit_pct": 49.79,
+      "se_pct": 2.31,
+      "z_vs_50": -0.09
+     }
+    ],
+    "blend_price": [
+     {
+      "min_ev": 0.0,
+      "bets": 2109,
+      "hit_pct": 50.62,
+      "breakeven_pct": 53.2,
+      "market_fair_pct": 50.85,
+      "units": -97.41,
+      "roi_pct": -4.62,
+      "roi_se_pct": 2.0
+     },
+     {
+      "min_ev": 0.02,
+      "bets": 1577,
+      "hit_pct": 49.83,
+      "breakeven_pct": 53.32,
+      "market_fair_pct": 50.97,
+      "units": -97.17,
+      "roi_pct": -6.16,
+      "roi_se_pct": 2.31
+     },
+     {
+      "min_ev": 0.04,
+      "bets": 1089,
+      "hit_pct": 50.53,
+      "breakeven_pct": 53.44,
+      "market_fair_pct": 51.09,
+      "units": -54.75,
+      "roi_pct": -5.03,
+      "roi_se_pct": 2.78
+     },
+     {
+      "min_ev": 0.06,
+      "bets": 687,
+      "hit_pct": 50.15,
+      "breakeven_pct": 53.48,
+      "market_fair_pct": 51.13,
+      "units": -38.27,
+      "roi_pct": -5.57,
+      "roi_se_pct": 3.5
+     }
+    ]
+   },
+   "gbm": {
+    "log_loss": 0.6955,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 49.72,
+      "se_pct": 0.86,
+      "z_vs_50": -0.33
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2601,
+      "share_of_games": 0.764,
+      "hit_pct": 49.6,
+      "se_pct": 0.98,
+      "z_vs_50": -0.41
+     },
+     {
+      "min_edge": 0.02,
+      "n": 1886,
+      "share_of_games": 0.554,
+      "hit_pct": 49.84,
+      "se_pct": 1.15,
+      "z_vs_50": -0.14
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1264,
+      "share_of_games": 0.371,
+      "hit_pct": 50.32,
+      "se_pct": 1.41,
+      "z_vs_50": 0.23
+     },
+     {
+      "min_edge": 0.04,
+      "n": 796,
+      "share_of_games": 0.234,
+      "hit_pct": 49.87,
+      "se_pct": 1.77,
+      "z_vs_50": -0.07
+     },
+     {
+      "min_edge": 0.05,
+      "n": 432,
+      "share_of_games": 0.127,
+      "hit_pct": 47.45,
+      "se_pct": 2.41,
+      "z_vs_50": -1.06
+     },
+     {
+      "min_edge": 0.06,
+      "n": 217,
+      "share_of_games": 0.064,
+      "hit_pct": 51.15,
+      "se_pct": 3.39,
+      "z_vs_50": 0.34
+     },
+     {
+      "min_edge": 0.08,
+      "n": 48,
+      "share_of_games": 0.014,
+      "hit_pct": 56.25,
+      "se_pct": 7.22,
+      "z_vs_50": 0.87
+     }
+    ],
+    "by_season_hit_pct": {
+     "2023": 50.4,
+     "2024": 49.7,
+     "2025": 49.0,
+     "2026": 45.9
+    },
+    "vs_market_log_loss": 0.69253,
+    "blend_log_loss": 0.69525,
+    "blend_hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 51.28,
+      "se_pct": 0.86,
+      "z_vs_50": 1.49
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2791,
+      "share_of_games": 0.82,
+      "hit_pct": 51.49,
+      "se_pct": 0.95,
+      "z_vs_50": 1.57
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2160,
+      "share_of_games": 0.634,
+      "hit_pct": 51.25,
+      "se_pct": 1.08,
+      "z_vs_50": 1.16
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1637,
+      "share_of_games": 0.481,
+      "hit_pct": 50.89,
+      "se_pct": 1.24,
+      "z_vs_50": 0.72
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1192,
+      "share_of_games": 0.35,
+      "hit_pct": 52.68,
+      "se_pct": 1.45,
+      "z_vs_50": 1.85
+     },
+     {
+      "min_edge": 0.05,
+      "n": 827,
+      "share_of_games": 0.243,
+      "hit_pct": 51.39,
+      "se_pct": 1.74,
+      "z_vs_50": 0.8
+     },
+     {
+      "min_edge": 0.06,
+      "n": 511,
+      "share_of_games": 0.15,
+      "hit_pct": 49.32,
+      "se_pct": 2.21,
+      "z_vs_50": -0.31
+     },
+     {
+      "min_edge": 0.08,
+      "n": 196,
+      "share_of_games": 0.058,
+      "hit_pct": 47.45,
+      "se_pct": 3.57,
+      "z_vs_50": -0.71
+     }
+    ],
+    "blend_price": [
+     {
+      "min_ev": 0.0,
+      "bets": 1629,
+      "hit_pct": 50.39,
+      "breakeven_pct": 52.78,
+      "market_fair_pct": 50.45,
+      "units": -69.48,
+      "roi_pct": -4.27,
+      "roi_se_pct": 2.3
+     },
+     {
+      "min_ev": 0.02,
+      "bets": 1017,
+      "hit_pct": 50.31,
+      "breakeven_pct": 52.81,
+      "market_fair_pct": 50.48,
+      "units": -44.69,
+      "roi_pct": -4.39,
+      "roi_se_pct": 2.92
+     },
+     {
+      "min_ev": 0.04,
+      "bets": 598,
+      "hit_pct": 51.65,
+      "breakeven_pct": 52.73,
+      "market_fair_pct": 50.41,
+      "units": -10.57,
+      "roi_pct": -1.77,
+      "roi_se_pct": 3.82
+     },
+     {
+      "min_ev": 0.06,
+      "bets": 317,
+      "hit_pct": 47.7,
+      "breakeven_pct": 52.58,
+      "market_fair_pct": 50.26,
+      "units": -27.64,
+      "roi_pct": -8.72,
+      "roi_se_pct": 5.25
+     }
+    ]
+   },
+   "pois": {
+    "log_loss": 0.69633,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 50.54,
+      "se_pct": 0.86,
+      "z_vs_50": 0.63
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2936,
+      "share_of_games": 0.862,
+      "hit_pct": 50.2,
+      "se_pct": 0.92,
+      "z_vs_50": 0.22
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2459,
+      "share_of_games": 0.722,
+      "hit_pct": 50.59,
+      "se_pct": 1.01,
+      "z_vs_50": 0.58
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1984,
+      "share_of_games": 0.583,
+      "hit_pct": 51.01,
+      "se_pct": 1.12,
+      "z_vs_50": 0.9
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1512,
+      "share_of_games": 0.444,
+      "hit_pct": 51.92,
+      "se_pct": 1.29,
+      "z_vs_50": 1.49
+     },
+     {
+      "min_edge": 0.05,
+      "n": 1073,
+      "share_of_games": 0.315,
+      "hit_pct": 52.38,
+      "se_pct": 1.53,
+      "z_vs_50": 1.56
+     },
+     {
+      "min_edge": 0.06,
+      "n": 747,
+      "share_of_games": 0.219,
+      "hit_pct": 51.27,
+      "se_pct": 1.83,
+      "z_vs_50": 0.7
+     },
+     {
+      "min_edge": 0.08,
+      "n": 272,
+      "share_of_games": 0.08,
+      "hit_pct": 50.37,
+      "se_pct": 3.03,
+      "z_vs_50": 0.12
+     }
+    ],
+    "by_season_hit_pct": {
+     "2023": 49.4,
+     "2024": 50.9,
+     "2025": 52.3,
+     "2026": 48.2
+    },
+    "vs_market_log_loss": 0.69253,
+    "blend_log_loss": 0.69682,
+    "blend_hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 51.81,
+      "se_pct": 0.86,
+      "z_vs_50": 2.11
+     },
+     {
+      "min_edge": 0.01,
+      "n": 3003,
+      "share_of_games": 0.882,
+      "hit_pct": 51.98,
+      "se_pct": 0.91,
+      "z_vs_50": 2.17
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2574,
+      "share_of_games": 0.756,
+      "hit_pct": 52.02,
+      "se_pct": 0.99,
+      "z_vs_50": 2.05
+     },
+     {
+      "min_edge": 0.03,
+      "n": 2148,
+      "share_of_games": 0.631,
+      "hit_pct": 52.05,
+      "se_pct": 1.08,
+      "z_vs_50": 1.9
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1758,
+      "share_of_games": 0.516,
+      "hit_pct": 52.1,
+      "se_pct": 1.19,
+      "z_vs_50": 1.76
+     },
+     {
+      "min_edge": 0.05,
+      "n": 1373,
+      "share_of_games": 0.403,
+      "hit_pct": 52.08,
+      "se_pct": 1.35,
+      "z_vs_50": 1.54
+     },
+     {
+      "min_edge": 0.06,
+      "n": 1062,
+      "share_of_games": 0.312,
+      "hit_pct": 50.85,
+      "se_pct": 1.53,
+      "z_vs_50": 0.55
+     },
+     {
+      "min_edge": 0.08,
+      "n": 589,
+      "share_of_games": 0.173,
+      "hit_pct": 48.39,
+      "se_pct": 2.06,
+      "z_vs_50": -0.78
+     }
+    ],
+    "blend_price": [
+     {
+      "min_ev": 0.0,
+      "bets": 2289,
+      "hit_pct": 50.91,
+      "breakeven_pct": 53.0,
+      "market_fair_pct": 50.66,
+      "units": -84.18,
+      "roi_pct": -3.68,
+      "roi_se_pct": 1.93
+     },
+     {
+      "min_ev": 0.02,
+      "bets": 1757,
+      "hit_pct": 50.65,
+      "breakeven_pct": 53.06,
+      "market_fair_pct": 50.72,
+      "units": -75.14,
+      "roi_pct": -4.28,
+      "roi_se_pct": 2.21
+     },
+     {
+      "min_ev": 0.04,
+      "bets": 1282,
+      "hit_pct": 51.33,
+      "breakeven_pct": 53.18,
+      "market_fair_pct": 50.84,
+      "units": -41.21,
+      "roi_pct": -3.21,
+      "roi_se_pct": 2.59
+     },
+     {
+      "min_ev": 0.06,
+      "bets": 901,
+      "hit_pct": 50.97,
+      "breakeven_pct": 53.34,
+      "market_fair_pct": 50.98,
+      "units": -38.25,
+      "roi_pct": -4.25,
+      "roi_se_pct": 3.08
+     }
+    ]
+   },
+   "ens": {
+    "log_loss": 0.69574,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 49.99,
+      "se_pct": 0.86,
+      "z_vs_50": -0.02
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2717,
+      "share_of_games": 0.798,
+      "hit_pct": 49.83,
+      "se_pct": 0.96,
+      "z_vs_50": -0.17
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2053,
+      "share_of_games": 0.603,
+      "hit_pct": 50.71,
+      "se_pct": 1.1,
+      "z_vs_50": 0.64
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1470,
+      "share_of_games": 0.432,
+      "hit_pct": 50.2,
+      "se_pct": 1.3,
+      "z_vs_50": 0.16
+     },
+     {
+      "min_edge": 0.04,
+      "n": 984,
+      "share_of_games": 0.289,
+      "hit_pct": 50.0,
+      "se_pct": 1.59,
+      "z_vs_50": 0.0
+     },
+     {
+      "min_edge": 0.05,
+      "n": 628,
+      "share_of_games": 0.184,
+      "hit_pct": 50.32,
+      "se_pct": 2.0,
+      "z_vs_50": 0.16
+     },
+     {
+      "min_edge": 0.06,
+      "n": 370,
+      "share_of_games": 0.109,
+      "hit_pct": 49.46,
+      "se_pct": 2.6,
+      "z_vs_50": -0.21
+     },
+     {
+      "min_edge": 0.08,
+      "n": 104,
+      "share_of_games": 0.031,
+      "hit_pct": 48.08,
+      "se_pct": 4.9,
+      "z_vs_50": -0.39
+     }
+    ],
+    "by_season_hit_pct": {
+     "2023": 49.0,
+     "2024": 49.3,
+     "2025": 53.1,
+     "2026": 52.9
+    },
+    "vs_market_log_loss": 0.69253,
+    "blend_log_loss": 0.69572,
+    "blend_hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 51.95,
+      "se_pct": 0.86,
+      "z_vs_50": 2.28
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2851,
+      "share_of_games": 0.837,
+      "hit_pct": 51.84,
+      "se_pct": 0.94,
+      "z_vs_50": 1.97
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2331,
+      "share_of_games": 0.685,
+      "hit_pct": 51.57,
+      "se_pct": 1.04,
+      "z_vs_50": 1.51
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1825,
+      "share_of_games": 0.536,
+      "hit_pct": 51.78,
+      "se_pct": 1.17,
+      "z_vs_50": 1.52
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1375,
+      "share_of_games": 0.404,
+      "hit_pct": 51.2,
+      "se_pct": 1.35,
+      "z_vs_50": 0.89
+     },
+     {
+      "min_edge": 0.05,
+      "n": 1011,
+      "share_of_games": 0.297,
+      "hit_pct": 51.34,
+      "se_pct": 1.57,
+      "z_vs_50": 0.85
+     },
+     {
+      "min_edge": 0.06,
+      "n": 721,
+      "share_of_games": 0.212,
+      "hit_pct": 50.62,
+      "se_pct": 1.86,
+      "z_vs_50": 0.34
+     },
+     {
+      "min_edge": 0.08,
+      "n": 296,
+      "share_of_games": 0.087,
+      "hit_pct": 46.62,
+      "se_pct": 2.91,
+      "z_vs_50": -1.16
+     }
+    ],
+    "blend_price": [
+     {
+      "min_ev": 0.0,
+      "bets": 1813,
+      "hit_pct": 50.58,
+      "breakeven_pct": 53.22,
+      "market_fair_pct": 50.88,
+      "units": -83.15,
+      "roi_pct": -4.59,
+      "roi_se_pct": 2.15
+     },
+     {
+      "min_ev": 0.02,
+      "bets": 1205,
+      "hit_pct": 50.83,
+      "breakeven_pct": 53.28,
+      "market_fair_pct": 50.94,
+      "units": -50.68,
+      "roi_pct": -4.21,
+      "roi_se_pct": 2.65
+     },
+     {
+      "min_ev": 0.04,
+      "bets": 743,
+      "hit_pct": 50.56,
+      "breakeven_pct": 53.31,
+      "market_fair_pct": 50.96,
+      "units": -34.78,
+      "roi_pct": -4.68,
+      "roi_se_pct": 3.4
+     },
+     {
+      "min_ev": 0.06,
+      "bets": 410,
+      "hit_pct": 46.33,
+      "breakeven_pct": 53.28,
+      "market_fair_pct": 50.94,
+      "units": -50.59,
+      "roi_pct": -12.34,
+      "roi_se_pct": 4.56
+     }
+    ]
+   }
+  }
+ },
+ "noon_with_news": {
+  "games": 3587,
+  "decided": 3405,
+  "over_rate_pct": 49.63,
+  "models": {
+   "base": {
+    "log_loss": 0.69398,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 50.28,
+      "se_pct": 0.86,
+      "z_vs_50": 0.33
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2479,
+      "share_of_games": 0.728,
+      "hit_pct": 48.97,
+      "se_pct": 1.0,
+      "z_vs_50": -1.02
+     },
+     {
+      "min_edge": 0.02,
+      "n": 683,
+      "share_of_games": 0.201,
+      "hit_pct": 48.02,
+      "se_pct": 1.91,
+      "z_vs_50": -1.03
+     },
+     {
+      "min_edge": 0.03,
+      "n": 179,
+      "share_of_games": 0.053,
+      "hit_pct": 50.28,
+      "se_pct": 3.74,
+      "z_vs_50": 0.07
+     },
+     {
+      "min_edge": 0.04,
+      "n": 106,
+      "share_of_games": 0.031,
+      "hit_pct": 52.83,
+      "se_pct": 4.86,
+      "z_vs_50": 0.58
+     },
+     {
+      "min_edge": 0.05,
+      "n": 52,
+      "share_of_games": 0.015,
+      "hit_pct": 51.92,
+      "se_pct": 6.93,
+      "z_vs_50": 0.28
+     },
+     {
+      "min_edge": 0.06,
+      "n": 35,
+      "share_of_games": 0.01,
+      "hit_pct": 54.29,
+      "se_pct": 8.45,
+      "z_vs_50": 0.51
+     },
+     {
+      "min_edge": 0.08,
+      "n": 24,
+      "share_of_games": 0.007,
+      "hit_pct": 58.33,
+      "se_pct": 10.21,
+      "z_vs_50": 0.82
+     }
+    ],
+    "by_season_hit_pct": {
+     "2023": 50.4,
+     "2024": 50.9,
+     "2025": 48.9,
+     "2026": 49.4
+    },
+    "vs_market_log_loss": 0.69253,
+    "blend_log_loss": 0.69253,
+    "blend_hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 52.39,
+      "se_pct": 0.86,
+      "z_vs_50": 2.79
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2739,
+      "share_of_games": 0.804,
+      "hit_pct": 52.39,
+      "se_pct": 0.96,
+      "z_vs_50": 2.5
+     },
+     {
+      "min_edge": 0.02,
+      "n": 1537,
+      "share_of_games": 0.451,
+      "hit_pct": 53.03,
+      "se_pct": 1.28,
+      "z_vs_50": 2.37
+     },
+     {
+      "min_edge": 0.03,
+      "n": 452,
+      "share_of_games": 0.133,
+      "hit_pct": 49.78,
+      "se_pct": 2.35,
+      "z_vs_50": -0.09
+     },
+     {
+      "min_edge": 0.04,
+      "n": 166,
+      "share_of_games": 0.049,
+      "hit_pct": 47.59,
+      "se_pct": 3.88,
+      "z_vs_50": -0.62
+     },
+     {
+      "min_edge": 0.05,
+      "n": 89,
+      "share_of_games": 0.026,
+      "hit_pct": 48.31,
+      "se_pct": 5.3,
+      "z_vs_50": -0.32
+     },
+     {
+      "min_edge": 0.06,
+      "n": 27,
+      "share_of_games": 0.008,
+      "hit_pct": 51.85,
+      "se_pct": 9.62,
+      "z_vs_50": 0.19
+     },
+     {
+      "min_edge": 0.08,
+      "n": 3,
+      "share_of_games": 0.001,
+      "hit_pct": 66.67,
+      "se_pct": 28.87,
+      "z_vs_50": 0.58
+     }
+    ],
+    "blend_price": [
+     {
+      "min_ev": 0.0,
+      "bets": 0
+     },
+     {
+      "min_ev": 0.02,
+      "bets": 0
+     },
+     {
+      "min_ev": 0.04,
+      "bets": 0
+     },
+     {
+      "min_ev": 0.06,
+      "bets": 0
+     }
+    ]
+   },
+   "logit": {
+    "log_loss": 0.69793,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 50.34,
+      "se_pct": 0.86,
+      "z_vs_50": 0.39
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2880,
+      "share_of_games": 0.846,
+      "hit_pct": 50.42,
+      "se_pct": 0.93,
+      "z_vs_50": 0.45
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2420,
+      "share_of_games": 0.711,
+      "hit_pct": 50.5,
+      "se_pct": 1.02,
+      "z_vs_50": 0.49
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1998,
+      "share_of_games": 0.587,
+      "hit_pct": 50.6,
+      "se_pct": 1.12,
+      "z_vs_50": 0.54
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1570,
+      "share_of_games": 0.461,
+      "hit_pct": 51.59,
+      "se_pct": 1.26,
+      "z_vs_50": 1.26
+     },
+     {
+      "min_edge": 0.05,
+      "n": 1187,
+      "share_of_games": 0.349,
+      "hit_pct": 51.31,
+      "se_pct": 1.45,
+      "z_vs_50": 0.9
+     },
+     {
+      "min_edge": 0.06,
+      "n": 910,
+      "share_of_games": 0.267,
+      "hit_pct": 50.88,
+      "se_pct": 1.66,
+      "z_vs_50": 0.53
+     },
+     {
+      "min_edge": 0.08,
+      "n": 492,
+      "share_of_games": 0.144,
+      "hit_pct": 50.0,
+      "se_pct": 2.25,
+      "z_vs_50": 0.0
+     }
+    ],
+    "by_season_hit_pct": {
+     "2023": 49.2,
+     "2024": 50.3,
+     "2025": 52.8,
+     "2026": 49.4
+    },
+    "vs_market_log_loss": 0.69253,
+    "blend_log_loss": 0.69768,
+    "blend_hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 51.37,
+      "se_pct": 0.86,
+      "z_vs_50": 1.59
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2960,
+      "share_of_games": 0.869,
+      "hit_pct": 51.22,
+      "se_pct": 0.92,
+      "z_vs_50": 1.32
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2544,
+      "share_of_games": 0.747,
+      "hit_pct": 51.69,
+      "se_pct": 0.99,
+      "z_vs_50": 1.71
+     },
+     {
+      "min_edge": 0.03,
+      "n": 2136,
+      "share_of_games": 0.627,
+      "hit_pct": 51.92,
+      "se_pct": 1.08,
+      "z_vs_50": 1.77
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1760,
+      "share_of_games": 0.517,
+      "hit_pct": 52.22,
+      "se_pct": 1.19,
+      "z_vs_50": 1.86
+     },
+     {
+      "min_edge": 0.05,
+      "n": 1412,
+      "share_of_games": 0.415,
+      "hit_pct": 52.27,
+      "se_pct": 1.33,
+      "z_vs_50": 1.7
+     },
+     {
+      "min_edge": 0.06,
+      "n": 1074,
+      "share_of_games": 0.315,
+      "hit_pct": 52.33,
+      "se_pct": 1.53,
+      "z_vs_50": 1.53
+     },
+     {
+      "min_edge": 0.08,
+      "n": 633,
+      "share_of_games": 0.186,
+      "hit_pct": 50.39,
+      "se_pct": 1.99,
+      "z_vs_50": 0.2
+     }
+    ],
+    "blend_price": [
+     {
+      "min_ev": 0.0,
+      "bets": 2329,
+      "hit_pct": 51.29,
+      "breakeven_pct": 53.1,
+      "market_fair_pct": 50.76,
+      "units": -74.98,
+      "roi_pct": -3.22,
+      "roi_se_pct": 1.9
+     },
+     {
+      "min_ev": 0.02,
+      "bets": 1784,
+      "hit_pct": 51.15,
+      "breakeven_pct": 53.17,
+      "market_fair_pct": 50.83,
+      "units": -62.7,
+      "roi_pct": -3.51,
+      "roi_se_pct": 2.17
+     },
+     {
+      "min_ev": 0.04,
+      "bets": 1342,
+      "hit_pct": 51.44,
+      "breakeven_pct": 53.21,
+      "market_fair_pct": 50.87,
+      "units": -40.95,
+      "roi_pct": -3.05,
+      "roi_se_pct": 2.51
+     },
+     {
+      "min_ev": 0.06,
+      "bets": 961,
+      "hit_pct": 50.38,
+      "breakeven_pct": 53.26,
+      "market_fair_pct": 50.92,
+      "units": -48.02,
+      "roi_pct": -5.0,
+      "roi_se_pct": 2.96
+     }
+    ]
+   },
+   "gbm": {
+    "log_loss": 0.69504,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 50.63,
+      "se_pct": 0.86,
+      "z_vs_50": 0.74
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2727,
+      "share_of_games": 0.801,
+      "hit_pct": 50.61,
+      "se_pct": 0.96,
+      "z_vs_50": 0.63
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2058,
+      "share_of_games": 0.604,
+      "hit_pct": 50.39,
+      "se_pct": 1.1,
+      "z_vs_50": 0.35
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1482,
+      "share_of_games": 0.435,
+      "hit_pct": 50.67,
+      "se_pct": 1.3,
+      "z_vs_50": 0.52
+     },
+     {
+      "min_edge": 0.04,
+      "n": 979,
+      "share_of_games": 0.288,
+      "hit_pct": 50.15,
+      "se_pct": 1.6,
+      "z_vs_50": 0.1
+     },
+     {
+      "min_edge": 0.05,
+      "n": 624,
+      "share_of_games": 0.183,
+      "hit_pct": 49.84,
+      "se_pct": 2.0,
+      "z_vs_50": -0.08
+     },
+     {
+      "min_edge": 0.06,
+      "n": 345,
+      "share_of_games": 0.101,
+      "hit_pct": 51.01,
+      "se_pct": 2.69,
+      "z_vs_50": 0.38
+     },
+     {
+      "min_edge": 0.08,
+      "n": 73,
+      "share_of_games": 0.021,
+      "hit_pct": 58.9,
+      "se_pct": 5.85,
+      "z_vs_50": 1.52
+     }
+    ],
+    "by_season_hit_pct": {
+     "2023": 49.9,
+     "2024": 51.0,
+     "2025": 51.9,
+     "2026": 47.1
+    },
+    "vs_market_log_loss": 0.69253,
+    "blend_log_loss": 0.69496,
+    "blend_hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 51.86,
+      "se_pct": 0.86,
+      "z_vs_50": 2.18
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2853,
+      "share_of_games": 0.838,
+      "hit_pct": 51.88,
+      "se_pct": 0.94,
+      "z_vs_50": 2.0
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2300,
+      "share_of_games": 0.675,
+      "hit_pct": 52.0,
+      "se_pct": 1.04,
+      "z_vs_50": 1.92
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1731,
+      "share_of_games": 0.508,
+      "hit_pct": 51.76,
+      "se_pct": 1.2,
+      "z_vs_50": 1.47
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1310,
+      "share_of_games": 0.385,
+      "hit_pct": 52.6,
+      "se_pct": 1.38,
+      "z_vs_50": 1.88
+     },
+     {
+      "min_edge": 0.05,
+      "n": 962,
+      "share_of_games": 0.283,
+      "hit_pct": 51.04,
+      "se_pct": 1.61,
+      "z_vs_50": 0.64
+     },
+     {
+      "min_edge": 0.06,
+      "n": 681,
+      "share_of_games": 0.2,
+      "hit_pct": 51.4,
+      "se_pct": 1.92,
+      "z_vs_50": 0.73
+     },
+     {
+      "min_edge": 0.08,
+      "n": 276,
+      "share_of_games": 0.081,
+      "hit_pct": 47.83,
+      "se_pct": 3.01,
+      "z_vs_50": -0.72
+     }
+    ],
+    "blend_price": [
+     {
+      "min_ev": 0.0,
+      "bets": 1882,
+      "hit_pct": 51.2,
+      "breakeven_pct": 52.79,
+      "market_fair_pct": 50.47,
+      "units": -53.37,
+      "roi_pct": -2.84,
+      "roi_se_pct": 2.13
+     },
+     {
+      "min_ev": 0.02,
+      "bets": 1277,
+      "hit_pct": 50.16,
+      "breakeven_pct": 52.79,
+      "market_fair_pct": 50.47,
+      "units": -59.91,
+      "roi_pct": -4.69,
+      "roi_se_pct": 2.59
+     },
+     {
+      "min_ev": 0.04,
+      "bets": 826,
+      "hit_pct": 48.66,
+      "breakeven_pct": 52.8,
+      "market_fair_pct": 50.48,
+      "units": -60.73,
+      "roi_pct": -7.35,
+      "roi_se_pct": 3.22
+     },
+     {
+      "min_ev": 0.06,
+      "bets": 460,
+      "hit_pct": 49.08,
+      "breakeven_pct": 52.6,
+      "market_fair_pct": 50.28,
+      "units": -28.73,
+      "roi_pct": -6.25,
+      "roi_se_pct": 4.32
+     }
+    ]
+   },
+   "pois": {
+    "log_loss": 0.69607,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 51.45,
+      "se_pct": 0.86,
+      "z_vs_50": 1.7
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2941,
+      "share_of_games": 0.864,
+      "hit_pct": 51.65,
+      "se_pct": 0.92,
+      "z_vs_50": 1.79
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2473,
+      "share_of_games": 0.726,
+      "hit_pct": 51.23,
+      "se_pct": 1.01,
+      "z_vs_50": 1.23
+     },
+     {
+      "min_edge": 0.03,
+      "n": 2028,
+      "share_of_games": 0.596,
+      "hit_pct": 50.84,
+      "se_pct": 1.11,
+      "z_vs_50": 0.75
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1616,
+      "share_of_games": 0.475,
+      "hit_pct": 51.36,
+      "se_pct": 1.24,
+      "z_vs_50": 1.09
+     },
+     {
+      "min_edge": 0.05,
+      "n": 1236,
+      "share_of_games": 0.363,
+      "hit_pct": 51.86,
+      "se_pct": 1.42,
+      "z_vs_50": 1.31
+     },
+     {
+      "min_edge": 0.06,
+      "n": 901,
+      "share_of_games": 0.265,
+      "hit_pct": 52.39,
+      "se_pct": 1.67,
+      "z_vs_50": 1.43
+     },
+     {
+      "min_edge": 0.08,
+      "n": 417,
+      "share_of_games": 0.122,
+      "hit_pct": 51.56,
+      "se_pct": 2.45,
+      "z_vs_50": 0.64
+     }
+    ],
+    "by_season_hit_pct": {
+     "2023": 50.7,
+     "2024": 51.7,
+     "2025": 52.5,
+     "2026": 51.8
+    },
+    "vs_market_log_loss": 0.69253,
+    "blend_log_loss": 0.69661,
+    "blend_hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 52.01,
+      "se_pct": 0.86,
+      "z_vs_50": 2.35
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2991,
+      "share_of_games": 0.878,
+      "hit_pct": 52.56,
+      "se_pct": 0.91,
+      "z_vs_50": 2.8
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2632,
+      "share_of_games": 0.773,
+      "hit_pct": 52.77,
+      "se_pct": 0.97,
+      "z_vs_50": 2.85
+     },
+     {
+      "min_edge": 0.03,
+      "n": 2241,
+      "share_of_games": 0.658,
+      "hit_pct": 52.7,
+      "se_pct": 1.06,
+      "z_vs_50": 2.56
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1833,
+      "share_of_games": 0.538,
+      "hit_pct": 52.81,
+      "se_pct": 1.17,
+      "z_vs_50": 2.41
+     },
+     {
+      "min_edge": 0.05,
+      "n": 1494,
+      "share_of_games": 0.439,
+      "hit_pct": 52.07,
+      "se_pct": 1.29,
+      "z_vs_50": 1.6
+     },
+     {
+      "min_edge": 0.06,
+      "n": 1182,
+      "share_of_games": 0.347,
+      "hit_pct": 52.96,
+      "se_pct": 1.45,
+      "z_vs_50": 2.04
+     },
+     {
+      "min_edge": 0.08,
+      "n": 694,
+      "share_of_games": 0.204,
+      "hit_pct": 51.44,
+      "se_pct": 1.9,
+      "z_vs_50": 0.76
+     }
+    ],
+    "blend_price": [
+     {
+      "min_ev": 0.0,
+      "bets": 2386,
+      "hit_pct": 52.11,
+      "breakeven_pct": 52.98,
+      "market_fair_pct": 50.65,
+      "units": -36.46,
+      "roi_pct": -1.53,
+      "roi_se_pct": 1.89
+     },
+     {
+      "min_ev": 0.02,
+      "bets": 1890,
+      "hit_pct": 52.13,
+      "breakeven_pct": 53.05,
+      "market_fair_pct": 50.71,
+      "units": -28.72,
+      "roi_pct": -1.52,
+      "roi_se_pct": 2.13
+     },
+     {
+      "min_ev": 0.04,
+      "bets": 1451,
+      "hit_pct": 51.65,
+      "breakeven_pct": 53.11,
+      "market_fair_pct": 50.77,
+      "units": -37.27,
+      "roi_pct": -2.57,
+      "roi_se_pct": 2.42
+     },
+     {
+      "min_ev": 0.06,
+      "bets": 1069,
+      "hit_pct": 52.03,
+      "breakeven_pct": 53.14,
+      "market_fair_pct": 50.81,
+      "units": -20.36,
+      "roi_pct": -1.9,
+      "roi_se_pct": 2.83
+     }
+    ]
+   },
+   "ens": {
+    "log_loss": 0.69524,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 50.84,
+      "se_pct": 0.86,
+      "z_vs_50": 0.98
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2757,
+      "share_of_games": 0.81,
+      "hit_pct": 51.22,
+      "se_pct": 0.95,
+      "z_vs_50": 1.28
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2183,
+      "share_of_games": 0.641,
+      "hit_pct": 51.35,
+      "se_pct": 1.07,
+      "z_vs_50": 1.26
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1668,
+      "share_of_games": 0.49,
+      "hit_pct": 50.96,
+      "se_pct": 1.22,
+      "z_vs_50": 0.78
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1181,
+      "share_of_games": 0.347,
+      "hit_pct": 51.74,
+      "se_pct": 1.45,
+      "z_vs_50": 1.19
+     },
+     {
+      "min_edge": 0.05,
+      "n": 814,
+      "share_of_games": 0.239,
+      "hit_pct": 51.72,
+      "se_pct": 1.75,
+      "z_vs_50": 0.98
+     },
+     {
+      "min_edge": 0.06,
+      "n": 556,
+      "share_of_games": 0.163,
+      "hit_pct": 51.44,
+      "se_pct": 2.12,
+      "z_vs_50": 0.68
+     },
+     {
+      "min_edge": 0.08,
+      "n": 217,
+      "share_of_games": 0.064,
+      "hit_pct": 48.85,
+      "se_pct": 3.39,
+      "z_vs_50": -0.34
+     }
+    ],
+    "by_season_hit_pct": {
+     "2023": 49.6,
+     "2024": 51.7,
+     "2025": 51.9,
+     "2026": 48.2
+    },
+    "vs_market_log_loss": 0.69253,
+    "blend_log_loss": 0.69531,
+    "blend_hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 52.01,
+      "se_pct": 0.86,
+      "z_vs_50": 2.35
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2884,
+      "share_of_games": 0.847,
+      "hit_pct": 52.6,
+      "se_pct": 0.93,
+      "z_vs_50": 2.79
+     },
+     {
+      "min_edge": 0.02,
+      "n": 2410,
+      "share_of_games": 0.708,
+      "hit_pct": 52.9,
+      "se_pct": 1.02,
+      "z_vs_50": 2.85
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1955,
+      "share_of_games": 0.574,
+      "hit_pct": 52.17,
+      "se_pct": 1.13,
+      "z_vs_50": 1.92
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1524,
+      "share_of_games": 0.448,
+      "hit_pct": 52.3,
+      "se_pct": 1.28,
+      "z_vs_50": 1.79
+     },
+     {
+      "min_edge": 0.05,
+      "n": 1148,
+      "share_of_games": 0.337,
+      "hit_pct": 52.61,
+      "se_pct": 1.48,
+      "z_vs_50": 1.77
+     },
+     {
+      "min_edge": 0.06,
+      "n": 848,
+      "share_of_games": 0.249,
+      "hit_pct": 51.3,
+      "se_pct": 1.72,
+      "z_vs_50": 0.76
+     },
+     {
+      "min_edge": 0.08,
+      "n": 416,
+      "share_of_games": 0.122,
+      "hit_pct": 49.52,
+      "se_pct": 2.45,
+      "z_vs_50": -0.2
+     }
+    ],
+    "blend_price": [
+     {
+      "min_ev": 0.0,
+      "bets": 1999,
+      "hit_pct": 51.66,
+      "breakeven_pct": 53.12,
+      "market_fair_pct": 50.78,
+      "units": -50.35,
+      "roi_pct": -2.52,
+      "roi_se_pct": 2.06
+     },
+     {
+      "min_ev": 0.02,
+      "bets": 1434,
+      "hit_pct": 51.57,
+      "breakeven_pct": 53.16,
+      "market_fair_pct": 50.81,
+      "units": -38.77,
+      "roi_pct": -2.7,
+      "roi_se_pct": 2.43
+     },
+     {
+      "min_ev": 0.04,
+      "bets": 986,
+      "hit_pct": 50.37,
+      "breakeven_pct": 53.21,
+      "market_fair_pct": 50.88,
+      "units": -49.06,
+      "roi_pct": -4.98,
+      "roi_se_pct": 2.93
+     },
+     {
+      "min_ev": 0.06,
+      "bets": 598,
+      "hit_pct": 51.05,
+      "breakeven_pct": 53.3,
+      "market_fair_pct": 50.95,
+      "units": -22.63,
+      "roi_pct": -3.78,
+      "roi_se_pct": 3.77
+     }
+    ]
+   }
+  }
+ },
+ "anchored": {
+  "unpriced_2016_22": {
+   "decided": 7470,
+   "log_loss_price": 0.69218,
+   "price_is": "modelled from features (no results used)",
+   "resid_logit": {
+    "log_loss": 0.69317,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 7470,
+      "share_of_games": 1.0,
+      "hit_pct": 51.58,
+      "se_pct": 0.58,
+      "z_vs_50": 2.73
+     },
+     {
+      "min_edge": 0.01,
+      "n": 5514,
+      "share_of_games": 0.738,
+      "hit_pct": 51.69,
+      "se_pct": 0.67,
+      "z_vs_50": 2.5
+     },
+     {
+      "min_edge": 0.02,
+      "n": 3840,
+      "share_of_games": 0.514,
+      "hit_pct": 52.21,
+      "se_pct": 0.81,
+      "z_vs_50": 2.74
+     },
+     {
+      "min_edge": 0.03,
+      "n": 2480,
+      "share_of_games": 0.332,
+      "hit_pct": 52.58,
+      "se_pct": 1.0,
+      "z_vs_50": 2.57
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1521,
+      "share_of_games": 0.204,
+      "hit_pct": 53.06,
+      "se_pct": 1.28,
+      "z_vs_50": 2.38
+     },
+     {
+      "min_edge": 0.05,
+      "n": 852,
+      "share_of_games": 0.114,
+      "hit_pct": 51.41,
+      "se_pct": 1.71,
+      "z_vs_50": 0.82
+     },
+     {
+      "min_edge": 0.06,
+      "n": 438,
+      "share_of_games": 0.059,
+      "hit_pct": 50.46,
+      "se_pct": 2.39,
+      "z_vs_50": 0.19
+     },
+     {
+      "min_edge": 0.08,
+      "n": 92,
+      "share_of_games": 0.012,
+      "hit_pct": 47.83,
+      "se_pct": 5.21,
+      "z_vs_50": -0.42
+     }
+    ]
+   },
+   "resid_gbm": {
+    "log_loss": 0.6934,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 7470,
+      "share_of_games": 1.0,
+      "hit_pct": 50.82,
+      "se_pct": 0.58,
+      "z_vs_50": 1.41
+     },
+     {
+      "min_edge": 0.01,
+      "n": 5609,
+      "share_of_games": 0.751,
+      "hit_pct": 51.22,
+      "se_pct": 0.67,
+      "z_vs_50": 1.83
+     },
+     {
+      "min_edge": 0.02,
+      "n": 3898,
+      "share_of_games": 0.522,
+      "hit_pct": 52.46,
+      "se_pct": 0.8,
+      "z_vs_50": 3.08
+     },
+     {
+      "min_edge": 0.03,
+      "n": 2541,
+      "share_of_games": 0.34,
+      "hit_pct": 52.54,
+      "se_pct": 0.99,
+      "z_vs_50": 2.56
+     },
+     {
+      "min_edge": 0.04,
+      "n": 1502,
+      "share_of_games": 0.201,
+      "hit_pct": 52.4,
+      "se_pct": 1.29,
+      "z_vs_50": 1.86
+     },
+     {
+      "min_edge": 0.05,
+      "n": 855,
+      "share_of_games": 0.114,
+      "hit_pct": 52.63,
+      "se_pct": 1.71,
+      "z_vs_50": 1.54
+     },
+     {
+      "min_edge": 0.06,
+      "n": 478,
+      "share_of_games": 0.064,
+      "hit_pct": 53.56,
+      "se_pct": 2.29,
+      "z_vs_50": 1.56
+     },
+     {
+      "min_edge": 0.08,
+      "n": 96,
+      "share_of_games": 0.013,
+      "hit_pct": 45.83,
+      "se_pct": 5.1,
+      "z_vs_50": -0.82
+     }
+    ]
+   },
+   "price_alone_hit": [
+    {
+     "min_edge": 0.0,
+     "n": 7470,
+     "share_of_games": 1.0,
+     "hit_pct": 52.16,
+     "se_pct": 0.58,
+     "z_vs_50": 3.73
+    },
+    {
+     "min_edge": 0.01,
+     "n": 4131,
+     "share_of_games": 0.553,
+     "hit_pct": 52.77,
+     "se_pct": 0.78,
+     "z_vs_50": 3.56
+    },
+    {
+     "min_edge": 0.02,
+     "n": 1773,
+     "share_of_games": 0.237,
+     "hit_pct": 53.19,
+     "se_pct": 1.19,
+     "z_vs_50": 2.68
+    },
+    {
+     "min_edge": 0.03,
+     "n": 557,
+     "share_of_games": 0.075,
+     "hit_pct": 53.14,
+     "se_pct": 2.12,
+     "z_vs_50": 1.48
+    },
+    {
+     "min_edge": 0.04,
+     "n": 111,
+     "share_of_games": 0.015,
+     "hit_pct": 57.66,
+     "se_pct": 4.75,
+     "z_vs_50": 1.61
+    },
+    {
+     "min_edge": 0.05,
+     "n": 15,
+     "share_of_games": 0.002,
+     "hit_pct": 66.67,
+     "se_pct": 12.91,
+     "z_vs_50": 1.29
+    },
+    {
+     "min_edge": 0.06,
+     "n": 3,
+     "share_of_games": 0.0,
+     "hit_pct": 66.67,
+     "se_pct": 28.87,
+     "z_vs_50": 0.58
+    },
+    {
+     "min_edge": 0.08,
+     "n": 0
+    }
+   ]
+  },
+  "priced_2023_26": {
+   "decided": 3405,
+   "log_loss_price": 0.69253,
+   "price_is": "real, devigged",
+   "resid_logit": {
+    "log_loss": 0.69275,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 52.22,
+      "se_pct": 0.86,
+      "z_vs_50": 2.59
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2476,
+      "share_of_games": 0.727,
+      "hit_pct": 52.75,
+      "se_pct": 1.0,
+      "z_vs_50": 2.73
+     },
+     {
+      "min_edge": 0.02,
+      "n": 1655,
+      "share_of_games": 0.486,
+      "hit_pct": 52.33,
+      "se_pct": 1.23,
+      "z_vs_50": 1.89
+     },
+     {
+      "min_edge": 0.03,
+      "n": 969,
+      "share_of_games": 0.285,
+      "hit_pct": 53.25,
+      "se_pct": 1.61,
+      "z_vs_50": 2.02
+     },
+     {
+      "min_edge": 0.04,
+      "n": 500,
+      "share_of_games": 0.147,
+      "hit_pct": 50.2,
+      "se_pct": 2.24,
+      "z_vs_50": 0.09
+     },
+     {
+      "min_edge": 0.05,
+      "n": 234,
+      "share_of_games": 0.069,
+      "hit_pct": 49.57,
+      "se_pct": 3.27,
+      "z_vs_50": -0.13
+     },
+     {
+      "min_edge": 0.06,
+      "n": 105,
+      "share_of_games": 0.031,
+      "hit_pct": 50.48,
+      "se_pct": 4.88,
+      "z_vs_50": 0.1
+     },
+     {
+      "min_edge": 0.08,
+      "n": 13,
+      "share_of_games": 0.004,
+      "hit_pct": 46.15,
+      "se_pct": 13.87,
+      "z_vs_50": -0.28
+     }
+    ],
+    "price": [
+     {
+      "min_ev": 0.0,
+      "bets": 499,
+      "hit_pct": 48.94,
+      "breakeven_pct": 52.61,
+      "market_fair_pct": 50.31,
+      "units": -30.77,
+      "roi_pct": -6.17,
+      "roi_se_pct": 4.17
+     },
+     {
+      "min_ev": 0.01,
+      "bets": 241,
+      "hit_pct": 47.83,
+      "breakeven_pct": 52.53,
+      "market_fair_pct": 50.24,
+      "units": -19.85,
+      "roi_pct": -8.24,
+      "roi_se_pct": 6.02
+     },
+     {
+      "min_ev": 0.02,
+      "bets": 107,
+      "hit_pct": 46.67,
+      "breakeven_pct": 52.43,
+      "market_fair_pct": 50.16,
+      "units": -10.82,
+      "roi_pct": -10.11,
+      "roi_se_pct": 9.21
+     },
+     {
+      "min_ev": 0.03,
+      "bets": 48,
+      "hit_pct": 54.17,
+      "breakeven_pct": 52.44,
+      "market_fair_pct": 50.18,
+      "units": 2.08,
+      "roi_pct": 4.34,
+      "roi_se_pct": 13.9
+     }
+    ]
+   },
+   "resid_gbm": {
+    "log_loss": 0.69335,
+    "hit": [
+     {
+      "min_edge": 0.0,
+      "n": 3405,
+      "share_of_games": 1.0,
+      "hit_pct": 51.45,
+      "se_pct": 0.86,
+      "z_vs_50": 1.7
+     },
+     {
+      "min_edge": 0.01,
+      "n": 2557,
+      "share_of_games": 0.751,
+      "hit_pct": 51.78,
+      "se_pct": 0.99,
+      "z_vs_50": 1.8
+     },
+     {
+      "min_edge": 0.02,
+      "n": 1721,
+      "share_of_games": 0.505,
+      "hit_pct": 51.31,
+      "se_pct": 1.21,
+      "z_vs_50": 1.08
+     },
+     {
+      "min_edge": 0.03,
+      "n": 1065,
+      "share_of_games": 0.313,
+      "hit_pct": 52.11,
+      "se_pct": 1.53,
+      "z_vs_50": 1.38
+     },
+     {
+      "min_edge": 0.04,
+      "n": 615,
+      "share_of_games": 0.181,
+      "hit_pct": 51.06,
+      "se_pct": 2.02,
+      "z_vs_50": 0.52
+     },
+     {
+      "min_edge": 0.05,
+      "n": 312,
+      "share_of_games": 0.092,
+      "hit_pct": 49.68,
+      "se_pct": 2.83,
+      "z_vs_50": -0.11
+     },
+     {
+      "min_edge": 0.06,
+      "n": 153,
+      "share_of_games": 0.045,
+      "hit_pct": 51.63,
+      "se_pct": 4.04,
+      "z_vs_50": 0.4
+     },
+     {
+      "min_edge": 0.08,
+      "n": 31,
+      "share_of_games": 0.009,
+      "hit_pct": 38.71,
+      "se_pct": 8.98,
+      "z_vs_50": -1.26
+     }
+    ],
+    "price": [
+     {
+      "min_ev": 0.0,
+      "bets": 728,
+      "hit_pct": 49.29,
+      "breakeven_pct": 52.68,
+      "market_fair_pct": 50.37,
+      "units": -44.35,
+      "roi_pct": -6.09,
+      "roi_se_pct": 3.46
+     },
+     {
+      "min_ev": 0.01,
+      "bets": 416,
+      "hit_pct": 50.63,
+      "breakeven_pct": 52.72,
+      "market_fair_pct": 50.41,
+      "units": -14.39,
+      "roi_pct": -3.46,
+      "roi_se_pct": 4.57
+     },
+     {
+      "min_ev": 0.02,
+      "bets": 228,
+      "hit_pct": 51.83,
+      "breakeven_pct": 52.8,
+      "market_fair_pct": 50.49,
+      "units": -3.31,
+      "roi_pct": -1.45,
+      "roi_se_pct": 6.16
+     },
+     {
+      "min_ev": 0.03,
+      "bets": 116,
+      "hit_pct": 54.13,
+      "breakeven_pct": 52.92,
+      "market_fair_pct": 50.62,
+      "units": 3.16,
+      "roi_pct": 2.73,
+      "roi_se_pct": 8.55
+     }
+    ]
+   },
+   "price_alone_hit": [
+    {
+     "min_edge": 0.0,
+     "n": 3405,
+     "share_of_games": 1.0,
+     "hit_pct": 52.39,
+     "se_pct": 0.86,
+     "z_vs_50": 2.79
+    },
+    {
+     "min_edge": 0.01,
+     "n": 2739,
+     "share_of_games": 0.804,
+     "hit_pct": 52.39,
+     "se_pct": 0.96,
+     "z_vs_50": 2.5
+    },
+    {
+     "min_edge": 0.02,
+     "n": 1537,
+     "share_of_games": 0.451,
+     "hit_pct": 53.03,
+     "se_pct": 1.28,
+     "z_vs_50": 2.37
+    },
+    {
+     "min_edge": 0.03,
+     "n": 452,
+     "share_of_games": 0.133,
+     "hit_pct": 49.78,
+     "se_pct": 2.35,
+     "z_vs_50": -0.09
+    },
+    {
+     "min_edge": 0.04,
+     "n": 166,
+     "share_of_games": 0.049,
+     "hit_pct": 47.59,
+     "se_pct": 3.88,
+     "z_vs_50": -0.62
+    },
+    {
+     "min_edge": 0.05,
+     "n": 89,
+     "share_of_games": 0.026,
+     "hit_pct": 48.31,
+     "se_pct": 5.3,
+     "z_vs_50": -0.32
+    },
+    {
+     "min_edge": 0.06,
+     "n": 27,
+     "share_of_games": 0.008,
+     "hit_pct": 51.85,
+     "se_pct": 9.62,
+     "z_vs_50": 0.19
+    },
+    {
+     "min_edge": 0.08,
+     "n": 3,
+     "share_of_games": 0.001,
+     "hit_pct": 66.67,
+     "se_pct": 28.87,
+     "z_vs_50": 0.58
+    }
+   ]
+  }
+ }
+}
