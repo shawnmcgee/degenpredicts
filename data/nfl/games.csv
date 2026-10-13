@@ -4707,7 +4707,7 @@ game_id,season,week,season_type,playoff_round,date,tip_et,kickoff_utc,start_time
 2026_05_NYG_WAS,2026,5,REG,0,2026-10-11,"Sun Oct 11, 1:00 PM",2026-10-11T13:00:00-04:00,False,Sunday,WAS,NYG,27.0,27.0,54.0,0.0,False,True,NFC East,NFC East,7.0,7.0,outdoors,,,,WAS00,Jayden Daniels,Jameis Winston,True
 2026_05_PHI_JAX,2026,5,REG,0,2026-10-11,"Sun Oct 11, 9:30 AM",2026-10-11T09:30:00-04:00,False,Sunday,JAX,PHI,19.0,17.0,36.0,2.0,True,False,AFC South,NFC East,7.0,7.0,outdoors,,,,JAX00,Trevor Lawrence,Jalen Hurts,True
 2026_05_SF_SEA,2026,5,REG,0,2026-10-11,"Sun Oct 11, 4:25 PM",2026-10-11T16:25:00-04:00,False,Sunday,SEA,SF,29.0,32.0,61.0,-3.0,False,True,NFC West,NFC West,7.0,7.0,outdoors,,,,SEA00,Drew Lock,Brock Purdy,True
-2026_05_BUF_LA,2026,5,REG,0,2026-10-12,"Mon Oct 12, 8:15 PM",2026-10-12T20:15:00-04:00,False,Monday,LA,BUF,,,,,False,False,NFC West,AFC East,8.0,8.0,dome,matrixturf,,,LAX01,Matthew Stafford,Josh Allen,False
+2026_05_BUF_LA,2026,5,REG,0,2026-10-12,"Mon Oct 12, 8:15 PM",2026-10-12T20:15:00-04:00,False,Monday,LA,BUF,34.0,37.0,71.0,-3.0,False,False,NFC West,AFC East,8.0,8.0,dome,,,,LAX01,Matthew Stafford,Josh Allen,True
 2026_06_SEA_DEN,2026,6,REG,0,2026-10-15,"Thu Oct 15, 8:15 PM",2026-10-15T20:15:00-04:00,False,Thursday,DEN,SEA,,,,,False,False,AFC West,NFC West,4.0,4.0,outdoors,grass,,,DEN00,Bo Nix,Drew Lock,False
 2026_06_ARI_LA,2026,6,REG,0,2026-10-18,"Sun Oct 18, 4:05 PM",2026-10-18T16:05:00-04:00,False,Sunday,LA,ARI,,,,,False,True,NFC West,NFC West,6.0,7.0,dome,matrixturf,,,LAX01,Matthew Stafford,Jacoby Brissett,False
 2026_06_BAL_CLE,2026,6,REG,0,2026-10-18,"Sun Oct 18, 1:00 PM",2026-10-18T13:00:00-04:00,False,Sunday,CLE,BAL,,,,,False,True,AFC North,AFC North,7.0,7.0,outdoors,grass,,,CLE00,Deshaun Watson,Lamar Jackson,False
