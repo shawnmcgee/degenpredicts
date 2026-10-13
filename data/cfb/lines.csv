@@ -11926,7 +11926,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401856806,2026,4,2026-09-26,Georgia Southern,Houston,17.0,18.0,56.5,55.0,Bovada,2
 401856807,2026,5,2026-10-03,Kansas,Middle Tennessee,-20.5,-20.0,50.5,50.5,Bovada,2
 401856808,2026,6,2026-10-10,Arizona State,Hawai'i,-21.0,-22.0,51.0,51.0,Bovada,2
-401856809,2026,7,2026-10-17,BYU,Notre Dame,10.0,11.0,47.0,48.0,Bovada,2
+401856809,2026,7,2026-10-17,BYU,Notre Dame,10.0,11.0,46.5,48.0,Bovada,2
 401856810,2026,2,2026-09-12,BYU,Arizona,-7.0,-7.5,49.0,50.5,Bovada,2
 401856811,2026,3,2026-09-18,Texas Tech,Houston,-8.5,-8.5,52.5,53.0,Bovada,2
 401856812,2026,3,2026-09-19,Kansas,Arizona State,5.0,6.5,51.0,53.0,Bovada,2
@@ -12633,10 +12633,10 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401871051,2026,6,2026-10-07,Kennesaw State,Jacksonville State,3.0,3.0,49.0,50.0,Bovada,2
 401871052,2026,6,2026-10-08,Western Kentucky,Missouri State,2.0,-2.5,57.0,55.5,Bovada,2
 401871053,2026,7,2026-10-13,Jacksonville State,Florida International,-3.0,-3.0,43.5,45.5,Bovada,2
-401871054,2026,7,2026-10-14,Missouri State,Kennesaw State,3.0,3.0,52.5,51.5,Bovada,2
+401871054,2026,7,2026-10-14,Missouri State,Kennesaw State,3.0,3.0,52.0,51.5,Bovada,2
 401871066,2026,6,2026-10-07,Florida International,New Mexico State,-7.0,-5.0,47.0,46.5,Bovada,2
 401871067,2026,7,2026-10-13,Middle Tennessee,Delaware,1.0,2.5,48.5,48.0,Bovada,2
-401871068,2026,7,2026-10-14,Sam Houston,Western Kentucky,1.0,1.0,53.0,51.5,Bovada,2
+401871068,2026,7,2026-10-14,Sam Houston,Western Kentucky,1.5,1.0,52.5,51.5,Bovada,2
 401871089,2026,5,2026-10-03,South Alabama,UL Monroe,-14.0,-14.0,56.5,56.0,Bovada,2
 401871090,2026,6,2026-10-06,Troy,Southern Miss,-9.5,-10.5,51.5,49.5,Bovada,2
 401871091,2026,7,2026-10-17,UL Monroe,Louisiana Tech,15.0,14.5,56.5,54.5,Bovada,2
