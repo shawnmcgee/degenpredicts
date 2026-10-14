@@ -7,6 +7,7 @@ No server, no manual uploads, no hosting bill.
 ```
 .github/workflows/
   cfb-predict.yml   daily 9:00am ET → lines + schedule → models → data/cfb/picks.csv → docs/
+                                    → Big Game Cards → docs/cfb/big/ (see below)
   cfb-grade.yml     daily 7:00am ET → finals → grade → results.csv, metrics.json
   cfb-train.yml     Tuesdays        → refit models
   nfl-predict.yml   daily 9:30am ET → same, into data/nfl/ → docs/nfl/
@@ -56,6 +57,34 @@ whenever any sport does and self-heals if a run is skipped.
 
 Note the college football board moved from `docs/` to `docs/cfb/` when the chooser was added,
 so its `picks.csv`, `results.csv` and `metrics.json` moved with it.
+
+## Big Game Cards — `docs/cfb/big/`
+
+A page for the games people actually bet: every SEC-vs-SEC game on the board (set
+`DEGEN_BIG_CONFS` for other conferences, `DEGEN_BIG_TEAMS` to add a rivalry game, and
+`DEGEN_BIG_FEATURE` to pin one to the top). It is **not** a pick sheet. On Power-4 games the
+model's spread side is 65-50 this season with a closing-line value of -0.02 — luck, not edge —
+so each card shows only what holds whether or not the model is right:
+
+* **Cheapest way to bet each side** across DraftKings, FanDuel, Kalshi, Polymarket and Novig,
+  with exchange fees included (Kalshi 56c costs about -137, not -127).
+* **Line movement** since our first pull, flagged when it is big enough to mean news.
+* **The model's number**, labelled with its actual record and CLV on games like it.
+* **An alt-line menu** for every rung of Kalshi's spread and total ladders, Yes and No, priced
+  against a fair value built from the book's own line plus how ~3,500 past games with similar
+  lines finished. That fair value is a hypothesis: a price is only called cheap when it beats
+  fair by more than twice the history's sampling error.
+
+Two new logs feed it, both one gzip CSV per day so the repo stays small:
+
+```
+data/cfb/ladders/YYYY-MM-DD.csv.gz   every Kalshi spread/total rung each pull, with the book
+                                     line beside it — so the alt-line idea can be graded
+data/nfl/ladders/YYYY-MM-DD.csv.gz   the same for the NFL (its own copy of the logger)
+data/cfb/quotes/YYYY-MM-DD.csv.gz    every venue's spread/total quote each pull
+```
+
+`python -m cfb.bigcard` builds the page; `--ladders some.csv` renders from a hand-made ladder.
 
 ## Setup — 30 minutes
 

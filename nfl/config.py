@@ -55,6 +55,7 @@ PICKS = DATA / "picks.csv"
 RESULTS = DATA / "results.csv"
 METRICS = DATA / "metrics.json"
 MODEL_DIR = DATA / "models"
+LADDERS = DATA / "ladders"   # every Kalshi ladder rung per pull, one gzip CSV a day
 
 # --- credentials --------------------------------------------------------------------
 # nflverse needs none. That is the whole reason it fits this no-server design: the data is

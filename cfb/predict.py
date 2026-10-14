@@ -18,6 +18,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm
 
+from core import ladders
+
 from . import config
 from .features import (BASE_FEATURES, MARKET_FEATURES, build, fbs_membership,
                        fbs_teams, is_fbs_game)
@@ -183,6 +185,7 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     live = odds.snapshot(odds.build_matcher(sorted(board_teams(board, games, season, sp))))
     if not dry_run:
         odds.append_snapshot(live)
+        odds.append_quotes(live)
     if len(live):
         board = board.merge(
             live[["date", "home_team", "away_team", "live_total", "over_price", "under_price",
@@ -290,12 +293,13 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     # makes it directly comparable in a way the spread and total series are not.
     # `thin_data` is already set above, which it must be: _price_ladders refuses to publish a
     # pick on a game the model itself considers unplayable.
+    rungs: list[pd.DataFrame] = []      # every Kalshi ladder rung this pull saw
     if "margin_pred" in out:
         sig = out["margin_sigma"].replace(0, np.nan)
         out["p_home_win"] = np.round(norm.cdf(out["margin_pred"] / sig), 4)
         out["p_away_win"] = (1 - out["p_home_win"]).round(4)
         out = _attach_kalshi(out, games, sp)
-        out = _price_ladders(out, games, sp)
+        out = _price_ladders(out, games, sp, rungs)
 
     out["prediction_date"] = str(today)
     # Which retrain produced this row. Without it a good or bad stretch cannot be attributed
@@ -328,6 +332,9 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     else:
         out.to_csv(config.PICKS, index=False)
     log.info("wrote %d picks to %s", len(out), config.PICKS)
+    # Whole ladders, not just the two rungs the board keeps, so alt-line prices can be graded
+    # against the book number they were quoted beside. Never fatal.
+    ladders.log_rungs(rungs, out, config.LADDERS, today)
     return out
 
 
@@ -472,7 +479,8 @@ def _multiplier(ask, prob):
 
 
 def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
-                   sp: pd.DataFrame | None = None) -> pd.DataFrame:
+                   sp: pd.DataFrame | None = None,
+                   sink: list | None = None) -> pd.DataFrame:
     """Price every rung of Kalshi's spread and total ladders against the model distribution.
 
     Both series expose ``floor_strike`` with ``strike_type: "greater"``, so each contract pays
@@ -508,6 +516,9 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
     except Exception as e:
         log.warning("kalshi ladders unavailable (%s)", e)
         return out
+    if sink is not None:
+        # handed back so run() can keep the whole ladder once the picks are written
+        sink.extend(f for f in (tot, spr) if len(f))
 
     breaks = set()
     for lad in (tot, spr):
