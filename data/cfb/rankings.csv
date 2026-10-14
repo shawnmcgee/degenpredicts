@@ -1,0 +1,352 @@
+season,season_type,week,poll,rank,school,conference,points
+2026,regular,1,Coaches Poll,1,Ohio State,Big Ten,1741.0
+2026,regular,1,Coaches Poll,2,Oregon,Big Ten,1637.0
+2026,regular,1,Coaches Poll,3,Georgia,SEC,1591.0
+2026,regular,1,Coaches Poll,4,Texas,SEC,1544.0
+2026,regular,1,Coaches Poll,5,Notre Dame,FBS Independents,1524.0
+2026,regular,1,Coaches Poll,6,Indiana,Big Ten,1522.0
+2026,regular,1,Coaches Poll,7,Miami,ACC,1409.0
+2026,regular,1,Coaches Poll,8,Texas A&M,SEC,1174.0
+2026,regular,1,Coaches Poll,9,Oklahoma,SEC,1104.0
+2026,regular,1,Coaches Poll,10,Ole Miss,SEC,1096.0
+2026,regular,1,Coaches Poll,11,Alabama,SEC,1050.0
+2026,regular,1,Coaches Poll,12,Texas Tech,Big 12,1034.0
+2026,regular,1,Coaches Poll,13,LSU,SEC,951.0
+2026,regular,1,Coaches Poll,14,USC,Big Ten,838.0
+2026,regular,1,Coaches Poll,15,BYU,Big 12,781.0
+2026,regular,1,Coaches Poll,16,Michigan,Big Ten,719.0
+2026,regular,1,Coaches Poll,17,Penn State,Big Ten,463.0
+2026,regular,1,Coaches Poll,18,Tennessee,SEC,428.0
+2026,regular,1,Coaches Poll,19,Washington,Big Ten,406.0
+2026,regular,1,Coaches Poll,20,SMU,ACC,378.0
+2026,regular,1,Coaches Poll,21,Utah,Big 12,313.0
+2026,regular,1,Coaches Poll,22,Iowa,Big Ten,291.0
+2026,regular,1,Coaches Poll,23,Clemson,ACC,235.0
+2026,regular,1,Coaches Poll,24,Houston,Big 12,194.0
+2026,regular,1,Coaches Poll,25,Missouri,SEC,158.0
+2026,regular,1,AP Top 25,1,Ohio State,Big Ten,1672.0
+2026,regular,1,AP Top 25,2,Oregon,Big Ten,1597.0
+2026,regular,1,AP Top 25,3,Georgia,SEC,1513.0
+2026,regular,1,AP Top 25,4,Notre Dame,FBS Independents,1510.0
+2026,regular,1,AP Top 25,5,Texas,SEC,1483.0
+2026,regular,1,AP Top 25,6,Indiana,Big Ten,1440.0
+2026,regular,1,AP Top 25,7,Miami,ACC,1379.0
+2026,regular,1,AP Top 25,8,Texas A&M,SEC,1131.0
+2026,regular,1,AP Top 25,9,Ole Miss,SEC,1102.0
+2026,regular,1,AP Top 25,10,Oklahoma,SEC,1047.0
+2026,regular,1,AP Top 25,11,LSU,SEC,988.0
+2026,regular,1,AP Top 25,12,Texas Tech,Big 12,983.0
+2026,regular,1,AP Top 25,13,Alabama,SEC,904.0
+2026,regular,1,AP Top 25,14,USC,Big Ten,839.0
+2026,regular,1,AP Top 25,14,BYU,Big 12,839.0
+2026,regular,1,AP Top 25,16,Michigan,Big Ten,718.0
+2026,regular,1,AP Top 25,17,Washington,Big Ten,501.0
+2026,regular,1,AP Top 25,18,Penn State,Big Ten,482.0
+2026,regular,1,AP Top 25,19,SMU,ACC,434.0
+2026,regular,1,AP Top 25,20,Tennessee,SEC,394.0
+2026,regular,1,AP Top 25,21,Utah,Big 12,304.0
+2026,regular,1,AP Top 25,22,Iowa,Big Ten,260.0
+2026,regular,1,AP Top 25,23,Houston,Big 12,252.0
+2026,regular,1,AP Top 25,24,Louisville,ACC,194.0
+2026,regular,1,AP Top 25,25,Missouri,SEC,117.0
+2026,regular,4,Coaches Poll,1,Texas,SEC,1807.0
+2026,regular,4,Coaches Poll,2,Georgia,SEC,1742.0
+2026,regular,4,Coaches Poll,3,Notre Dame,FBS Independents,1636.0
+2026,regular,4,Coaches Poll,4,Indiana,Big Ten,1613.0
+2026,regular,4,Coaches Poll,5,Miami,ACC,1552.0
+2026,regular,4,Coaches Poll,6,Ole Miss,SEC,1501.0
+2026,regular,4,Coaches Poll,7,Ohio State,Big Ten,1473.0
+2026,regular,4,Coaches Poll,8,Alabama,SEC,1309.0
+2026,regular,4,Coaches Poll,9,BYU,Big 12,1089.0
+2026,regular,4,Coaches Poll,10,Texas Tech,Big 12,1079.0
+2026,regular,4,Coaches Poll,11,LSU,SEC,1067.0
+2026,regular,4,Coaches Poll,12,USC,Big Ten,1057.0
+2026,regular,4,Coaches Poll,13,Tennessee,SEC,833.0
+2026,regular,4,Coaches Poll,14,Penn State,Big Ten,814.0
+2026,regular,4,Coaches Poll,15,Utah,Big 12,743.0
+2026,regular,4,Coaches Poll,16,Oregon,Big Ten,594.0
+2026,regular,4,Coaches Poll,17,Iowa,Big Ten,580.0
+2026,regular,4,Coaches Poll,18,Michigan,Big Ten,545.0
+2026,regular,4,Coaches Poll,19,Louisville,ACC,519.0
+2026,regular,4,Coaches Poll,20,Texas A&M,SEC,447.0
+2026,regular,4,Coaches Poll,21,Missouri,SEC,382.0
+2026,regular,4,Coaches Poll,22,Florida,SEC,370.0
+2026,regular,4,Coaches Poll,23,Washington,Big Ten,251.0
+2026,regular,4,Coaches Poll,24,Oklahoma,SEC,213.0
+2026,regular,4,Coaches Poll,25,SMU,ACC,162.0
+2026,regular,4,AP Top 25,1,Texas,SEC,1706.0
+2026,regular,4,AP Top 25,2,Georgia,SEC,1580.0
+2026,regular,4,AP Top 25,3,Notre Dame,FBS Independents,1517.0
+2026,regular,4,AP Top 25,4,Ole Miss,SEC,1488.0
+2026,regular,4,AP Top 25,5,Indiana,Big Ten,1467.0
+2026,regular,4,AP Top 25,6,Miami,ACC,1445.0
+2026,regular,4,AP Top 25,7,Ohio State,Big Ten,1415.0
+2026,regular,4,AP Top 25,8,Alabama,SEC,1182.0
+2026,regular,4,AP Top 25,9,BYU,Big 12,1090.0
+2026,regular,4,AP Top 25,10,LSU,SEC,1078.0
+2026,regular,4,AP Top 25,11,Texas Tech,Big 12,1067.0
+2026,regular,4,AP Top 25,12,USC,Big Ten,907.0
+2026,regular,4,AP Top 25,13,Penn State,Big Ten,850.0
+2026,regular,4,AP Top 25,14,Tennessee,SEC,826.0
+2026,regular,4,AP Top 25,15,Utah,Big 12,752.0
+2026,regular,4,AP Top 25,16,Louisville,ACC,692.0
+2026,regular,4,AP Top 25,17,Iowa,Big Ten,561.0
+2026,regular,4,AP Top 25,18,Michigan,Big Ten,432.0
+2026,regular,4,AP Top 25,19,Missouri,SEC,369.0
+2026,regular,4,AP Top 25,20,Oregon,Big Ten,364.0
+2026,regular,4,AP Top 25,21,Florida,SEC,269.0
+2026,regular,4,AP Top 25,22,SMU,ACC,212.0
+2026,regular,4,AP Top 25,23,Texas A&M,SEC,202.0
+2026,regular,4,AP Top 25,24,Mississippi State,SEC,179.0
+2026,regular,4,AP Top 25,25,Houston,Big 12,127.0
+2026,regular,2,Coaches Poll,1,Ohio State,Big Ten,1801.0
+2026,regular,2,Coaches Poll,2,Georgia,SEC,1672.0
+2026,regular,2,Coaches Poll,3,Texas,SEC,1600.0
+2026,regular,2,Coaches Poll,4,Notre Dame,FBS Independents,1558.0
+2026,regular,2,Coaches Poll,5,Indiana,Big Ten,1537.0
+2026,regular,2,Coaches Poll,6,Oregon,Big Ten,1524.0
+2026,regular,2,Coaches Poll,7,Miami,ACC,1477.0
+2026,regular,2,Coaches Poll,8,LSU,SEC,1279.0
+2026,regular,2,Coaches Poll,9,Texas A&M,SEC,1204.0
+2026,regular,2,Coaches Poll,10,Oklahoma,SEC,1184.0
+2026,regular,2,Coaches Poll,11,Ole Miss,SEC,1141.0
+2026,regular,2,Coaches Poll,12,Alabama,SEC,1059.0
+2026,regular,2,Coaches Poll,13,Texas Tech,Big 12,955.0
+2026,regular,2,Coaches Poll,14,USC,Big Ten,919.0
+2026,regular,2,Coaches Poll,15,BYU,Big 12,838.0
+2026,regular,2,Coaches Poll,16,Penn State,Big Ten,612.0
+2026,regular,2,Coaches Poll,17,SMU,ACC,517.0
+2026,regular,2,Coaches Poll,18,Tennessee,SEC,513.0
+2026,regular,2,Coaches Poll,19,Washington,Big Ten,432.0
+2026,regular,2,Coaches Poll,20,Utah,Big 12,415.0
+2026,regular,2,Coaches Poll,21,Iowa,Big Ten,411.0
+2026,regular,2,Coaches Poll,22,Houston,Big 12,236.0
+2026,regular,2,Coaches Poll,23,Missouri,SEC,231.0
+2026,regular,2,Coaches Poll,24,Michigan,Big Ten,164.0
+2026,regular,2,Coaches Poll,25,Florida,SEC,157.0
+2026,regular,2,Coaches Poll,25,Virginia,ACC,157.0
+2026,regular,2,AP Top 25,1,Ohio State,Big Ten,1684.0
+2026,regular,2,AP Top 25,2,Georgia,SEC,1532.0
+2026,regular,2,AP Top 25,3,Notre Dame,FBS Independents,1512.0
+2026,regular,2,AP Top 25,4,Texas,SEC,1462.0
+2026,regular,2,AP Top 25,5,Indiana,Big Ten,1428.0
+2026,regular,2,AP Top 25,6,Oregon,Big Ten,1422.0
+2026,regular,2,AP Top 25,7,Miami,ACC,1405.0
+2026,regular,2,AP Top 25,8,LSU,SEC,1315.0
+2026,regular,2,AP Top 25,9,Ole Miss,SEC,1154.0
+2026,regular,2,AP Top 25,10,Texas A&M,SEC,1079.0
+2026,regular,2,AP Top 25,11,Oklahoma,SEC,1039.0
+2026,regular,2,AP Top 25,12,Alabama,SEC,910.0
+2026,regular,2,AP Top 25,13,Texas Tech,Big 12,900.0
+2026,regular,2,AP Top 25,14,USC,Big Ten,861.0
+2026,regular,2,AP Top 25,15,BYU,Big 12,840.0
+2026,regular,2,AP Top 25,16,Penn State,Big Ten,621.0
+2026,regular,2,AP Top 25,17,SMU,ACC,501.0
+2026,regular,2,AP Top 25,18,Tennessee,SEC,491.0
+2026,regular,2,AP Top 25,19,Washington,Big Ten,489.0
+2026,regular,2,AP Top 25,20,Utah,Big 12,381.0
+2026,regular,2,AP Top 25,21,Iowa,Big Ten,369.0
+2026,regular,2,AP Top 25,22,Houston,Big 12,214.0
+2026,regular,2,AP Top 25,23,Missouri,SEC,182.0
+2026,regular,2,AP Top 25,24,Louisville,ACC,163.0
+2026,regular,2,AP Top 25,25,Virginia,ACC,89.0
+2026,regular,3,Coaches Poll,1,Texas,SEC,1804.0
+2026,regular,3,Coaches Poll,2,Georgia,SEC,1732.0
+2026,regular,3,Coaches Poll,3,Notre Dame,FBS Independents,1639.0
+2026,regular,3,Coaches Poll,4,Indiana,Big Ten,1611.0
+2026,regular,3,Coaches Poll,5,Miami,ACC,1549.0
+2026,regular,3,Coaches Poll,6,Ohio State,Big Ten,1480.0
+2026,regular,3,Coaches Poll,7,LSU,SEC,1405.0
+2026,regular,3,Coaches Poll,8,Texas A&M,SEC,1311.0
+2026,regular,3,Coaches Poll,9,Ole Miss,SEC,1228.0
+2026,regular,3,Coaches Poll,10,Alabama,SEC,1206.0
+2026,regular,3,Coaches Poll,11,USC,Big Ten,1023.0
+2026,regular,3,Coaches Poll,12,Texas Tech,Big 12,977.0
+2026,regular,3,Coaches Poll,13,BYU,Big 12,975.0
+2026,regular,3,Coaches Poll,14,Tennessee,SEC,679.0
+2026,regular,3,Coaches Poll,15,Penn State,Big Ten,676.0
+2026,regular,3,Coaches Poll,16,SMU,ACC,605.0
+2026,regular,3,Coaches Poll,17,Utah,Big 12,590.0
+2026,regular,3,Coaches Poll,18,Oregon,Big Ten,564.0
+2026,regular,3,Coaches Poll,19,Michigan,Big Ten,426.0
+2026,regular,3,Coaches Poll,20,Iowa,Big Ten,423.0
+2026,regular,3,Coaches Poll,21,Oklahoma,SEC,395.0
+2026,regular,3,Coaches Poll,22,Missouri,SEC,340.0
+2026,regular,3,Coaches Poll,23,Houston,Big 12,290.0
+2026,regular,3,Coaches Poll,24,Washington,Big Ten,268.0
+2026,regular,3,Coaches Poll,25,Virginia,ACC,249.0
+2026,regular,3,AP Top 25,1,Texas,SEC,1678.0
+2026,regular,3,AP Top 25,2,Georgia,SEC,1551.0
+2026,regular,3,AP Top 25,3,Notre Dame,FBS Independents,1531.0
+2026,regular,3,AP Top 25,4,Indiana,Big Ten,1466.0
+2026,regular,3,AP Top 25,5,Miami,ACC,1452.0
+2026,regular,3,AP Top 25,6,Ohio State,Big Ten,1407.0
+2026,regular,3,AP Top 25,7,LSU,SEC,1334.0
+2026,regular,3,AP Top 25,8,Ole Miss,SEC,1216.0
+2026,regular,3,AP Top 25,9,Texas A&M,SEC,1165.0
+2026,regular,3,AP Top 25,10,Alabama,SEC,1068.0
+2026,regular,3,AP Top 25,11,BYU,Big 12,966.0
+2026,regular,3,AP Top 25,12,USC,Big Ten,944.0
+2026,regular,3,AP Top 25,13,Texas Tech,Big 12,910.0
+2026,regular,3,AP Top 25,14,Penn State,Big Ten,692.0
+2026,regular,3,AP Top 25,15,Tennessee,SEC,676.0
+2026,regular,3,AP Top 25,16,SMU,ACC,636.0
+2026,regular,3,AP Top 25,17,Utah,Big 12,558.0
+2026,regular,3,AP Top 25,18,Iowa,Big Ten,391.0
+2026,regular,3,AP Top 25,19,Michigan,Big Ten,382.0
+2026,regular,3,AP Top 25,20,Missouri,SEC,344.0
+2026,regular,3,AP Top 25,21,Oregon,Big Ten,324.0
+2026,regular,3,AP Top 25,22,Houston,Big 12,292.0
+2026,regular,3,AP Top 25,23,Louisville,ACC,244.0
+2026,regular,3,AP Top 25,24,Oklahoma,SEC,222.0
+2026,regular,3,AP Top 25,25,Virginia,ACC,182.0
+2026,regular,5,Coaches Poll,1,Texas,SEC,1779.0
+2026,regular,5,Coaches Poll,2,Georgia,SEC,1735.0
+2026,regular,5,Coaches Poll,3,Notre Dame,FBS Independents,1641.0
+2026,regular,5,Coaches Poll,4,Miami,ACC,1569.0
+2026,regular,5,Coaches Poll,5,Indiana,Big Ten,1554.0
+2026,regular,5,Coaches Poll,6,Ohio State,Big Ten,1463.0
+2026,regular,5,Coaches Poll,7,Alabama,SEC,1399.0
+2026,regular,5,Coaches Poll,8,Florida,SEC,1214.0
+2026,regular,5,Coaches Poll,9,BYU,Big 12,1166.0
+2026,regular,5,Coaches Poll,10,Texas Tech,Big 12,1108.0
+2026,regular,5,Coaches Poll,11,LSU,SEC,1097.0
+2026,regular,5,Coaches Poll,12,Ole Miss,SEC,1021.0
+2026,regular,5,Coaches Poll,13,Utah,Big 12,917.0
+2026,regular,5,Coaches Poll,14,Iowa,Big Ten,887.0
+2026,regular,5,Coaches Poll,15,Oregon,Big Ten,866.0
+2026,regular,5,Coaches Poll,16,Mississippi State,SEC,658.0
+2026,regular,5,Coaches Poll,17,Tennessee,SEC,648.0
+2026,regular,5,Coaches Poll,18,USC,Big Ten,511.0
+2026,regular,5,Coaches Poll,19,SMU,ACC,327.0
+2026,regular,5,Coaches Poll,20,Houston,Big 12,301.0
+2026,regular,5,Coaches Poll,21,Duke,ACC,230.0
+2026,regular,5,Coaches Poll,22,Penn State,Big Ten,207.0
+2026,regular,5,Coaches Poll,23,UCLA,Big Ten,183.0
+2026,regular,5,Coaches Poll,24,Michigan,Big Ten,166.0
+2026,regular,5,Coaches Poll,25,Missouri,SEC,152.0
+2026,regular,5,AP Top 25,1,Texas,SEC,1737.0
+2026,regular,5,AP Top 25,2,Georgia,SEC,1646.0
+2026,regular,5,AP Top 25,3,Notre Dame,FBS Independents,1581.0
+2026,regular,5,AP Top 25,4,Miami,ACC,1501.0
+2026,regular,5,AP Top 25,5,Ohio State,Big Ten,1465.0
+2026,regular,5,AP Top 25,6,Indiana,Big Ten,1408.0
+2026,regular,5,AP Top 25,7,Alabama,SEC,1305.0
+2026,regular,5,AP Top 25,8,Florida,SEC,1272.0
+2026,regular,5,AP Top 25,9,Ole Miss,SEC,1089.0
+2026,regular,5,AP Top 25,10,BYU,Big 12,1078.0
+2026,regular,5,AP Top 25,11,LSU,SEC,1073.0
+2026,regular,5,AP Top 25,12,Texas Tech,Big 12,1053.0
+2026,regular,5,AP Top 25,13,Utah,Big 12,903.0
+2026,regular,5,AP Top 25,14,Iowa,Big Ten,856.0
+2026,regular,5,AP Top 25,15,Oregon,Big Ten,725.0
+2026,regular,5,AP Top 25,16,Mississippi State,SEC,715.0
+2026,regular,5,AP Top 25,17,Tennessee,SEC,663.0
+2026,regular,5,AP Top 25,18,USC,Big Ten,410.0
+2026,regular,5,AP Top 25,19,Oklahoma State,Big 12,345.0
+2026,regular,5,AP Top 25,20,Houston,Big 12,278.0
+2026,regular,5,AP Top 25,21,SMU,ACC,246.0
+2026,regular,5,AP Top 25,22,Boise State,Pac-12,221.0
+2026,regular,5,AP Top 25,23,UCLA,Big Ten,218.0
+2026,regular,5,AP Top 25,24,Kentucky,SEC,150.0
+2026,regular,5,AP Top 25,25,Missouri,SEC,118.0
+2026,regular,6,Coaches Poll,1,Texas,SEC,1806.0
+2026,regular,6,Coaches Poll,2,Georgia,SEC,1760.0
+2026,regular,6,Coaches Poll,3,Notre Dame,FBS Independents,1630.0
+2026,regular,6,Coaches Poll,4,Miami,ACC,1622.0
+2026,regular,6,Coaches Poll,5,Indiana,Big Ten,1556.0
+2026,regular,6,Coaches Poll,6,Ohio State,Big Ten,1514.0
+2026,regular,6,Coaches Poll,7,Alabama,SEC,1483.0
+2026,regular,6,Coaches Poll,8,BYU,Big 12,1214.0
+2026,regular,6,Coaches Poll,9,Texas Tech,Big 12,1169.0
+2026,regular,6,Coaches Poll,10,LSU,SEC,1136.0
+2026,regular,6,Coaches Poll,11,Ole Miss,SEC,1059.0
+2026,regular,6,Coaches Poll,12,Utah,Big 12,1015.0
+2026,regular,6,Coaches Poll,13,Oregon,Big Ten,948.0
+2026,regular,6,Coaches Poll,14,Tennessee,SEC,768.0
+2026,regular,6,Coaches Poll,15,Florida,SEC,672.0
+2026,regular,6,Coaches Poll,16,Missouri,SEC,646.0
+2026,regular,6,Coaches Poll,17,USC,Big Ten,643.0
+2026,regular,6,Coaches Poll,18,Iowa,Big Ten,457.0
+2026,regular,6,Coaches Poll,19,Houston,Big 12,391.0
+2026,regular,6,Coaches Poll,20,Mississippi State,SEC,355.0
+2026,regular,6,Coaches Poll,21,SMU,ACC,354.0
+2026,regular,6,Coaches Poll,22,UCLA,Big Ten,318.0
+2026,regular,6,Coaches Poll,23,Duke,ACC,274.0
+2026,regular,6,Coaches Poll,24,Pittsburgh,ACC,242.0
+2026,regular,6,Coaches Poll,25,Kentucky,SEC,210.0
+2026,regular,6,AP Top 25,1,Texas,SEC,1737.0
+2026,regular,6,AP Top 25,2,Georgia,SEC,1647.0
+2026,regular,6,AP Top 25,3,Notre Dame,FBS Independents,1532.0
+2026,regular,6,AP Top 25,4,Miami,ACC,1524.0
+2026,regular,6,AP Top 25,5,Ohio State,Big Ten,1490.0
+2026,regular,6,AP Top 25,6,Alabama,SEC,1460.0
+2026,regular,6,AP Top 25,7,Indiana,Big Ten,1380.0
+2026,regular,6,AP Top 25,8,BYU,Big 12,1144.0
+2026,regular,6,AP Top 25,9,Ole Miss,SEC,1095.0
+2026,regular,6,AP Top 25,10,LSU,SEC,1087.0
+2026,regular,6,AP Top 25,11,Texas Tech,Big 12,1062.0
+2026,regular,6,AP Top 25,12,Utah,Big 12,996.0
+2026,regular,6,AP Top 25,13,Oregon,Big Ten,831.0
+2026,regular,6,AP Top 25,14,Missouri,SEC,755.0
+2026,regular,6,AP Top 25,15,Tennessee,SEC,746.0
+2026,regular,6,AP Top 25,16,Florida,SEC,691.0
+2026,regular,6,AP Top 25,17,Mississippi State,SEC,487.0
+2026,regular,6,AP Top 25,18,Oklahoma State,Big 12,477.0
+2026,regular,6,AP Top 25,19,USC,Big Ten,439.0
+2026,regular,6,AP Top 25,20,Iowa,Big Ten,367.0
+2026,regular,6,AP Top 25,21,UCLA,Big Ten,287.0
+2026,regular,6,AP Top 25,22,Houston,Big 12,279.0
+2026,regular,6,AP Top 25,23,Boise State,Pac-12,271.0
+2026,regular,6,AP Top 25,24,SMU,ACC,167.0
+2026,regular,6,AP Top 25,25,Pittsburgh,ACC,162.0
+2026,regular,7,Coaches Poll,1,Georgia,SEC,1832.0
+2026,regular,7,Coaches Poll,2,Notre Dame,FBS Independents,1713.0
+2026,regular,7,Coaches Poll,3,Miami,ACC,1688.0
+2026,regular,7,Coaches Poll,4,Indiana,Big Ten,1633.0
+2026,regular,7,Coaches Poll,5,Ohio State,Big Ten,1565.0
+2026,regular,7,Coaches Poll,6,Texas,SEC,1369.0
+2026,regular,7,Coaches Poll,7,Alabama,SEC,1358.0
+2026,regular,7,Coaches Poll,8,BYU,Big 12,1355.0
+2026,regular,7,Coaches Poll,9,Texas Tech,Big 12,1240.0
+2026,regular,7,Coaches Poll,10,Ole Miss,SEC,1180.0
+2026,regular,7,Coaches Poll,11,Utah,Big 12,1109.0
+2026,regular,7,Coaches Poll,12,UCLA,Big Ten,912.0
+2026,regular,7,Coaches Poll,13,Missouri,SEC,863.0
+2026,regular,7,Coaches Poll,14,Tennessee,SEC,837.0
+2026,regular,7,Coaches Poll,15,USC,Big Ten,758.0
+2026,regular,7,Coaches Poll,16,Iowa,Big Ten,729.0
+2026,regular,7,Coaches Poll,17,Kentucky,SEC,667.0
+2026,regular,7,Coaches Poll,18,Houston,Big 12,520.0
+2026,regular,7,Coaches Poll,19,Mississippi State,SEC,463.0
+2026,regular,7,Coaches Poll,20,Oklahoma State,Big 12,403.0
+2026,regular,7,Coaches Poll,21,LSU,SEC,361.0
+2026,regular,7,Coaches Poll,22,SMU,ACC,330.0
+2026,regular,7,Coaches Poll,23,Wake Forest,ACC,229.0
+2026,regular,7,Coaches Poll,24,Boise State,Pac-12,205.0
+2026,regular,7,Coaches Poll,25,Oregon,Big Ten,200.0
+2026,regular,7,AP Top 25,1,Georgia,SEC,1745.0
+2026,regular,7,AP Top 25,2,Notre Dame,FBS Independents,1630.0
+2026,regular,7,AP Top 25,3,Miami,ACC,1594.0
+2026,regular,7,AP Top 25,4,Ohio State,Big Ten,1508.0
+2026,regular,7,AP Top 25,5,Indiana,Big Ten,1461.0
+2026,regular,7,AP Top 25,6,Alabama,SEC,1372.0
+2026,regular,7,AP Top 25,7,Texas,SEC,1371.0
+2026,regular,7,AP Top 25,8,BYU,Big 12,1237.0
+2026,regular,7,AP Top 25,9,Ole Miss,SEC,1135.0
+2026,regular,7,AP Top 25,10,Texas Tech,Big 12,1132.0
+2026,regular,7,AP Top 25,11,Utah,Big 12,1073.0
+2026,regular,7,AP Top 25,12,UCLA,Big Ten,951.0
+2026,regular,7,AP Top 25,13,Missouri,SEC,882.0
+2026,regular,7,AP Top 25,14,Tennessee,SEC,706.0
+2026,regular,7,AP Top 25,15,Kentucky,SEC,655.0
+2026,regular,7,AP Top 25,16,Mississippi State,SEC,650.0
+2026,regular,7,AP Top 25,17,Iowa,Big Ten,621.0
+2026,regular,7,AP Top 25,18,Oklahoma State,Big 12,604.0
+2026,regular,7,AP Top 25,19,USC,Big Ten,505.0
+2026,regular,7,AP Top 25,20,Houston,Big 12,380.0
+2026,regular,7,AP Top 25,21,Wake Forest,ACC,326.0
+2026,regular,7,AP Top 25,22,LSU,SEC,274.0
+2026,regular,7,AP Top 25,23,Boise State,Pac-12,268.0
+2026,regular,7,AP Top 25,24,SMU,ACC,142.0
+2026,regular,7,AP Top 25,25,Northwestern,Big Ten,112.0
