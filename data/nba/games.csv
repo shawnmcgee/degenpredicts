@@ -30,7 +30,7 @@ game_id,season,game_type,date,tip_utc,home_team,away_team,home_points,away_point
 401909853,2026,R,2026-10-24,2026-10-24T22:00:00Z,CHA,MIA,,,False,False,,Charlotte,,,,hoopr
 401909854,2026,R,2026-10-24,2026-10-24T23:30:00Z,CLE,BKN,,,False,False,,Cleveland,,,,hoopr
 401909855,2026,R,2026-10-24,2026-10-24T23:30:00Z,PHI,MIL,,,False,False,,Philadelphia,,,,hoopr
-401909856,2026,R,2026-10-24,2026-10-25T00:00:00Z,ATL,HOU,,,False,False,,Atlanta,,,,hoopr
+401909856,2026,R,2026-10-24,2026-10-25T00:30:00Z,ATL,HOU,,,False,False,,Atlanta,,,,hoopr
 401909857,2026,R,2026-10-24,2026-10-25T00:00:00Z,CHI,WAS,,,False,False,,Chicago,,,,hoopr
 401909858,2026,R,2026-10-24,2026-10-25T00:00:00Z,DAL,SAS,,,False,False,,Dallas,,,,hoopr
 401909859,2026,R,2026-10-24,2026-10-25T01:00:00Z,DEN,NOP,,,False,False,,Denver,,,,hoopr
