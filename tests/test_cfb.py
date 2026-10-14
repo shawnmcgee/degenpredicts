@@ -110,6 +110,7 @@ def test_pipeline(env, monkeypatch):
     monkeypatch.setattr(cfbd, "update_lines", lambda *a, **k: cfbd.load_lines())
     monkeypatch.setattr(cfbd, "update_sp", lambda *a, **k: pd.DataFrame())
     monkeypatch.setattr(cfbd, "update_returning", lambda *a, **k: pd.DataFrame())
+    monkeypatch.setattr(cfbd, "update_rankings", lambda *a, **k: pd.DataFrame())
     monkeypatch.setattr(odds, "snapshot", lambda *a, **k: pd.DataFrame())
 
     train.main(["--no-fetch"])

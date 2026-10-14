@@ -7,7 +7,7 @@ No server, no manual uploads, no hosting bill.
 ```
 .github/workflows/
   cfb-predict.yml   daily 9:00am ET → lines + schedule → models → data/cfb/picks.csv → docs/
-                                    → Big Game Cards → docs/cfb/big/ (see below)
+                                    → Big Game Cards (ranked matchups) → docs/cfb/big/
   cfb-grade.yml     daily 7:00am ET → finals → grade → results.csv, metrics.json
   cfb-train.yml     Tuesdays        → refit models
   nfl-predict.yml   daily 9:30am ET → same, into data/nfl/ → docs/nfl/
@@ -60,9 +60,12 @@ so its `picks.csv`, `results.csv` and `metrics.json` moved with it.
 
 ## Big Game Cards — `docs/cfb/big/`
 
-A page for the games people actually bet: every SEC-vs-SEC game on the board (set
-`DEGEN_BIG_CONFS` for other conferences, `DEGEN_BIG_TEAMS` to add a rivalry game, and
-`DEGEN_BIG_FEATURE` to pin one to the top). It is **not** a pick sheet. On Power-4 games the
+The "Big games" tab of the college football board: a card for every ranked-vs-ranked game,
+best matchup first. Ranks come from CFBD's `/rankings` (one call a day, saved to
+`data/cfb/rankings.csv`): the CFP rankings once they exist, otherwise the AP Top 25. Before the
+first poll, SEC games stand in. Repo variables: `DEGEN_BIG_RANKED=either` to include any game
+with one ranked team, `DEGEN_BIG_TEAMS` to add a rivalry game, `DEGEN_BIG_CONFS` to add a
+whole conference, `DEGEN_BIG_FEATURE` to pin one game to the top. It is **not** a pick sheet. On Power-4 games the
 model's spread side is 65-50 this season with a closing-line value of -0.02 — luck, not edge —
 so each card shows only what holds whether or not the model is right:
 

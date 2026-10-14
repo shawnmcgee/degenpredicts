@@ -164,6 +164,7 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     lines = cfbd.update_lines()
     cfbd.update_sp()
     cfbd.update_returning()
+    cfbd.update_rankings()        # only the Big Game Cards read this
     sp = cfbd.load_sp()
 
     board = build_board(games, lines, week, sp)

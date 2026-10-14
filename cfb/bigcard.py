@@ -55,18 +55,32 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from core import ladders as ladder_log
 
 from . import config
+from .sources import cfbd
 from .sources import odds as odds_src
 
 log = logging.getLogger(__name__)
 TEMPLATES = Path(__file__).parent / "templates"
 
-# Which games get a card: both teams in one of these conferences, plus any game involving a
-# team named in DEGEN_BIG_TEAMS (for the Ohio State - Michigan week).
-BIG_CONFS = {c.strip() for c in os.environ.get("DEGEN_BIG_CONFS", "SEC").split(",") if c.strip()}
-BIG_TEAMS = {t.strip() for t in os.environ.get("DEGEN_BIG_TEAMS", "").split(",") if t.strip()}
-# Games involving these teams go to the top of the page (the week's marquee game); the rest
-# follow in kickoff order.
-FEATURE = {t.strip() for t in os.environ.get("DEGEN_BIG_FEATURE", "").split(",") if t.strip()}
+def _env_set(name: str, default: str = "") -> set[str]:
+    return {x.strip() for x in os.environ.get(name, default).split(",") if x.strip()}
+
+
+# Which games get a card. By default, every game where BOTH teams are in the latest poll (the
+# CFP rankings once they exist, otherwise the AP Top 25, otherwise the Coaches Poll). Set
+# DEGEN_BIG_RANKED=either to include any game with one ranked team, or "off" to ignore polls.
+RANKED = os.environ.get("DEGEN_BIG_RANKED", "both").strip().lower()
+# Before the first poll of a season (or if the poll could not be fetched), conference games in
+# these conferences stand in.
+FALLBACK_CONFS = _env_set("DEGEN_BIG_FALLBACK_CONFS", "SEC")
+# Always included on top of the ranked games: every game inside these conferences, and any game
+# involving these teams (for the rivalry week when one side has fallen out of the poll).
+BIG_CONFS = _env_set("DEGEN_BIG_CONFS")
+BIG_TEAMS = _env_set("DEGEN_BIG_TEAMS")
+# Games involving these teams go to the top of the page; the rest follow best matchup first.
+FEATURE = _env_set("DEGEN_BIG_FEATURE")
+# Poll preference, by a word in the poll's name.
+POLL_ORDER = ("playoff", "ap top 25", "coaches")
+UNRANKED = 30          # sorts below every ranked team
 P4 = {"SEC", "Big Ten", "Big 12", "ACC"}
 
 # History window: past games whose line was within this many points of today's line, weighted
@@ -277,18 +291,63 @@ def under(a: Anchored, x: float) -> tuple[float, float]:
 # --------------------------------------------------------------------------------------
 # inputs
 # --------------------------------------------------------------------------------------
-def select_games(board: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
-    """Games that get a card: both teams in BIG_CONFS, or either team in BIG_TEAMS."""
+def current_poll(rankings: pd.DataFrame, season: int, week: int | None) -> tuple[dict, str]:
+    """``({school: rank}, poll name)`` from the newest poll at or before ``week``.
+
+    Polls are numbered by the week they lead into, so the week-7 poll is the one published
+    after week 6's games. If this week's has not been published yet the previous one stands -
+    a day-old ranking beats no ranking. Within a week, the CFP rankings beat the AP Top 25,
+    which beats the Coaches Poll.
+    """
+    if rankings is None or rankings.empty:
+        return {}, ""
+    r = rankings[(rankings["season"] == season)
+                 & (rankings["season_type"].astype(str).str.lower() != "postseason")]
+    if week is not None:
+        r = r[r["week"] <= week]
+    if r.empty:
+        return {}, ""
+    r = r[r["week"] == r["week"].max()]
+
+    def pref(name: str) -> int:
+        low = str(name).lower()
+        return next((i for i, k in enumerate(POLL_ORDER) if k in low), len(POLL_ORDER))
+
+    poll = min(r["poll"].unique(), key=pref)
+    if pref(poll) == len(POLL_ORDER):
+        return {}, ""
+    p = r[r["poll"] == poll]
+    return {str(s): int(k) for s, k in zip(p["school"], p["rank"])}, str(poll)
+
+
+def select_games(board: pd.DataFrame, games: pd.DataFrame,
+                 ranks: dict | None = None) -> pd.DataFrame:
+    """Games that get a card, best matchup first.
+
+    Ranked matchups when a poll exists (see RANKED), otherwise conference games in
+    FALLBACK_CONFS; plus any game inside BIG_CONFS or involving a team in BIG_TEAMS.
+    """
     if board.empty:
         return board
     conf = games[["game_id", "home_conf", "away_conf"]].drop_duplicates("game_id")
-    b = board.merge(conf, on="game_id", how="left")
-    both = b["home_conf"].isin(BIG_CONFS) & b["away_conf"].isin(BIG_CONFS)
-    named = b["home_team"].isin(BIG_TEAMS) | b["away_team"].isin(BIG_TEAMS)
-    out = b[(both | named) & b["spread_home"].notna()].copy()
+    b = board.drop(columns=[c for c in ("home_conf", "away_conf") if c in board]).merge(
+        conf, on="game_id", how="left")
+    ranks = ranks or {}
+    b["home_rank"] = b["home_team"].map(ranks)
+    b["away_rank"] = b["away_team"].map(ranks)
+    if ranks and RANKED in ("both", "either"):
+        h, a = b["home_rank"].notna(), b["away_rank"].notna()
+        pick = (h & a) if RANKED == "both" else (h | a)
+    else:
+        pick = b["home_conf"].isin(FALLBACK_CONFS) & b["away_conf"].isin(FALLBACK_CONFS)
+    if BIG_CONFS:
+        pick |= b["home_conf"].isin(BIG_CONFS) & b["away_conf"].isin(BIG_CONFS)
+    pick |= b["home_team"].isin(BIG_TEAMS) | b["away_team"].isin(BIG_TEAMS)
+    out = b[pick & b["spread_home"].notna()].copy()
     out["_feature"] = ~(out["home_team"].isin(FEATURE) | out["away_team"].isin(FEATURE))
-    sort = ["_feature"] + [c for c in ("kickoff_utc", "tip_et", "home_team") if c in out]
-    return out.sort_values(sort).drop(columns="_feature").reset_index(drop=True)
+    out["_matchup"] = (out["home_rank"].fillna(UNRANKED) + out["away_rank"].fillna(UNRANKED))
+    sort = ["_feature", "_matchup"] + [c for c in ("kickoff_utc", "tip_et", "home_team") if c in out]
+    return out.sort_values(sort).drop(columns=["_feature", "_matchup"]).reset_index(drop=True)
 
 
 def current_board(picks: pd.DataFrame, today) -> pd.DataFrame:
@@ -378,6 +437,25 @@ def _row(venue: str, key: str, label: str, p_win: float, p_push: float, cost: fl
             "fair": fair, "fair_like": fmt_american(prob_to_american(fair)),
             "ev": ev, "liquid": liquid, "note": note,
             "verdict": "cheap" if cheap else "fair" if ev == ev and ev > -0.02 else "pricey"}
+
+
+def _rank(v):
+    try:
+        return int(v) if v == v and v is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _rule_label(poll: str) -> str:
+    """What decided which games are on the page, in a few words for the header."""
+    if poll and RANKED == "both":
+        rule = f"Ranked vs ranked ({poll})"
+    elif poll and RANKED == "either":
+        rule = f"Games with a ranked team ({poll})"
+    else:
+        rule = " / ".join(sorted(FALLBACK_CONFS)) + " games (no poll yet)"
+    extra = sorted(BIG_CONFS) + sorted(BIG_TEAMS)
+    return rule + (f" + {', '.join(extra)}" if extra else "")
 
 
 def _num(v) -> float:
@@ -542,6 +620,7 @@ def build_card(g, hist: History, rungs: pd.DataFrame, quotes: list[dict],
 
     return {
         "game_id": str(g["game_id"]), "home": home, "away": away, "fav": fav, "dog": dog,
+        "home_rank": _rank(g.get("home_rank")), "away_rank": _rank(g.get("away_rank")),
         "neutral": bool(g.get("neutral_site", False)), "kick": g.get("tip_et", ""),
         "line": fmt_point(-L), "total": float(total) if tot is not None else None,
         "conf": g.get("home_conf") if g.get("home_conf") == g.get("away_conf") else "",
@@ -568,7 +647,10 @@ def build(ladder_path: Path | None = None, out_dir: Path | None = None) -> Path 
         return None
     picks = pd.read_csv(config.PICKS, dtype={"game_id": str}, low_memory=False)
     games = pd.read_csv(config.GAMES, dtype={"game_id": str}, low_memory=False)
-    board = select_games(current_board(picks, today), games)
+    upcoming = current_board(picks, today)
+    week = int(upcoming["week"].min()) if len(upcoming) and "week" in upcoming else None
+    ranks, poll = current_poll(cfbd.load_rankings(), config.season_of(today), week)
+    board = select_games(upcoming, games, ranks)
     snaps = pd.read_csv(config.SNAPSHOTS, low_memory=False) if config.SNAPSHOTS.exists() else None
     results = (pd.read_csv(config.RESULTS, dtype={"game_id": str}, low_memory=False)
                if config.RESULTS.exists() else None)
@@ -589,7 +671,6 @@ def build(ladder_path: Path | None = None, out_dir: Path | None = None) -> Path 
         except Exception as e:                    # one bad game must not blank the page
             log.warning("bigcard: skipped %s @ %s (%s)", g["away_team"], g["home_team"], e)
 
-    week = int(board["week"].iloc[0]) if len(board) and "week" in board else None
     env = Environment(loader=FileSystemLoader(TEMPLATES), autoescape=select_autoescape(["html"]))
     env.filters["pct"] = _pct
     env.filters["american"] = fmt_american
@@ -597,7 +678,7 @@ def build(ladder_path: Path | None = None, out_dir: Path | None = None) -> Path 
     env.filters["cents"] = lambda p: "—" if p is None or p != p else f"{p * 100:.0f}¢"
     html = env.get_template("bigcard.html").render(
         title=config.SITE_TITLE, cards=cards, week=week, updated=str(today),
-        confs=", ".join(sorted(BIG_CONFS)), cheap_ev=CHEAP_EV,
+        rule=_rule_label(poll), cheap_ev=CHEAP_EV,
         fees=config.EXCHANGE_FEES, support_url=config.SUPPORT_URL,
         support_label=config.SUPPORT_LABEL,
         generated=datetime.now(config.ET).strftime("%a %b %-d, %-I:%M %p ET"))

@@ -77,6 +77,11 @@
   .jump svg{transition:transform .2s}
   .jump.up svg{transform:rotate(180deg)}
   @media print{.jump{display:none}}
+  /* College football has two views: every game, and the big-game cards */
+  .tabs{display:inline-flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;
+        padding:4px;margin:10px 0 2px}
+  .tabs a{padding:7px 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--dim);text-decoration:none;white-space:nowrap}
+  .tabs a[aria-current="page"]{background:var(--fg);color:var(--bg)}
   @media(max-width:560px){.bets{grid-template-columns:1fr}}
 </style>
 </head>
@@ -85,7 +90,6 @@
   <nav class="sports" aria-label="Sport">
     <a class="chip" href="../">&larr; All sports</a>
     <a class="chip" aria-current="page" href="./">College football</a>
-    <a class="chip" href="big/">Big games &rarr;</a>
     <a class="chip" href="../nfl/">NFL</a>
     <a class="chip" href="../epl/">Premier League</a>
     <a class="chip" href="../nhl/">NHL</a>
@@ -101,6 +105,10 @@
     <a class="coffee" href="{{ support_url }}" rel="noopener">&#9749; {{ support_label }}</a>
     {% endif %}
   </div>
+  <nav class="tabs" aria-label="College football views">
+    <a aria-current="page" href="./">All games</a>
+    <a href="big/">Big games</a>
+  </nav>
 </header>
 
 <main>

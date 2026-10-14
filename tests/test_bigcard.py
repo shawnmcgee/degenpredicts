@@ -21,6 +21,7 @@ def cfg(tmp_path):
     os.environ["DEGEN_ROOT"] = str(tmp_path)
     os.environ["DEGEN_DATA"] = str(tmp_path / "data")
     os.environ["DEGEN_DOCS"] = str(tmp_path / "docs")
+    os.environ["CFBD_API_KEY"] = "test"
     from cfb import config
     importlib.reload(config)
     config.ensure_dirs()
@@ -267,9 +268,99 @@ def test_quotes_go_to_their_own_log_not_snapshots(cfg):
 
 
 # ---------------------------------------------------------------------------------------
+# which games get a card
+# ---------------------------------------------------------------------------------------
+def _polls():
+    rows = []
+    for week, poll, order in ((6, "AP Top 25", ["Georgia", "Alabama", "Ohio State", "Indiana"]),
+                              (7, "AP Top 25", ["Georgia", "Ohio State", "Indiana", "Alabama", "Tennessee"]),
+                              (7, "Coaches Poll", ["Alabama", "Georgia"]),
+                              (7, "FCS Coaches Poll", ["Montana State"])):
+        rows += [{"season": 2030, "season_type": "regular", "week": week, "poll": poll,
+                  "rank": i + 1, "school": t} for i, t in enumerate(order)]
+    rows.append({"season": 2030, "season_type": "regular", "week": 11,
+                 "poll": "Playoff Committee Rankings", "rank": 1, "school": "Indiana"})
+    return pd.DataFrame(rows)
+
+
+def test_current_poll_prefers_newest_week_then_cfp_then_ap():
+    from cfb import bigcard as bc
+    ranks, poll = bc.current_poll(_polls(), 2030, 7)
+    assert poll == "AP Top 25" and ranks["Tennessee"] == 5 and "Montana State" not in ranks
+    # this week's poll not out yet: last week's stands
+    ranks, _ = bc.current_poll(_polls(), 2030, 6)
+    assert ranks == {"Georgia": 1, "Alabama": 2, "Ohio State": 3, "Indiana": 4}
+    # once the committee has spoken it wins
+    ranks, poll = bc.current_poll(_polls(), 2030, 12)
+    assert poll == "Playoff Committee Rankings" and ranks == {"Indiana": 1}
+    assert bc.current_poll(pd.DataFrame(), 2030, 7) == ({}, "")
+
+
+def _board():
+    rows = [("1", "Tennessee", "Alabama", 8.5), ("2", "Indiana", "Ohio State", 3.5),
+            ("3", "Vanderbilt", "Arkansas", -6.0), ("4", "Toledo", "Georgia", 30.5),
+            ("5", "Michigan", "Purdue", -10.5)]
+    return pd.DataFrame([{**_game(game_id=g, home_team=h, away_team=a, spread_home=sp).to_dict()}
+                         for g, h, a, sp in rows]).drop(columns=["home_conf", "away_conf"])
+
+
+def _confs():
+    conf = {"Tennessee": "SEC", "Alabama": "SEC", "Indiana": "Big Ten", "Ohio State": "Big Ten",
+            "Vanderbilt": "SEC", "Arkansas": "SEC", "Toledo": "Mid-American", "Georgia": "SEC",
+            "Michigan": "Big Ten", "Purdue": "Big Ten"}
+    b = _board()
+    return pd.DataFrame({"game_id": b["game_id"], "home_conf": b["home_team"].map(conf),
+                         "away_conf": b["away_team"].map(conf)})
+
+
+def test_ranked_matchups_best_first(monkeypatch):
+    from cfb import bigcard as bc
+    ranks, _ = bc.current_poll(_polls(), 2030, 7)
+    monkeypatch.setattr(bc, "RANKED", "both")
+    out = bc.select_games(_board(), _confs(), ranks)
+    # #2 v #3 before #4 v #5; unranked Vanderbilt-Arkansas and Toledo-Georgia stay off
+    assert list(out["home_team"]) == ["Indiana", "Tennessee"]
+    assert out.loc[0, "away_rank"] == 2 and out.loc[0, "home_rank"] == 3
+    monkeypatch.setattr(bc, "RANKED", "either")
+    assert set(bc.select_games(_board(), _confs(), ranks)["home_team"]) == {"Indiana", "Tennessee", "Toledo"}
+
+
+def test_no_poll_falls_back_to_conference_games(monkeypatch):
+    from cfb import bigcard as bc
+    monkeypatch.setattr(bc, "FALLBACK_CONFS", {"SEC"})
+    out = bc.select_games(_board(), _confs(), {})
+    assert set(out["home_team"]) == {"Tennessee", "Vanderbilt"}
+
+
+def test_extra_conferences_and_teams_ride_along(monkeypatch):
+    from cfb import bigcard as bc
+    ranks, _ = bc.current_poll(_polls(), 2030, 7)
+    monkeypatch.setattr(bc, "BIG_TEAMS", {"Michigan"})
+    monkeypatch.setattr(bc, "FEATURE", {"Tennessee"})
+    out = bc.select_games(_board(), _confs(), ranks)
+    assert list(out["home_team"]) == ["Tennessee", "Indiana", "Michigan"]
+
+
+def test_fetch_rankings_parses_and_drops_lower_divisions(cfg, monkeypatch):
+    from cfb.sources import cfbd
+    importlib.reload(cfbd)
+    payload = [{"season": 2030, "seasonType": "regular", "week": 7, "polls": [
+        {"poll": "AP Top 25", "ranks": [{"rank": 1, "school": "Georgia", "conference": "SEC", "points": 1550},
+                                        {"rank": 2, "school": "Notre Dame", "conference": "FBS Independents"}]},
+        {"poll": "FCS Coaches Poll", "ranks": [{"rank": 1, "school": "Montana State"}]},
+        {"poll": "AFCA Division II Coaches Poll", "ranks": [{"rank": 1, "school": "Ferris State"}]}]}]
+    monkeypatch.setattr(cfbd, "get_json", lambda *a, **k: payload)
+    got = cfbd.fetch_rankings(2030)
+    assert list(got["school"]) == ["Georgia", "Notre Dame"] and set(got["poll"]) == {"AP Top 25"}
+    monkeypatch.setattr(cfbd, "get_json", lambda *a, **k: None)
+    assert cfbd.fetch_rankings(2030).empty
+
+
+# ---------------------------------------------------------------------------------------
 # the page
 # ---------------------------------------------------------------------------------------
 def test_build_renders_only_big_games(cfg):
+    """No poll on disk yet, so the SEC fallback decides; ranked selection is tested above."""
     from cfb import bigcard as bc
     importlib.reload(bc)
     today = cfg.today_et()

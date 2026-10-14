@@ -24,6 +24,13 @@
   .coffee{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;
           background:var(--warn);color:#2a1c00;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
   .lede{font-size:15px;color:var(--fg);margin:8px 0 12px;max-width:62ch}
+  /* College football has two views: every game, and the big-game cards */
+  .tabs{display:inline-flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;
+        padding:4px;margin:10px 0 2px}
+  .tabs a{padding:7px 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--dim);text-decoration:none;white-space:nowrap}
+  .tabs a[aria-current="page"]{background:var(--fg);color:var(--bg)}
+  .pagehead{font-size:19px;font-weight:650;margin-top:16px}
+  .rule{color:var(--dim);font-size:13px;margin-top:2px}
   .lede b{color:var(--warn);font-weight:600}
   .jump{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
   .jump::-webkit-scrollbar{display:none}
@@ -36,6 +43,7 @@
   .ghead{display:flex;justify-content:space-between;gap:8px;padding:9px 14px;background:var(--card2);font-size:12px;color:var(--dim)}
   .matchup{padding:14px 14px 2px;font-size:20px;font-weight:650;line-height:1.25}
   .matchup .at{color:var(--dim);font-weight:400;font-size:15px;margin:0 6px}
+  .matchup .rk{color:var(--dim);font-weight:500;font-size:14px;margin-right:5px;font-variant-numeric:tabular-nums}
   .numbers{padding:2px 14px 10px;font-size:14px;color:var(--dim)}
   .numbers b{color:var(--fg);font-variant-numeric:tabular-nums}
   .move{margin:0 14px 12px;padding:9px 12px;border-radius:9px;background:var(--card2);font-size:13px;color:var(--dim)}
@@ -117,21 +125,30 @@
 <header>
   <nav class="sports" aria-label="Sport">
     <a class="chip" href="../../">&larr; All sports</a>
-    <a class="chip" href="../">College football board</a>
-    <a class="chip" aria-current="page" href="./">Big games</a>
+    <a class="chip" aria-current="page" href="../">College football</a>
+    <a class="chip" href="../../nfl/">NFL</a>
+    <a class="chip" href="../../epl/">Premier League</a>
+    <a class="chip" href="../../nhl/">NHL</a>
+    <a class="chip" href="../../nba/">NBA</a>
   </nav>
   <div class="topbar">
     <div>
-      <h1>Big Game Cards</h1>
-      <div class="sub">College football{% if week %} &middot; Week {{ week }}{% endif %} &middot; {{ confs }} &middot; updated {{ updated }}</div>
+      <h1>{{ title }}</h1>
+      <div class="sub">College football{% if week %} &middot; Week {{ week }}{% endif %} &middot; updated {{ updated }}</div>
     </div>
     {% if support_url %}<a class="coffee" href="{{ support_url }}" rel="noopener">&#9749; {{ support_label }}</a>{% endif %}
   </div>
+  <nav class="tabs" aria-label="College football views">
+    <a href="../">All games</a>
+    <a aria-current="page" href="./">Big games</a>
+  </nav>
+  <h2 class="pagehead">Big Game Cards</h2>
+  <div class="rule">{{ rule }}</div>
   <p class="lede">The bet you were going to make anyway, <b>cheaper</b>. Every price below is what it actually costs after fees,
     next to what it should cost. This is not a pick sheet &mdash; on games this big, nobody's model beats the line, ours included.</p>
   {% if cards %}
   <nav class="jump" aria-label="Games">
-    {% for c in cards %}<a class="chip" href="#g{{ c.game_id }}">{{ c.away }} @ {{ c.home }}</a>{% endfor %}
+    {% for c in cards %}<a class="chip" href="#g{{ c.game_id }}">{% if c.away_rank %}#{{ c.away_rank }} {% endif %}{{ c.away }} @ {% if c.home_rank %}#{{ c.home_rank }} {% endif %}{{ c.home }}</a>{% endfor %}
   </nav>
   {% endif %}
   <details class="how">
@@ -154,13 +171,13 @@
 
 <main>
 {% if not cards %}
-  <div class="note">No big games on the board right now. Cards appear once the week's lines are posted.</div>
+  <div class="note">No ranked matchups on the board right now. Cards appear once the week's lines are posted.</div>
 {% endif %}
 
 {% for c in cards %}
 <article class="game" id="g{{ c.game_id }}">
   <div class="ghead"><span>{{ c.kick }}{% if c.neutral %} &middot; neutral site{% endif %}</span><span>{{ c.conf }}</span></div>
-  <div class="matchup">{{ c.away }}<span class="at">{{ 'vs' if c.neutral else '@' }}</span>{{ c.home }}</div>
+  <div class="matchup">{% if c.away_rank %}<span class="rk">#{{ c.away_rank }}</span>{% endif %}{{ c.away }}<span class="at">{{ 'vs' if c.neutral else '@' }}</span>{% if c.home_rank %}<span class="rk">#{{ c.home_rank }}</span>{% endif %}{{ c.home }}</div>
   <div class="numbers">Line <b>{{ c.fav }} {{ c.line }}</b>{% if c.total %} &middot; Total <b>{{ '%g'|format(c.total) }}</b>{% endif %}</div>
 
   {% if c.move %}

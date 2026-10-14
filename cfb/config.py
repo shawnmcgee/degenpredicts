@@ -20,6 +20,7 @@ LINES = DATA / "lines.csv"            # CFBD historical + current lines (open an
 SNAPSHOTS = DATA / "snapshots.csv"    # our own live pulls, for closing-line value
 RETURNING = DATA / "returning.csv"    # returning production by team/season (preseason-known)
 SP_PRIOR = DATA / "sp_ratings.csv"    # SP+ by season - only ever used from season-1
+RANKINGS = DATA / "rankings.csv"     # weekly polls (CFP, AP, Coaches) - picks the Big Game Cards
 PICKS = DATA / "picks.csv"
 RESULTS = DATA / "results.csv"
 METRICS = DATA / "metrics.json"
