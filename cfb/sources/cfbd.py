@@ -18,8 +18,8 @@ from datetime import date, datetime
 import pandas as pd
 
 from .. import config as _cfg  # noqa: F401  (keeps import symmetry if reorganised)
-from ..config import (CFBD_BASE, CFBD_KEY, GAMES, LINES, PREFERRED_PROVIDERS, RETURNING,
-                      SP_PRIOR, ensure_dirs, season_of)
+from ..config import (CFBD_BASE, CFBD_KEY, GAMES, LINES, PREFERRED_PROVIDERS, RANKINGS,
+                      RETURNING, SP_PRIOR, ensure_dirs, season_of)
 from core.http import get_json
 
 log = logging.getLogger(__name__)
@@ -383,3 +383,60 @@ def load_returning() -> pd.DataFrame:
 
 def load_sp() -> pd.DataFrame:
     return pd.read_csv(SP_PRIOR) if SP_PRIOR.exists() else pd.DataFrame()
+
+
+# --- weekly polls ------------------------------------------------------------------------
+RANK_COLS = ["season", "season_type", "week", "poll", "rank", "school", "conference", "points"]
+
+
+def fetch_rankings(season: int) -> pd.DataFrame:
+    """Every FBS poll CFBD has for a season: one row per ranked team per poll per week.
+
+    The lower-division polls ride along in the same response ("FCS Coaches Poll", "AFCA
+    Division II ...") and are dropped here; a Big Game Card is for FBS games.
+    """
+    data = get_json(f"{CFBD_BASE}/rankings", params={"year": season}, headers=_headers())
+    rows = []
+    for wk in data or []:
+        week = pick(wk, "week")
+        stype = pick(wk, "seasonType", "season_type", default="regular")
+        for poll in pick(wk, "polls", default=[]) or []:
+            name = str(pick(poll, "poll", "name", default=""))
+            low = name.lower()
+            if not name or "fcs" in low or "division" in low:
+                continue
+            for r in pick(poll, "ranks", default=[]) or []:
+                school = pick(r, "school", "team")
+                if school is None or pick(r, "rank") is None:
+                    continue
+                rows.append({"season": season, "season_type": stype, "week": week,
+                             "poll": name, "rank": int(pick(r, "rank")), "school": school,
+                             "conference": pick(r, "conference"),
+                             "points": _num(pick(r, "points"))})
+    return pd.DataFrame(rows, columns=RANK_COLS)
+
+
+def update_rankings() -> pd.DataFrame:
+    """This season's polls, refreshed every run (one call). Never fatal: without a poll the
+    Big Game Cards fall back to conference games, and nothing else reads this file."""
+    from ..config import today_et
+    this = season_of(today_et())
+    cache = load_rankings()
+    try:
+        fresh = fetch_rankings(this)
+    except Exception as e:                       # pragma: no cover - logged, never fatal
+        log.warning("rankings unavailable (%s)", e)
+        return cache
+    if fresh.empty:
+        log.info("rankings: none published yet for %s", this)
+        return cache
+    keep = cache[cache["season"] != this] if len(cache) else cache
+    out = pd.concat([keep, fresh], ignore_index=True)
+    ensure_dirs()
+    out.to_csv(RANKINGS, index=False)
+    log.info("rankings: %d rows, latest week %s", len(fresh), fresh["week"].max())
+    return out
+
+
+def load_rankings() -> pd.DataFrame:
+    return pd.read_csv(RANKINGS) if RANKINGS.exists() else pd.DataFrame(columns=RANK_COLS)

@@ -20,10 +20,13 @@ LINES = DATA / "lines.csv"            # CFBD historical + current lines (open an
 SNAPSHOTS = DATA / "snapshots.csv"    # our own live pulls, for closing-line value
 RETURNING = DATA / "returning.csv"    # returning production by team/season (preseason-known)
 SP_PRIOR = DATA / "sp_ratings.csv"    # SP+ by season - only ever used from season-1
+RANKINGS = DATA / "rankings.csv"     # weekly polls (CFP, AP, Coaches) - picks the Big Game Cards
 PICKS = DATA / "picks.csv"
 RESULTS = DATA / "results.csv"
 METRICS = DATA / "metrics.json"
 MODEL_DIR = DATA / "models"
+LADDERS = DATA / "ladders"   # every Kalshi ladder rung per pull, one gzip CSV a day
+QUOTES = DATA / "quotes"     # per-venue spread/total quotes per pull, one gzip CSV a day
 
 # --- credentials -------------------------------------------------------------------
 CFBD_KEY = os.environ.get("CFBD_API_KEY", "")
@@ -34,6 +37,23 @@ ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")   # optional: live prices for 
 PREFERRED_PROVIDERS = ["Bovada", "DraftKings", "ESPN Bet", "consensus", "teamrankings",
                        "numberfire", "William Hill (New Jersey)"]
 ODDS_BOOKS = ["Pinnacle", "DraftKings", "FanDuel", "BetMGM", "Caesars", "Bovada"]
+# Where the Big Game Card shops each side: the venues the site's readers bet at. Kalshi,
+# Polymarket and Novig are The Odds API's US exchanges; the rest are sportsbooks. Same list
+# and same reasoning as the NFL pipeline's, which has carried per-venue quotes since October.
+SHOP_BOOKS = [b.strip().lower() for b in
+              os.environ.get("DEGEN_CFB_SHOP_BOOKS",
+                             "draftkings,fanduel,kalshi,polymarket,novig").split(",") if b.strip()]
+# The books the main line is read from, by Odds API key.
+LINE_BOOKS = ["draftkings", "fanduel", "betmgm", "williamhill_us", "bovada"]
+# Asked for by name: up to ten bookmakers bill as one region, so this costs what `regions=us`
+# did while adding the exchanges `us` leaves out.
+ODDS_BOOKMAKERS = list(dict.fromkeys(LINE_BOOKS + SHOP_BOOKS))[:10]
+# Taker fee coefficient per exchange, as fee = coef * P * (1 - P) per contract, charged on top
+# of the price. Sportsbooks are absent because their margin is already in the American price.
+# Kalshi 0.07 (kalshi.com/fee-schedule); Polymarket US 0.0695 (docs.polymarket.us/fees);
+# Novig charges no fee on pre-game straight trades (support.novig.com, "Fees on Novig").
+# Verify before relying on them - all three have changed their schedules this year.
+EXCHANGE_FEES = {"kalshi": 0.07, "polymarket": 0.0695, "novig": 0.0}
 
 # --- time / season -------------------------------------------------------------------
 ET = ZoneInfo("America/New_York")

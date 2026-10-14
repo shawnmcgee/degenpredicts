@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Big Game Cards — {{ title }}</title>
+<meta name="description" content="Where each side of the week's biggest college football games is cheapest, after fees, and what every Kalshi alt line should cost.">
+<style>
+  :root{--bg:#0d0e11;--card:#171a1f;--card2:#1e2229;--line:#2a2e36;--fg:#e9eaec;--dim:#98a0aa;
+        --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:40px}
+  header,main,footer{max-width:960px;margin:0 auto;padding:0 16px}
+  a{color:var(--accent)}
+  nav.sports{display:flex;gap:8px;margin:16px 0 4px;flex-wrap:wrap}
+  .chip{display:inline-block;background:var(--card2);color:var(--dim);border:1px solid var(--line);border-radius:999px;
+        padding:7px 14px;font-size:13px;text-decoration:none;white-space:nowrap}
+  .chip[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0 6px}
+  h1{font-size:22px;font-weight:650}
+  .sub{color:var(--dim);font-size:13px;margin-top:3px}
+  .coffee{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;
+          background:var(--warn);color:#2a1c00;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+  .lede{font-size:15px;color:var(--fg);margin:8px 0 12px;max-width:62ch}
+  /* College football has two views: every game, and the big-game cards */
+  .tabs{display:inline-flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;
+        padding:4px;margin:10px 0 2px}
+  .tabs a{padding:7px 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--dim);text-decoration:none;white-space:nowrap}
+  .tabs a[aria-current="page"]{background:var(--fg);color:var(--bg)}
+  .pagehead{font-size:19px;font-weight:650;margin-top:16px}
+  .rule{color:var(--dim);font-size:13px;margin-top:2px}
+  .lede b{color:var(--warn);font-weight:600}
+  .jump{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
+  .jump::-webkit-scrollbar{display:none}
+  details.how{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--dim);margin-bottom:16px}
+  details.how summary{cursor:pointer;color:var(--fg);font-weight:600;font-size:14px}
+  details.how ul{margin:8px 0 2px 18px} details.how li{margin:4px 0}
+  details.how b{color:var(--fg)}
+
+  .game{background:var(--card);border-radius:14px;margin-bottom:18px;border:1px solid var(--line);overflow:hidden;scroll-margin-top:10px}
+  .ghead{display:flex;justify-content:space-between;gap:8px;padding:9px 14px;background:var(--card2);font-size:12px;color:var(--dim)}
+  .matchup{padding:14px 14px 2px;font-size:20px;font-weight:650;line-height:1.25}
+  .matchup .at{color:var(--dim);font-weight:400;font-size:15px;margin:0 6px}
+  .matchup .rk{color:var(--dim);font-weight:500;font-size:14px;margin-right:5px;font-variant-numeric:tabular-nums}
+  .numbers{padding:2px 14px 10px;font-size:14px;color:var(--dim)}
+  .numbers b{color:var(--fg);font-variant-numeric:tabular-nums}
+  .move{margin:0 14px 12px;padding:9px 12px;border-radius:9px;background:var(--card2);font-size:13px;color:var(--dim)}
+  .move b{color:var(--fg)} .move .big{color:var(--warn)}
+
+  .sec{padding:4px 14px 14px}
+  .sec h3{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin:6px 0 8px;font-weight:600}
+  .sides{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:620px){.sides{grid-template-columns:1fr}}
+  .side{background:var(--card2);border-radius:10px;padding:10px 12px}
+  .side .t{font-size:15px;font-weight:650;margin-bottom:4px}
+  .row{display:grid;grid-template-columns:1fr auto auto;gap:4px 12px;align-items:center;padding:7px 0;font-size:13px}
+  .row + .row{border-top:1px solid var(--line)}
+  .row .what b{display:block;font-size:14px;font-weight:600}
+  .row .what > span{color:var(--dim);font-size:12px}
+  .row .px{text-align:right;font-variant-numeric:tabular-nums}
+  .row .px b{display:block;font-size:14px}
+  .row .px span{color:var(--dim);font-size:12px;white-space:nowrap}
+  .val{min-width:76px;text-align:right;font-variant-numeric:tabular-nums;font-weight:650;font-size:13px}
+  .val small{display:block;font-weight:400;color:var(--dim);font-size:11px}
+  .cheap{color:var(--good)} .fair{color:var(--fg)} .pricey{color:var(--bad)}
+  .best{display:inline-block;font-size:10px;padding:1px 6px;border-radius:5px;background:var(--good);color:#052e16;
+        font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-left:6px;vertical-align:2px}
+  .thin{display:inline-block;font-size:10px;padding:1px 6px;border-radius:5px;border:1px solid var(--warn);color:var(--warn);
+        font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-left:6px;vertical-align:2px}
+  .empty{color:var(--dim);font-size:13px;padding:6px 0}
+
+  .model{background:var(--card2);border-radius:10px;padding:11px 12px;font-size:14px}
+  .model .honest{color:var(--dim);font-size:12px;margin-top:6px}
+
+  .menuwrap{background:var(--card2);border-radius:10px;padding:2px 12px 4px}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:7px 0;border-top:1px solid var(--line);
+        font-variant-numeric:tabular-nums}
+  .pair.head{border-top:0;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);padding:8px 0 4px}
+  .pair.tail{display:none}
+  .menu.open .pair.tail{display:grid}
+  .leg{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:0 6px;min-width:0}
+  .leg b{font-size:15px;font-weight:650}
+  .leg .v{text-align:right;font-weight:650;font-size:13px}
+  .leg .p{grid-column:1 / -1;color:var(--dim);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .leg.thinleg b,.leg.thinleg .v{opacity:.55}
+  .leg .p i{font-style:normal;color:var(--warn)}
+  button.more{margin-top:8px;background:none;border:1px solid var(--line);color:var(--accent);border-radius:999px;
+              padding:6px 14px;font-size:13px;cursor:pointer}
+  .caveat{font-size:12px;color:var(--dim);margin-top:8px}
+  .note{background:var(--card);border-left:3px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim);margin:12px 0}
+  footer{margin-top:28px;color:var(--dim);font-size:12px;text-align:center;line-height:1.6}
+</style>
+</head>
+<body>
+{% macro money(ev) -%}
+  {%- if ev is none or ev != ev -%}—{%- else -%}
+  {{ '+' if ev > 0 else '−' if ev < 0 else '' }}${{ '%.2f'|format((ev * 100)|abs) }}
+  {%- endif -%}
+{%- endmacro %}
+{% macro qrow(r, top=false) %}
+  <div class="row">
+    <div class="what"><b>{{ r.label }}{% if top and r.liquid %}<span class="best">Best</span>{% endif %}{% if not r.liquid %}<span class="thin">Thin</span>{% endif %}</b>
+      <span>{{ r.venue }}{% if r.note %} · {{ r.note }}{% endif %}</span></div>
+    <div class="px"><b>{{ r.price }}</b><span>costs {{ r.costs_like }}</span></div>
+    <div class="val {{ r.verdict }}">{{ money(r.ev) }}<small>fair {{ r.fair_like }}</small></div>
+  </div>
+{% endmacro %}
+{% macro side(title, rows) %}
+  <div class="side">
+    <div class="t">{{ title }}</div>
+    {% if rows %}
+      {% for r in rows[:4] %}{{ qrow(r, loop.first) }}{% endfor %}
+    {% else %}<div class="empty">No price yet.</div>{% endif %}
+  </div>
+{% endmacro %}
+{% macro leg(r, short) %}
+  {% if r %}
+    <div class="leg{{ ' thinleg' if not r.liquid }}"><b>{{ short }}</b><span class="v {{ r.verdict }}">{{ money(r.ev) }}</span>
+      <span class="p">{{ r.price }} · costs {{ r.costs_like }}{% if not r.liquid %} · <i>thin</i>{% endif %}</span></div>
+  {% else %}<div class="leg"><b>—</b></div>{% endif %}
+{% endmacro %}
+
+<header>
+  <nav class="sports" aria-label="Sport">
+    <a class="chip" href="../../">&larr; All sports</a>
+    <a class="chip" aria-current="page" href="../">College football</a>
+    <a class="chip" href="../../nfl/">NFL</a>
+    <a class="chip" href="../../epl/">Premier League</a>
+    <a class="chip" href="../../nhl/">NHL</a>
+    <a class="chip" href="../../nba/">NBA</a>
+  </nav>
+  <div class="topbar">
+    <div>
+      <h1>{{ title }}</h1>
+      <div class="sub">College football{% if week %} &middot; Week {{ week }}{% endif %} &middot; updated {{ updated }}</div>
+    </div>
+    {% if support_url %}<a class="coffee" href="{{ support_url }}" rel="noopener">&#9749; {{ support_label }}</a>{% endif %}
+  </div>
+  <nav class="tabs" aria-label="College football views">
+    <a href="../">All games</a>
+    <a aria-current="page" href="./">Big games</a>
+  </nav>
+  <h2 class="pagehead">Big Game Cards</h2>
+  <div class="rule">{{ rule }}</div>
+  <p class="lede">The bet you were going to make anyway, <b>cheaper</b>. Every price below is what it actually costs after fees,
+    next to what it should cost. This is not a pick sheet &mdash; on games this big, nobody's model beats the line, ours included.</p>
+  {% if cards %}
+  <nav class="jump" aria-label="Games">
+    {% for c in cards %}<a class="chip" href="#g{{ c.game_id }}">{% if c.away_rank %}#{{ c.away_rank }} {% endif %}{{ c.away }} @ {% if c.home_rank %}#{{ c.home_rank }} {% endif %}{{ c.home }}</a>{% endfor %}
+  </nav>
+  {% endif %}
+  <details class="how">
+    <summary>How to read a card</summary>
+    <ul>
+      <li><b>Costs</b> is the real price after the exchange's fee, written as normal odds. A Kalshi 56&cent; contract costs about
+        &minus;137 once Kalshi's fee is added, not the &minus;127 the 56&cent; suggests. Novig charges no fee pre-game; Polymarket and
+        Kalshi do.</li>
+      <li><b>Fair</b> is what the bet should cost: the sportsbook's own line, plus how college games with a similar line have actually
+        finished since 2015. It pins the main number to the market and only fills in what the line implies for every other number
+        &mdash; so most of the time the best you can do is <b>lose less</b>.</li>
+      <li><b>Per $100</b> is the expected result of a $100 bet if that fair price is right. A standard &minus;110 bet is about
+        &minus;$4.50. <span class="cheap">Green</span> means cheaper than fair by {{ (cheap_ev * 100)|round|int }}%+ on a quote with real size.</li>
+      <li><b>Buy No</b>: on Kalshi you can take the other side of any rung. &ldquo;No&rdquo; on &ldquo;Alabama by 10+&rdquo; is
+        the same bet as the other team +9.5.</li>
+      <li><b>Thin</b> means the quote has little size or a wide spread &mdash; it may not be there when you click.</li>
+    </ul>
+  </details>
+</header>
+
+<main>
+{% if not cards %}
+  <div class="note">No ranked matchups on the board right now. Cards appear once the week's lines are posted.</div>
+{% endif %}
+
+{% for c in cards %}
+<article class="game" id="g{{ c.game_id }}">
+  <div class="ghead"><span>{{ c.kick }}{% if c.neutral %} &middot; neutral site{% endif %}</span><span>{{ c.conf }}</span></div>
+  <div class="matchup">{% if c.away_rank %}<span class="rk">#{{ c.away_rank }}</span>{% endif %}{{ c.away }}<span class="at">{{ 'vs' if c.neutral else '@' }}</span>{% if c.home_rank %}<span class="rk">#{{ c.home_rank }}</span>{% endif %}{{ c.home }}</div>
+  <div class="numbers">Line <b>{{ c.fav }} {{ c.line }}</b>{% if c.total %} &middot; Total <b>{{ '%g'|format(c.total) }}</b>{% endif %}</div>
+
+  {% if c.move %}
+  <div class="move">
+    {% if c.move.spread_moved %}
+      Line moved <b class="{{ 'big' if c.move.spread_moved|abs >= 2.5 }}">{{ c.move.fav }} {{ c.move.spread_from|point }} &rarr; {{ c.move.spread_to|point }}</b>
+    {% else %}Line steady at <b>{{ c.move.fav }} {{ c.move.spread_to|point }}</b>{% endif %}
+    {% if c.move.total_from is not none %}
+      &middot; total {% if c.move.total_moved %}<b class="{{ 'big' if c.move.total_moved|abs >= 3 }}">{{ '%g'|format(c.move.total_from) }} &rarr; {{ '%g'|format(c.move.total_to) }}</b>{% else %}steady at <b>{{ '%g'|format(c.move.total_to) }}</b>{% endif %}
+    {% endif %}
+    since {{ c.move.since }}.
+    {% if (c.move.spread_moved|abs >= 2.5) or (c.move.total_moved|abs >= 3) %}A move this size usually means news &mdash; check injuries and quarterback status before betting the old number anywhere.{% endif %}
+  </div>
+  {% endif %}
+
+  <div class="sec">
+    <h3>Cheapest way to bet each side</h3>
+    <div class="sides">
+      {{ side(c.fav ~ ' ' ~ c.line, c.sides.fav) }}
+      {{ side(c.dog ~ ' ' ~ (c.line|replace('−', '+')), c.sides.dog) }}
+      {% if c.total %}
+      {{ side('Over ' ~ ('%g'|format(c.total)), c.sides.over) }}
+      {{ side('Under ' ~ ('%g'|format(c.total)), c.sides.under) }}
+      {% endif %}
+    </div>
+    {% if not c.has_quotes %}<p class="caveat">Sportsbook and exchange prices from FanDuel, Polymarket and Novig join this card from the next
+      morning run. Until then it compares the board's book with Kalshi.</p>{% endif %}
+  </div>
+
+  {% if c.ml %}
+  <div class="sec">
+    <h3>To win outright (Kalshi)</h3>
+    <div class="side">{% for r in c.ml %}{{ qrow(r) }}{% endfor %}</div>
+  </div>
+  {% endif %}
+
+  {% if c.model %}
+  <div class="sec">
+    <h3>What our model says</h3>
+    <div class="model">
+      {% if c.model.agrees %}
+        Agrees with the market: {{ c.fav }} by {{ '%.1f'|format(c.model.fav_margin) }}{% if c.model.total %}, {{ '%.1f'|format(c.model.total) }} points{% endif %}.
+        Nothing to add on the side or total.
+      {% else %}
+        {{ c.fav }} by {{ '%.1f'|format(c.model.fav_margin) }} ({{ '%+.1f'|format(c.model.diff) }} vs the line){% if c.model.total %},
+        {{ '%.1f'|format(c.model.total) }} points ({{ '%+.1f'|format(c.model.total_diff) }}){% endif %}.
+        A second opinion, not a bet.
+      {% endif %}
+      {% if c.model.record %}
+      <div class="honest">On Power-4 games this season the model's spread side is {{ c.model.record.wins }}-{{ c.model.record.losses }}{% if c.model.record.clv is not none %},
+        but the closing line moved its way by {{ '%+.2f'|format(c.model.record.clv) }} points on average over {{ c.model.record.clv_n }} games &mdash;
+        {% if c.model.record.clv <= 0.25 %}no measurable edge, so the record is mostly luck{% else %}a small edge worth watching, not betting yet{% endif %}{% endif %}.</div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if c.menu %}
+  <div class="sec">
+    <h3>Alt-line menu (Kalshi spread ladder)</h3>
+    <div class="menuwrap menu" id="m{{ c.game_id }}">
+      <div class="pair head"><span>{{ c.fav }}</span><span>{{ c.dog }}</span></div>
+      {% for m in c.menu %}
+      <div class="pair{{ '' if m.core else ' tail' }}">{{ leg(m.fav, m.fav.label|replace(c.fav ~ ' ', '') if m.fav else '') }}{{ leg(m.dog, m.dog.label|replace(c.dog ~ ' ', '') if m.dog else '') }}</div>
+      {% endfor %}
+    </div>
+    {% set n_tail = c.menu|rejectattr('core')|list|length %}
+    {% if n_tail %}<button class="more" type="button" data-target="m{{ c.game_id }}">Show all {{ c.menu|length }} lines</button>{% endif %}
+    <p class="caveat">Each row is one Kalshi contract seen from both sides: you buy Yes for one and No for the other. Fair prices here are a hypothesis
+      built from {{ '{:,}'.format(c.hist_n) }} past games with similar lines; we log every rung each morning and will publish how they grade.</p>
+  </div>
+  {% endif %}
+
+  {% if c.menu_tot %}
+  <div class="sec">
+    <h3>Alt totals (Kalshi)</h3>
+    <div class="menuwrap menu" id="t{{ c.game_id }}">
+      <div class="pair head"><span>Over</span><span>Under</span></div>
+      {% for m in c.menu_tot %}
+      <div class="pair{{ '' if m.core else ' tail' }}">{{ leg(m.over, m.over.label|replace('Over ', 'o') if m.over else '') }}{{ leg(m.under, m.under.label|replace('Under ', 'u') if m.under else '') }}</div>
+      {% endfor %}
+    </div>
+    {% set n_tail = c.menu_tot|rejectattr('core')|list|length %}
+    {% if n_tail %}<button class="more" type="button" data-target="t{{ c.game_id }}">Show all {{ c.menu_tot|length }} totals</button>{% endif %}
+  </div>
+  {% endif %}
+
+  {% if not c.has_ladder %}
+  <div class="sec"><p class="caveat">Kalshi's alt-line ladder for this game appears after the next morning run.</p></div>
+  {% endif %}
+</article>
+{% endfor %}
+</main>
+
+<footer>
+  Prices are a snapshot from the morning run ({{ generated }}) and move all day &mdash; check the venue before you bet.<br>
+  Fees used: Kalshi {{ fees.kalshi }}&times;P&times;(1&minus;P), Polymarket {{ fees.polymarket }}&times;P&times;(1&minus;P), Novig none pre-game.
+  For information and entertainment only &mdash; not betting advice. Bet only what you can afford to lose.
+  21+ in most US states. Gambling problem? Call <a href="tel:+18004262537">1-800-GAMBLER</a>.
+</footer>
+
+<script>
+  document.querySelectorAll('button.more').forEach(function (b) {
+    var label = b.textContent;
+    b.addEventListener('click', function () {
+      var box = document.getElementById(b.dataset.target);
+      var open = box.classList.toggle('open');
+      b.textContent = open ? 'Show fewer' : label;
+    });
+  });
+</script>
+</body>
+</html>

@@ -9,6 +9,7 @@ Every pull is appended to snapshots.csv so closing-line value is measurable late
 from __future__ import annotations
 
 import difflib
+import json
 import logging
 import re
 import unicodedata
@@ -145,12 +146,55 @@ def _market(bm, key, home):
     return None
 
 
+def quotes(ev: dict, books=None) -> list[dict]:
+    """Every shop venue's number and price on each side of one event, for the Big Game Card.
+
+    One entry per venue, market and side: ``{"book", "key", "m", "side", "point", "price"}``,
+    where ``m`` is "spread" or "total", a spread side is "home" or "away" with its own point
+    (an away +3.5 is ``point=3.5``) and a total side is "over" or "under". Same shape the NFL
+    snapshot has carried since October, so one reader handles both.
+    """
+    books = config.SHOP_BOOKS if books is None else books
+    out = []
+    for bm in ev.get("bookmakers", []):
+        key = str(bm.get("key", "")).lower()
+        if key not in books:
+            continue
+        title = bm.get("title") or key
+        for m in bm.get("markets", []):
+            for o in m.get("outcomes", []):
+                if o.get("point") is None or o.get("price") is None:
+                    continue
+                if m.get("key") == "spreads":
+                    side = "home" if o.get("name") == ev["home_team"] else "away"
+                    out.append({"book": title, "key": key, "m": "spread", "side": side,
+                                "point": float(o["point"]), "price": float(o["price"])})
+                elif m.get("key") == "totals" and o.get("name") in ("Over", "Under"):
+                    out.append({"book": title, "key": key, "m": "total",
+                                "side": o["name"].lower(), "point": float(o["point"]),
+                                "price": float(o["price"])})
+    return out
+
+
+def _fetch():
+    """The odds call. Books are asked for by name - the line books plus the exchanges, at the
+    cost of one region - and a refusal falls back to the plain US region, so the board can
+    never lose its prices to the book list."""
+    base = {"apiKey": ODDS_API_KEY, "markets": "totals,spreads", "oddsFormat": "american",
+            "dateFormat": "iso"}
+    r = get(URL, params={**base, "bookmakers": ",".join(config.ODDS_BOOKMAKERS)})
+    if r is not None and r.status_code == 200:
+        return r
+    log.warning("Odds API refused the book list (%s) - falling back to regions=us",
+                getattr(r, "status_code", "no response"))
+    return get(URL, params={**base, "regions": "us"})
+
+
 def snapshot(matcher=None) -> pd.DataFrame:
     if not ODDS_API_KEY:
         log.info("ODDS_API_KEY unset - skipping live prices, using CFBD numbers at -110")
         return pd.DataFrame()
-    r = get(URL, params={"apiKey": ODDS_API_KEY, "regions": "us", "markets": "totals,spreads",
-                         "oddsFormat": "american", "dateFormat": "iso"})
+    r = _fetch()
     if r is None or r.status_code != 200:
         log.warning("Odds API unavailable: %s", getattr(r, "status_code", "no response"))
         return pd.DataFrame()
@@ -198,7 +242,8 @@ def snapshot(matcher=None) -> pd.DataFrame:
                      "live_spread_home": s_line, "spread_home_price": s_home,
                      "spread_away_price": s_away, "spread_book": s_book, "spread_n_books": s_n,
                      "p_over_mkt": p_o, "p_under_mkt": p_u,
-                     "p_home_mkt": p_h, "p_away_mkt": p_a})
+                     "p_home_mkt": p_h, "p_away_mkt": p_a,
+                     "quotes": json.dumps(quotes(ev), separators=(",", ":"))})
     if in_play:
         log.info("odds: skipped %d games already under way (in-play prices)", in_play)
     df = pd.DataFrame(rows)
@@ -209,10 +254,48 @@ def snapshot(matcher=None) -> pd.DataFrame:
 
 
 def append_snapshot(df: pd.DataFrame) -> None:
+    """Append a pull to snapshots.csv. The per-venue `quotes` column is left out: at ~90 games a
+    day it would grow this file fifteenfold in a season. It goes to append_quotes instead."""
     if df.empty:
         return
     ensure_dirs()
+    df = df.drop(columns=["quotes"], errors="ignore")
+    if SNAPSHOTS.exists():
+        df = df.reindex(columns=pd.read_csv(SNAPSHOTS, nrows=0).columns.tolist())
     df.to_csv(SNAPSHOTS, mode="a", header=not SNAPSHOTS.exists(), index=False)
+
+
+QUOTE_COLS = ["pulled_at", "date", "home_team", "away_team", "quotes"]
+
+
+def append_quotes(df: pd.DataFrame) -> None:
+    """Every venue's spread and total quotes from this pull, for the Big Game Card.
+
+    One gzip CSV per pull day under data/cfb/quotes/, written without a gzip timestamp so an
+    unchanged file is byte-identical and gives git nothing to commit. Never fatal.
+    """
+    if df is None or df.empty or "quotes" not in df:
+        return
+    try:
+        rows = df[[c for c in QUOTE_COLS if c in df]].copy()
+        rows["date"] = rows["date"].astype(str)
+        config.QUOTES.mkdir(parents=True, exist_ok=True)
+        path = config.QUOTES / f"{str(rows['pulled_at'].iloc[0])[:10]}.csv.gz"
+        if path.exists():
+            rows = pd.concat([pd.read_csv(path), rows], ignore_index=True)
+        rows = rows.drop_duplicates(subset=["pulled_at", "home_team", "away_team"], keep="last")
+        rows.to_csv(path, index=False, compression={"method": "gzip", "mtime": 0})
+    except Exception as e:                       # pragma: no cover - logged, never fatal
+        log.warning("odds: could not write quotes (%s)", e)
+
+
+def quotes_history(days: int = 3) -> pd.DataFrame:
+    if not config.QUOTES.exists():
+        return pd.DataFrame(columns=QUOTE_COLS)
+    files = sorted(config.QUOTES.glob("*.csv.gz"))[-days:]
+    if not files:
+        return pd.DataFrame(columns=QUOTE_COLS)
+    return pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
 
 
 def snapshot_history() -> pd.DataFrame:
