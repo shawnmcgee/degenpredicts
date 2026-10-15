@@ -29613,4 +29613,4 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401871083,2026,13,regular,2026-11-28,False,"Sat Nov 28, 2:00 PM",Middle Tennessee,New Mexico State,,,,,False,True,Conference USA,Conference USA,False,2026-11-28T14:00:00-05:00,Sat,fbs,fbs
 401871102,2026,13,regular,2026-11-28,True,,UL Monroe,Marshall,,,,,False,True,Sun Belt,Sun Belt,False,2026-11-28T00:00:00-05:00,Sat,fbs,fbs
 401871103,2026,13,regular,2026-11-28,True,,Old Dominion,Southern Miss,,,,,False,True,Sun Belt,Sun Belt,False,2026-11-28T00:00:00-05:00,Sat,fbs,fbs
-401862844,2026,15,regular,2026-12-12,False,"Sat Dec 12, 3:00 PM",Army,Navy,,,,,True,True,American Athletic,American Athletic,False,2026-12-12T15:00:00-05:00,Sat,fbs,fbs
+401862844,2026,15,regular,2026-12-12,False,"Sat Dec 12, 3:00 PM",Army,Navy,,,,,True,False,American Athletic,American Athletic,False,2026-12-12T15:00:00-05:00,Sat,fbs,fbs
