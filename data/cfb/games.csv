@@ -27870,8 +27870,8 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401909123,2026,6,regular,2026-10-10,False,"Sat Oct 10, 2:00 PM",St. Norbert,Lakeland,,,,,False,True,NACC,NACC,False,2026-10-10T14:00:00-04:00,Sat,,
 401871053,2026,7,regular,2026-10-13,False,"Tue Oct 13, 8:00 PM",Jacksonville State,Florida International,27.0,24.0,51.0,3.0,False,True,Conference USA,Conference USA,True,2026-10-13T20:00:00-04:00,Tue,fbs,fbs
 401871067,2026,7,regular,2026-10-13,False,"Tue Oct 13, 7:00 PM",Middle Tennessee,Delaware,33.0,30.0,63.0,3.0,False,True,Conference USA,Conference USA,True,2026-10-13T19:00:00-04:00,Tue,fbs,fbs
-401871054,2026,7,regular,2026-10-14,False,"Wed Oct 14, 7:30 PM",Missouri State,Kennesaw State,,,,,False,True,Conference USA,Conference USA,False,2026-10-14T19:30:00-04:00,Wed,fbs,fbs
-401871068,2026,7,regular,2026-10-14,False,"Wed Oct 14, 8:00 PM",Sam Houston,Western Kentucky,,,,,False,True,Conference USA,Conference USA,False,2026-10-14T20:00:00-04:00,Wed,fbs,fbs
+401871054,2026,7,regular,2026-10-14,False,"Wed Oct 14, 7:30 PM",Missouri State,Kennesaw State,24.0,21.0,45.0,3.0,False,True,Conference USA,Conference USA,True,2026-10-14T19:30:00-04:00,Wed,fbs,fbs
+401871068,2026,7,regular,2026-10-14,False,"Wed Oct 14, 8:00 PM",Sam Houston,Western Kentucky,3.0,16.0,19.0,-13.0,False,True,Conference USA,Conference USA,True,2026-10-14T20:00:00-04:00,Wed,fbs,fbs
 401860923,2026,7,regular,2026-10-15,False,"Thu Oct 15, 8:00 PM",Texas State,Colorado State,,,,,False,True,Pac-12,Pac-12,False,2026-10-15T20:00:00-04:00,Thu,fbs,fbs
 401862800,2026,7,regular,2026-10-15,False,"Thu Oct 15, 7:30 PM",UAB,East Carolina,,,,,False,True,American Athletic,American Athletic,False,2026-10-15T19:30:00-04:00,Thu,fbs,fbs
 401869950,2026,7,regular,2026-10-15,False,"Thu Oct 15, 7:30 PM",Old Dominion,Georgia Southern,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-15T19:30:00-04:00,Thu,fbs,fbs
