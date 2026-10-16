@@ -27872,9 +27872,9 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401871067,2026,7,regular,2026-10-13,False,"Tue Oct 13, 7:00 PM",Middle Tennessee,Delaware,33.0,30.0,63.0,3.0,False,True,Conference USA,Conference USA,True,2026-10-13T19:00:00-04:00,Tue,fbs,fbs
 401871054,2026,7,regular,2026-10-14,False,"Wed Oct 14, 7:30 PM",Missouri State,Kennesaw State,24.0,21.0,45.0,3.0,False,True,Conference USA,Conference USA,True,2026-10-14T19:30:00-04:00,Wed,fbs,fbs
 401871068,2026,7,regular,2026-10-14,False,"Wed Oct 14, 8:00 PM",Sam Houston,Western Kentucky,3.0,16.0,19.0,-13.0,False,True,Conference USA,Conference USA,True,2026-10-14T20:00:00-04:00,Wed,fbs,fbs
-401860923,2026,7,regular,2026-10-15,False,"Thu Oct 15, 8:00 PM",Texas State,Colorado State,,,,,False,True,Pac-12,Pac-12,False,2026-10-15T20:00:00-04:00,Thu,fbs,fbs
-401862800,2026,7,regular,2026-10-15,False,"Thu Oct 15, 7:30 PM",UAB,East Carolina,,,,,False,True,American Athletic,American Athletic,False,2026-10-15T19:30:00-04:00,Thu,fbs,fbs
-401869950,2026,7,regular,2026-10-15,False,"Thu Oct 15, 7:30 PM",Old Dominion,Georgia Southern,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-15T19:30:00-04:00,Thu,fbs,fbs
+401860923,2026,7,regular,2026-10-15,False,"Thu Oct 15, 8:00 PM",Texas State,Colorado State,66.0,27.0,93.0,39.0,False,True,Pac-12,Pac-12,True,2026-10-15T20:00:00-04:00,Thu,fbs,fbs
+401862800,2026,7,regular,2026-10-15,False,"Thu Oct 15, 7:30 PM",UAB,East Carolina,30.0,17.0,47.0,13.0,False,True,American Athletic,American Athletic,True,2026-10-15T19:30:00-04:00,Thu,fbs,fbs
+401869950,2026,7,regular,2026-10-15,False,"Thu Oct 15, 7:30 PM",Old Dominion,Georgia Southern,15.0,23.0,38.0,-8.0,False,True,Sun Belt,Sun Belt,True,2026-10-15T19:30:00-04:00,Thu,fbs,fbs
 401906540,2026,7,regular,2026-10-15,False,"Thu Oct 15, 8:00 PM",Oklahoma Baptist,East Central,,,,,False,True,Great American,Great American,False,2026-10-15T20:00:00-04:00,Thu,,
 401906581,2026,7,regular,2026-10-15,False,"Thu Oct 15, 8:00 PM",Southwestern Oklahoma State,Southern Nazarene,,,,,False,True,Great American,Great American,False,2026-10-15T20:00:00-04:00,Thu,,
 401908708,2026,7,regular,2026-10-15,False,"Thu Oct 15, 7:00 PM",Trine,Albion,,,,,False,True,Michigan,Michigan,False,2026-10-15T19:00:00-04:00,Thu,,
@@ -29613,4 +29613,4 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401871083,2026,13,regular,2026-11-28,False,"Sat Nov 28, 2:00 PM",Middle Tennessee,New Mexico State,,,,,False,True,Conference USA,Conference USA,False,2026-11-28T14:00:00-05:00,Sat,fbs,fbs
 401871102,2026,13,regular,2026-11-28,True,,UL Monroe,Marshall,,,,,False,True,Sun Belt,Sun Belt,False,2026-11-28T00:00:00-05:00,Sat,fbs,fbs
 401871103,2026,13,regular,2026-11-28,True,,Old Dominion,Southern Miss,,,,,False,True,Sun Belt,Sun Belt,False,2026-11-28T00:00:00-05:00,Sat,fbs,fbs
-401862844,2026,15,regular,2026-12-12,False,"Sat Dec 12, 3:00 PM",Army,Navy,,,,,True,False,American Athletic,American Athletic,False,2026-12-12T15:00:00-05:00,Sat,fbs,fbs
+401862844,2026,15,regular,2026-12-12,False,"Sat Dec 12, 3:00 PM",Army,Navy,,,,,True,True,American Athletic,American Athletic,False,2026-12-12T15:00:00-05:00,Sat,fbs,fbs
