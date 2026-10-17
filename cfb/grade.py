@@ -176,6 +176,20 @@ def _rec(df, kind) -> dict:
             "clv": round(float(df[clv].mean()), 2) if clv in df and df[clv].notna().any() else None}
 
 
+def _staked(df: pd.DataFrame, kind: str, strength_col: str) -> pd.Series:
+    """The plays the record counts: tagged play/bold AND actually staked.
+
+    Until Oct 17 2026 the record counted every play tag, but a spread tag came from the raw
+    model disagreement while the stake came from the shrunk edge at the posted price - so 23 of
+    the first 31 spread "plays" had no stake. Their wins and losses were in the record and their
+    units were not. Counting staked plays only restates the season to the bets the system
+    would actually have made; predict.settle_plays now stops new ones being tagged at all.
+    """
+    stake = pd.to_numeric(df.get(f"{kind}_stake"), errors="coerce").fillna(0) \
+        if f"{kind}_stake" in df else pd.Series(1.0, index=df.index)
+    return df[strength_col].isin(["play", "bold"]) & (stake > 0)
+
+
 def metrics(done: pd.DataFrame) -> dict:
     today = config.today_et()
     out = {"updated": str(today), "break_even": round(BREAK_EVEN, 2), "venue": config.VENUE,
@@ -207,7 +221,7 @@ def metrics(done: pd.DataFrame) -> dict:
             ("total", "total_disagree", "total_abs_err", "total_strength"),
             ("spread", "margin_disagree", "margin_abs_err", "spread_strength")):
         key = "totals" if kind == "total" else "spreads"
-        played = season[season[strength_col].isin(["play", "bold"])]
+        played = season[_staked(season, kind, strength_col)]
         out[key] = {
             "season": _rec(played, kind),
             "all_games": _rec(season, kind),
@@ -227,8 +241,8 @@ def metrics(done: pd.DataFrame) -> dict:
                 out[key]["by_edge"].append({"bucket": f"{lo}-{hi if hi < 999 else '+'}", **_rec(b, kind)})
 
     for wk, grp in season.groupby("week"):
-        played = grp[grp["total_strength"].isin(["play", "bold"]) |
-                     grp["spread_strength"].isin(["play", "bold"])]
+        played = grp[_staked(grp, "total", "total_strength") |
+                     _staked(grp, "spread", "spread_strength")]
         out["by_week"].append({
             "week": int(wk), "games": int(len(grp)),
             "total_units": round(float(grp["total_units"].sum()), 2),

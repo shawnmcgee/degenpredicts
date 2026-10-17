@@ -1027,3 +1027,125 @@ def test_no_jump_button_when_there_is_nothing_below_the_board(env):
     html = (env.DOCS / "index.html").read_text()
     assert 'id="jump"' not in html
     assert 'class="hit"' not in html
+
+
+# ---------------------------------------------------------------------------------------
+# "play" means a staked bet; the card shows the pick's own price, never an alt-line pick
+# ---------------------------------------------------------------------------------------
+def test_unstaked_plays_settle_to_pass(env):
+    """Tulane +7 on Oct 16 2026: 5.3 points of raw disagreement tagged it PLAY, but after the
+    shrink it was -1.5% EV at -110, so the stake was zero. The tag and the stake must agree."""
+    from cfb.predict import settle_plays
+    df = pd.DataFrame({"spread_strength": ["play", "bold", "play", "thin", "pass"],
+                       "spread_stake": [0.0, 0.0, 0.46, 0.0, 0.0],
+                       "total_strength": ["play", "pass", "pass", "pass", "play"],
+                       "total_stake": [0.53, 0.0, 0.0, 0.0, np.nan]})
+    out = settle_plays(df)
+    assert list(out["spread_strength"]) == ["pass", "pass", "play", "thin", "pass"]
+    assert list(out["total_strength"]) == ["play", "pass", "pass", "pass", "pass"]
+    assert list(df["spread_strength"])[0] == "play", "input frame must not be mutated"
+
+
+def _ladder():
+    """Memphis at Tulane as Kalshi listed it: Memphis -7 at the books."""
+    rows = [("Memphis", 6.5, 0.55, 0.57), ("Memphis", 7.5, 0.50, 0.52), ("Memphis", 10.5, 0.40, 0.42),
+            ("Tulane", 7.5, 0.10, 0.12), ("Tulane", 2.5, 0.21, 0.24)]
+    spr = pd.DataFrame([{"kind": "spread", "team": t, "strike": k, "yes_bid": b, "yes_ask": a,
+                         "tradeable": True} for t, k, b, a in rows])
+    tot = pd.DataFrame([{"kind": "total", "team": None, "strike": k, "yes_bid": b, "yes_ask": a,
+                         "tradeable": k != 53.5} for k, b, a in
+                        ((53.5, 0.50, 0.53), (54.5, 0.44, 0.46), (55.5, 0.40, 0.42))])
+    return spr, tot
+
+
+def test_same_bet_spread_uses_the_right_ladder_and_side(env):
+    from cfb.predict import same_bet_spread
+    spr, _ = _ladder()
+    # underdog +7: NO on the FAVOURITE's ladder, 1 - bid; tie between 6.5 and 7.5 -> +7.5
+    assert same_bet_spread(spr, "Tulane", 7.0, "Tulane", "Memphis") == ("Tulane +7.5", 0.5, True)
+    # favourite -7: YES on its own ladder at the ask; tie -> the shorter number, -6.5
+    assert same_bet_spread(spr, "Memphis", -7.0, "Tulane", "Memphis") == ("Memphis -6.5", 0.57, True)
+    # never the underdog's own "by over" ladder - that is the dog winning outright by 8+
+    label, _, _ = same_bet_spread(spr, "Tulane", 7.5, "Tulane", "Memphis")
+    assert label == "Tulane +7.5"
+    # nothing within 1.5 points of the book's number: no row rather than a different bet
+    assert same_bet_spread(spr, "Tulane", 14.0, "Tulane", "Memphis") is None
+    assert same_bet_spread(spr, "Tulane", float("nan"), "Tulane", "Memphis") is None
+    assert same_bet_spread(pd.DataFrame(), "Tulane", 7.0, "Tulane", "Memphis") is None
+
+
+def test_same_bet_total_prices_under_as_no(env):
+    from cfb.predict import same_bet_total
+    _, tot = _ladder()
+    assert same_bet_total(tot, "Under", 54.5) == ("Under 54.5", 0.56, True)
+    assert same_bet_total(tot, "Over", 54.5) == ("Over 54.5", 0.46, True)
+    # 54.0 sits between 53.5 and 54.5: an Over takes the lower number, an Under the higher
+    assert same_bet_total(tot, "Over", 54.0)[0] == "Over 53.5"
+    assert same_bet_total(tot, "Under", 54.0)[0] == "Under 54.5"
+    assert same_bet_total(tot, "", 54.5) is None
+
+
+def test_card_play_tag_and_prices_follow_the_pick(env):
+    """The board's PLAY tag only for staked bets; the header no longer lights up for a Kalshi
+    alt-line pick on the other side; the price rows are the pick itself, fee included."""
+    import json
+    from cfb import site
+
+    env.ensure_dirs()
+    base = {"prediction_date": "2026-09-04", "season": 2026, "week": 1, "date": "2026-09-04",
+            "tip_et": "Fri Sep 04, 7:30 PM", "neutral_site": False, "thin_data": False,
+            "total_raw": 54.6, "total_disagree": 0.1, "total_strength": "pass", "total_stake": 0.0,
+            "total_book": "DraftKings"}
+    pd.DataFrame([
+        {**base, "game_id": "g1", "home_team": "Tulane", "away_team": "Memphis",
+         "spread_home": 7.0, "total_line": 54.5, "total_pick": "Under", "total_price": -105,
+         "margin_raw": -1.7, "margin_disagree": 5.3, "spread_pick": "Tulane +7.0",
+         "spread_strength": "play", "spread_stake": 0.0, "spread_book": "DraftKings",
+         "spread_price": -108, "ks_pick": "Tulane by over 7.5", "ks_ask": 0.12, "ks_prob": 0.19,
+         "kalshi_spread_bet": "Tulane +7.5", "kalshi_spread_price": 0.5,
+         "kalshi_spread_liquid": True, "kalshi_total_bet": "Under 54.5",
+         "kalshi_total_price": 0.56, "kalshi_total_liquid": False},
+        {**base, "game_id": "g2", "home_team": "Wyoming", "away_team": "Northern Illinois",
+         "spread_home": -7.5, "total_line": 41.5, "total_pick": "Over", "total_price": -110,
+         "margin_raw": 13.8, "margin_disagree": 6.3, "spread_pick": "Wyoming -7.5",
+         "spread_strength": "play", "spread_stake": 0.41, "spread_book": "DraftKings",
+         "spread_price": -112},
+    ]).to_csv(env.PICKS, index=False)
+    env.METRICS.write_text(json.dumps({"updated": "2026-09-04", "break_even": 51.75}))
+
+    site.build()
+    html = (env.DOCS / "index.html").read_text()
+    cards = html.split('<div class="game')[1:]
+    tulane = next(c for c in cards if "Memphis<span" in c)
+    wyoming = next(c for c in cards if "Northern Illinois<span" in c)
+    assert "tag play" not in tulane, "a zero-stake play must not show PLAY"
+    assert not tulane.startswith(" hot"), "no highlight for an exchange-only pick"
+    assert "tag play" in wyoming and wyoming.startswith(" hot")
+    assert "Tulane by over 7.5" not in html, "the alt-line pick on the other side is gone"
+    assert "Tulane +7.5" in tulane and "Kalshi 50" in tulane
+    # 50c + 0.07*0.5*0.5 = 51.75c -> -107, not the -100 a bare 50c suggests
+    assert "−107" in tulane
+    assert "Under 54.5" in tulane and "thin" in tulane
+    assert "DraftKings" in tulane and "−108" in tulane
+    assert "model: Memphis by 1.7" in tulane
+
+
+def test_record_counts_staked_plays_only(env, monkeypatch):
+    import cfb.grade as G
+    monkeypatch.setattr(G.cfbd, "load_sp", lambda: pd.DataFrame(columns=["season", "team"]))
+    monkeypatch.setattr(G.cfbd, "load_games", lambda: pd.DataFrame(
+        columns=["season", "home_team", "away_team"]))
+    rows = []
+    for i, (st, stake, res) in enumerate((("play", 0.0, "win"), ("play", 0.0, "win"),
+                                         ("play", 0.5, "loss"), ("bold", 1.0, "win"),
+                                         ("pass", 0.0, "win"))):
+        rows.append({"game_id": f"g{i}", "season": 2026, "week": 1, "home_team": "A",
+                     "away_team": "B", "spread_strength": st, "spread_stake": stake,
+                     "spread_result": res, "spread_units": stake * (0.91 if res == "win" else -1),
+                     "total_strength": "pass", "total_stake": 0.0, "total_result": "loss",
+                     "total_units": 0.0, "total_disagree": 0.0, "margin_disagree": 5.0,
+                     "total_abs_err": 1.0, "margin_abs_err": 1.0})
+    m = G.metrics(pd.DataFrame(rows))
+    s = m["spreads"]["season"]
+    assert (s["wins"], s["losses"]) == (1, 1), "zero-stake plays are not in the record"
+    assert m["by_week"][0]["played"] == 2

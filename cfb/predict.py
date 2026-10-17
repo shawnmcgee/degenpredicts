@@ -57,6 +57,27 @@ def _stakes(p_win, payout, strength):
             for p, b, st in zip(p_win, payout, strength)]
 
 
+def settle_plays(df: pd.DataFrame) -> pd.DataFrame:
+    """A "play" is a bet the system actually makes. Anything tagged play/bold with no stake
+    becomes "pass".
+
+    The tag comes from the model's RAW disagreement with the line; the stake comes from the
+    SHRUNK probability against the posted price. With margin_market shrunk to 0.15, a 5-point
+    raw disagreement is under a point of real edge, which at -110 is usually worth nothing - so
+    23 of the first 31 spread "plays" of 2026 carried a zero stake. The board then showed PLAY
+    on bets the system had declined, and the season record counted their wins and losses while
+    its units counted only the 8 that were staked. One definition now drives the tag, the stake
+    and the record. Safe to run on rows published before this rule existed.
+    """
+    df = df.copy()
+    for k in ("total", "spread"):
+        s, st = f"{k}_strength", f"{k}_stake"
+        if s in df and st in df:
+            unstaked = df[s].isin(PLAYABLE) & ~(pd.to_numeric(df[st], errors="coerce").fillna(0) > 0)
+            df.loc[unstaked, s] = "pass"
+    return df
+
+
 def _strength(edge, minimum, thin) -> str:
     """How hard we back a market, from the model's raw disagreement with the line.
 
@@ -287,6 +308,7 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
     out["spread_payout"] = out["spread_price"].apply(american_payout)
     out["spread_ev"] = (out["spread_p_win"] * out["spread_payout"] - (1 - out["spread_p_win"])).round(3)
     out["spread_stake"] = _stakes(out["spread_p_win"], out["spread_payout"], out["spread_strength"])
+    out = settle_plays(out)
 
     # --- moneyline: margin distribution -> P(home wins), compared to Kalshi's ask ----------
     # A margin prediction plus its fitted residual sigma is a full distribution, so
@@ -479,6 +501,64 @@ def _multiplier(ask, prob):
     return round(pays, 3), round(fair, 3), round(edge, 1)
 
 
+SAME_BET_COLS = ("kalshi_spread_bet", "kalshi_spread_price", "kalshi_spread_liquid",
+                 "kalshi_total_bet", "kalshi_total_price", "kalshi_total_liquid")
+# How far a Kalshi number may sit from the book's and still count as "the same bet".
+SAME_BET_GAP = 1.5
+
+
+def _nearest(lad: pd.DataFrame, want: float, prefer_high: bool):
+    """The rung closest to `want`; on a tie, the number better for the bettor."""
+    lad = lad[(lad["strike"] - want).abs() <= SAME_BET_GAP]
+    if lad.empty:
+        return None
+    key = lad.assign(_d=(lad["strike"] - want).abs(),
+                     _b=lad["strike"] if prefer_high else -lad["strike"])
+    return key.sort_values(["_d", "_b"], ascending=[True, False]).iloc[0]
+
+
+def same_bet_spread(rungs: pd.DataFrame, team, number, home, away):
+    """Kalshi's price for the board's spread pick, as ``(label, contract price, liquid)``.
+
+    Kalshi lists "<team> wins by over X" for each side. A favourite at -6.5 is YES on its own
+    "by over 6.5" at the ask. An underdog at +6.5 is NO on the FAVOURITE's "by over 6.5",
+    which costs 1 - bid. The old reference row took whichever ladder had the nearest number,
+    so a Tulane +7 pick sat over "Tulane by over 7.5" - Tulane winning by 8, a different bet.
+    """
+    try:
+        number = float(number)
+    except (TypeError, ValueError):
+        return None
+    if rungs is None or rungs.empty or number != number or number == 0 or not team:
+        return None
+    if number < 0:                                   # team gives points: YES on its own ladder
+        r = _nearest(rungs[rungs["team"] == team], -number, prefer_high=False)
+        price = None if r is None else r["yes_ask"]
+        pt = None if r is None else -r["strike"]
+    else:                                            # team gets points: NO on the opponent's
+        opp = away if team == home else home
+        r = _nearest(rungs[rungs["team"] == opp], number, prefer_high=True)
+        price = None if r is None else 1 - r["yes_bid"]
+        pt = None if r is None else r["strike"]
+    if r is None or price != price or not 0 < price < 1:
+        return None
+    return f"{team} {pt:+g}", round(float(price), 2), bool(r["tradeable"])
+
+
+def same_bet_total(rungs: pd.DataFrame, pick, line):
+    """Kalshi's price for the board's total pick: YES on "Over X" for an over, NO for an under."""
+    if rungs is None or rungs.empty or pick not in ("Over", "Under") or line != line:
+        return None
+    over = pick == "Over"
+    r = _nearest(rungs, float(line), prefer_high=not over)
+    if r is None:
+        return None
+    price = r["yes_ask"] if over else 1 - r["yes_bid"]
+    if price != price or not 0 < price < 1:
+        return None
+    return f"{pick} {r['strike']:g}", round(float(price), 2), bool(r["tradeable"])
+
+
 def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
                    sp: pd.DataFrame | None = None,
                    sink: list | None = None) -> pd.DataFrame:
@@ -509,6 +589,9 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
     for c in num_cols:
         out[c] = np.nan
     out["kalshi_incoherent"] = False
+    # The board's own pick, priced on Kalshi: same side, nearest listed number, YES or NO.
+    for c in SAME_BET_COLS:
+        out[c] = pd.Series([None] * len(out), index=out.index, dtype="object")
 
     try:
         matcher = odds.build_matcher(sorted(board_teams(out, games, config.season_of(config.today_et()), sp)))
@@ -568,6 +651,10 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
                     if ev == ev and (best is None or ev > best[0]):
                         best = (ev, r, prob, ask, label)
             out.at[i, "kt_rungs"] = considered
+            hit = same_bet_total(rungs, g.get("total_pick"), book_total)
+            if hit:
+                out.at[i, "kalshi_total_bet"], out.at[i, "kalshi_total_price"], \
+                    out.at[i, "kalshi_total_liquid"] = hit
             if best and best[0] >= config.KALSHI_MIN_EV:
                 ev, r, prob, ask, label = best
                 out.at[i, "kt_pick"] = label
@@ -621,6 +708,11 @@ def _price_ladders(out: pd.DataFrame, games: pd.DataFrame,
                 if ev == ev and (best is None or ev > best[0]):
                     best = (ev, r, prob)
             out.at[i, "ks_rungs"] = considered
+            hit = same_bet_spread(rungs, g.get("spread_side"), g.get("spread_number"),
+                                  g["home_team"], g["away_team"])
+            if hit:
+                out.at[i, "kalshi_spread_bet"], out.at[i, "kalshi_spread_price"], \
+                    out.at[i, "kalshi_spread_liquid"] = hit
             if best and best[0] >= config.KALSHI_MIN_EV:
                 ev, r, prob = best
                 out.at[i, "ks_pick"] = f"{r.team} by over {r.strike}"

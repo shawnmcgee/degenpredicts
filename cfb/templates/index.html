@@ -49,6 +49,9 @@
   .exrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;padding:4px 0}
   .exrow + .exrow{border-top:1px solid var(--line)}
   .mult{font-variant-numeric:tabular-nums;font-weight:600}
+  .exhead{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);padding:2px 0 4px}
+  .exrow .venue{color:var(--dim);margin-right:6px}
+  .thinq{font-size:10px;color:var(--warn);text-transform:uppercase;letter-spacing:.04em;margin-left:4px}
   .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
   .tag.play,.tag.bold{background:var(--good);color:#052e16}
   .tag.pass{background:var(--line);color:var(--dim)}
@@ -137,7 +140,7 @@
       <div class="l">{{ 'line moved against us' if m.spreads.season.clv and m.spreads.season.clv < 0 else 'line moved our way' }}</div></div>
   </div>
   <p class="sub">Break-even at {{ m.venue or venue }} is {{ m.break_even }}%.
-    CLV is the fastest honest read on whether there's an edge.
+    CLV is the fastest honest read on whether there's an edge. Records count staked plays only.
     {% if m.fcs_games %}Covers all {{ m.graded_games }} graded games, of which
     {{ m.fcs_games }} were FBS vs FCS &mdash; a different population (median spread 30.5 against
     8.5), staked on the same thresholds and broken out under <code>by_class</code>.{% endif %}</p>
@@ -191,37 +194,15 @@
         {% if g.spread_hit %}<div class="hit">Hit <b class="{{ g.spread_hit.tone }}">{{ g.spread_hit.win_pct }}%</b> ({{ g.spread_hit.wins }}-{{ g.spread_hit.losses }}) this season at {{ g.spread_hit.label }} pts off</div>{% endif %}
       </div>
     </div>
-    {% if g.kt_pays or g.ks_pays or g.ml_pays %}
+    {% if g.where %}
     <div class="exch">
-      {% if g.kt_pays %}
+      <div class="exhead">Where to bet the pick</div>
+      {% for w in g.where %}
       <div class="exrow">
-        <span>{{ g.kt_pick or ('Over ' ~ g.kt_ref_strike) }}</span>
-        <span>pays <b class="mult">{{ '%.2f'|format(g.kt_pays) }}x</b>
-          <span style="color:var(--dim)">fair {{ '%.2f'|format(g.kt_fair) }}x</span>
-          <b class="{% if (g.kt_edge or 0) > 0 %}up{% else %}down{% endif %}">{{ '%+.0f'|format(g.kt_edge or 0) }}%</b></span>
+        <span>{{ w.bet }}{% if w.thin %} <span class="thinq">thin</span>{% endif %}</span>
+        <span><span class="venue">{{ w.venue }}</span> <b class="mult">{{ w.price }}</b></span>
       </div>
-      {% endif %}
-      {% if g.ks_pays %}
-      <div class="exrow">
-        <span>{{ g.ks_pick or ((g.ks_ref_side or '') ~ ' by over ' ~ g.ks_ref_strike) }}</span>
-        <span>pays <b class="mult">{{ '%.2f'|format(g.ks_pays) }}x</b>
-          <span style="color:var(--dim)">fair {{ '%.2f'|format(g.ks_fair) }}x</span>
-          <b class="{% if (g.ks_edge or 0) > 0 %}up{% else %}down{% endif %}">{{ '%+.0f'|format(g.ks_edge or 0) }}%</b></span>
-      </div>
-      {% endif %}
-      {% if g.ml_pays %}
-      <div class="exrow">
-        <span>{{ g.ml_pick or ((g.ml_ref_side or '') ~ ' to win') }}</span>
-        <span>pays <b class="mult">{{ '%.2f'|format(g.ml_pays) }}x</b>
-          <span style="color:var(--dim)">fair {{ '%.2f'|format(g.ml_fair) }}x</span>
-          <b class="{% if (g.ml_edge or 0) > 0 %}up{% else %}down{% endif %}">{{ '%+.0f'|format(g.ml_edge or 0) }}%</b></span>
-      </div>
-      {% endif %}
-    </div>
-    {% endif %}
-    {% if g.kalshi_incoherent %}
-    <div style="padding:6px 14px 12px;font-size:11px;color:var(--warn)">
-      Ladder quotes contradict each other — at least one price is stale.
+      {% endfor %}
     </div>
     {% endif %}
   </div>
@@ -229,9 +210,10 @@
   </div>
   <div class="empty" id="noresults" style="display:none">No games match those filters.</div>
   {% if picks %}
-  <p class="sub" style="margin-top:10px"><b>pays</b> is what a Kalshi contract returns per unit
-    risked after the taker fee. <b>fair</b> is what our model says it should return. Paying more
-    than fair is the edge.</p>
+  <p class="sub" style="margin-top:10px"><b>Play</b> means the system stakes it at the posted
+    price; everything else is the model's lean, shown for reference. <b>Where to bet the pick</b>
+    is the sportsbook price next to the same bet on Kalshi with Kalshi's fee included, written as
+    normal odds &mdash; Kalshi's nearest listed number, so it can sit half a point off the book's.</p>
   {% endif %}
 </section>
 
