@@ -16,6 +16,7 @@ import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import config
+from .predict import PLAYABLE, settle_plays
 
 log = logging.getLogger("cfb.site")
 TEMPLATES = Path(__file__).resolve().parent / "templates"  # ships with the package
@@ -72,6 +73,45 @@ def _mult(ask, prob):
     return round(pays, 2), round(fair, 2), round(100 * (prob / cost - 1), 1)
 
 
+def _american(prob) -> str:
+    if prob is None or prob != prob or not 0 < prob < 1:
+        return "—"
+    a = -100 * prob / (1 - prob) if prob >= 0.5 else 100 * (1 - prob) / prob
+    a = int(round(a))
+    return f"+{a}" if a > 0 else f"\u2212{abs(a)}"
+
+
+def _book_odds(price) -> str:
+    try:
+        a = int(round(float(price)))
+    except (TypeError, ValueError):
+        return ""
+    return f"+{a}" if a > 0 else f"\u2212{abs(a)}"
+
+
+def _where(r: dict) -> list[dict]:
+    """The pick at the book it was priced from, then the same bet on Kalshi (fee included)."""
+    from .sources.kalshi import fee
+    rows = []
+    for kind, label in (("spread", r.get("spread_pick")),
+                        ("total", f"{r.get('total_pick') or ''} {r.get('total_line') or ''}".strip())):
+        if not label or (kind == "total" and not r.get("total_pick")):
+            continue
+        book, price = r.get(f"{kind}_book"), _book_odds(r.get(f"{kind}_price"))
+        if isinstance(book, str) and book and price:
+            rows.append({"bet": label, "venue": book, "price": price})
+        bet, c = r.get(f"kalshi_{kind}_bet"), r.get(f"kalshi_{kind}_price")
+        try:
+            c = float(c)
+        except (TypeError, ValueError):
+            c = None
+        if bet and c and 0 < c < 1:
+            rows.append({"bet": bet, "venue": f"Kalshi {int(round(c * 100))}\u00a2",
+                         "price": _american(c + fee(c)),
+                         "thin": str(r.get(f"kalshi_{kind}_liquid")).lower() not in ("true", "1")})
+    return rows
+
+
 def _prob_cents(p):
     """Model win probability as exchange cents, so it sits next to a Kalshi quote."""
     try:
@@ -126,15 +166,21 @@ def _board() -> tuple[list[dict], int | None]:
     week = int(df["week"].mode().iloc[0]) if len(df) else None
     df = df.sort_values("prediction_date").drop_duplicates("game_id", keep="last")
 
-    # Rank by the model's largest disagreement with the line, but a tradeable exchange edge
-    # outranks it - that's the only number here tied to a price you could actually pay.
-    df["_rank"] = df[["total_disagree", "margin_disagree"]].abs().max(axis=1).fillna(0)
-    playable = pd.Series(False, index=df.index)
-    for c in ("kt_pick", "ks_pick", "ml_pick"):
-        if c in df:
-            playable |= df[c].notna()
+    # One meaning for "play": a bet the system stakes at the posted price. Rows published
+    # before that rule (a game already under way keeps its pre-kickoff row) are settled here
+    # the same way predict now settles them.
+    df = settle_plays(df)
+    # The card's PLAY header and highlight follow the spread and total, nothing else. They
+    # used to light up for Kalshi alt-line picks - an ungraded second system that took the
+    # opposite side from the spread pick on 9 of its first 16 picks.
+    playable = (df.get("spread_strength", pd.Series(index=df.index, dtype=object)).isin(PLAYABLE)
+                | df.get("total_strength", pd.Series(index=df.index, dtype=object)).isin(PLAYABLE))
     df["has_play"] = playable
+    df["_rank"] = df[["total_disagree", "margin_disagree"]].abs().max(axis=1).fillna(0)
     df.loc[playable, "_rank"] = df.loc[playable, "_rank"] + 100
+    # Where to bet the pick: the sportsbook the board priced it from, and the same bet on
+    # Kalshi with the fee in. Plain prices - no edge colouring, nothing that reads as a pick.
+    df["where"] = [_where(r) for r in df.to_dict("records")]
 
     # FBS-vs-FCS games are labelled but rank on the same footing as everything else: they are
     # staked on the same edge thresholds, so demoting them would hide plays the system took.
