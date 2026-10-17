@@ -61,6 +61,7 @@
   th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
   th:first-child,td:first-child{text-align:left}
   th{color:var(--dim);font-weight:500;font-size:11px;text-transform:uppercase}
+  td .pk{display:block;margin-bottom:3px}
   .note{background:var(--card);border-left:3px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
   .empty{text-align:center;color:var(--dim);padding:26px 0;font-size:14px}
   footer{margin-top:36px;color:var(--dim);font-size:12px;text-align:center}
@@ -185,7 +186,8 @@
       <div class="bet">
         <div class="l">Spread <span class="tag {{ 'early' if g.spread_strength == 'thin' else g.spread_strength }}">{{ 'no play' if g.spread_strength in ('thin','pass') else g.spread_strength }}</span></div>
         <div class="p">{{ g.spread_pick }}</div>
-        <div class="d">model margin {{ g.margin_raw }} &middot; {{ '%+.1f'|format(g.margin_disagree or 0) }} vs line</div>
+        {# margin_raw is the HOME margin; say it with a team name so "-1.7" can't be misread #}
+        <div class="d">model: {% if g.margin_raw is none %}&mdash;{% elif g.margin_raw > 0 %}{{ g.home_team }} by {{ '%.1f'|format(g.margin_raw) }}{% elif g.margin_raw < 0 %}{{ g.away_team }} by {{ '%.1f'|format(-g.margin_raw) }}{% else %}a toss-up{% endif %} &middot; {{ '%.1f'|format((g.margin_disagree or 0)|abs) }} pts off the line</div>
         {% if g.spread_hit %}<div class="hit">Hit <b class="{{ g.spread_hit.tone }}">{{ g.spread_hit.win_pct }}%</b> ({{ g.spread_hit.wins }}-{{ g.spread_hit.losses }}) this season at {{ g.spread_hit.label }} pts off</div>{% endif %}
       </div>
     </div>
@@ -258,14 +260,18 @@
 <section>
   <h2>Recent results</h2>
   <table>
-    <tr><th>Game</th><th>Total</th><th>Spread</th><th>Units</th></tr>
+    <tr><th>Game</th><th>Total pick</th><th>Spread pick</th><th>Units</th></tr>
     {% for r in results %}
     {% set u = (r.total_units or 0) + (r.spread_units or 0) %}
     <tr>
-      <td>{{ r.away_team }} at {{ r.home_team }}<br>
-        <span class="sub">{{ r.date }}{% if r.total_points %} &middot; {{ r.total_points|int }} pts{% endif %}</span></td>
-      <td><span class="tag {{ r.total_result }}">{{ r.total_result }}</span></td>
-      <td><span class="tag {{ r.spread_result }}">{{ r.spread_result }}</span></td>
+      <td>{{ r.away_team }}{% if r.away_points is not none %} {{ r.away_points|int }}{% endif %}
+        at {{ r.home_team }}{% if r.home_points is not none %} {{ r.home_points|int }}{% endif %}<br>
+        <span class="sub">{{ r.date }}</span></td>
+      {# the side we took, next to how it graded - "win" alone reads as the favourite winning #}
+      <td>{% if r.total_pick %}<span class="pk">{{ r.total_pick }} {{ r.total_line }}</span>{% endif %}
+        <span class="tag {{ r.total_result }}">{{ r.total_result }}</span></td>
+      <td>{% if r.spread_pick %}<span class="pk">{{ r.spread_pick }}</span>{% endif %}
+        <span class="tag {{ r.spread_result }}">{{ r.spread_result }}</span></td>
       <td class="{% if u > 0 %}up{% elif u < 0 %}down{% endif %}">{{ u|money }}</td>
     </tr>
     {% endfor %}
