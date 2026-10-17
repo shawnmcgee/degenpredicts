@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-16",
+  "updated": "2026-10-17",
   "sport": "nhl",
   "break_even": 52.38,
   "venue": "sportsbook",
@@ -15,15 +15,15 @@
       "clv": null
     },
     "all_games": {
-      "n": 118,
+      "n": 120,
       "wins": 64,
-      "losses": 54,
+      "losses": 56,
       "pushes": 0,
-      "win_pct": 54.2,
+      "win_pct": 53.3,
       "units": 0.0,
       "roi": 0.0,
-      "clv": 0.008,
-      "expected_pct": 53.4
+      "clv": 0.009,
+      "expected_pct": 53.6
     },
     "mae": 2.142,
     "by_edge": [
@@ -31,15 +31,15 @@
         "bucket": "-1.00-+0.00",
         "lo": -1.0,
         "hi": 0.0,
-        "n": 105,
+        "n": 107,
         "wins": 60,
-        "losses": 45,
+        "losses": 47,
         "pushes": 0,
-        "win_pct": 57.1,
+        "win_pct": 56.1,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.016,
-        "expected_pct": 54.3
+        "clv": 0.018,
+        "expected_pct": 54.5
       },
       {
         "bucket": "+0.00-+0.02",
@@ -83,30 +83,30 @@
       "clv": null
     },
     "all_games": {
-      "n": 118,
-      "wins": 56,
-      "losses": 58,
+      "n": 120,
+      "wins": 57,
+      "losses": 59,
       "pushes": 4,
       "win_pct": 49.1,
       "units": 0.0,
       "roi": 0.0,
-      "clv": 0.018,
+      "clv": 0.02,
       "expected_pct": 50.6
     },
-    "mae": 1.775,
+    "mae": 1.751,
     "by_edge": [
       {
         "bucket": "-1.00-+0.00",
         "lo": -1.0,
         "hi": 0.0,
-        "n": 115,
-        "wins": 54,
-        "losses": 57,
+        "n": 117,
+        "wins": 55,
+        "losses": 58,
         "pushes": 4,
-        "win_pct": 48.6,
+        "win_pct": 48.7,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.019,
+        "clv": 0.02,
         "expected_pct": 50.6
       },
       {
@@ -129,28 +129,28 @@
         "bucket": "0.00-0.03",
         "lo": 0.0,
         "hi": 0.03,
-        "n": 24,
-        "wins": 13,
+        "n": 25,
+        "wins": 14,
         "losses": 11,
         "pushes": 0,
-        "win_pct": 54.2,
+        "win_pct": 56.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.016,
-        "expected_pct": 50.0
+        "clv": -0.011,
+        "expected_pct": 50.2
       },
       {
         "bucket": "0.03-0.06",
         "lo": 0.03,
         "hi": 0.06,
-        "n": 42,
+        "n": 43,
         "wins": 19,
-        "losses": 23,
+        "losses": 24,
         "pushes": 0,
-        "win_pct": 45.2,
+        "win_pct": 44.2,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.025,
+        "clv": 0.026,
         "expected_pct": 50.8
       },
       {
@@ -202,7 +202,7 @@
     },
     {
       "week": "2026-W42",
-      "games": 32,
+      "games": 34,
       "spread_units": 0.0,
       "total_units": 0.0,
       "cum_spread": 0.0,
