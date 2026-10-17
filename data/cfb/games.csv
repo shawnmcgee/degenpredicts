@@ -27878,10 +27878,10 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401906540,2026,7,regular,2026-10-15,False,"Thu Oct 15, 8:00 PM",Oklahoma Baptist,East Central,,,,,False,True,Great American,Great American,False,2026-10-15T20:00:00-04:00,Thu,,
 401906581,2026,7,regular,2026-10-15,False,"Thu Oct 15, 8:00 PM",Southwestern Oklahoma State,Southern Nazarene,,,,,False,True,Great American,Great American,False,2026-10-15T20:00:00-04:00,Thu,,
 401908708,2026,7,regular,2026-10-15,False,"Thu Oct 15, 7:00 PM",Trine,Albion,,,,,False,True,Michigan,Michigan,False,2026-10-15T19:00:00-04:00,Thu,,
-401858493,2026,7,regular,2026-10-16,False,"Fri Oct 16, 8:00 PM",Purdue,Washington,,,,,False,True,Big Ten,Big Ten,False,2026-10-16T20:00:00-04:00,Fri,fbs,fbs
-401862801,2026,7,regular,2026-10-16,False,"Fri Oct 16, 7:30 PM",Tulane,Memphis,,,,,False,True,American Athletic,American Athletic,False,2026-10-16T19:30:00-04:00,Fri,fbs,fbs
+401858493,2026,7,regular,2026-10-16,False,"Fri Oct 16, 8:00 PM",Purdue,Washington,26.0,38.0,64.0,-12.0,False,True,Big Ten,Big Ten,True,2026-10-16T20:00:00-04:00,Fri,fbs,fbs
+401862801,2026,7,regular,2026-10-16,False,"Fri Oct 16, 7:30 PM",Tulane,Memphis,31.0,17.0,48.0,14.0,False,True,American Athletic,American Athletic,True,2026-10-16T19:30:00-04:00,Fri,fbs,fbs
 401867821,2026,7,regular,2026-10-16,False,"Fri Oct 16, 7:00 PM",Pennsylvania,Columbia,,,,,False,True,Ivy,Ivy,False,2026-10-16T19:00:00-04:00,Fri,,
-401869844,2026,7,regular,2026-10-16,False,"Fri Oct 16, 8:00 PM",Coastal Carolina,App State,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-16T20:00:00-04:00,Fri,fbs,fbs
+401869844,2026,7,regular,2026-10-16,False,"Fri Oct 16, 8:00 PM",Coastal Carolina,App State,32.0,35.0,67.0,-3.0,False,True,Sun Belt,Sun Belt,True,2026-10-16T20:00:00-04:00,Fri,fbs,fbs
 401856719,2026,7,regular,2026-10-17,False,"Sat Oct 17, 3:30 PM",Georgia,Auburn,,,,,False,True,SEC,SEC,False,2026-10-17T15:30:00-04:00,Sat,fbs,fbs
 401856720,2026,7,regular,2026-10-17,False,"Sat Oct 17, 12:00 PM",LSU,Mississippi State,,,,,False,True,SEC,SEC,False,2026-10-17T12:00:00-04:00,Sat,fbs,fbs
 401856721,2026,7,regular,2026-10-17,False,"Sat Oct 17, 3:30 PM",Ole Miss,Missouri,,,,,False,True,SEC,SEC,False,2026-10-17T15:30:00-04:00,Sat,fbs,fbs
