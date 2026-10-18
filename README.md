@@ -14,6 +14,7 @@ No server, no manual uploads, no hosting bill.
   nfl-grade.yml     daily 7:30am ET
   nfl-train.yml     Tuesdays
   nfl-kalshi-discover.yml  manual  → confirm Kalshi's series tickers, runs from a phone
+  nfl-props.yml     game days, 3x  → player stats + Kalshi prop ladders → props models → docs/nfl/props/
   epl-predict.yml   daily 8:00am UTC → fixtures + prices → models → data/epl/picks.csv → docs/
   epl-grade.yml     daily 6:30am UTC → results → grade → results.csv, metrics.json
   epl-train.yml     Tuesdays        → refit models
@@ -709,6 +710,127 @@ ticker.
 
 To confirm it took, run the picks job and look for `kalshi board: N sides` in the log instead of
 `no markets returned`.
+
+
+### Player props — `docs/nfl/props/`
+
+The "Player props" tab of the NFL board: a projection for every player Kalshi lists a prop for,
+priced against Kalshi's ladders. Five markets, all confirmed against the live API on 2026-10-18:
+
+| Series | Market | Shape |
+|---|---|---|
+| `KXNFLPASSYDS` | passing yards | "Trevor Lawrence: 225+ passing yards", a rung every 25 |
+| `KXNFLRSHYDS` | rushing yards | "Chris Rodriguez Jr.: 65+ rushing yards", every 5 |
+| `KXNFLRECYDS` | receiving yards | same shape |
+| `KXNFLREC` | receptions | "Josh Cameron: 3+ receptions" |
+| `KXNFLANYTD` | anytime touchdown | one rung per player |
+
+**Nothing on it is staked.** It is the Big Game Cards stance applied to props: show what the
+model thinks next to what Kalshi charges, flag the gaps, log every rung and let the record
+decide. Kalshi's market data is public and the player data is nflverse, so it costs no Odds
+API credits — props from The Odds API are a per-game endpoint billed per market, about 75
+credits a pull for a full slate, which the shared key cannot carry.
+
+**Set up with `Actions → NFL props → Run workflow`.** No secrets. The first run backfills
+player history if it is missing, fits the models if they are missing, stale (a week) or were
+fitted under a different scikit-learn, prices the board and renders the tab. It then runs
+itself on Sundays, Mondays and Thursdays.
+
+#### The model
+
+`nfl/props/` follows the decomposition the other sports landed on — NHL goals are shots ×
+shooting percentage, NBA points are minutes × value — for the same reason: volume is
+persistent and learns fast, efficiency is mostly noise and learns slowly.
+
+- **Opportunity**: snap share, targets, carries, dropbacks — exponentially weighted per game
+  (half-life six games, halved over the offseason).
+- **Efficiency**: yards per target, catch rate, yards per carry and per attempt, touchdowns per
+  touch, each shrunk toward its position's rate until the player has volume behind it.
+- **Game script**: the team's own volume, and the spread and total turned into implied team
+  points — closing lines for history, the game board's live number on the day.
+- **Opponent**: what the defence has allowed, *by position group*, because "bad pass defence"
+  is not one thing.
+
+Four gradient-boosted regressions with a Poisson loss (a log link, so opportunity and
+efficiency multiply) and one classifier for touchdowns. They are scikit-learn's histogram
+boosters rather than XGBoost: missing history is its own branch, and the models are fitted
+inside the props job so a pickle never crosses scikit-learn versions. The replay is leak-free
+by the same construction as `nfl/features.py`, and `tests/test_props.py` proves it the same way.
+
+**A mean is not a price.** Yardage is skewed — a receiver projected for 60 clears 59.5 well
+under half the time — so each market's walk-forward predictions are kept beside what happened,
+and the chance of clearing any rung is read off past player-games the model projected about
+the same, per position group: the `keynumbers.py` idea applied to players. It also corrects
+the model's own tails. When it projected about 112 rushing yards, the median outcome was 86,
+and the card shows the distribution's numbers, not the raw projection.
+
+#### The zero games
+
+nflverse's `stats_player_week` has a row only when a player recorded a stat. A tight end who
+ran routes all game and was never targeted has no row, so he looks like a player who always
+catches something. Snap counts were joined in (through the `players` crosswalk, for the reason
+the continuity section gives) to see how often: in 2025, **16% of games by tight ends on 40–60%
+of snaps and 11% by receivers on 20–40%** had no stat line. Those are the games a receptions or
+receiving-yards *under* wins. Every on-field game with no stat line is now a row of zeros —
+700 to 980 a season — and `snap_pct` came along as one of the best features there is.
+
+#### What the backtest found — read the right column
+
+Walk-forward 2019–2025: each season projected by models trained only on the seasons before it,
+and every probability read off a table built only from earlier seasons. **There is no free
+archive of past prop prices**, so this scores the model against what happened, with a *proxy
+line* at the player's trailing average — the crude opener a book starts from. Books use far
+more than that, so these numbers are a floor on competence, not a measure of edge.
+
+| Market | Error: model vs trailing avg | Brier at the proxy line: model vs trailing avg | Side hit, confident | "Always under" |
+|---|---:|---:|---:|---:|
+| Passing yards | 60.8 vs 66.5 | 0.222 vs 0.227 | 72.5% (n=976) | 44.8% |
+| Rushing yards | 18.3 vs 18.6 | 0.232 vs 0.239 | 66.9% (n=4,187) | 60.4% |
+| Receiving yards | 18.2 vs 18.5 | 0.231 vs 0.236 | 66.0% (n=6,506) | 61.8% |
+| Receptions | 1.39 vs 1.42 | 0.233 vs 0.239 | 69.1% (n=4,090) | 57.9% |
+| Anytime TD | log loss 0.475 vs 0.517 | | | |
+
+- **Read the last column before the one beside it.** Yardage averages sit above medians, so a
+  line at the average goes under most of the time: taking the under on every receiving-yards
+  proxy line hits 61.8%, and the model's side across *all* of them hits 61.7%. The model's
+  value is in the probabilities — better Brier than the trailing average in every market,
+  pooled over 2022–25 — not in beating a weak line by picking sides.
+- **Anytime TD is the strongest result**: better log loss than the player's trailing rate in
+  all seven seasons. Touchdowns are where opportunity (red-zone role, game script, the
+  opponent) carries most.
+- **The raw probabilities were overconfident, and the fix is in.** Against a line set where
+  the player's history puts it, a projection far from that line is far from it partly by
+  noise: raw 54% outcomes landed 49%, raw 64% passing outcomes landed 56%. Platt scaling,
+  fitted only on earlier seasons, brings every well-populated bucket within about three points.
+  Kalshi's ladders sit where the market's view puts them, which is the same problem with a
+  sharper line, so the calibration is applied on the board too.
+
+#### The guards
+
+| Guard | Default | Why |
+|---|---|---|
+| `DEGEN_PROPS_MIN_EDGE` | 0.07 | one side at least 7% cheaper than the model's price, after Kalshi's fee |
+| `DEGEN_PROPS_PROB_MIN/MAX` | 0.20 / 0.80 | tails are where the distribution has the least behind it |
+| `DEGEN_PROPS_MAX_GAP` | 0.15 | no flag when the model is more than 15 points from Kalshi's mid — that is usually news the model doesn't have, and the Premier League's biggest disagreements were its worst bucket |
+| liquidity | 6c / 20 | a quote wider than 6 cents, or under 20 contracts on the ask, is not a market |
+| availability | Out 0 · Doubtful 0.25 · Questionable 0.80 · none 0.98 | Kalshi settles "records N+", so a player who sits loses the over; round numbers, not fitted |
+
+Matching is done on **team and jersey number, confirmed on surname**. Kalshi's tickers carry
+both (`...-JACTLAWRENCE16-225`), and on the first live payload all four players checked
+(Lawrence 16, Tuten 33, Rodriguez 24, Cameron 19) matched nflverse's roster. Kalshi spells Jacksonville `JAC`, which `nfl/teams.py` already
+resolves. A rung whose number and name disagree falls back to a name match within the two
+teams, and is left unmatched — not guessed — when two players share a surname.
+
+Every rung of every pull is logged to `data/nfl/props/ladders/YYYY-MM-DD.csv.gz`.
+`nfl.props.grade` scores the last pre-kickoff quote of each one: the model's Brier against
+Kalshi's own mid on the same rungs, the flagged sides at the prices they were flagged at, and
+**prop CLV** — whether Kalshi's mid moved toward the model between the first pull and the last.
+CLV will say within a few Sundays what a season of hit rates would take to say.
+
+**Known limits, stated plainly.** Rookies and anyone without a few games of history get no
+projection. The availability multipliers are rounded guesses until a season of injury reports
+can be checked against who played. And a single Sunday's grades are noise — read the Brier
+comparison and the CLV, not the win-loss.
 
 ---
 
@@ -1514,6 +1636,8 @@ python -m cfb.site && open docs/cfb/index.html
 python -m nfl.train --no-fetch                  # nflverse needs no key at all
 python -m nfl.predict --dry-run
 python -m nfl.site && open docs/nfl/index.html
+python -m nfl.props.run --no-fetch              # props: (re)train if due, price, grade, render
+python -m nfl.props.board --dry-run             # print every priced prop rung
 
 python -m epl.train --no-fetch                  # football-data needs no key either
 python -m epl.predict --dry-run
@@ -1575,6 +1699,9 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_NHL_REQUIRE_STARTERS` | 1 | 0 stakes picks without waiting for both starting goalies to be confirmed or likely |
 | `DEGEN_CFB_DOCS` | `docs/cfb` | where the college football board is written |
 | `DEGEN_KALSHI_ML_SERIES` | `KXNFLGAME` | Kalshi moneyline series (also `..._SPREAD_SERIES`, `..._TOTAL_SERIES`) |
+| `DEGEN_KALSHI_PASSYDS_SERIES` | `KXNFLPASSYDS` | Kalshi prop series (also `..._RSHYDS_`, `..._RECYDS_`, `..._REC_`, `..._ANYTD_SERIES`) |
+| `DEGEN_PROPS_MIN_EDGE` / `DEGEN_PROPS_MAX_GAP` | 0.07 / 0.15 | props value flag: minimum edge after fees, and the most the model may disagree with Kalshi's mid |
+| `DEGEN_PROPS_FIRST_SEASON` | 2013 | first season of player history (snap counts start in 2013) |
 | `DEGEN_SUPPORT_URL` | (unset) | Buy Me a Coffee link shown at the top; omit and the button hides |
 | `DEGEN_SUPPORT_LABEL` | Buy me a coffee | button text |
 | `DEGEN_THEME` | `ticker` | site look: `ticker`, `scoreboard`, `field` |

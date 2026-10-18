@@ -1,0 +1,53 @@
+name: NFL props
+on:
+  schedule:
+    # Game days only, and more than once: prop prices move on inactives and the injury report,
+    # and the props board skips any game already under way rather than pricing it in-play.
+    # GitHub starts scheduled runs late (often hours), so the 4pm and night windows each get
+    # their own run. UTC: 14:00 = 10am ET, 18:30 = 2:30pm ET, 22:00 = 6pm ET.
+    - cron: '0 14 * * 0,1,4'
+    - cron: '30 18 * * 0'
+    - cron: '0 22 * * 0,1,4'
+  workflow_dispatch:
+    inputs:
+      retrain:
+        description: 'Refit the props models even if they are fresh'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+# Same group as the other NFL jobs: they all commit to data/nfl and docs/nfl.
+concurrency: {group: nfl-data, cancel-in-progress: false}
+jobs:
+  props:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.txt
+      # No secrets: nflverse and Kalshi's market data are both public. Kalshi's prop series are
+      # overridable as repo variables if Kalshi renames one.
+      - env:
+          DEGEN_KALSHI_PASSYDS_SERIES: ${{ vars.DEGEN_KALSHI_PASSYDS_SERIES }}
+          DEGEN_KALSHI_RSHYDS_SERIES: ${{ vars.DEGEN_KALSHI_RSHYDS_SERIES }}
+          DEGEN_KALSHI_RECYDS_SERIES: ${{ vars.DEGEN_KALSHI_RECYDS_SERIES }}
+          DEGEN_KALSHI_REC_SERIES: ${{ vars.DEGEN_KALSHI_REC_SERIES }}
+          DEGEN_KALSHI_ANYTD_SERIES: ${{ vars.DEGEN_KALSHI_ANYTD_SERIES }}
+        run: |
+          python -m nfl.props.run ${{ inputs.retrain && '--retrain' || '' }}
+          # the NFL page carries the Player props tab link
+          python -m nfl.site
+      - run: |
+          git config user.name  "degenbot"
+          git config user.email "actions@github.com"
+          # Commit before pulling, for the reason spelled out in nfl-predict.yml.
+          git add data/nfl docs/nfl
+          if git diff --staged --quiet; then
+            echo "nothing to commit"
+            exit 0
+          fi
+          git commit -m "nfl props $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push origin HEAD:main

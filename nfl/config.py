@@ -264,3 +264,44 @@ SUPPORT_LABEL = os.environ.get("DEGEN_SUPPORT_LABEL", "Buy me a coffee")
 def ensure_dirs() -> None:
     for p in (DATA, DOCS, MODEL_DIR):
         p.mkdir(parents=True, exist_ok=True)
+
+
+# --- player props ---------------------------------------------------------------------
+# The props board lives beside the game board: its own data folder, its own page at
+# docs/nfl/props/, and nothing staked until a season of logged lines says it should be.
+PROPS = DATA / "props"
+PROPS_PLAYERS = PROPS / "players"          # one trimmed player-week CSV per season
+PROPS_MODEL_DIR = PROPS / "models"
+PROPS_LADDERS = PROPS / "ladders"          # every Kalshi prop rung each pull, one gzip a day
+PROPS_BOARD = PROPS / "board.csv"          # the latest projection for every listed player
+PROPS_RESULTS = PROPS / "results.csv"      # graded rungs
+PROPS_ROSTER = PROPS / "roster.csv"        # this season's roster: jersey numbers for matching
+PROPS_INJURIES = PROPS / "injuries.csv"    # this season's injury report
+PROPS_DOCS = DOCS / "props"
+# nflverse's player-week file begins in 1999, but receiving air yards and target share are
+# only reliable from the mid-2010s and the passing game before then is a different sport.
+PROPS_FIRST_SEASON = _env_int("DEGEN_PROPS_FIRST_SEASON", 2013)
+PROPS_WALK_SEASONS = _env_int("DEGEN_PROPS_WALK_SEASONS", 5)
+
+# Kalshi's NFL player-prop series, CONFIRMED against the live API on 2026-10-18. Each is a
+# ladder per player ("Trevor Lawrence: 225+ passing yards") with the threshold in
+# floor_strike and the team and jersey number in the ticker (...-JACTLAWRENCE16-225).
+KALSHI_PROP_SERIES = {
+    "pass_yds": _env("DEGEN_KALSHI_PASSYDS_SERIES", "KXNFLPASSYDS"),
+    "rush_yds": _env("DEGEN_KALSHI_RSHYDS_SERIES", "KXNFLRSHYDS"),
+    "rec_yds": _env("DEGEN_KALSHI_RECYDS_SERIES", "KXNFLRECYDS"),
+    "receptions": _env("DEGEN_KALSHI_REC_SERIES", "KXNFLREC"),
+    "anytime_td": _env("DEGEN_KALSHI_ANYTD_SERIES", "KXNFLANYTD"),
+}
+# A rung is called cheap only when the model's probability beats the all-in cost by this
+# much AND sits inside the probability band where the distribution has real data behind it.
+# Same winner's-curse logic as the game ladders: the best of ~10 rungs per player across ~200
+# players is a maximum over noise, so the bar is high and nothing is staked.
+PROPS_MIN_EDGE = _env_float("DEGEN_PROPS_MIN_EDGE", 0.07)
+PROPS_PROB_MIN = _env_float("DEGEN_PROPS_PROB_MIN", 0.20)
+PROPS_PROB_MAX = _env_float("DEGEN_PROPS_PROB_MAX", 0.80)
+# ...and only when the model is within this many points of Kalshi's mid. A prop market that
+# disagrees with the model by twenty points usually knows something the model does not - a
+# role change, an injury, a weather report - and the Premier League backtest found the
+# largest disagreements to be the worst bucket, not the best.
+PROPS_MAX_GAP = _env_float("DEGEN_PROPS_MAX_GAP", 0.15)
