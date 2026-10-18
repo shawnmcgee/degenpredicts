@@ -9,8 +9,11 @@ game's stats (usually the next morning).
 
 Three questions, in the order they matter:
 
-1. **Calibration against Kalshi** - Brier score of the model's probability against the Kalshi
-   mid's on the same rungs. Lower is better; if the market's is lower, the market knows more.
+1. **Calibration against Kalshi** - Brier score of the model's own probability, of the
+   published one (Kalshi's mid nudged toward the model) and of Kalshi's mid, on the same rungs.
+   Lower is better; if the market's is lowest, the market knows more. ``shrink`` reports how far
+   toward the model the graded rungs say to move - the number DEGEN_PROPS_SHRINK should be
+   set from once there are enough of them.
 2. **Flagged rungs** - how the side the board called cheap did, at the price it was cheap at.
    Nothing was staked; ``units`` is what one contract a flag would have made.
 3. **Line movement** - whether the Kalshi mid moved toward the model's side between the first
@@ -89,8 +92,12 @@ def grade() -> pd.DataFrame:
         [side_yes, side_no],
         [np.where(done["hit"] == 1, 1 - cost_yes, -cost_yes),
          np.where(done["hit"] == 0, 1 - cost_no, -cost_no)], default=0.0)
+    # The first live run predates `p_model`; its published number was the model's own.
+    if "p_model" not in done:
+        done["p_model"] = done["p_yes"]
+    done["p_model"] = done["p_model"].fillna(done["p_yes"])
     # prop CLV in cents: the mid moving toward the model's side after the first pull
-    toward = np.sign(done["p_yes"] - done["first_mid"])
+    toward = np.sign(done["p_model"] - done["first_mid"])
     done["clv_cents"] = np.round(100 * toward * (done["last_mid"] - done["first_mid"]), 2)
     config.PROPS.mkdir(parents=True, exist_ok=True)
     done.to_csv(config.PROPS_RESULTS, index=False)
@@ -98,13 +105,37 @@ def grade() -> pd.DataFrame:
     return done
 
 
+MIN_SHRINK_RUNGS = 2000
+
+
+def fit_shrink(ok: pd.DataFrame) -> dict:
+    """How far toward the model the logged rungs say Kalshi's price should move - the props
+    version of the game board's fitted shrink. Reported, never applied automatically: set
+    DEGEN_PROPS_SHRINK from it once `n` clears the minimum, the way the README says to set
+    the game thresholds from ats_by_disagreement."""
+    from .board import publish
+    y = ok["hit"].to_numpy(float)
+    best, best_ll = 0.0, np.inf
+    for w in np.round(np.arange(0, 1.0001, 0.05), 2):
+        p = np.clip(publish(ok["p_model"], ok["mid"], w), 1e-4, 1 - 1e-4)
+        ll = float(-np.mean(y * np.log(p) + (1 - y) * np.log(1 - p)))
+        if ll < best_ll:
+            best, best_ll = float(w), ll
+    return {"best": best, "n": int(len(ok)), "ready": bool(len(ok) >= MIN_SHRINK_RUNGS),
+            "in_use": config.PROPS_SHRINK}
+
+
 def metrics(done: pd.DataFrame) -> dict:
     out = {"updated": str(config.today_et()), "n_rungs": int(len(done))}
-    ok = done.dropna(subset=["p_yes", "mid"])
+    ok = done.dropna(subset=["p_model", "mid"])
+    ok = ok[(ok["mid"] > 0) & (ok["mid"] < 1)]
     if len(ok):
-        out["brier_model"] = round(float(np.mean((ok["p_yes"] - ok["hit"]) ** 2)), 4)
-        out["brier_kalshi"] = round(float(np.mean((ok["mid"] - ok["hit"]) ** 2)), 4)
+        b = lambda p: round(float(np.mean((p - ok["hit"]) ** 2)), 4)
+        out["brier_model"] = b(ok["p_model"])
+        out["brier_published"] = b(ok["p_yes"])
+        out["brier_kalshi"] = b(ok["mid"])
         out["clv_cents"] = round(float(ok["clv_cents"].mean()), 2)
+        out["shrink"] = fit_shrink(ok)
     flagged = done[done["flag"].isin(["yes", "no"])]
     if len(flagged):
         won = np.where(flagged["flag"] == "yes", flagged["hit"] == 1, flagged["hit"] == 0)
@@ -115,7 +146,7 @@ def metrics(done: pd.DataFrame) -> dict:
     out["by_market"] = {}
     for m, g in ok.groupby("market"):
         out["by_market"][m] = {"n": int(len(g)),
-                               "brier_model": round(float(np.mean((g["p_yes"] - g["hit"]) ** 2)), 4),
+                               "brier_model": round(float(np.mean((g["p_model"] - g["hit"]) ** 2)), 4),
                                "brier_kalshi": round(float(np.mean((g["mid"] - g["hit"]) ** 2)), 4)}
     (config.PROPS / "metrics.json").write_text(json.dumps(out, indent=2) + "\n")
     log.info("props graded: %s", {k: v for k, v in out.items() if k != "by_market"})

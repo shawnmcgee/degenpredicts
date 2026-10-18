@@ -6,7 +6,7 @@ Confirmed against the live API on 2026-10-18. Five series, one ladder per player
     KXNFLRSHYDS   "Chris Rodriguez Jr.: 65+ rushing yards"  floor_strike 64.5
     KXNFLRECYDS   receiving yards, same shape
     KXNFLREC      "Josh Cameron: 3+ receptions"             floor_strike 2.5
-    KXNFLANYTD    anytime touchdown
+    KXNFLTD       "Josh Allen: 1+ touchdowns" (and 2+, and team D/ST) - anytime TD is 1+
 
 A rung resolves YES when the stat is at least the number in the title, i.e. strictly greater
 than ``floor_strike``. The matchup is in ``rules_primary``, away team first, by city
@@ -72,6 +72,9 @@ def parse_rung(m: dict, market: str) -> dict | None:
     if ":" not in title:
         return None
     player = title.split(":", 1)[0].strip()
+    # The touchdown series also lists team defences ("LV Raiders D/ST: 1+ touchdowns").
+    if "D/ST" in player.upper():
+        return None
     strike = _f(m.get("floor_strike"))
     if strike == strike:
         k = strike + 0.5

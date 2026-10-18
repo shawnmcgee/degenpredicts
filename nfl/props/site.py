@@ -49,7 +49,10 @@ def _num(v, nd=1):
 
 def _rung(r) -> dict:
     no_px = 1 - r["yes_bid"] if r["yes_bid"] == r["yes_bid"] else np.nan
-    return {"k": int(r["k"]), "p": _pct(r["p_yes"]),
+    pm = r["p_model"] if "p_model" in r and r["p_model"] == r["p_model"] else r["p_yes"]
+    mid = r["mid"] if "mid" in r and r["mid"] == r["mid"] else np.nan
+    return {"k": int(r["k"]), "p": _pct(pm), "pub": _pct(r["p_yes"]),
+            "mid_c": None if mid != mid else round(100 * mid),
             "yes_c": None if r["yes_ask"] != r["yes_ask"] else round(100 * r["yes_ask"]),
             "no_c": None if no_px != no_px else round(100 * no_px),
             "yes_pays": _pays(r["yes_ask"]), "no_pays": _pays(no_px),
@@ -68,7 +71,7 @@ def _value(rungs: list[dict]) -> dict | None:
     b = max(flagged, key=lambda x: x["edge"])
     yes = b["flag"] == "yes"
     return {"side": "Yes" if yes else "No", "k": b["k"],
-            "p": b["p"] if yes else (100 - b["p"] if b["p"] is not None else None),
+            "p": b["pub"] if yes else (100 - b["pub"] if b["pub"] is not None else None),
             "cents": b["yes_c"] if yes else b["no_c"],
             "pays": b["yes_pays"] if yes else b["no_pays"],
             "fair": b["fair_yes"] if yes else b["fair_no"],
@@ -165,6 +168,7 @@ def build() -> None:
         title=config.SITE_TITLE, games=games, summary=summary, bt=backtest_note(), g=graded(),
         updated=str(config.today_et()), support_url=config.SUPPORT_URL,
         support_label=config.SUPPORT_LABEL, min_edge=round(100 * config.PROPS_MIN_EDGE),
+        shrink=round(100 * config.PROPS_SHRINK),
         p_min=round(100 * config.PROPS_PROB_MIN), p_max=round(100 * config.PROPS_PROB_MAX),
         max_gap=round(100 * config.PROPS_MAX_GAP),
         markets=[(m, MARKET_LABEL[m]) for m in ORDER])

@@ -723,7 +723,7 @@ priced against Kalshi's ladders. Five markets, all confirmed against the live AP
 | `KXNFLRSHYDS` | rushing yards | "Chris Rodriguez Jr.: 65+ rushing yards", every 5 |
 | `KXNFLRECYDS` | receiving yards | same shape |
 | `KXNFLREC` | receptions | "Josh Cameron: 3+ receptions" |
-| `KXNFLANYTD` | anytime touchdown | one rung per player |
+| `KXNFLTD` | anytime touchdown | "Josh Allen: 1+ touchdowns" — only the 1+ rung is priced; 2+ and team D/ST are skipped |
 
 **Nothing on it is staked.** It is the Big Game Cards stance applied to props: show what the
 model thinks next to what Kalshi charges, flag the gaps, log every rung and let the record
@@ -802,14 +802,37 @@ more than that, so these numbers are a floor on competence, not a measure of edg
   the player's history puts it, a projection far from that line is far from it partly by
   noise: raw 54% outcomes landed 49%, raw 64% passing outcomes landed 56%. Platt scaling,
   fitted only on earlier seasons, brings every well-populated bucket within about three points.
-  Kalshi's ladders sit where the market's view puts them, which is the same problem with a
-  sharper line, so the calibration is applied on the board too.
+  That calibration is for a line set at the player's average. It is *not* applied across
+  Kalshi's ladders — see below for why.
+
+#### What the first live run taught: lean on the market
+
+The first run priced 2,815 real Kalshi rungs and flagged **722** of them, a quarter of a
+liquid market (median quote 1 cent wide). That is not a quarter of a market mispriced; it is a
+shape error. Fitted in log-odds against Kalshi's mid, the published ladders were only **0.72×
+as steep** as Kalshi's: the Platt step, fitted at one line per player near his average, had
+been spread across whole ladders and squashed every tail toward 50%. Without it the raw model
+runs 0.82–0.94× Kalshi's steepness, and still sits a little under Kalshi on most rungs, most on
+rushing yards — either the familiar overpriced-overs effect or a model bias, and the grading is
+what will say which.
+
+So the board does what the game board does with its fitted `shrink`: the **published
+probability is Kalshi's mid moved `DEGEN_PROPS_SHRINK` of the way toward the model**, in
+log-odds (0.25, the game board's default until there is history to fit it). The card shows the
+model's own number beside Kalshi's; the flag, EV and fair price come from the published one.
+Re-priced that way, the same slate flags **3** rungs. `nfl.props.grade` reports the shrink the
+graded rungs support, and that — not intuition — is what the default should move to, once it
+rests on a couple of thousand rungs.
+
+The same run found the touchdown props: `KXNFLANYTD` exists but lists no game markets; the
+per-game ladder is `KXNFLTD`.
 
 #### The guards
 
 | Guard | Default | Why |
 |---|---|---|
-| `DEGEN_PROPS_MIN_EDGE` | 0.07 | one side at least 7% cheaper than the model's price, after Kalshi's fee |
+| `DEGEN_PROPS_SHRINK` | 0.25 | the published probability is Kalshi's mid moved this far toward the model; set it from `shrink` in `data/nfl/props/metrics.json` once that says `ready` |
+| `DEGEN_PROPS_MIN_EDGE` | 0.07 | one side at least 7% cheaper than the published price, after Kalshi's fee |
 | `DEGEN_PROPS_PROB_MIN/MAX` | 0.20 / 0.80 | tails are where the distribution has the least behind it |
 | `DEGEN_PROPS_MAX_GAP` | 0.15 | no flag when the model is more than 15 points from Kalshi's mid — that is usually news the model doesn't have, and the Premier League's biggest disagreements were its worst bucket |
 | liquidity | 6c / 20 | a quote wider than 6 cents, or under 20 contracts on the ask, is not a market |
@@ -822,8 +845,8 @@ resolves. A rung whose number and name disagree falls back to a name match withi
 teams, and is left unmatched — not guessed — when two players share a surname.
 
 Every rung of every pull is logged to `data/nfl/props/ladders/YYYY-MM-DD.csv.gz`.
-`nfl.props.grade` scores the last pre-kickoff quote of each one: the model's Brier against
-Kalshi's own mid on the same rungs, the flagged sides at the prices they were flagged at, and
+`nfl.props.grade` scores the last pre-kickoff quote of each one: the Brier score of the model,
+of the published number and of Kalshi's own mid on the same rungs, the shrink they support, the flagged sides at the prices they were flagged at, and
 **prop CLV** — whether Kalshi's mid moved toward the model between the first pull and the last.
 CLV will say within a few Sundays what a season of hit rates would take to say.
 
@@ -1699,7 +1722,8 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_NHL_REQUIRE_STARTERS` | 1 | 0 stakes picks without waiting for both starting goalies to be confirmed or likely |
 | `DEGEN_CFB_DOCS` | `docs/cfb` | where the college football board is written |
 | `DEGEN_KALSHI_ML_SERIES` | `KXNFLGAME` | Kalshi moneyline series (also `..._SPREAD_SERIES`, `..._TOTAL_SERIES`) |
-| `DEGEN_KALSHI_PASSYDS_SERIES` | `KXNFLPASSYDS` | Kalshi prop series (also `..._RSHYDS_`, `..._RECYDS_`, `..._REC_`, `..._ANYTD_SERIES`) |
+| `DEGEN_KALSHI_PASSYDS_SERIES` | `KXNFLPASSYDS` | Kalshi prop series (also `..._RSHYDS_`, `..._RECYDS_`, `..._REC_`, and `..._ANYTD_SERIES`, default `KXNFLTD`) |
+| `DEGEN_PROPS_SHRINK` | 0.25 | how far the published prop probability moves from Kalshi's mid toward the model |
 | `DEGEN_PROPS_MIN_EDGE` / `DEGEN_PROPS_MAX_GAP` | 0.07 / 0.15 | props value flag: minimum edge after fees, and the most the model may disagree with Kalshi's mid |
 | `DEGEN_PROPS_FIRST_SEASON` | 2013 | first season of player history (snap counts start in 2013) |
 | `DEGEN_SUPPORT_URL` | (unset) | Buy Me a Coffee link shown at the top; omit and the button hides |

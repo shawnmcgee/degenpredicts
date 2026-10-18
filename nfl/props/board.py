@@ -9,6 +9,11 @@ at Kalshi (ask plus the taker fee), and a flag when one side is cheap by more th
 data behind it. Every rung of every pull is logged, so the flag can be graded against what
 happened - that, not the backtest, is what will say whether any of this is an edge.
 
+**The published number leans on Kalshi.** Each rung's probability is Kalshi's mid moved
+``DEGEN_PROPS_SHRINK`` (0.25) of the way toward the model, as the game board publishes the line
+moved its fitted ``shrink`` toward the model. The card still shows what the model itself
+thinks; the flag, the EV and the fair price come from the published number.
+
 **A player who sits loses the over.** Kalshi's rules read "If <player> records 65+ rushing
 yards", so a player who does not play records nothing and the YES side loses. The model's
 distribution is for a player who plays, so the board multiplies by the chance he plays: the
@@ -37,7 +42,8 @@ MARKET_LABEL = {"pass_yds": "Passing yards", "rush_yds": "Rushing yards",
                 "anytime_td": "Anytime TD"}
 BOARD_COLS = ["game_id", "date", "kickoff_utc", "tip_et", "away_team", "home_team", "team",
               "opponent_team", "player_id", "player_name", "position", "market", "k", "ticker",
-              "proj_mean", "proj_median", "proj_avg", "p_cond", "p_play", "injury", "p_yes",
+              "proj_mean", "proj_median", "proj_avg", "p_cond", "p_play", "injury", "p_model",
+              "mid", "p_yes",
               "yes_bid", "yes_ask", "quote_spread", "ask_size", "volume", "tradeable",
               "cost_yes", "cost_no", "edge_yes", "edge_no", "gap", "flag", "match", "pulled_at"]
 
@@ -79,31 +85,57 @@ def _injury_status(inj: pd.DataFrame, season: int, week: int) -> dict[str, str]:
     return {k: str(v).strip().lower() for k, v in st.items()}
 
 
+def _logit(p):
+    p = np.clip(np.asarray(p, float), 1e-3, 1 - 1e-3)
+    return np.log(p / (1 - p))
+
+
+def publish(p_model, mid, shrink: float | None = None):
+    """Kalshi's mid moved `shrink` of the way toward the model, in log-odds. With no quote to
+    anchor to, the model's own number stands."""
+    w = config.PROPS_SHRINK if shrink is None else shrink
+    p_model, mid = np.asarray(p_model, float), np.asarray(mid, float)
+    out = 1 / (1 + np.exp(-(_logit(mid) + w * (_logit(p_model) - _logit(mid)))))
+    return np.where(np.isfinite(mid) & (mid > 0) & (mid < 1), out, p_model)
+
+
 def price(rungs: pd.DataFrame, proj: pd.DataFrame, dists: dict, meta: dict) -> pd.DataFrame:
-    """Join each rung to its player's projection and price both sides."""
+    """Join each rung to its player's projection and price both sides.
+
+    Three probabilities per rung, kept apart on purpose:
+
+    * ``p_model`` - what the model thinks, times the chance he plays. Shown on the card.
+    * ``mid`` - Kalshi's own price.
+    * ``p_yes`` - the published number: the mid moved ``PROPS_SHRINK`` toward the model. The
+      value flag, EV and fair price all come from this one.
+
+    The Platt step from the backtest is deliberately NOT applied here. It was fitted at one
+    line per player, near his average; spread across a whole ladder it squashed every tail
+    toward 50% and, on the first live run, made the model's ladders 0.72x as steep as
+    Kalshi's in log-odds. Calibrating against a real market is the shrink's job.
+    """
     if rungs.empty or proj.empty:
         return pd.DataFrame(columns=BOARD_COLS)
     r = rungs.merge(proj, on=["game_id", "player_id", "market"], how="inner")
-    p_cond, med = [], []
+    # Only the 1+ touchdown rung is modelled; 2+ is a different question.
+    r = r[~((r["market"] == "anytime_td") & (r["k"] > 1))].copy()
+    p_cond = []
     for row in r.itertuples():
         if row.market == "anytime_td":
             p_cond.append(row.proj_mean)
-            med.append(np.nan)
             continue
         d = dists.get(row.market)
-        raw = d.p_at_least(row.proj_mean, row.k, row.position) if d else np.nan
-        # The walk-forward's calibration: the raw distribution runs too extreme against a line
-        # that sits where the player's history puts it, which is where Kalshi's ladders sit too.
-        cal = (meta["markets"].get(row.market) or {}).get("platt")
-        p_cond.append(float(model.platt(raw, cal["a"], cal["b"])) if cal and raw == raw else raw)
-        med.append(row.proj_median)
+        p_cond.append(d.p_at_least(row.proj_mean, row.k, row.position) if d else np.nan)
     r["p_cond"] = np.round(p_cond, 4)
-    r["p_yes"] = np.round(r["p_cond"] * r["p_play"], 4)
+    r["p_model"] = np.round(r["p_cond"] * r["p_play"], 4)
+    r["mid"] = np.round((r["yes_bid"] + r["yes_ask"]) / 2, 4)
+    r["p_yes"] = np.round(publish(r["p_model"], r["mid"]), 4)
+    r = r[r["p_model"].notna()].copy()
     r["cost_yes"] = r["yes_ask"].map(_cost)
     r["cost_no"] = (1 - r["yes_bid"]).map(_cost)
     r["edge_yes"] = np.round(r["p_yes"] / r["cost_yes"] - 1, 4)
     r["edge_no"] = np.round((1 - r["p_yes"]) / r["cost_no"] - 1, 4)
-    r["gap"] = np.round(r["p_yes"] - (r["yes_bid"] + r["yes_ask"]) / 2, 4)
+    r["gap"] = np.round(r["p_model"] - r["mid"], 4)
     band = r["p_yes"].between(config.PROPS_PROB_MIN, config.PROPS_PROB_MAX) & \
         (r["gap"].abs() <= config.PROPS_MAX_GAP)
     yes = band & r["tradeable"] & (r["edge_yes"] >= config.PROPS_MIN_EDGE)
@@ -226,7 +258,8 @@ def log_rungs(board: pd.DataFrame) -> None:
         config.PROPS_LADDERS.mkdir(parents=True, exist_ok=True)
         path = config.PROPS_LADDERS / f"{config.today_et()}.csv.gz"
         cols = ["pulled_at", "game_id", "player_id", "player_name", "market", "k", "ticker",
-                "yes_bid", "yes_ask", "ask_size", "volume", "p_yes", "p_play", "proj_mean", "gap", "flag",
+                "yes_bid", "yes_ask", "ask_size", "volume", "p_model", "p_yes", "p_play", "proj_mean",
+                "gap", "flag",
                 "kickoff_utc"]
         new = board[cols]
         if path.exists():
