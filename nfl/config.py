@@ -291,9 +291,17 @@ KALSHI_PROP_SERIES = {
     "rush_yds": _env("DEGEN_KALSHI_RSHYDS_SERIES", "KXNFLRSHYDS"),
     "rec_yds": _env("DEGEN_KALSHI_RECYDS_SERIES", "KXNFLRECYDS"),
     "receptions": _env("DEGEN_KALSHI_REC_SERIES", "KXNFLREC"),
-    "anytime_td": _env("DEGEN_KALSHI_ANYTD_SERIES", "KXNFLANYTD"),
+    # KXNFLANYTD also exists but lists no game markets; the per-game touchdown ladder
+    # ("Josh Allen: 1+ touchdowns", "2+", team D/ST) is KXNFLTD. Only the 1+ rung is priced.
+    "anytime_td": _env("DEGEN_KALSHI_ANYTD_SERIES", "KXNFLTD"),
 }
-# A rung is called cheap only when the model's probability beats the all-in cost by this
+# The published probability is Kalshi's mid moved this far toward the model, in log-odds -
+# the same idea as the game board's fitted `shrink`, and its same default until enough graded
+# rungs exist to fit it. The first live run is why: the model's raw ladders were flatter than
+# Kalshi's and flagged 722 of 2,815 rungs, which is a shape error, not a quarter of a market
+# mispriced. Grading reports the shrink the logged rungs support.
+PROPS_SHRINK = _env_float("DEGEN_PROPS_SHRINK", 0.25)
+# A rung is called cheap only when the published probability beats the all-in cost by this
 # much AND sits inside the probability band where the distribution has real data behind it.
 # Same winner's-curse logic as the game ladders: the best of ~10 rungs per player across ~200
 # players is a maximum over noise, so the bar is high and nothing is staked.

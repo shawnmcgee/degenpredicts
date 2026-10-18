@@ -276,21 +276,41 @@ def test_platt_pulls_overconfident_probabilities_in(cfg):
     assert abs(platt(np.array([0.8]), a, b)[0] - 0.67) < 0.04
 
 
-def _priced(p_yes, bid, ask, size=200.0):
+def _priced(p_model, bid, ask, size=200.0, market="rec_yds", k=50.0):
     from nfl.props.board import price
-    from nfl.props.model import Dist
-    rungs = pd.DataFrame([{"game_id": "g", "player_id": "p", "market": "anytime_td", "k": 1.0,
+    rungs = pd.DataFrame([{"game_id": "g", "player_id": "p", "market": market, "k": k,
                            "ticker": "T", "yes_bid": bid, "yes_ask": ask, "quote_spread": ask - bid,
                            "ask_size": size, "volume": 500.0, "tradeable": (ask - bid) <= 0.06 and size >= 20,
                            "team": "KC", "match": "jersey", "pulled_at": "x"}])
-    proj = pd.DataFrame([{"game_id": "g", "player_id": "p", "market": "anytime_td",
+    proj = pd.DataFrame([{"game_id": "g", "player_id": "p", "market": market,
                           "player_name": "P", "position": "WR", "opponent_team": "LV",
-                          "proj_mean": p_yes, "proj_median": np.nan, "proj_avg": np.nan,
+                          "proj_mean": p_model, "proj_median": np.nan, "proj_avg": np.nan,
                           "injury": "", "p_play": 1.0}])
-    return price(rungs, proj, {}, {"markets": {}}).iloc[0]
+
+    class Fixed:                                   # a distribution that returns p_model
+        def p_at_least(self, mu, k, group=None):
+            return mu
+    out = price(rungs, proj, {market: Fixed()}, {"markets": {}})
+    return out.iloc[0] if len(out) else None
+
+
+def test_published_price_leans_on_kalshi(cfg):
+    """The flag is judged on Kalshi's mid moved PROPS_SHRINK toward the model, not on the raw
+    model. The first live run flagged 722 of 2,815 rungs off the raw model - a shape error."""
+    from nfl.props.board import publish
+    assert cfg.PROPS_SHRINK == pytest.approx(0.25)
+    assert publish(0.5, 0.5) == pytest.approx(0.5)
+    p = float(publish(0.60, 0.40))
+    assert 0.40 < p < 0.47, "a quarter of the way in log-odds, not all the way to the model"
+    assert float(publish(0.60, np.nan)) == pytest.approx(0.60), "no quote: the model stands"
+    # at the default shrink, a 15-point disagreement on a coin-flip rung is not value
+    r = _priced(0.54, 0.38, 0.40)
+    assert r["p_model"] == pytest.approx(0.54) and r["mid"] == pytest.approx(0.39)
+    assert r["flag"] == ""
 
 
 def test_value_flag_needs_edge_band_liquidity_and_agreement(cfg):
+    cfg.PROPS_SHRINK = 1.0          # judge the guards themselves on the model's own number
     # model 50%, Yes asks 40c: cheap, in band, close to the market -> flagged
     assert _priced(0.50, 0.38, 0.40)["flag"] == "yes"
     # same edge on a 19-cent-wide quote is not a market
@@ -299,6 +319,21 @@ def test_value_flag_needs_edge_band_liquidity_and_agreement(cfg):
     assert _priced(0.12, 0.05, 0.06)["flag"] == ""
     # twenty points away from the market: far likelier the model is missing news
     assert _priced(0.62, 0.38, 0.40)["flag"] == ""
+
+
+def test_only_the_one_touchdown_rung_is_priced(cfg):
+    """KXNFLTD lists 1+, 2+ and team defences. The model answers 'scores at all', nothing else."""
+    from nfl.sources.kalshi_props import parse_rung
+    assert _priced(0.45, 0.43, 0.45, market="anytime_td", k=1.0) is not None
+    assert _priced(0.45, 0.20, 0.22, market="anytime_td", k=2.0) is None
+    dst = {"ticker": "KXNFLTD-26OCT18BUFLV-LVLVDST-1", "title": "LV Raiders D/ST: 1+ touchdowns",
+           "rules_primary": ("If LV Raiders D/ST scores at least 1+ touchdowns in the Buffalo vs Las "
+                             "Vegas Pro Football game originally scheduled for Oct 18, 2026."),
+           "floor_strike": 0.5, "yes_bid_dollars": "0.06", "yes_ask_dollars": "0.11"}
+    assert parse_rung(dst, "anytime_td") is None
+    allen = dict(dst, ticker="KXNFLTD-26OCT18BUFLV-BUFJALLEN17-1", title="Josh Allen: 1+ touchdowns")
+    r = parse_rung(allen, "anytime_td")
+    assert r["k"] == 1.0 and r["jersey"] == 17 and r["player_raw"] == "Josh Allen"
 
 
 def test_a_player_who_sits_loses_the_over(cfg):
