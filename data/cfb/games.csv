@@ -28190,24 +28190,24 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401856730,2026,8,regular,2026-10-24,False,"Sat Oct 24, 3:30 PM",Mississippi State,Oklahoma,,,,,False,True,SEC,SEC,False,2026-10-24T15:30:00-04:00,Sat,fbs,fbs
 401856731,2026,8,regular,2026-10-24,False,"Sat Oct 24, 3:30 PM",South Carolina,Tennessee,,,,,False,True,SEC,SEC,False,2026-10-24T15:30:00-04:00,Sat,fbs,fbs
 401856732,2026,8,regular,2026-10-24,False,"Sat Oct 24, 7:30 PM",Texas,Ole Miss,,,,,False,True,SEC,SEC,False,2026-10-24T19:30:00-04:00,Sat,fbs,fbs
-401856834,2026,8,regular,2026-10-24,True,,Kansas,Baylor,,,,,False,True,Big 12,Big 12,False,2026-10-24T00:00:00-04:00,Sat,fbs,fbs
-401856835,2026,8,regular,2026-10-24,True,,UCF,BYU,,,,,False,True,Big 12,Big 12,False,2026-10-24T00:00:00-04:00,Sat,fbs,fbs
-401856836,2026,8,regular,2026-10-24,True,,Oklahoma State,Colorado,,,,,False,True,Big 12,Big 12,False,2026-10-24T00:00:00-04:00,Sat,fbs,fbs
-401856837,2026,8,regular,2026-10-24,True,,Utah,Houston,,,,,False,True,Big 12,Big 12,False,2026-10-24T00:00:00-04:00,Sat,fbs,fbs
-401856838,2026,8,regular,2026-10-24,True,,Arizona,Iowa State,,,,,False,True,Big 12,Big 12,False,2026-10-24T00:00:00-04:00,Sat,fbs,fbs
-401856839,2026,8,regular,2026-10-24,True,,Arizona State,Kansas State,,,,,False,True,Big 12,Big 12,False,2026-10-24T00:00:00-04:00,Sat,fbs,fbs
-401856840,2026,8,regular,2026-10-24,True,,Cincinnati,Texas Tech,,,,,False,True,Big 12,Big 12,False,2026-10-24T00:00:00-04:00,Sat,fbs,fbs
+401856834,2026,8,regular,2026-10-24,False,"Sat Oct 24, 1:00 PM",Kansas,Baylor,,,,,False,True,Big 12,Big 12,False,2026-10-24T13:00:00-04:00,Sat,fbs,fbs
+401856835,2026,8,regular,2026-10-24,False,"Sat Oct 24, 3:30 PM",UCF,BYU,,,,,False,True,Big 12,Big 12,False,2026-10-24T15:30:00-04:00,Sat,fbs,fbs
+401856836,2026,8,regular,2026-10-24,False,"Sat Oct 24, 7:00 PM",Oklahoma State,Colorado,,,,,False,True,Big 12,Big 12,False,2026-10-24T19:00:00-04:00,Sat,fbs,fbs
+401856837,2026,8,regular,2026-10-24,False,"Sat Oct 24, 10:15 PM",Utah,Houston,,,,,False,True,Big 12,Big 12,False,2026-10-24T22:15:00-04:00,Sat,fbs,fbs
+401856838,2026,8,regular,2026-10-24,False,"Sat Oct 24, 7:30 PM",Arizona,Iowa State,,,,,False,True,Big 12,Big 12,False,2026-10-24T19:30:00-04:00,Sat,fbs,fbs
+401856839,2026,8,regular,2026-10-24,False,"Sat Oct 24, 3:45 PM",Arizona State,Kansas State,,,,,False,True,Big 12,Big 12,False,2026-10-24T15:45:00-04:00,Sat,fbs,fbs
+401856840,2026,8,regular,2026-10-24,False,"Sat Oct 24, 12:00 PM",Cincinnati,Texas Tech,,,,,False,True,Big 12,Big 12,False,2026-10-24T12:00:00-04:00,Sat,fbs,fbs
 401856841,2026,8,regular,2026-10-24,False,"Sat Oct 24, 12:00 PM",TCU,West Virginia,,,,,False,True,Big 12,Big 12,False,2026-10-24T12:00:00-04:00,Sat,fbs,fbs
 401858270,2026,8,regular,2026-10-24,False,"Sat Oct 24, 12:00 PM",SMU,California,,,,,False,True,ACC,ACC,False,2026-10-24T12:00:00-04:00,Sat,fbs,fbs
 401858273,2026,8,regular,2026-10-24,False,"Sat Oct 24, 3:30 PM",Georgia Tech,Boston College,,,,,False,True,ACC,ACC,False,2026-10-24T15:30:00-04:00,Sat,fbs,fbs
 401858274,2026,8,regular,2026-10-24,False,"Sat Oct 24, 12:00 PM",Miami,Pittsburgh,,,,,False,True,ACC,ACC,False,2026-10-24T12:00:00-04:00,Sat,fbs,fbs
 401858275,2026,8,regular,2026-10-24,False,"Sat Oct 24, 7:30 PM",North Carolina,Syracuse,,,,,False,True,ACC,ACC,False,2026-10-24T19:30:00-04:00,Sat,fbs,fbs
-401858276,2026,8,regular,2026-10-24,True,,Clemson,Virginia Tech,,,,,False,True,ACC,ACC,False,2026-10-24T00:00:00-04:00,Sat,fbs,fbs
-401858495,2026,8,regular,2026-10-24,True,,Illinois,Oregon,,,,,False,True,Big Ten,Big Ten,False,2026-10-24T00:00:00-04:00,Sat,fbs,fbs
+401858276,2026,8,regular,2026-10-24,False,"Sat Oct 24, 7:00 PM",Clemson,Virginia Tech,,,,,False,True,ACC,ACC,False,2026-10-24T19:00:00-04:00,Sat,fbs,fbs
+401858495,2026,8,regular,2026-10-24,False,"Sat Oct 24, 3:00 PM",Illinois,Oregon,,,,,False,True,Big Ten,Big Ten,False,2026-10-24T15:00:00-04:00,Sat,fbs,fbs
 401858496,2026,8,regular,2026-10-24,False,"Sat Oct 24, 12:00 PM",Michigan,Indiana,,,,,False,True,Big Ten,Big Ten,False,2026-10-24T12:00:00-04:00,Sat,fbs,fbs
-401858497,2026,8,regular,2026-10-24,True,,Minnesota,Iowa,,,,,False,True,Big Ten,Big Ten,False,2026-10-24T00:00:00-04:00,Sat,fbs,fbs
+401858497,2026,8,regular,2026-10-24,False,"Sat Oct 24, 3:30 PM",Minnesota,Iowa,,,,,False,True,Big Ten,Big Ten,False,2026-10-24T15:30:00-04:00,Sat,fbs,fbs
 401858498,2026,8,regular,2026-10-24,False,"Sat Oct 24, 12:00 PM",Northwestern,Rutgers,,,,,False,True,Big Ten,Big Ten,False,2026-10-24T12:00:00-04:00,Sat,fbs,fbs
-401858499,2026,8,regular,2026-10-24,True,,UCLA,Michigan State,,,,,False,True,Big Ten,Big Ten,False,2026-10-24T00:00:00-04:00,Sat,fbs,fbs
+401858499,2026,8,regular,2026-10-24,False,"Sat Oct 24, 3:30 PM",UCLA,Michigan State,,,,,False,True,Big Ten,Big Ten,False,2026-10-24T15:30:00-04:00,Sat,fbs,fbs
 401858500,2026,8,regular,2026-10-24,False,"Sat Oct 24, 7:30 PM",Wisconsin,USC,,,,,False,True,Big Ten,Big Ten,False,2026-10-24T19:30:00-04:00,Sat,fbs,fbs
 401860905,2026,8,regular,2026-10-24,False,"Sat Oct 24, 6:30 PM",Colorado State,San Diego State,,,,,False,True,Pac-12,Pac-12,False,2026-10-24T18:30:00-04:00,Sat,fbs,fbs
 401860906,2026,8,regular,2026-10-24,False,"Sat Oct 24, 7:30 PM",Texas State,Utah State,,,,,False,True,Pac-12,Pac-12,False,2026-10-24T19:30:00-04:00,Sat,fbs,fbs
