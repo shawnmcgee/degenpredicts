@@ -4721,7 +4721,7 @@ game_id,season,week,season_type,playoff_round,date,tip_et,kickoff_utc,start_time
 2026_06_NYJ_NE,2026,6,REG,0,2026-10-18,"Sun Oct 18, 1:00 PM",2026-10-18T13:00:00-04:00,False,Sunday,NE,NYJ,26.0,19.0,45.0,7.0,False,True,AFC East,AFC East,7.0,7.0,outdoors,,,,BOS00,Drake Maye,Geno Smith,True
 2026_06_PIT_TB,2026,6,REG,0,2026-10-18,"Sun Oct 18, 1:00 PM",2026-10-18T13:00:00-04:00,False,Sunday,TB,PIT,19.0,26.0,45.0,-7.0,False,False,NFC South,AFC North,10.0,7.0,outdoors,,,,TAM00,Jalon Daniels,Aaron Rodgers,True
 2026_06_TEN_IND,2026,6,REG,0,2026-10-18,"Sun Oct 18, 1:00 PM",2026-10-18T13:00:00-04:00,False,Sunday,IND,TEN,20.0,26.0,46.0,-6.0,False,True,AFC South,AFC South,7.0,7.0,open,,,,IND00,Daniel Jones,Cam Ward,True
-2026_06_WAS_SF,2026,6,REG,0,2026-10-19,"Mon Oct 19, 8:15 PM",2026-10-19T20:15:00-04:00,False,Monday,SF,WAS,,,,,False,False,NFC West,NFC East,8.0,8.0,outdoors,grass,,,SFO01,Brock Purdy,Jayden Daniels,False
+2026_06_WAS_SF,2026,6,REG,0,2026-10-19,"Mon Oct 19, 8:15 PM",2026-10-19T20:15:00-04:00,False,Monday,SF,WAS,23.0,17.0,40.0,6.0,False,False,NFC West,NFC East,8.0,8.0,outdoors,,,,SFO01,Brock Purdy,Jayden Daniels,True
 2026_07_NE_CHI,2026,7,REG,0,2026-10-22,"Thu Oct 22, 8:15 PM",2026-10-22T20:15:00-04:00,False,Thursday,CHI,NE,,,,,False,False,NFC North,AFC East,4.0,4.0,outdoors,grass,,,CHI98,Caleb Williams,Drake Maye,False
 2026_07_CIN_BAL,2026,7,REG,0,2026-10-25,"Sun Oct 25, 1:00 PM",2026-10-25T13:00:00-04:00,False,Sunday,BAL,CIN,,,,,False,True,AFC North,AFC North,7.0,14.0,outdoors,grass,,,BAL00,Tyler Huntley,Joe Burrow,False
 2026_07_CLE_TEN,2026,7,REG,0,2026-10-25,"Sun Oct 25, 1:00 PM",2026-10-25T13:00:00-04:00,False,Sunday,TEN,CLE,,,,,False,False,AFC South,AFC North,7.0,7.0,outdoors,grass,,,NAS00,Cam Ward,Deshaun Watson,False
