@@ -225,6 +225,32 @@ def status(raw) -> str | None:
     return STATUS.get(s) or STATUS.get(s.replace(" ", "-"))
 
 
+_ID_IN_URL = (re.compile(r"/id/(\d+)"), re.compile(r"/players/full/(\d+)\."))
+
+
+def _athlete_id(ath: dict, inj: dict):
+    """The player's ESPN id. **The live injuries feed has no ``id`` on the athlete** - first read
+    from an Actions runner on 2026-10-20, opening night, when every entry was dropped and the
+    report read as "nobody is hurt". The id is in the player-card link
+    (``.../nba/player/_/id/4712863/mouhamed-gueye``) and the headshot URL, so those are read
+    when no explicit id or uid is there."""
+    for v in (ath.get("id"), inj.get("athleteId")):
+        if v not in (None, ""):
+            return v
+    m = re.search(r"~a:(\d+)", str(ath.get("uid") or ""))
+    if m:
+        return m.group(1)
+    hrefs = [l.get("href") for l in ath.get("links") or [] if isinstance(l, dict)]
+    hrefs.append((ath.get("headshot") or {}).get("href") if isinstance(ath.get("headshot"), dict)
+                 else ath.get("headshot"))
+    for href in hrefs:
+        for rx in _ID_IN_URL:
+            m = rx.search(str(href or ""))
+            if m:
+                return m.group(1)
+    return None
+
+
 def parse_injuries(payload: dict) -> pd.DataFrame:
     """Injuries JSON -> one row per listed player. Pure."""
     rows = []
@@ -240,7 +266,7 @@ def parse_injuries(payload: dict) -> pd.DataFrame:
                     continue
         for inj in team_block.get("injuries", []) or []:
             ath = inj.get("athlete") or {}
-            pid = ath.get("id") or inj.get("athleteId")
+            pid = _athlete_id(ath, inj)
             t = team
             if t is None:
                 try:
@@ -270,6 +296,16 @@ def injuries(write: bool = True) -> pd.DataFrame | None:
         log.warning("injury report unavailable - falling back to the last one logged")
         return None
     df = parse_injuries(j)
+    listed = sum(len(b.get("injuries") or []) for b in j.get("injuries") or [] if isinstance(b, dict))
+    if listed and df.empty:
+        # A report that lists players but parses to none is a layout change, not a healthy
+        # league - and "nobody is hurt" is the one reading the board must never default to.
+        log.warning("injury report lists %d players but none parsed - treating it as unreadable "
+                    "(has ESPN changed its layout?)", listed)
+        return None
+    if listed > len(df):
+        log.info("injury report: %d of %d entries skipped (other leagues, unknown statuses)",
+                 listed - len(df), listed)
     df.insert(0, "pulled_at", config.now_et().astimezone(timezone.utc).isoformat(timespec="seconds"))
     log.info("injury report: %d players on %d clubs (%s)", len(df), df["team"].nunique(),
              df["status"].value_counts().to_dict())

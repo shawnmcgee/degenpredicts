@@ -307,6 +307,52 @@ def test_injury_report_parses_by_status_and_skips_the_unknown():
     assert status("INJURY_STATUS_OUT") == "out" and status("GTD") == "questionable"
 
 
+# The live shape, first read from a runner on opening night 2026: no id on the athlete - only in
+# the player-card link and the headshot URL.
+LIVE_INJURY = {"timestamp": "2026-10-20T21:30:00Z", "status": "success", "season": {},
+               "injuries": [{"id": "1", "displayName": "Atlanta Hawks", "injuries": [
+                   {"id": "-58751", "status": "Out", "date": "2026-10-19T19:38Z",
+                    "shortComment": "Gueye (foot) is out.",
+                    "athlete": {"firstName": "Mouhamed", "lastName": "Gueye",
+                                "displayName": "Mouhamed Gueye", "shortName": "M. Gueye",
+                                "links": [{"rel": ["playercard", "desktop", "athlete"],
+                                           "href": "https://www.espn.com/nba/player/_/id/4712863/mouhamed-gueye"}],
+                                "headshot": {"href": "https://a.espncdn.com/i/headshots/nba/players/full/4712863.png"},
+                                "team": {"id": "1", "uid": "s:40~l:46~t:1", "abbreviation": "ATL"},
+                                "status": {"id": "1", "name": "Active", "type": "active"}},
+                    "type": {"id": "4", "name": "INJURY_STATUS_OUT", "description": "out",
+                             "abbreviation": "O"},
+                    "details": {"fantasyStatus": "OUT", "type": "Foot", "location": "Leg",
+                                "detail": "Fracture", "side": "Left", "returnDate": "2026-11-20"}},
+                   {"id": "-58752", "status": "Day-To-Day",
+                    "athlete": {"displayName": "Headshot Only",
+                                "headshot": {"href": "https://a.espncdn.com/i/headshots/nba/players/full/555.png"}}}]}]}
+
+
+def test_the_live_injury_feed_reads_ids_from_its_links():
+    """Opening night 2026 read 0 players on 0 clubs: the live feed has no athlete id, so every
+    entry was dropped and the whole league priced at full strength."""
+    from nba.sources.espn import parse_injuries
+    r = parse_injuries(LIVE_INJURY).set_index("athlete_id")
+    assert set(r.index) == {4712863, 555}
+    assert r.loc[4712863, "team"] == "ATL" and r.loc[4712863, "status"] == "out"
+    assert r.loc[4712863, "detail"] == "Left Foot" and r.loc[555, "status"] == "day-to-day"
+
+
+def test_a_report_that_lists_players_but_parses_none_is_unreadable_not_empty(env, monkeypatch):
+    """"Nobody is hurt" is the one reading the board must never fall into by accident: if ESPN
+    changes its layout again, the report reads as missing - and nothing stakes - instead."""
+    from nba.sources import espn
+    broken = {"injuries": [{"displayName": "Atlanta Hawks", "injuries": [
+        {"status": "Out", "athlete": {"displayName": "No Id Anywhere"}}]}]}
+    monkeypatch.setattr(espn, "get_json", lambda *a, **k: broken)
+    assert espn.injuries(write=False) is None
+    monkeypatch.setattr(espn, "get_json", lambda *a, **k: {"injuries": []})
+    assert espn.injuries(write=False) is not None          # a genuinely empty report is fine
+    monkeypatch.setattr(espn, "get_json", lambda *a, **k: LIVE_INJURY)
+    assert len(espn.injuries(write=False)) == 2
+
+
 def test_a_failed_evening_read_keeps_the_mornings_report(env):
     from nba.sources import espn
     today = env.today_et()
