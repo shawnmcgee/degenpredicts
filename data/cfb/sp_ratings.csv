@@ -1577,142 +1577,142 @@ season,team,sp_overall,sp_off,sp_def
 2025,Sam Houston,-27.8,15.3,41.8
 2025,Massachusetts,-36.6,7.8,42.8
 2025,nationalAverages,0.6970588235294117,27.158088235294116,26.459558823529413
-2026,Ohio State,29.5,41.3,11.7
-2026,Georgia,28.3,40.5,12.7
-2026,Notre Dame,28.0,41.0,13.3
-2026,Miami,27.8,40.6,13.1
-2026,Indiana,26.7,39.3,12.8
-2026,Texas,24.4,36.4,12.2
-2026,Utah,23.5,39.1,15.7
-2026,Alabama,23.0,40.0,17.1
-2026,LSU,21.7,36.7,14.9
-2026,Texas Tech,21.6,36.7,15.4
-2026,BYU,21.5,35.0,13.8
-2026,Oregon,21.0,38.2,17.4
-2026,Missouri,18.0,33.0,14.9
-2026,Nebraska,16.9,34.7,17.7
-2026,Tennessee,16.7,34.9,18.5
-2026,Ole Miss,15.9,39.9,24.4
-2026,Northwestern,15.6,35.1,19.7
-2026,UCLA,15.3,34.3,19.2
-2026,Arizona,15.2,35.5,20.0
-2026,Houston,15.2,36.6,21.5
-2026,USC,14.4,38.5,24.2
-2026,Oklahoma State,13.3,34.5,21.5
-2026,Michigan,13.1,26.6,13.4
-2026,Iowa,13.0,29.3,16.7
-2026,Louisville,13.0,38.0,25.0
-2026,SMU,12.8,34.2,21.0
-2026,Baylor,12.7,31.3,19.0
-2026,Mississippi State,12.6,37.8,25.5
-2026,New Mexico,12.3,29.8,17.8
-2026,Oklahoma,12.2,25.6,13.6
-2026,Florida,11.0,35.1,24.6
-2026,Auburn,11.0,27.9,17.1
-2026,Kansas State,11.0,33.5,22.7
-2026,Wake Forest,10.5,32.6,22.3
-2026,Wisconsin,10.5,26.3,15.8
-2026,Pittsburgh,10.5,29.7,19.4
-2026,South Carolina,9.9,33.5,24.0
-2026,Penn State,9.6,30.0,20.5
-2026,Virginia Tech,9.5,32.0,22.4
-2026,James Madison,9.4,31.1,21.8
-2026,TCU,9.2,26.5,17.1
-2026,Boise State,9.1,34.1,25.1
-2026,North Dakota State,8.6,26.1,17.7
-2026,Virginia,8.5,29.6,21.3
-2026,Duke,8.2,31.5,23.4
-2026,Kentucky,8.0,33.1,25.0
-2026,Texas A&M,8.0,29.3,21.4
-2026,Memphis,7.6,34.1,26.6
-2026,Liberty,7.3,29.0,21.6
-2026,Kansas,7.2,29.4,22.3
-2026,Washington,7.1,28.2,21.1
-2026,Oregon State,7.1,31.6,24.0
-2026,Florida State,5.8,32.2,26.6
-2026,Illinois,5.8,33.1,27.7
-2026,Cincinnati,5.3,31.6,26.5
-2026,North Carolina,4.9,26.4,21.5
-2026,UCF,4.1,26.1,22.1
-2026,Fresno State,3.7,26.4,22.9
-2026,Arizona State,3.6,27.0,23.2
-2026,Minnesota,2.9,25.0,22.1
-2026,Clemson,2.2,22.6,20.7
-2026,Purdue,1.6,31.3,30.1
-2026,Air Force,1.4,26.6,25.3
-2026,Georgia Tech,1.3,27.9,26.7
-2026,Vanderbilt,1.2,28.2,27.2
+2026,Ohio State,26.8,38.7,11.9
+2026,Georgia,26.5,39.4,13.3
+2026,Miami,25.3,40.2,15.2
+2026,Notre Dame,24.8,39.1,14.6
+2026,Indiana,23.6,36.6,13.2
+2026,LSU,22.6,37.3,14.4
+2026,Texas Tech,21.9,37.9,16.3
+2026,Texas,21.1,34.4,13.5
+2026,BYU,20.6,35.0,14.7
+2026,Utah,19.4,37.0,17.7
+2026,Oregon,18.8,34.9,16.4
+2026,Alabama,18.5,36.6,18.4
+2026,Tennessee,17.5,33.7,16.6
+2026,Ole Miss,17.1,39.1,22.5
+2026,Arizona,15.7,35.7,19.8
+2026,Nebraska,15.6,32.6,16.9
+2026,USC,15.3,38.7,23.5
+2026,Houston,14.3,37.8,23.7
+2026,UCLA,14.0,32.1,18.0
+2026,Missouri,13.6,30.1,16.6
+2026,Wake Forest,13.6,34.3,21.1
+2026,Iowa,13.6,29.5,16.3
+2026,Michigan,13.0,26.2,13.2
+2026,Louisville,12.9,38.9,25.9
+2026,SMU,12.9,33.0,19.8
+2026,Northwestern,12.6,32.7,20.4
+2026,James Madison,12.1,33.0,21.2
+2026,Oklahoma State,12.1,35.3,23.5
+2026,Kansas State,11.9,34.2,22.5
+2026,New Mexico,10.6,28.4,18.0
+2026,TCU,10.1,26.2,15.9
+2026,South Carolina,10.0,33.3,23.6
+2026,Texas A&M,9.9,29.9,20.4
+2026,Oklahoma,9.8,23.7,14.2
+2026,North Dakota State,9.5,26.1,16.9
+2026,Boise State,9.4,34.2,24.9
+2026,Pittsburgh,9.4,29.2,19.8
+2026,Florida,9.2,33.5,24.9
+2026,Oregon State,9.1,33.7,24.2
+2026,Baylor,8.9,28.1,19.5
+2026,Virginia Tech,8.9,32.7,23.4
+2026,Auburn,8.9,27.1,18.5
+2026,Wisconsin,8.3,23.9,15.7
+2026,Washington,8.2,29.7,21.5
+2026,Kentucky,7.8,32.0,23.8
+2026,Liberty,7.5,29.0,21.5
+2026,Mississippi State,7.3,33.7,26.8
+2026,Penn State,7.3,28.0,20.8
+2026,Virginia,6.6,28.1,21.7
+2026,Memphis,6.5,32.8,26.3
+2026,Duke,6.5,30.1,23.7
+2026,Illinois,6.0,33.1,27.4
+2026,Cincinnati,5.2,33.4,28.3
+2026,North Carolina,5.0,26.2,21.2
+2026,Florida State,4.9,32.8,28.2
+2026,Clemson,4.0,23.1,19.5
+2026,UCF,4.0,26.0,22.1
+2026,Kansas,3.5,28.0,24.7
+2026,Fresno State,3.4,26.5,23.5
+2026,Minnesota,3.1,25.0,21.8
+2026,South Florida,2.7,26.6,24.2
+2026,Texas State,2.5,35.5,32.8
+2026,Louisiana,1.9,27.6,25.6
+2026,Georgia Tech,1.9,28.9,27.2
+2026,Toledo,1.8,26.2,24.0
+2026,Air Force,1.5,28.2,26.8
+2026,Army,1.2,30.3,29.2
 2026,Iowa State,1.0,25.4,24.6
-2026,UTSA,0.8,28.3,27.5
-2026,South Florida,0.6,26.4,25.9
-2026,Florida Atlantic,0.1,28.9,29.0
-2026,Navy,-0.2,26.3,26.4
-2026,Texas State,-0.2,33.2,33.2
-2026,Syracuse,-0.4,25.1,25.6
-2026,West Virginia,-0.6,32.1,32.9
-2026,Army,-0.9,27.5,28.5
-2026,UNLV,-0.9,24.4,25.3
-2026,North Texas,-1.0,32.1,32.7
-2026,Michigan State,-1.2,25.0,26.2
-2026,NC State,-1.3,29.2,30.6
-2026,UConn,-1.3,29.1,30.5
-2026,East Carolina,-1.3,22.5,23.8
-2026,Maryland,-2.0,26.2,28.2
-2026,Toledo,-2.1,24.1,26.0
-2026,Louisiana,-2.3,26.5,28.7
-2026,Jacksonville State,-2.4,26.2,28.4
-2026,Arkansas,-2.4,26.4,29.0
-2026,Colorado,-2.4,21.4,23.3
-2026,California,-2.5,24.4,26.6
-2026,Western Michigan,-3.2,21.1,24.4
-2026,Nevada,-4.3,21.4,26.1
-2026,Georgia Southern,-4.6,25.9,30.2
-2026,Georgia State,-4.8,27.6,32.2
-2026,Boston College,-4.9,19.5,24.4
-2026,Tulsa,-5.1,22.9,28.1
-2026,Rutgers,-5.3,29.2,34.7
-2026,Florida International,-5.4,16.9,22.1
-2026,Louisiana Tech,-5.9,25.8,31.5
-2026,App State,-6.0,21.8,28.0
-2026,Miami (OH),-6.4,22.2,28.6
-2026,Temple,-6.5,25.0,31.6
-2026,Troy,-6.6,23.0,29.5
-2026,Ohio,-6.7,21.6,28.0
-2026,Tulane,-7.6,18.8,26.7
-2026,Colorado State,-7.8,28.0,35.7
-2026,Arkansas State,-8.0,26.2,34.2
-2026,Utah State,-9.0,17.4,25.9
-2026,Massachusetts,-9.5,20.0,29.4
-2026,Kennesaw State,-9.8,20.8,30.2
-2026,Old Dominion,-9.9,16.5,26.2
-2026,San Diego State,-10.2,19.5,30.1
-2026,Coastal Carolina,-11.0,22.6,33.6
-2026,Washington State,-11.1,15.3,26.0
-2026,South Alabama,-11.1,29.2,39.9
-2026,Eastern Michigan,-11.2,19.5,30.3
-2026,San José State,-12.2,16.0,27.9
-2026,UAB,-12.8,18.8,31.6
-2026,Hawai'i,-12.9,17.6,30.8
-2026,Western Kentucky,-13.0,20.3,33.6
-2026,Delaware,-13.1,20.1,32.9
-2026,Marshall,-13.2,24.4,37.5
-2026,Rice,-13.4,16.5,29.8
-2026,New Mexico State,-13.7,17.3,30.8
-2026,Wyoming,-13.8,12.9,26.7
-2026,Buffalo,-13.9,14.7,28.9
-2026,Stanford,-14.9,19.4,33.8
-2026,Sam Houston,-16.5,17.1,33.3
-2026,Central Michigan,-16.7,15.2,31.5
-2026,Bowling Green,-17.9,13.8,31.7
-2026,Southern Miss,-18.3,21.2,39.2
-2026,Missouri State,-19.5,17.2,36.3
-2026,Middle Tennessee,-19.5,15.5,35.1
-2026,Akron,-22.4,15.0,36.9
-2026,Kent State,-22.6,12.2,34.3
-2026,Northern Illinois,-23.5,12.9,36.0
-2026,UTEP,-24.6,13.3,37.4
-2026,Sacramento State,-24.7,12.1,36.6
-2026,Ball State,-25.2,14.2,38.9
-2026,UL Monroe,-28.4,16.5,44.4
-2026,Charlotte,-28.6,12.4,40.7
-2026,nationalAverages,0.9253623188405797,26.72463768115942,25.80144927536232
+2026,UTSA,0.7,29.7,29.0
+2026,Arizona State,0.6,26.9,26.1
+2026,Vanderbilt,0.3,27.7,27.9
+2026,Navy,0.2,28.3,28.0
+2026,Purdue,-0.1,31.2,31.8
+2026,UConn,-0.3,29.5,30.0
+2026,Jacksonville State,-0.5,27.0,27.4
+2026,West Virginia,-0.8,34.0,34.9
+2026,North Texas,-0.9,32.1,32.7
+2026,NC State,-1.0,29.2,30.3
+2026,Michigan State,-1.1,24.6,26.1
+2026,Colorado,-1.3,22.8,23.6
+2026,Western Michigan,-1.5,21.7,23.4
+2026,Arkansas,-1.7,26.5,28.5
+2026,Ohio,-2.0,24.2,26.1
+2026,Syracuse,-2.3,25.0,27.1
+2026,Georgia Southern,-2.5,25.7,27.7
+2026,Florida Atlantic,-2.6,28.9,31.8
+2026,Tulsa,-2.7,25.0,27.5
+2026,Maryland,-2.9,26.9,29.9
+2026,Boston College,-3.2,21.1,24.4
+2026,UNLV,-3.4,24.7,27.9
+2026,Rutgers,-3.8,30.3,34.3
+2026,East Carolina,-3.8,20.9,24.5
+2026,Louisiana Tech,-3.8,24.9,28.5
+2026,Miami (OH),-4.0,23.4,27.2
+2026,Nevada,-4.6,20.6,25.6
+2026,App State,-5.3,23.7,29.3
+2026,California,-6.2,22.5,28.2
+2026,Florida International,-6.2,17.5,23.7
+2026,Massachusetts,-6.5,20.2,26.8
+2026,Arkansas State,-6.7,25.1,31.6
+2026,Tulane,-6.7,19.6,26.6
+2026,Temple,-6.9,26.0,33.0
+2026,Georgia State,-7.6,26.6,34.0
+2026,San Diego State,-8.7,20.3,29.5
+2026,Coastal Carolina,-8.9,24.9,34.0
+2026,UAB,-8.9,19.7,28.9
+2026,Troy,-9.0,21.0,29.8
+2026,Utah State,-9.0,17.2,25.9
+2026,San José State,-9.3,17.6,26.4
+2026,Wyoming,-9.3,16.4,25.9
+2026,Colorado State,-9.6,27.7,37.3
+2026,Kennesaw State,-10.8,19.9,30.3
+2026,Western Kentucky,-11.2,18.7,30.4
+2026,Old Dominion,-11.2,15.5,26.2
+2026,South Alabama,-11.2,28.8,39.7
+2026,Stanford,-11.2,20.8,31.5
+2026,Washington State,-12.1,16.6,28.2
+2026,Buffalo,-12.2,14.8,27.2
+2026,Hawai'i,-12.6,16.9,29.8
+2026,Delaware,-12.9,21.1,33.7
+2026,Marshall,-13.2,24.1,37.3
+2026,Rice,-14.2,17.0,31.0
+2026,Eastern Michigan,-14.4,17.8,31.8
+2026,New Mexico State,-14.5,16.9,31.1
+2026,Central Michigan,-16.4,14.7,30.7
+2026,Missouri State,-16.6,17.8,34.0
+2026,Sam Houston,-16.9,14.7,31.2
+2026,Southern Miss,-17.1,19.6,36.3
+2026,Middle Tennessee,-17.3,17.6,35.0
+2026,Bowling Green,-17.9,15.0,32.7
+2026,Ball State,-21.5,16.9,37.9
+2026,Kent State,-22.3,11.5,33.1
+2026,Akron,-22.9,14.8,37.0
+2026,UTEP,-24.6,13.2,37.1
+2026,Charlotte,-24.8,15.7,40.4
+2026,Northern Illinois,-25.0,13.0,37.6
+2026,Sacramento State,-26.1,11.2,36.9
+2026,UL Monroe,-27.4,14.8,41.7
+2026,nationalAverages,0.8601449275362318,26.655072463768114,25.805072463768116
