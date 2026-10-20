@@ -26,15 +26,16 @@ decide whether to bet, in data/nba/models/meta.json:
 **What the first full run found** (2019-20 to 2025-26, ~8,800 closing lines scored out of
 sample, nothing tuned or fitted on the season it scores):
 
-* the no-market model's margin error is 10.74 points against the closing spread's 10.49, and
-  its total error 14.63 against the closing total's 14.33 - the gap is information the line
-  has and a public box-score model does not;
-* the market-aware models tie the close (10.494 against 10.494; 14.330 against 14.329), cover
-  50.4% of spreads and 50.4% of totals, and no disagreement bucket or situation clears the
+* the no-market model's margin error is 10.71 points against the closing spread's 10.49, and
+  its total error 14.61 against the closing total's 14.33 - the gap is information the line
+  has and a public box-score model does not (10.74 and 14.63 before the player layer learned
+  what KIND of player is missing - see nba.players);
+* the market-aware models tie the close (10.490 against 10.494; 14.329 against 14.329), cover
+  51.1% of spreads and 50.7% of totals, and no disagreement bucket or situation clears the
   52.4% break-even once corrected for the looks taken;
-* on the moneyline the published probabilities tie the de-vigged close (log loss 0.6057
+* on the moneyline the published probabilities tie the de-vigged close (log loss 0.6056
   against 0.6058). The one bucket that showed anything is 10%+ EV - underdogs the closing
-  spread rated better than their moneyline did - at about +16% on ~770 bets, positive in six
+  spread rated better than their moneyline did - at about +16% on ~780 bets, positive in five
   of seven seasons: 1.8 standard errors, suggestive and unproven, like the NHL's puck line;
 * in the research, against OPENING numbers the model went 50.6% and did not anticipate which
   way the line would move.
@@ -354,8 +355,21 @@ def evaluate_target(pool: pd.DataFrame, target: str) -> tuple[dict, dict]:
         rate = float(dec["right"].mean())
         mk.update(ats_rate=round(100 * rate, 1), ats_n=int(len(dec)),
                   ats_stderr=round(100 * (0.25 / len(dec)) ** 0.5, 2))
-    mk["beats_market"] = bool(mk["mae_model"] is not None and mk["mae_market_baseline"] is not None
-                              and mk["mae_model"] < mk["mae_market_baseline"])
+    # "Beats the close" is a betting claim, so it takes two things: a lead in accuracy bigger than
+    # one sample's noise (a paired test on the same games, |published - result| against
+    # |close - result|) AND a side that covers above break-even. The composition vector's first
+    # report is why: a 0.004-point lead on 8,900 games is 2.1 standard errors in a paired test,
+    # and its side covered 51.1% - more accurate than the close by a hair, and nowhere near the
+    # 52.4% a -110 price needs. The page says both.
+    d = (np.abs(cl[f"pub_{target}"] - cl[target]) - np.abs(cl[f"mkt_{target}"] - cl[target])).dropna()
+    if len(d) > 1:
+        se = float(d.std(ddof=1) / np.sqrt(len(d)))
+        mk["mae_edge"] = round(float(-d.mean()), 4)
+        mk["mae_edge_z"] = round(float(-d.mean()) / se, 2) if se else None
+    covers = mk.get("ats_rate") is not None and mk.get("ats_stderr") and \
+        (mk["ats_rate"] - config.BREAK_EVEN) / mk["ats_stderr"] >= 2.0
+    mk["beats_market"] = bool(mk.get("mae_edge_z") is not None and mk["mae_edge_z"] >= 2.0
+                              and covers)
     mk["break_even_pct"] = round(config.BREAK_EVEN, 2)
     mk["shrink_by_season"] = {int(s): round(float(w), 2) for s, w in
                               pool.groupby("season")[f"shrink_{target}"].first().items()}

@@ -94,6 +94,11 @@
   .jump.up svg{transform:rotate(180deg)}
   @media print{.jump{display:none}}
   @media(max-width:700px){.bets{grid-template-columns:1fr}}
+  /* The NBA has two views, as the NFL does: every game, and player props */
+  .tabs{display:inline-flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;
+        padding:4px;margin:10px 0 2px}
+  .tabs a{padding:7px 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--dim);text-decoration:none;white-space:nowrap}
+  .tabs a[aria-current="page"]{background:var(--fg);color:var(--bg)}
 </style>
 </head>
 <body>
@@ -116,6 +121,10 @@
     <a class="coffee" href="{{ support_url }}" rel="noopener">&#9749; {{ support_label }}</a>
     {% endif %}
   </div>
+  <nav class="tabs" aria-label="NBA views">
+    <a aria-current="page" href="./">All games</a>
+    <a href="props/">Player props</a>
+  </nav>
 </header>
 
 <main>
@@ -135,7 +144,10 @@
     close's {{ model.m_line }} and its totals error {{ model.t_mae }} against
     {{ model.t_line }}{% if model.m_ats %}; its side of the spread covered {{ model.m_ats }}% of
     {{ model.m_ats_n }} games (&plusmn;{{ model.m_se }}), short of the 52.4% a &minus;110 price
-    needs{% endif %}. The published number is therefore the line moved
+    needs{% endif %}.{% if model.m_edge_z and model.m_edge_z >= 2 %} Its spread number is a hair
+    more accurate than the close's &mdash; a paired test puts it {{ model.m_edge_z }}&sigma; ahead on
+    the same games &mdash; but a hair is all it is, and it does not clear the vig.{% endif %}
+    The published number is therefore the line moved
     {{ ((model.shrink.margin or 0) * 100)|round|int }}% of the way toward the model on spreads and
     {{ ((model.shrink.total or 0) * 100)|round|int }}% on totals &mdash; and the market-aware model
     seldom sits a point from the line, so that is a few tenths at most.
@@ -396,6 +408,7 @@
   &middot; historical lines from hoopR's Odds API close, a scraped closing archive and
   SportsbookReviewsOnline moneylines.
   <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
+  &middot; <a href="props/">player props</a>
   &middot; <a href="../cfb/">college football</a> &middot; <a href="../nfl/">NFL</a> &middot; <a href="../epl/">Premier League</a>
   &middot; <a href="../nhl/">NHL</a>
   {% if trained %}<br>Models trained {{ trained }}.{% endif %}

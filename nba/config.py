@@ -208,6 +208,52 @@ BREAK_EVEN = _env_float("DEGEN_BREAK_EVEN", 0) or 52.38
 DEFAULT_SHRINK = _env_float("DEGEN_SHRINK", 0.10)
 SHRINK_CAP = _env_float("DEGEN_SHRINK_CAP", 0.5)
 
+# --- player props -----------------------------------------------------------------------
+# The props board lives beside the game board, as the NFL's does: its own data folder, its own
+# page at docs/nba/props/, and nothing staked until graded rungs say it should be. It reads the
+# same player files as the player layer - the box-score columns are kept for both.
+PROPS = DATA / "props"
+PROPS_MODEL_DIR = PROPS / "models"
+PROPS_LADDERS = PROPS / "ladders"          # every Kalshi prop rung each pull, one gzip a day
+PROPS_BOARD = PROPS / "board.csv"          # the latest projection for every listed player
+PROPS_RESULTS = PROPS / "results.csv"      # graded rungs
+PROPS_ROSTER = PROPS / "roster.csv"        # this season's rosters: jersey numbers for matching
+PROPS_DOCS = DOCS / "props"
+# Rows from this season on. The league that shoots 35 threes a night is not the one that shot
+# 18, and the three-point market cannot learn from before the change - so the replay warms up
+# from 2012-13 and rows start the season after.
+PROPS_FIRST_SEASON = _env_int("DEGEN_NBA_PROPS_FIRST_SEASON", 2014)
+PROPS_WALK_SEASONS = _env_int("DEGEN_NBA_PROPS_WALK_SEASONS", 5)
+
+KALSHI_BASE = _env("DEGEN_KALSHI_BASE", "https://api.elections.kalshi.com/trade-api/v2")
+# Kalshi's NBA player-prop series. Ticker shape confirmed from public market pages, e.g.
+# KXNBAPTS-26JUN13NYKSAS-NYKKTOWNS32-10 ("Karl-Anthony Towns: 10+ points", Knicks at Spurs,
+# June 13 2026) and KXNBA3PT-26MAY09OKCLAL-OKCSGILGEOUSALEXANDER2-3 ("Shai Gilgeous-Alexander:
+# 3+ threes"). The live payload has NOT been read from this repo's own runner yet - the first
+# `NBA props` run is the test, and each series is overridable as a repo variable if one is
+# renamed.
+KALSHI_PROP_SERIES = {
+    "points": _env("DEGEN_KALSHI_NBA_PTS_SERIES", "KXNBAPTS"),
+    "rebounds": _env("DEGEN_KALSHI_NBA_REB_SERIES", "KXNBAREB"),
+    "assists": _env("DEGEN_KALSHI_NBA_AST_SERIES", "KXNBAAST"),
+    "threes": _env("DEGEN_KALSHI_NBA_3PT_SERIES", "KXNBA3PT"),
+}
+# Kalshi's published taker fee per contract is 0.07 x P x (1 - P). Verify at
+# kalshi.com/fee-schedule before sizing anything; they revise it.
+KALSHI_FEE = _env_float("DEGEN_KALSHI_FEE", 0.07)
+# The guards below are the NFL props board's, for the NFL board's reasons - see its README
+# section. The published probability is Kalshi's mid moved PROPS_SHRINK of the way toward the
+# model in log-odds; grading reports the shrink the logged rungs support.
+PROPS_SHRINK = _env_float("DEGEN_NBA_PROPS_SHRINK", 0.25)
+PROPS_MIN_EDGE = _env_float("DEGEN_NBA_PROPS_MIN_EDGE", 0.07)
+PROPS_PROB_MIN = _env_float("DEGEN_NBA_PROPS_PROB_MIN", 0.20)
+PROPS_PROB_MAX = _env_float("DEGEN_NBA_PROPS_PROB_MAX", 0.80)
+PROPS_MAX_GAP = _env_float("DEGEN_NBA_PROPS_MAX_GAP", 0.15)
+# Props quote thinner than game lines: a rung is "tradeable" with a quote no wider than this
+# and real size on the ask.
+PROPS_MAX_SPREAD = _env_float("DEGEN_NBA_PROPS_MAX_SPREAD", 0.06)
+PROPS_MIN_SIZE = _env_float("DEGEN_NBA_PROPS_MIN_SIZE", 20.0)
+
 SITE_TITLE = os.environ.get("DEGEN_SITE_TITLE", "DegenPredicts")
 COFFEE_URL = os.environ.get("DEGEN_COFFEE_URL", "https://buymeacoffee.com/smcgee")
 SUPPORT_URL = os.environ.get("DEGEN_SUPPORT_URL", COFFEE_URL)

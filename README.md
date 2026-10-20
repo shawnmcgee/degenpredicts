@@ -25,6 +25,7 @@ No server, no manual uploads, no hosting bill.
   nba-predict.yml   twice daily     → schedule + injury report + prices → models → data/nba/picks.csv → docs/nba/
   nba-grade.yml     daily 8:15am ET → finals → grade → results.csv, metrics.json
   nba-train.yml     Tuesdays        → refit models
+  nba-props.yml     daily, 3x       → box scores + injury report + Kalshi prop ladders → props models → docs/nba/props/
   odds-quota.yml    daily 7pm ET    → Odds API credits left → an issue that @-mentions you before they run out
   test.yml          on push         → offline tests, one job per sport plus the landing page and quota alert
 cfb/     college football pipeline (live now)
@@ -48,6 +49,7 @@ docs/
   epl/index.html  ← Premier League board
   nhl/index.html  ← NHL board
   nba/index.html  ← NBA board
+  nba/props/      ← NBA player props tab
 ```
 
 `core/landing.py` imports nothing from `cfb`, `nfl` or `ncaab` — it reads the files those
@@ -1465,10 +1467,13 @@ probability, against 3.5 for the opener. So the history is closing spreads and t
 seasons (about 11,500 games) and closing moneylines for nineteen. The import is one command
 (`python -m nba.sources.history`, the only step that needs `pyarrow`) and the result is committed.
 
-**The committed player history is the one big file.** `data/nba/players/` holds minutes and
-box-score value for every player-game since 2003-04 — about 615,000 rows, 21 MB across one file a
-season. Finished seasons never change; the current season's file gains a night's rows each
-morning, which git stores as a small diff. Each run downloads the current season's files from
+**The committed player history is the one big file.** `data/nba/players/` holds minutes,
+box-score value and the box score itself (points, shots, threes, free throws, both kinds of
+rebound, assists, steals, blocks, turnovers, fouls, whether he started) for every player-game
+since 2003-04 — about 615,000 rows, 38 MB across one file a season. The player layer reads ten of
+those counting stats and the props tab reads the rest, so one file serves both. Finished seasons
+never change; the current season's file gains a night's rows each morning, which git stores as a
+small diff. Each run downloads the current season's files from
 hoopR (the player box scores alone reach about 18 MB by April), and as CSV rather than parquet on
 purpose: parquet would put `pyarrow` in the shared requirements, a dependency every other sport's
 jobs would then run under.
@@ -1506,6 +1511,25 @@ margin error walk-forward — the largest single thing found.** Player value is 
 score, shrunk toward a below-average prior; plus-minus was tried and was worse (0.14), and
 blending the two added nothing — a single game's plus-minus is mostly lineup noise.
 
+**Then what *kind* of player is missing.** One value number says how much a team loses, not
+what: a rebounder and a shooter with the same game score were priced alike. So each side's delta
+also carries a **composition vector** — the same gap-weighted sum over ten box-score rates per
+48 minutes (points, shots, free throws, threes, offensive and defensive rebounds, assists,
+steals, blocks, turnovers) — and the ridge weights each one itself. Walk-forward, that took
+no-market margin error from 9.607 to 9.565 on the 2012-18 tuning seasons and from 10.743 to
+10.710 on the 2019-25 holdout, and total error from 14.626 to 14.607.
+
+**The first version of it leaked, and the closing line is what caught it.** Built over every
+rotation player, it tied the close on error but covered **52.9%** of ~8,800 closing spreads —
+2.9 standard errors, which a public box-score feature does not earn. Its tell: the unweighted
+part correlated +0.16 with the *size* of the final margin. A coach shortens his bench in a close
+game and empties it in a blowout, so whether the 13-minute man got in says whether the favourite
+ran away with it — the garbage-time leak below, one rung up the rotation. At 16 usual minutes the
+correlation was still +0.09; at **20** it is +0.02 on the tuning seasons, the cover rate falls
+back to 51.1%, and most of the error gain survives. So the composition vector counts **core
+players only** (20 minutes or more), `test_composition_counts_core_players_only` pins it, and
+the leak tests now rewrite a game's box score as well as its minutes.
+
 **The leak this layer is built around.** The first version called a player "available" if he
 logged minutes. Garbage time hands minutes to the end of the bench only in blowouts, so who got
 into the game says how the game went — and gradient-boosted trees found it: they looked 0.14
@@ -1525,14 +1549,19 @@ line as its baseline and learns only the residual. Rows are weighted toward rece
 (half-life four). XGBoost lost once the leak was gone, and a linear model on good ratings is the
 right shape for a sport whose scoring is close to additive in what moves it. Every rating and
 player parameter was tuned on 2012-18 only; nothing was tuned on the seasons the report scores.
+(The composition vector's 20-minute line was set by the leak probe on the tuning seasons; the
+holdout's cover rate is what confirmed it, not what chose it.)
 
 **What an absence is worth on the card is what the model charges for it**, not a rule of thumb:
-the fitted no-market model prices the league's best players at 5-8 points at home and 3-5 away
-(it charges a home side's absence more) — Jokić 8.1 / 4.8, Wembanyama 8.4 / 4.5, Dončić 7.4 /
-4.5, Antetokounmpo 7.0 / 4.3, Gilgeous-Alexander 5.1 / 3.3, Tatum 5.0 / 2.7. Game score is a box
-score, so it misses what a box score misses: Anthony Edwards comes out at 2.8 / 1.7 and Draymond
-Green at nothing. That is a known limit of box-score value, and one reason the market-aware
-model, not this one, sets the published number.
+the fitted no-market model prices the league's best players at 4-8 points at home and 3-5 away
+(it charges a home side's absence more) — Dončić 7.6 / 4.4, Jokić 6.1 / 5.0, Antetokounmpo 5.9 /
+3.4, Gilgeous-Alexander 5.6 / 3.1, Wembanyama 5.6 / 4.1, Curry 4.9 / 2.4, Tatum 3.7 / 2.7. The
+composition vector moved those the way it should: shooters and creators up (Curry was 3.4 / 2.2
+on game score alone, Brunson 2.1 / 1.5 and now 2.9 / 1.2), bigs whose game score was mostly
+rebounds down a little, and the home/away gap narrower (Jokić was 8.1 / 4.8). It is still a box
+score, so it still misses what a box score misses: Anthony Edwards comes out at 2.8 / 1.2 and
+Draymond Green at nothing. That is a known limit of box-score value, and one reason the
+market-aware model, not this one, sets the published number.
 
 ### 3. What the backtest found — the market is sharper, everywhere
 
@@ -1542,27 +1571,36 @@ on the seasons before that:
 
 | | Model | Closing line |
 |---|---:|---:|
-| Spread error, market-aware (published) | 10.494 | 10.494 |
-| Spread error, ratings + injuries + schedule only | 10.743 | |
-| Total error, market-aware (published) | 14.330 | 14.329 |
-| Total error, no market | 14.626 | |
-| Moneyline log loss | 0.6057 | 0.6058 |
-| Spread / total covered | 50.4% / 50.4% of ~8,800 each (±0.53) | break-even 52.4% |
+| Spread error, market-aware (published) | 10.490 | 10.494 |
+| Spread error, ratings + injuries + schedule only | 10.710 | |
+| Total error, market-aware (published) | 14.329 | 14.329 |
+| Total error, no market | 14.607 | |
+| Moneyline log loss | 0.6056 | 0.6058 |
+| Spread / total covered | 51.1% / 50.7% of ~8,800 each (±0.53) | break-even 52.4% |
+
+(Before the composition vector: 10.494, 10.743, 14.330, 14.626, 0.6057, and 50.4% / 50.4%.)
+
+That 10.490 against 10.494 is, strictly, a lead: a paired test on the same games puts the
+published spread 2.1 standard errors ahead of the close on accuracy. It is four thousandths of a
+point, its side covers 51.1%, and some of it may be the few core-player scratches that land after
+the closing snapshot (which the training rows see and the close does not). So the page now calls
+"beats the close" a betting claim — a significant accuracy lead **and** a cover rate significantly
+above break-even — and says plainly that this is the first without the second.
 
 **The model does not beat the NBA closing line, and no disagreement bucket or situation
 survives correction for the looks taken** — back-to-backs, rest mismatches, key absences,
 spread size, travel, altitude, early season, the play-in and playoffs, all tested. The fitted
-shrink toward the model is 35% on spreads (the market-aware model seldom sits a point from the
-line, so that is a few tenths) and 0% on totals: publish the line. The research behind it also
+shrink toward the model is 40% on spreads (the market-aware model seldom sits a point from the
+line, so that is a few tenths) and 5% on totals: publish, very nearly, the line. The research behind it also
 tested the obvious escape — maybe the model is sharper than the *opening* number — and it is
 not: 50.6% against openers, and its disagreement with the opener has no correlation with where
 the line then moves. That is the NFL and Premier League result again, and the page says so.
 
 **The one number worth watching is the moneyline's underdog side.** At 10%+ EV — nearly always
 an underdog the closing spread rated better than its moneyline did — the model's side returned
-**+16.3% ± 8.9 on 773 bets, positive in 6 of 7 seasons** (only the disrupted 2020-21 was
-negative), and the market's own calibration leans the same way: dogs it priced at 17.5% won
-18.6%. The 5-10% EV bucket lost, so the moneyline is staked only at 10%+. It is 1.8 standard
+**+15.9% ± 8.8 on 782 bets, positive in 5 of 7 seasons** (+16.3% on 773, 6 of 7, before the
+composition vector), and the market's own calibration leans the same way: dogs it priced at 17.5%
+won 18.6%. The 5-10% EV bucket lost, so the moneyline is staked only at 10%+. It is 1.8 standard
 errors and does not survive correction for the four buckets examined, the prices behind it are
 one archive's single-book closes, and ESPN's book may shade its long-shot prices differently. It
 is the NHL puck line again: a book's spread sharper than its long-shot price — suggestive, not
@@ -1576,7 +1614,9 @@ a slice significantly *above* break-even is a finding, so that is what the test 
 **Win probabilities use their own spread.** Margins are fat-tailed — garbage time widens blowouts
 without changing who won — so a normal curve with the residual standard deviation (13.8 points)
 put 25-30% on long-shot underdogs that won 19.9%. The moneyline's σ is fitted by maximum
-likelihood on who won (13.0) rather than taken from the margin's spread.
+likelihood on who won (13.0) rather than taken from the margin's spread. A σ that shrinks with
+the size of the spread was tried too - it is better calibrated on 10% long shots in sample - but
+fitted strictly walk-forward it scored 0.605727 against 0.605725, so it did not go in.
 
 Default thresholds (`DEGEN_NBA_SPREAD_EDGE=3.0`, `DEGEN_NBA_TOTAL_EDGE=5.0` on the market-aware
 model's raw disagreement; `DEGEN_NBA_ML_EV=0.10`) sit at or above every bucket measured, so
@@ -1634,6 +1674,126 @@ report cannot be read at all nothing is staked, and the log says so.
   Actions run is the real test. Look for `ESPN scoreboard: N games, … with a spread` and
   `injury report: N players on M clubs` in the log. hoopR itself scrapes ESPN from GitHub Actions
   every day, so the host answers runners.
+
+### Player props — `docs/nba/props/`
+
+The "Player props" tab of the NBA board: a projection for every player Kalshi lists a prop for,
+priced against Kalshi's ladders — the NFL props tab, pointed at basketball. Four markets:
+
+| Series | Market | Shape |
+|---|---|---|
+| `KXNBAPTS` | points | "Karl-Anthony Towns: 10+ points" |
+| `KXNBAREB` | rebounds | "De'Aaron Fox: 8+ rebounds" |
+| `KXNBAAST` | assists | "Jalen Brunson: 2+ assists" |
+| `KXNBA3PT` | threes | "Shai Gilgeous-Alexander: 3+ threes" |
+
+**Nothing on it is staked**, for the NFL tab's reason: show what the model thinks next to what
+Kalshi charges, flag the gaps, log every rung and let the record decide. hoopR, ESPN's injury
+report and Kalshi's market data are all public, so it costs no Odds API credits.
+
+**Set up with `Actions → NBA props → Run workflow`.** No secrets. The first run fits the models if
+they are missing, a week old or were fitted under a different scikit-learn (about eight minutes),
+prices the board and renders the tab. It then runs itself three times a day — after the game
+board's morning run, after the afternoon injury updates, and before the West Coast tips.
+
+**What was and was not checked before the first run.** The series names, ticker shape
+(`KXNBAPTS-26JUN13NYKSAS-NYKKTOWNS32-10`: date, away, home; team, name, jersey; threshold), titles
+and rules wording come from public pages for the 2026 playoff markets. This repo has not read a
+live Kalshi payload for the NBA yet, and the machine it was built on could not reach Kalshi at all.
+So the parser reads the game from the event ticker first and the rules second ("in the Oklahoma
+City at Los Angeles L professional basketball game" — Kalshi's own letter for the two LA clubs),
+the threshold from `floor_strike` first and the title second, and logs how many markets of each
+series parsed. `python -m nba.sources.kalshi` prints a live sample. If a series is renamed, set
+`DEGEN_KALSHI_NBA_PTS_SERIES` (or `_REB_`, `_AST_`, `_3PT_`) as a repo variable.
+
+#### The model
+
+`nba/props/` decomposes a stat line the way the rest of the repo does: **minutes times a rate**.
+Minutes are persistent and learn fast; the rate is noisier and learns slower.
+
+- **Minutes**: exponentially weighted per game (half-life eight games, halved over the summer),
+  last game's minutes and how often he starts.
+- **Rates per minute**: points, rebounds, assists, threes, shots, free throws and usage, recent
+  and long-run, the long-run ones shrunk toward his position group's league rate until he has
+  minutes behind them; three-point percentage shrunk hard.
+- **Who else is out**: the points, rebounds, assists, usage and minutes of **core** teammates (20
+  minutes a night or more) who will not play, among those who played in the team's last ten
+  games — the game board's core line, for the game board's reason. Training rows use who
+  actually played; the board uses the injury report, each teammate weighted by his chance of
+  sitting. A long absence is left out on purpose: ten games in, everyone's own numbers already
+  show it.
+- **The game**: expected team total and margin (the closing line where there is one, the
+  ratings' number where there is not; on the day, the game board's published number), both
+  clubs' pace, the opponent's defence, and what the opponent allows **to his position group**
+  (guard, forward, centre) per 48 minutes.
+- **Rest**: days since his last game and a back-to-back flag.
+
+Four gradient-boosted regressions with a Poisson loss — scikit-learn's histogram boosters, fitted
+inside the props job, as the NFL's are. Rows run from 2014-15 (the replay warms up from 2012-13):
+the league that shoots 35 threes a night is not the one that shot 18. The replay is leak-free by
+the same construction as `nba/features.py`, and `tests/test_nba_props.py` proves it the same way —
+plus that rewriting a game's own box score cannot move its own rows, and that a 13-minute
+teammate's absence moves nothing while a 30-minute one's does.
+
+**A mean is not a price.** Points are skewed — one 40-point night lifts a scorer's average more
+than a 12-point night drags it — and threes are a small count with a lot of mass at zero. So each
+market's walk-forward predictions are kept beside what happened and the chance of clearing any
+rung is read off past player-games the model projected about the same, per position group: the
+NFL tab's distribution table. The card shows its median and its average, not the raw projection.
+
+#### What the backtest found — read the right column
+
+Walk-forward 2021-22 to 2025-26, each season projected by models trained only on the seasons
+before it, every probability read off a table built only from earlier seasons. As with the NFL,
+**there is no free archive of past prop prices**, so the line here is a *proxy* at the player's
+trailing average — a floor on competence, not a measure of edge.
+
+| Market | Error: model vs trailing avg | Brier at the proxy line: model vs trailing avg | Side hit, confident | "Always under" |
+|---|---:|---:|---:|---:|
+| Points | 4.87 vs 5.00 | 0.239 vs 0.247 | 65.5% (n=4,241) | 54.8% |
+| Rebounds | 1.97 vs 2.00 | 0.239 vs 0.245 | 65.2% (n=4,336) | 54.9% |
+| Assists | 1.42 vs 1.45 | 0.235 vs 0.242 | 66.5% (n=5,396) | 55.5% |
+| Threes | 1.07 vs 1.08 | 0.233 vs 0.238 | 66.8% (n=5,974) | 57.0% |
+
+- **Better than the trailing average in every market, on error and on Brier.** The largest gain
+  is on points, where minutes and who-else-is-out carry most.
+- **A season's first game is where the model earns its keep**: in each player's first game of
+  2024-25 and 2025-26 its points error was 5.05 against 5.41 for the trailing average and 5.36
+  for the long-run rate, with almost no bias (-0.2 points against +1.5) - it has learned how much
+  of last spring to forget.
+- **The raw probabilities run a little hot at the ends** — 74% outcomes landed 68% on points —
+  the NFL's finding again: a projection far from a line set at the player's average is far from
+  it partly by noise. The NFL tab learned not to fix that with a calibration spread across whole
+  ladders, and this one does the same thing it does instead: lean on Kalshi.
+
+#### The guards
+
+The NFL props tab's, unchanged, with their own knobs:
+
+| Guard | Default | Why |
+|---|---|---|
+| `DEGEN_NBA_PROPS_SHRINK` | 0.25 | the published probability is Kalshi's mid moved this far toward the model, in log-odds; set it from `shrink` in `data/nba/props/metrics.json` once that says `ready` |
+| `DEGEN_NBA_PROPS_MIN_EDGE` | 0.07 | one side at least 7% cheaper than the published price, after Kalshi's fee |
+| `DEGEN_NBA_PROPS_PROB_MIN/MAX` | 0.20 / 0.80 | tails are where the distribution has the least behind it |
+| `DEGEN_NBA_PROPS_MAX_GAP` | 0.15 | no flag when the model is 15+ points from Kalshi's mid — usually news the model doesn't have |
+| liquidity | 6c / 20 | a quote wider than 6 cents, or under 20 contracts on the ask, is not a market |
+| availability | the game board's `MISS_PROB` | Out 0, Doubtful 0.25, Questionable 0.5, Day-To-Day 0.6, Probable 0.9, not listed 0.98 — Kalshi settles "records N+", so a scratch loses the over |
+
+Players are matched on **team and jersey number, confirmed on surname** — Kalshi's ticker carries
+both (`...-NYKKTOWNS32-10`) and hoopR's current rosters carry jerseys and ESPN ids, so a matched
+player joins the box scores with no name matching at all. A number that disagrees with the name
+falls back to a name match within the two clubs, and is left unmatched — not guessed — when two
+players share a surname.
+
+Every rung of every pull is logged to `data/nba/props/ladders/YYYY-MM-DD.csv.gz`, and
+`nba.props.grade` scores the last pre-tip quote of each: the Brier score of the model, of the
+published number and of Kalshi's mid on the same rungs, the shrink they support, the flagged
+sides at their prices, and prop CLV.
+
+**Known limits, stated plainly.** Rookies and anyone without a few games of history get no
+projection; neither does anyone averaging under 15 minutes. The availability probabilities are
+the game board's round numbers until a season of logged reports can be checked against who
+played. And one night's grades are noise — read the Brier comparison and the CLV.
 
 ---
 
@@ -1718,6 +1878,10 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_NBA_INJURIES` | 1 | 0 stops reading the injury report and the current rosters |
 | `DEGEN_NBA_DOCS` | `docs/nba` | where the NBA board is written |
 | `DEGEN_HOOPR_RELEASES` | (sportsdataverse releases) | override where hoopR's season files are fetched from |
+| `DEGEN_KALSHI_NBA_PTS_SERIES` | `KXNBAPTS` | Kalshi NBA prop series (also `..._REB_` `KXNBAREB`, `..._AST_` `KXNBAAST`, `..._3PT_SERIES` `KXNBA3PT`) |
+| `DEGEN_NBA_PROPS_SHRINK` | 0.25 | how far the published NBA prop probability moves from Kalshi's mid toward the model |
+| `DEGEN_NBA_PROPS_MIN_EDGE` / `DEGEN_NBA_PROPS_MAX_GAP` | 0.07 / 0.15 | NBA props value flag: minimum edge after fees, and the most the model may disagree with Kalshi's mid |
+| `DEGEN_NBA_PROPS_FIRST_SEASON` | 2014 | first season of NBA props training rows |
 | `DEGEN_NHL_STARTERS` | 1 | 0 stops reading the day's starting goalies; the board uses its own guess from recent starts |
 | `DEGEN_NHL_REQUIRE_STARTERS` | 1 | 0 stakes picks without waiting for both starting goalies to be confirmed or likely |
 | `DEGEN_CFB_DOCS` | `docs/cfb` | where the college football board is written |

@@ -45,7 +45,17 @@ log = logging.getLogger(__name__)
 GAME_COLS = ["game_id", "season", "game_type", "date", "tip_utc", "home_team", "away_team",
              "home_points", "away_points", "completed", "neutral_site", "periods", "venue_city",
              "home_poss", "away_poss", "poss", "source"]
-PLAYER_COLS = ["game_id", "team", "athlete_id", "minutes", "gs", "os"]
+# The box score itself rides along with the two value scores. The player layer reads ten of the
+# counting stats (what KIND of player is missing - see nba.players.BOX_STATS) and the props
+# models read the rest; one file per season serves both, so a stat is never parsed twice.
+BOX_COLS = ["starter", "pts", "fgm", "fga", "fg3m", "fg3a", "ftm", "fta", "oreb", "dreb", "ast",
+            "stl", "blk", "tov", "pf"]
+PLAYER_COLS = ["game_id", "team", "athlete_id", "minutes", "gs", "os"] + BOX_COLS
+_BOX_SOURCE = {"pts": "points", "fgm": "field_goals_made", "fga": "field_goals_attempted",
+               "fg3m": "three_point_field_goals_made", "fg3a": "three_point_field_goals_attempted",
+               "ftm": "free_throws_made", "fta": "free_throws_attempted",
+               "oreb": "offensive_rebounds", "dreb": "defensive_rebounds", "ast": "assists",
+               "stl": "steals", "blk": "blocks", "tov": "turnovers", "pf": "fouls"}
 GAME_TYPES = {2: "R", 3: "P", 5: "I"}      # regular season, playoffs, play-in; preseason dropped
 
 
@@ -139,11 +149,7 @@ def parse_player_box(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Player box -> (compact player-games for everyone who logged minutes, names)."""
     if df.empty:
         return pd.DataFrame(columns=PLAYER_COLS), pd.DataFrame(columns=["athlete_id", "name"])
-    d = df.rename(columns={"field_goals_made": "fgm", "field_goals_attempted": "fga",
-                           "free_throws_made": "ftm", "free_throws_attempted": "fta",
-                           "offensive_rebounds": "oreb", "defensive_rebounds": "dreb",
-                           "assists": "ast", "steals": "stl", "blocks": "blk", "fouls": "pf",
-                           "turnovers": "tov"})
+    d = df.rename(columns={v: k for k, v in _BOX_SOURCE.items()})
     d["minutes"] = pd.to_numeric(d["minutes"], errors="coerce")
     d = d[d["minutes"].fillna(0) > 0].copy()
     d["team"] = d["team_abbreviation"].map(_code)
@@ -151,21 +157,55 @@ def parse_player_box(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     out = pd.DataFrame({"game_id": d["game_id"].astype("int64").astype(str), "team": d["team"],
                         "athlete_id": d["athlete_id"].astype("int64"),
                         "minutes": d["minutes"].round(1),
-                        "gs": game_score(d).round(1), "os": offence_score(d).round(1)})
+                        "gs": game_score(d.rename(columns={"pts": "points"})).round(1),
+                        "os": offence_score(d.rename(columns={"pts": "points"})).round(1)})
+    out["starter"] = (d["starter"].astype(str).str.lower().isin(["true", "1", "1.0"])
+                      if "starter" in d else pd.Series(False, index=d.index)).astype(int)
+    for c in _BOX_SOURCE:
+        # a column the feed drops in some season reads as missing, never as a zero stat line
+        out[c] = (pd.to_numeric(d[c], errors="coerce") if c in d
+                  else pd.Series(np.nan, index=d.index)).round().astype("Int64")
     names = d[["athlete_id", "athlete_display_name"]].dropna().rename(
         columns={"athlete_display_name": "name"}).astype({"athlete_id": "int64"})
+    # G / F / C, for the props models' position groups. ESPN writes PG, SG, SF and PF in some
+    # seasons and G, F, C in others; the group is what is kept.
+    pos = d.get("athlete_position_abbreviation")
+    names["pos"] = (pos.loc[names.index].map(position_group) if pos is not None else None)
     return out.drop_duplicates(["game_id", "athlete_id"]), names.drop_duplicates("athlete_id",
                                                                                    keep="last")
 
 
+_POS_GROUP = {"G": "G", "PG": "G", "SG": "G", "F": "F", "SF": "F", "PF": "F", "C": "C",
+              "G-F": "G", "F-G": "F", "F-C": "F", "C-F": "C"}
+
+
+def position_group(raw) -> str | None:
+    return _POS_GROUP.get(str(raw or "").strip().upper())
+
+
 def parse_rosters(df: pd.DataFrame) -> dict[str, set]:
     """Club -> set of player ids on its current roster."""
-    if df.empty or "athlete_id" not in df:
-        return {}
+    t = roster_frame(df)
+    return {team: set(g["athlete_id"]) for team, g in t.groupby("team")} if len(t) else {}
+
+
+ROSTER_COLS = ["team", "athlete_id", "name", "jersey", "pos"]
+
+
+def roster_frame(df: pd.DataFrame) -> pd.DataFrame:
+    """hoopR rosters -> one row per player: club, id, name, jersey and position group. The
+    jersey is what Kalshi's prop tickers carry, so it is what the props board matches on."""
+    if df is None or df.empty or "athlete_id" not in df:
+        return pd.DataFrame(columns=ROSTER_COLS)
     d = df.copy()
     d["team"] = d["team_abbreviation"].map(_code)
     d = d[d["team"].notna() & d["athlete_id"].notna()]
-    return {t: set(g["athlete_id"].astype("int64")) for t, g in d.groupby("team")}
+    name = d["display_name"] if "display_name" in d else d.get("full_name")
+    return pd.DataFrame({"team": d["team"], "athlete_id": d["athlete_id"].astype("int64"),
+                         "name": name.astype(str) if name is not None else "",
+                         "jersey": pd.to_numeric(d.get("jersey"), errors="coerce").astype("Int64"),
+                         "pos": d.get("position_abbreviation", pd.Series(index=d.index, dtype=object))
+                         .map(position_group)}).reset_index(drop=True)
 
 
 # ---------------------------------------------------------------------------------
@@ -201,6 +241,17 @@ def load_names() -> dict[int, str]:
         return {}
     df = pd.read_csv(config.PLAYER_NAMES)
     return dict(zip(df["athlete_id"].astype("int64"), df["name"].astype(str)))
+
+
+def load_positions() -> dict[int, str]:
+    """Player id -> position group (G / F / C), as last listed in a box score."""
+    if not config.PLAYER_NAMES.exists():
+        return {}
+    df = pd.read_csv(config.PLAYER_NAMES)
+    if "pos" not in df:
+        return {}
+    df = df.dropna(subset=["pos"])
+    return dict(zip(df["athlete_id"].astype("int64"), df["pos"].astype(str)))
 
 
 def _merge(old: pd.DataFrame, new: pd.DataFrame) -> pd.DataFrame:
@@ -247,8 +298,12 @@ def _save_names(names: pd.DataFrame) -> None:
     if names.empty:
         return
     old = pd.read_csv(config.PLAYER_NAMES) if config.PLAYER_NAMES.exists() else \
-        pd.DataFrame(columns=["athlete_id", "name"])
-    allx = pd.concat([old, names], ignore_index=True).drop_duplicates("athlete_id", keep="last")
+        pd.DataFrame(columns=["athlete_id", "name", "pos"])
+    allx = pd.concat([old, names], ignore_index=True)
+    # a refresh without a position keeps the one already known
+    if "pos" in allx:
+        allx["pos"] = allx.groupby("athlete_id")["pos"].transform(lambda s: s.ffill())
+    allx = allx.drop_duplicates("athlete_id", keep="last")
     allx.sort_values("athlete_id").to_csv(config.PLAYER_NAMES, index=False)
 
 
@@ -272,6 +327,12 @@ def rosters(season: int | None = None) -> dict[str, set]:
     """Current rosters, or {} if hoopR has not published them."""
     season = config.season_of(config.today_et()) if season is None else season
     return parse_rosters(_csv("espn_nba_rosters", f"rosters_{season + 1}.csv"))
+
+
+def roster_table(season: int | None = None) -> pd.DataFrame:
+    """Current rosters with jersey numbers - empty if hoopR has not published them."""
+    season = config.season_of(config.today_et()) if season is None else season
+    return roster_frame(_csv("espn_nba_rosters", f"rosters_{season + 1}.csv"))
 
 
 def update(full: bool = False) -> pd.DataFrame:

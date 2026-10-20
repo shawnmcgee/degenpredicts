@@ -40,6 +40,7 @@ import pandas as pd
 from . import config
 from .features import build
 from .odds_math import cover, decimal_to_american, ev, kelly, over_under, win_prob
+from .players import BOX_STATS
 from .sources import espn, history, hoopr, odds
 from .train import load_models
 
@@ -49,6 +50,8 @@ MARKET_COLS = ["commence_time", "provider", "source", "spread_home", "spread_hom
                "spread_away_dec", "p_spread_home", "n_spread", "total_line", "over_dec",
                "under_dec", "p_over", "n_total", "home_dec", "away_dec", "p_home", "n_ml"]
 DEFAULT_DEC = 1 + 100 / 110          # -110, assumed only when a line has no posted price
+# the delta components a note carries for pricing, not for the card
+_NOTE_PRIVATE = ("d_net", "d_off", "d_x")
 
 
 def _strength(size, minimum, thin, wait, priced=True) -> str:
@@ -122,12 +125,17 @@ def price_notes(notes: list[dict], model, side: str) -> list[dict]:
     s = "h" if side == "h" else "a"
     c_net, c_off, c_top = (model.raw(f"{s}_d_net"), model.raw(f"{s}_d_off"),
                            model.raw(f"{s}_miss_top"))
+    # what the model charges per unit of each box-score rate, where it was fitted with them
+    c_x = np.array([model.raw(f"{s}_x_{stat}") if f"{s}_x_{stat}" in model.features else 0.0
+                    for stat in BOX_STATS])
     sign = 1.0 if s == "h" else -1.0
     out = []
     for n in notes:
         if "d_net" in n:
+            dx = n.get("d_x")
+            comp = float(c_x @ np.asarray(dx, float)) if dx is not None else 0.0
             n = {**n, "impact": round(sign * (c_net * n["d_net"] + c_off * n["d_off"]
-                                              - c_top * n["d_net"]), 1)}
+                                              - c_top * n["d_net"] + comp), 1)}
         out.append(n)
     return sorted(out, key=lambda n: -n["impact"] * n["p_out"])
 
@@ -309,9 +317,9 @@ def run(dry_run: bool = False, days: int | None = None) -> pd.DataFrame:
         r.update(tip_label=label, tip_sort=iso,
                  exp_home_pts=round((g["pub_total"] + g["pub_margin"]) / 2, 1),
                  exp_away_pts=round((g["pub_total"] - g["pub_margin"]) / 2, 1),
-                 h_notes=json.dumps([{k: v for k, v in n.items() if k not in ("d_net", "d_off")}
+                 h_notes=json.dumps([{k: v for k, v in n.items() if k not in _NOTE_PRIVATE}
                                      for n in g.get("h_notes") or []]),
-                 a_notes=json.dumps([{k: v for k, v in n.items() if k not in ("d_net", "d_off")}
+                 a_notes=json.dumps([{k: v for k, v in n.items() if k not in _NOTE_PRIVATE}
                                      for n in g.get("a_notes") or []]))
         rows.append(r)
     priced = pd.DataFrame(rows, index=up.index)
