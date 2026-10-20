@@ -1668,6 +1668,11 @@ report cannot be read at all nothing is staked, and the log says so.
 - **Probabilities on whole-number lines are shown net of the push**, as the de-vigged price is —
   otherwise the chance of landing exactly on 7 makes the model look a point or two of
   probability worse than the market on a 7-point spread, even when the two agree.
+- **The injury feed has no athlete id.** The first live read (opening night 2026) logged
+  `injury report: 0 players on 0 clubs` - ESPN puts the player's id only in his player-card link
+  and headshot URL, so every entry was dropped and every game priced at full strength. The id is
+  now read from those URLs, and a report that lists players but parses none is treated as
+  *unreadable* (nothing stakes) rather than as a healthy league.
 - **Written without reaching ESPN from the machine it was built on.** The scoreboard parser
   accepts both shapes ESPN is known to use for odds (flat and nested), the injury parser skips
   any status it does not recognise, and both are tested against synthetic payloads — but the first
@@ -1696,7 +1701,13 @@ they are missing, a week old or were fitted under a different scikit-learn (abou
 prices the board and renders the tab. It then runs itself three times a day — after the game
 board's morning run, after the afternoon injury updates, and before the West Coast tips.
 
-**What was and was not checked before the first run.** The series names, ticker shape
+**The first live run (opening night, 2026-10-20) confirmed the Kalshi side**: 1,733 open
+markets across the four series, every one parsed, 1,600 rungs on 13 games, 106 players matched
+(104 by jersey, 2 by name, none guessed). The model sat on Kalshi's mid on average (mean gap
+under a point in every market but rebounds, where it ran 5 points over), 0.10-0.14 from it per
+rung, and nothing was flagged. The same run found the injury feed bug in the guardrails above.
+
+**What was checked before that.** The series names, ticker shape
 (`KXNBAPTS-26JUN13NYKSAS-NYKKTOWNS32-10`: date, away, home; team, name, jersey; threshold), titles
 and rules wording come from public pages for the 2026 playoff markets. This repo has not read a
 live Kalshi payload for the NBA yet, and the machine it was built on could not reach Kalshi at all.
