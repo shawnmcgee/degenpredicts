@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} — NBA player props</title>
+<style>
+  :root{--bg:#0d0e11;--card:#171a1f;--card2:#1e2229;--line:#2a2e36;--fg:#e9eaec;--dim:#98a0aa;
+        --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:60px}
+  header,main,footer{max-width:960px;margin:0 auto;padding:0 16px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 6px}
+  h1{font-size:21px;font-weight:600}
+  .sub{color:var(--dim);font-size:13px;margin-top:3px}
+  .coffee{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;
+          background:var(--warn);color:#2a1c00;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+  nav.sports{display:flex;gap:8px;margin:12px 0 4px;flex-wrap:wrap}
+  nav.sports .chip{text-decoration:none}
+  nav.sports .chip[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  .tabs{display:inline-flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;margin:10px 0 2px}
+  .tabs a{padding:7px 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--dim);text-decoration:none;white-space:nowrap}
+  .tabs a[aria-current="page"]{background:var(--fg);color:var(--bg)}
+  section{margin-top:20px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:10px}
+  .note{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 14px;font-size:14px;color:var(--dim)}
+  .note b{color:var(--fg)}
+  .note p+p{margin-top:8px}
+  .chip{background:var(--card2);color:var(--dim);border:1px solid var(--line);border-radius:999px;
+        padding:7px 13px;font-size:13px;cursor:pointer;white-space:nowrap}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .scroller{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;-webkit-overflow-scrolling:touch}
+  input[type=search]{flex:1;min-width:180px;background:var(--card);border:1px solid var(--line);
+    border-radius:8px;color:var(--fg);padding:9px 12px;font-size:16px}
+  .game{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+  .ghead{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;background:var(--card2);font-weight:600}
+  .ghead .t{color:var(--dim);font-weight:400;font-size:13px}
+  .player{border-top:1px solid var(--line);padding:11px 14px}
+  .pname{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .pname .tag,.pname .inj{margin-left:6px}
+  .pname b{font-size:16px}
+  .tag{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+  .inj{font-size:11px;font-weight:700;color:#2a1c00;background:var(--warn);border-radius:4px;padding:1px 6px}
+  .mkts{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px;margin-top:8px}
+  .mkt{background:var(--card2);border-radius:9px;padding:10px 11px}
+  .mkt.hot{outline:1px solid var(--good)}
+  .mkt .l{font-size:11px;color:var(--dim);text-transform:uppercase;display:flex;justify-content:space-between}
+  .mkt .proj{font-size:17px;font-weight:600;margin-top:2px}
+  .mkt .proj small{font-size:12px;color:var(--dim);font-weight:400}
+  .main{font-size:13px;color:var(--dim);margin-top:4px;font-variant-numeric:tabular-nums}
+  .main b{color:var(--fg)}
+  .val{color:var(--good);font-weight:700}
+  details{margin-top:6px}
+  summary{font-size:12px;color:var(--accent);cursor:pointer;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px;font-variant-numeric:tabular-nums}
+  th,td{padding:4px 5px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--dim);font-weight:500;font-size:11px;text-transform:uppercase}
+  tr.thin td{color:var(--dim)}
+  td.good{color:var(--good);font-weight:700}
+  .bt{width:100%;font-size:13px}
+  .bt td,.bt th{padding:6px 5px}
+  .empty{padding:24px;text-align:center;color:var(--dim)}
+  footer{color:var(--dim);font-size:12px;margin-top:28px;line-height:1.5}
+  footer a{color:var(--dim)}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header id="top">
+  <nav class="sports" aria-label="Sport">
+    <a class="chip" href="../../">&larr; All sports</a>
+    <a class="chip" href="../../cfb/">College football</a>
+    <a class="chip" href="../../nfl/">NFL</a>
+    <a class="chip" href="../../epl/">Premier League</a>
+    <a class="chip" href="../../nhl/">NHL</a>
+    <a class="chip" aria-current="page" href="../">NBA</a>
+  </nav>
+  <div class="topbar">
+    <div>
+      <h1>{{ title }} — NBA player props</h1>
+      <div class="sub">Projections against Kalshi's prop ladders &middot; updated {{ updated }}
+        {% if summary.pulled %}&middot; prices pulled {{ summary.pulled }}{% endif %}</div>
+    </div>
+    {% if support_url %}<a class="coffee" href="{{ support_url }}" rel="noopener">&#9749; {{ support_label }}</a>{% endif %}
+  </div>
+  <nav class="tabs" aria-label="NBA views">
+    <a href="../">All games</a>
+    <a aria-current="page" href="./">Player props</a>
+  </nav>
+</header>
+
+<main>
+<section>
+  <div class="note">
+    <p><b>Nothing here is staked, and nothing has a record against Kalshi yet.</b> Each rung shows the
+    model's own chance next to Kalshi's price. The price we publish leans on the market: Kalshi's
+    number moved {{ shrink }}% of the way toward the model, until graded rungs show the model deserves
+    more weight. A rung is marked <span class="val">value</span>
+    only when one side is at least {{ min_edge }}% cheaper than that published price after Kalshi's fee,
+    with the model between {{ p_min }}% and {{ p_max }}% and within {{ max_gap }} points of Kalshi's own price
+    (a bigger disagreement usually means the market knows something the model doesn't). Every rung is logged and graded, and the
+    record below fills in as games finish.</p>
+    <p>A player who doesn't play records nothing, so his overs lose. Probabilities are cut by the injury
+    report, on the game board's own scale: Probable plays 90% of the time here, Day-to-day 60%,
+    Questionable half, Doubtful a quarter. When a teammate is out, his shots and minutes go
+    somewhere, and the projection knows it.</p>
+  </div>
+</section>
+
+{% if g and g.n_rungs %}
+<section>
+  <h2>Graded so far</h2>
+  <div class="note">
+    <p>{{ g.n_rungs }} rungs graded. Brier score (lower is better):
+      model <b>{{ g.brier_model }}</b>, published <b>{{ g.brier_published }}</b>, Kalshi's own price
+      <b>{{ g.brier_kalshi }}</b>.
+      {% if g.brier_model is not none and g.brier_kalshi is not none and g.brier_model > g.brier_kalshi %}
+      The market's prices have been more accurate than the model's.{% endif %}
+      {% if g.shrink %}The graded rungs support moving Kalshi's price {{ (100 * g.shrink.best)|round|int }}% toward
+      the model{% if not g.shrink.ready %} (too few rungs to act on yet){% endif %}.{% endif %}</p>
+    {% if g.flagged %}<p>Value flags: {{ g.flagged.wins }}-{{ g.flagged.n - g.flagged.wins }}
+      ({{ g.flagged.win_pct }}%), {{ "%+.2f"|format(g.flagged.units) }} per-contract units,
+      line movement {{ "%+.1f"|format(g.flagged.clv_cents) }}&cent; toward the model.</p>{% endif %}
+  </div>
+</section>
+{% endif %}
+
+<section>
+  <h2>{% if summary.players %}{{ summary.players }} players &middot; {{ summary.games }} games{% else %}Board{% endif %}</h2>
+  <div class="controls">
+    <input type="search" id="q" placeholder="Player or team" aria-label="Search players">
+    <button class="chip" id="flagged" aria-pressed="false">Value only</button>
+  </div>
+  <div class="scroller" role="group" aria-label="Market">
+    <button class="chip mk" data-m="" aria-pressed="true">All</button>
+    {% for m, label in markets %}<button class="chip mk" data-m="{{ m }}" aria-pressed="false">{{ label }}</button>{% endfor %}
+  </div>
+
+  {% if not games %}
+  <div class="empty">No props on the board right now. Kalshi lists each game's props on the day of it.</div>
+  {% endif %}
+
+  {% for gm in games %}
+  <div class="game">
+    <div class="ghead"><span>{{ gm.away }} @ {{ gm.home }}</span><span class="t">{{ gm.tip }}</span></div>
+    {% for p in gm.players %}
+    <div class="player" data-name="{{ p.name|lower }} {{ p.team|lower }} {{ gm.away|lower }} {{ gm.home|lower }}"
+         data-kinds="{{ p.kinds }}" data-flag="{{ 1 if p.flagged else 0 }}">
+      <div class="pname"><b>{{ p.name }}</b><span class="tag">{{ p.pos }} &middot; {{ p.team }}</span>
+        {% if p.injury %}<span class="inj">{{ p.injury }}</span>{% endif %}</div>
+      <div class="mkts">
+        {% for m in p.markets %}
+        <div class="mkt{% if m.flagged %} hot{% endif %}" data-m="{{ m.market }}">
+          <div class="l"><span>{{ m.label }}</span>{% if m.flagged %}<span class="val">value</span>{% endif %}</div>
+          <div class="proj">{{ m.median if m.median is not none else '—' }} <small>median &middot; {{ m.proj }} avg</small></div>
+          <div class="main">{{ m.main.k }}+: model <b>{{ m.main.p }}%</b>
+            &middot; Kalshi <b>{{ m.main.mid_c if m.main.mid_c is not none else '—' }}&cent;</b>
+            {% if m.main.yes_pays %}&middot; Yes pays {{ m.main.yes_pays }}x{% endif %}</div>
+          {% if m.value %}<div class="main"><span class="val">Value:</span> <b>{{ m.value.side }}</b>
+            on {{ m.value.k }}+ &middot; ours {{ m.value.p }}%
+            &middot; {{ m.value.cents }}&cent; pays {{ m.value.pays }}x &middot; fair {{ m.value.fair }}x</div>{% endif %}
+          {% if m.rungs|length > 1 or m.flagged %}
+          <details>
+            <summary>Full ladder ({{ m.rungs|length }})</summary>
+            <table>
+              <tr><th>Line</th><th>Model</th><th>Kalshi</th><th>Yes</th><th>No</th></tr>
+              {% for r in m.rungs %}
+              <tr class="{{ 'thin' if r.thin }}">
+                <td>{{ r.k }}+</td><td>{{ r.p }}%</td><td>{{ r.mid_c if r.mid_c is not none else '—' }}&cent;</td>
+                <td class="{{ 'good' if r.flag == 'yes' }}">{{ r.yes_c if r.yes_c is not none else '—' }}&cent;</td>
+                <td class="{{ 'good' if r.flag == 'no' }}">{{ r.no_c if r.no_c is not none else '—' }}&cent;</td>
+              </tr>
+              {% endfor %}
+            </table>
+          </details>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</section>
+
+{% if bt and bt.markets %}
+<section id="backtest">
+  <h2>What the backtest found</h2>
+  <div class="note">
+    <p>Walk-forward, {{ bt.markets[0].seasons }}: every season projected by models trained only on
+    the seasons before it. There's no free archive of past prop prices, so this scores the model
+    against <b>what happened</b>, not against the market. "Line" here is the player's own trailing
+    average, a crude opener. Books set lines with far more than that, so these rates flatter the
+    model. They show it's competent, not that it has an edge.</p>
+    <table class="bt">
+      <tr><th>Market</th><th>Error vs trailing avg</th><th>Brier vs trailing avg</th><th>Confident side hit</th><th>"Always under"</th></tr>
+      {% for r in bt.markets %}
+      <tr>
+        <td>{{ r.label }}</td>
+        <td>{{ r.mae_model }} vs {{ r.mae_base }}</td>
+        <td>{{ r.brier_model }} vs {{ r.brier_base }}</td>
+        <td>{{ r.hit_conf }}% <span class="tag">n={{ r.n_conf }}</span></td>
+        <td>{{ r.under }}%</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <p>The "always under" column is the reason to read the one beside it carefully. A stat line's
+    average sits above its median - one 40-point night lifts a scorer's average more than one
+    12-point night drags it - so a line at the average goes under more often than not. A model has
+    to beat that, not 50%. The Brier column is the better test: lower is better, and it scores the
+    probabilities themselves.</p>
+  </div>
+</section>
+{% endif %}
+</main>
+
+<footer>
+  <a href="board.csv">board.csv</a>{% if g %} &middot; <a href="metrics.json">metrics.json</a>{% endif %}
+  &middot; <a href="../">NBA games</a>
+  <p style="margin-top:10px">For information and entertainment only &mdash; not betting advice. No pick is a sure thing;
+  never bet more than you can afford to lose. You must be of legal age where you live. Gambling problem?
+  Call <a href="tel:+18004262537">1-800-GAMBLER</a>.</p>
+</footer>
+
+<script>
+(function(){
+  var q=document.getElementById('q'), fl=document.getElementById('flagged'), mk='';
+  var chips=[].slice.call(document.querySelectorAll('.mk'));
+  function apply(){
+    var s=(q.value||'').toLowerCase().trim(), only=fl.getAttribute('aria-pressed')==='true';
+    [].forEach.call(document.querySelectorAll('.player'),function(p){
+      var ok=(!s||p.dataset.name.indexOf(s)>=0)&&(!mk||p.dataset.kinds.split(' ').indexOf(mk)>=0);
+      var anyMkt=false;
+      [].forEach.call(p.querySelectorAll('.mkt'),function(m){
+        var show=(!mk||m.dataset.m===mk)&&(!only||m.classList.contains('hot'));
+        m.hidden=!show; anyMkt=anyMkt||show;
+      });
+      p.hidden=!(ok&&anyMkt);
+    });
+    [].forEach.call(document.querySelectorAll('.game'),function(g){
+      g.hidden=!g.querySelector('.player:not([hidden])');
+    });
+  }
+  q.addEventListener('input',apply);
+  fl.addEventListener('click',function(){fl.setAttribute('aria-pressed',fl.getAttribute('aria-pressed')==='true'?'false':'true');apply();});
+  chips.forEach(function(c){c.addEventListener('click',function(){
+    chips.forEach(function(x){x.setAttribute('aria-pressed','false')});
+    c.setAttribute('aria-pressed','true'); mk=c.dataset.m; apply();
+  });});
+})();
+</script>
+</body>
+</html>

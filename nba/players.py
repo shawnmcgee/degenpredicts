@@ -30,6 +30,22 @@ blowouts, so who got into the game says how the game went; boosted trees found t
 0.15 points better than they were. Here only ROTATION players count (usual minutes of 12 or
 more when they play) and their target is their usual minutes, never tonight's - so nothing about
 how tonight went can move a pre-game number.
+
+**What KIND of player is missing.** One value number says how much a team loses, not what: a
+rebounder's absence and a shooter's are priced alike if their game scores match. So the delta
+also carries a **composition vector** - the same gap-weighted sum, over ten box-score rates
+per 48 minutes above the league (:data:`BOX_STATS`) - and the model weights each one itself.
+Walk-forward that took margin error from 9.607 to 9.565 on the 2012-18 tuning seasons, and from
+10.743 to 10.710 on the 2019-25 holdout.
+
+It is measured on **core players only** (usual minutes of 20 or more), and the reason is the
+leak above in a new disguise. Built over every rotation player, the first version tied the
+closing line on error but covered 52.9% of ~8,800 closing spreads - which a public box-score
+feature does not do. The tell was that its unweighted part correlated with the final margin's
+SIZE (+0.16): a coach shortens his bench in a close game and empties it in a blowout, so
+whether the 13-minute man got in says whether the favourite ran away with it. At 16 minutes
+that correlation was still +0.09; at 20 it is +0.02 on the tuning seasons, the cover rate
+against the close falls back to 51.1%, and the error gain mostly survives.
 """
 from __future__ import annotations
 
@@ -56,6 +72,15 @@ class PlayerConfig:
     # against the closing line. A gain that could be the game script leaking in does not go in.
     rotation_min: float = 12.0
     kappa: float = 0.35         # points per 100 possessions per unit of delta (fitted)
+    # The composition vector is built over players who usually play at least this much - the
+    # ones whose absence is decided before tip, not by how the game is going. See the module
+    # docstring for the 12- and 16-minute versions that leaked.
+    core_min: float = 20.0
+
+
+# The box-score rates behind the composition vector, per 48 minutes above the league. Shot
+# volume (fga, fta) is in on purpose: points without the attempts behind them are not a value.
+BOX_STATS = ("pts", "fga", "fta", "fg3m", "oreb", "dreb", "ast", "stl", "blk", "tov")
 
 
 def game_score(df: pd.DataFrame) -> pd.Series:
@@ -90,6 +115,13 @@ class PlayerBook:
         self.last_date: dict[int, object] = {}
         self.missed: dict[int, int] = defaultdict(int)   # his team's games in a row he sat out
         self.names: dict[int, str] = {}
+        # the box-score rates behind the composition vector, decayed exactly like the value
+        # scores; minutes are counted separately because older cached rows may carry no box
+        k = len(BOX_STATS)
+        self.st_num: dict[int, np.ndarray] = defaultdict(lambda: np.zeros(k))
+        self.st_den: dict[int, float] = defaultdict(float)
+        self.lg_st = np.zeros(k)
+        self.lg_st_den = 1e-9
 
     def rollover(self, season: int) -> None:
         """A new season: nobody has missed a game of it yet. Without this, stars rested for the
@@ -112,6 +144,17 @@ class PlayerBook:
         v = (self.os_num[pid] + c.prior_min * c.prior_frac * lg) / (self.den[pid] + c.prior_min)
         return (v - lg) * 48
 
+    def rates(self, pid) -> np.ndarray:
+        """Box-score rates per 48 minutes above the league, in :data:`BOX_STATS` order, shrunk
+        toward the league until he has minutes behind them."""
+        c = self.cfg
+        lg = self.lg_st / self.lg_st_den
+        return ((self.st_num[pid] + c.prior_min * lg) / (self.st_den[pid] + c.prior_min) - lg) * 48
+
+    def is_core(self, pid) -> bool:
+        m = self.exp_min.get(pid)
+        return m is not None and m >= self.cfg.core_min
+
     def is_rotation(self, pid) -> bool:
         m = self.exp_min.get(pid)
         return m is not None and m >= self.cfg.rotation_min
@@ -130,12 +173,13 @@ class PlayerBook:
 
         ``target`` maps player id -> expected minutes/48 today. Rotation players in the team's
         typical distribution who are absent from `target` count as out. Returns the net and
-        offensive deltas (raw units; times ``kappa`` for points per 100) and the largest single
-        absence.
+        offensive deltas (raw units; times ``kappa`` for points per 100), the largest single
+        absence, and the composition vector ``x`` over core players.
         """
         c = self.cfg
         typ = self.typical.get(team, {})
         net = off = top = 0.0
+        x = np.zeros(len(BOX_STATS))
         for pid in set(typ) | set(target):
             if not self.is_rotation(pid):
                 continue
@@ -145,7 +189,9 @@ class PlayerBook:
             off += gap * ov
             if gap < 0:
                 top = max(top, -gap * v)
-        return {"net": net, "off": off, "top": top}
+            if gap and self.is_core(pid):
+                x += gap * self.rates(pid)
+        return {"net": net, "off": off, "top": top, "x": x}
 
     def adjustment(self, d_home: dict, d_away: dict) -> tuple:
         """(home off, home def, away off, away def) in points per 100 possessions for
@@ -162,14 +208,16 @@ class PlayerBook:
     # ---- update ----------------------------------------------------------------------
     def update(self, team: str, rows, gdate=None) -> None:
         """Learn from one team-game. `rows`: (player id, minutes, game score, offence score)
-        for everyone who logged minutes."""
+        for everyone who logged minutes, optionally followed by his :data:`BOX_STATS` line."""
         typ = self.typical[team]
         played = set()
         for pid in list(typ):
             typ[pid] *= self._a_typ
             if typ[pid] < 1e-3:
                 del typ[pid]
-        for pid, m, gs, os_ in rows:
+        for row in rows:
+            pid, m, gs, os_ = row[:4]
+            box = row[4] if len(row) > 4 else None
             pid = int(pid)
             if not m or m != m or m <= 0:
                 continue
@@ -186,6 +234,13 @@ class PlayerBook:
             self.lg_gs += gs
             self.lg_os += os_
             self.lg_den += m
+            if box is not None:
+                b = np.asarray(box, float)
+                if np.isfinite(b).all():
+                    self.st_num[pid] = self.st_num[pid] * dec + b
+                    self.st_den[pid] = self.st_den[pid] * dec + m
+                    self.lg_st += b
+                    self.lg_st_den += m
             self.team_of[pid] = team
             self.last_date[pid] = gdate
             self.missed[pid] = 0
@@ -196,6 +251,8 @@ class PlayerBook:
         self.lg_gs *= 0.9995
         self.lg_os *= 0.9995
         self.lg_den *= 0.9995
+        self.lg_st *= 0.9995
+        self.lg_st_den *= 0.9995
 
     # ---- the board ---------------------------------------------------------------------
     def board_target(self, team: str, report: dict | None = None,
@@ -239,7 +296,9 @@ class PlayerBook:
                               # what his minutes add to the delta, net and offensive, so the
                               # board can price him with the fitted model's own coefficients
                               "d_net": share * (self.value(pid) - c.replacement),
-                              "d_off": share * (self.ovalue(pid) - c.replacement / 2)})
+                              "d_off": share * (self.ovalue(pid) - c.replacement / 2),
+                              "d_x": (share * self.rates(pid)).tolist() if self.is_core(pid)
+                              else None})
         notes.sort(key=lambda n: -n["impact"] * n["p_out"])
         return target, notes
 

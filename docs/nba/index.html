@@ -94,6 +94,11 @@
   .jump.up svg{transform:rotate(180deg)}
   @media print{.jump{display:none}}
   @media(max-width:700px){.bets{grid-template-columns:1fr}}
+  /* The NBA has two views, as the NFL does: every game, and player props */
+  .tabs{display:inline-flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;
+        padding:4px;margin:10px 0 2px}
+  .tabs a{padding:7px 16px;border-radius:999px;font-size:14px;font-weight:600;color:var(--dim);text-decoration:none;white-space:nowrap}
+  .tabs a[aria-current="page"]{background:var(--fg);color:var(--bg)}
 </style>
 </head>
 <body>
@@ -116,6 +121,10 @@
     <a class="coffee" href="https://buymeacoffee.com/smcgee" rel="noopener">&#9749; Buy me a coffee</a>
     
   </div>
+  <nav class="tabs" aria-label="NBA views">
+    <a aria-current="page" href="./">All games</a>
+    <a href="props/">Player props</a>
+  </nav>
 </header>
 
 <main>
@@ -126,27 +135,30 @@
     
     <b>This model does not beat the NBA closing line.</b> Out of sample across
     7 seasons (2019-20 to 2025-26, 8915 closing lines) its spread
-    error was 10.494 points against the
-    close's 10.494 and its totals error 14.33 against
-    14.329; its side of the spread covered 50.4% of
+    error was 10.49 points against the
+    close's 10.494 and its totals error 14.329 against
+    14.329; its side of the spread covered 51.1% of
     8769 games (&plusmn;0.53), short of the 52.4% a &minus;110 price
-    needs. The published number is therefore the line moved
-    35% of the way toward the model on spreads and
-    0% on totals &mdash; and the market-aware model
+    needs. Its spread number is a hair
+    more accurate than the close's &mdash; a paired test puts it 2.14&sigma; ahead on
+    the same games &mdash; but a hair is all it is, and it does not clear the vig.
+    The published number is therefore the line moved
+    40% of the way toward the model on spreads and
+    5% on totals &mdash; and the market-aware model
     seldom sits a point from the line, so that is a few tenths at most.
     
     Ratings, injuries and schedule alone &mdash; no market &mdash; miss by
-    10.743 and 14.626: that gap is what the line knows and a public
+    10.71 and 14.607: that gap is what the line knows and a public
     box-score model does not.
     <br><br>On the <b>moneyline</b> the model's
-    win probabilities scored a log loss of 0.6057 against the
+    win probabilities scored a log loss of 0.6056 against the
     de-vigged closing price's 0.6058 &mdash;
     a dead heat.
     The one place it showed anything is where a moneyline is staked here, at
     10%+ EV &mdash; nearly always an underdog the closing
-    spread rated better than its price did: <b>+16.3%</b> on
-    773 bets (&plusmn;8.91),
-    positive in 6 of 7
+    spread rated better than its price did: <b>+15.9%</b> on
+    782 bets (&plusmn;8.8),
+    positive in 5 of 7
     seasons. Suggestive, not proven: a bucket needs
     2.23&sigma; to survive the looks taken, and the prices behind it are one
     archive's closing numbers. Closing-line value will settle it.
@@ -944,20 +956,24 @@
   <table>
     <tr><th>Spread: |model &minus; line|</th><th>Games</th><th>Cover</th><th>Seasons above break-even</th></tr>
     
-    <tr><td>0-0.5 pts</td><td>4506</td>
-      <td class="">49.2% <span class="sub">-4.2&sigma;</span></td>
+    <tr><td>0-0.5 pts</td><td>3214</td>
+      <td class="">50.1% <span class="sub">-2.6&sigma;</span></td>
+      <td>0 of 7</td></tr>
+    
+    <tr><td>0.5-1 pts</td><td>2611</td>
+      <td class="">50.6% <span class="sub">-1.9&sigma;</span></td>
       <td>1 of 7</td></tr>
     
-    <tr><td>0.5-1 pts</td><td>2746</td>
-      <td class="">51.5% <span class="sub">-0.9&sigma;</span></td>
-      <td>2 of 7</td></tr>
-    
-    <tr><td>1-2 pts</td><td>1412</td>
-      <td class="">52.1% <span class="sub">-0.2&sigma;</span></td>
+    <tr><td>1-2 pts</td><td>2352</td>
+      <td class="">52.4% <span class="sub">+0.0&sigma;</span></td>
       <td>3 of 7</td></tr>
     
-    <tr><td>2-3 pts</td><td>85</td>
-      <td class="">54.1% <span class="sub">+0.3&sigma;</span></td>
+    <tr><td>2-3 pts</td><td>499</td>
+      <td class="">53.7% <span class="sub">+0.6&sigma;</span></td>
+      <td>3 of 7</td></tr>
+    
+    <tr><td>3+ pts</td><td>93</td>
+      <td class="">52.7% <span class="sub">+0.1&sigma;</span></td>
       <td></td></tr>
     
   </table>
@@ -966,31 +982,31 @@
   <table>
     <tr><th>Total: |model &minus; line|</th><th>Games</th><th>Cover</th><th>Seasons above break-even</th></tr>
     
-    <tr><td>0-1 pts</td><td>4727</td>
-      <td class="">50.2% <span class="sub">-2.9&sigma;</span></td>
-      <td>1 of 7</td></tr>
-    
-    <tr><td>1-2 pts</td><td>2743</td>
-      <td class="">50.9% <span class="sub">-1.6&sigma;</span></td>
+    <tr><td>0-1 pts</td><td>3747</td>
+      <td class="">50.3% <span class="sub">-2.5&sigma;</span></td>
       <td>2 of 7</td></tr>
     
-    <tr><td>2-3 pts</td><td>857</td>
-      <td class="">49.1% <span class="sub">-1.9&sigma;</span></td>
-      <td>0 of 6</td></tr>
+    <tr><td>1-2 pts</td><td>2637</td>
+      <td class="">51.4% <span class="sub">-1.0&sigma;</span></td>
+      <td>3 of 7</td></tr>
     
-    <tr><td>3-4.5 pts</td><td>269</td>
-      <td class="">52.4% <span class="sub">+0.0&sigma;</span></td>
-      <td>1 of 1</td></tr>
+    <tr><td>2-3 pts</td><td>1369</td>
+      <td class="">49.8% <span class="sub">-1.9&sigma;</span></td>
+      <td>0 of 7</td></tr>
     
-    <tr><td>4.5+ pts</td><td>217</td>
-      <td class="">49.8% <span class="sub">-0.8&sigma;</span></td>
-      <td>0 of 2</td></tr>
+    <tr><td>3-4.5 pts</td><td>715</td>
+      <td class="">50.8% <span class="sub">-0.9&sigma;</span></td>
+      <td>3 of 7</td></tr>
+    
+    <tr><td>4.5+ pts</td><td>345</td>
+      <td class="">52.2% <span class="sub">-0.1&sigma;</span></td>
+      <td>1 of 2</td></tr>
     
   </table>
   </div>
   
   <p class="sub" style="margin-top:8px">Many slices were examined, so one needs to sit
-    2.83&sigma; above break-even &mdash; not 2 &mdash; before it means
+    2.84&sigma; above break-even &mdash; not 2 &mdash; before it means
     anything. Spreads: no segment survives correction for the number of looks taken. Totals: no segment survives correction for the number of looks taken.</p>
   
 </section>
@@ -1015,9 +1031,10 @@
   &middot; historical lines from hoopR's Odds API close, a scraped closing archive and
   SportsbookReviewsOnline moneylines.
   <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
+  &middot; <a href="props/">player props</a>
   &middot; <a href="../cfb/">college football</a> &middot; <a href="../nfl/">NFL</a> &middot; <a href="../epl/">Premier League</a>
   &middot; <a href="../nhl/">NHL</a>
-  <br>Models trained 2026-10-13.
+  <br>Models trained 2026-10-20.
   <br><a href="https://buymeacoffee.com/smcgee" rel="noopener">Buy me a coffee</a>
   <p style="margin-top:10px;line-height:1.5">For information and entertainment only &mdash; not betting advice. Past results don't guarantee future ones and no pick is a sure thing; never bet more than you can afford to lose. You must be of legal betting age where you live (21+ in most US states). Gambling problem? Call <a href="tel:+18004262537">1-800-GAMBLER</a>.</p>
 </footer>

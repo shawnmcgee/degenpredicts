@@ -14,6 +14,9 @@ The features, in the order they earn their keep:
   offensive, and the single largest absence. Worth 0.21 points of margin error walk-forward,
   the largest thing found. Training rows use who actually played; the board uses the injury
   report and the current roster.
+* **What kind of player is missing** - the same delta split into ten box-score rates (points,
+  shots, free throws, threes, both kinds of rebound, assists, steals, blocks, turnovers) over
+  core players, so the model prices a missing rebounder and a missing shooter differently.
 * **Schedule** - rest, back-to-backs, three-in-four and four-in-six, the distance and time zones
   travelled since the last game, road-trip length and the venue's altitude (Denver and Salt Lake
   City). Measured from each game's actual venue, so London, Paris, Mexico City and the bubble
@@ -30,7 +33,7 @@ import numpy as np
 import pandas as pd
 
 from . import config
-from .players import PlayerBook, PlayerConfig
+from .players import BOX_STATS, PlayerBook, PlayerConfig
 from .ratings import RatingBook, RatingConfig
 from .teams import city, haversine_km
 
@@ -42,17 +45,21 @@ EARLY_GAMES = 10
 RATING_FEATURES = ["e_margin0", "e_total0", "e_poss", "H", "L", "h_off", "h_def", "a_off",
                    "a_def", "h_pace", "a_pace"]
 AVAIL_FEATURES = ["h_d_net", "a_d_net", "h_d_off", "a_d_off", "h_miss_top", "a_miss_top"]
+# The composition vector: h_x_pts ... a_x_tov, one per side per box-score rate.
+COMPOSITION_FEATURES = [f"{side}_x_{stat}" for side in ("h", "a") for stat in BOX_STATS]
 SCHEDULE_FEATURES = ["h_rest", "a_rest", "rest_diff", "h_b2b", "a_b2b", "h_3in4", "a_3in4",
                      "h_4in6", "a_4in6", "h_km", "a_km", "h_tz_abs", "a_tz_abs", "h_road",
                      "a_road", "altitude"]
 CONTEXT_FEATURES = ["playoff", "playin", "no_crowd", "neutral", "h_games", "a_games", "early"]
-BASE_FEATURES = RATING_FEATURES + AVAIL_FEATURES + SCHEDULE_FEATURES + CONTEXT_FEATURES
+BASE_FEATURES = (RATING_FEATURES + AVAIL_FEATURES + COMPOSITION_FEATURES + SCHEDULE_FEATURES
+                 + CONTEXT_FEATURES)
 # The market-aware models explain the RESIDUAL against the closing number, so the no-market
 # model's disagreement with it is the feature that carries the ratings.
 MARKET_FEATURES = {
-    "margin": ["dev_margin", "mkt_margin"] + AVAIL_FEATURES + SCHEDULE_FEATURES + CONTEXT_FEATURES,
-    "total": ["dev_total", "mkt_total", "e_poss"] + AVAIL_FEATURES + SCHEDULE_FEATURES
-    + CONTEXT_FEATURES,
+    "margin": ["dev_margin", "mkt_margin"] + AVAIL_FEATURES + COMPOSITION_FEATURES
+    + SCHEDULE_FEATURES + CONTEXT_FEATURES,
+    "total": ["dev_total", "mkt_total", "e_poss"] + AVAIL_FEATURES + COMPOSITION_FEATURES
+    + SCHEDULE_FEATURES + CONTEXT_FEATURES,
 }
 
 
@@ -106,7 +113,12 @@ def _row(rb: RatingBook, pb: PlayerBook, home: str, away: str, neutral: bool,
     adj = pb.adjustment(d_h, d_a)
     e = rb.expect(home, away, neutral, adj)
     e0 = rb.expect(home, away, neutral)
-    return {"e_margin": e["margin"], "e_total": e["total"], "e_home": e["pts_h"],
+    comp = {}
+    for side, d in (("h", d_h), ("a", d_a)):
+        x = d.get("x")
+        for k, stat in enumerate(BOX_STATS):
+            comp[f"{side}_x_{stat}"] = float(x[k]) if x is not None else 0.0
+    return {**comp, "e_margin": e["margin"], "e_total": e["total"], "e_home": e["pts_h"],
             "e_away": e["pts_a"], "e_margin0": e0["margin"], "e_total0": e0["total"],
             "e_poss": e["poss"], "H": 0.0 if neutral else rb.H, "L": rb.L,
             "h_off": rb.off.get(home, 0.0), "h_def": rb.dfn.get(home, 0.0),
@@ -118,13 +130,24 @@ def _row(rb: RatingBook, pb: PlayerBook, home: str, away: str, neutral: bool,
 
 
 def _player_rows(players: pd.DataFrame | None) -> dict:
+    """{game_id: {team: [(id, minutes, gs, os, box line or None), ...]}}.
+
+    The box line is None for rows cached before the box-score columns were kept; those players
+    simply add nothing to the composition vector.
+    """
     if players is None or players.empty:
         return {}
     p = players[pd.to_numeric(players["minutes"], errors="coerce").fillna(0) > 0]
+    if all(c in p.columns for c in BOX_STATS):
+        box = p[list(BOX_STATS)].apply(pd.to_numeric, errors="coerce").to_numpy(float)
+        lines = [b if np.isfinite(b).all() else None for b in box]
+    else:
+        lines = [None] * len(p)
+    p = p.assign(_box=lines)
     out = {}
     for gid, grp in p.groupby(p["game_id"].astype(str), sort=False):
         out[gid] = {team: list(zip(t["athlete_id"].astype(int), t["minutes"].astype(float),
-                                   t["gs"].astype(float), t["os"].astype(float)))
+                                   t["gs"].astype(float), t["os"].astype(float), t["_box"]))
                     for team, t in grp.groupby("team", sort=False)}
     return out
 

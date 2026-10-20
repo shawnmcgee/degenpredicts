@@ -1,0 +1,506 @@
+{
+  "markets": {
+    "points": {
+      "market": "points",
+      "seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n": 108143,
+      "mae_model": 4.866,
+      "mae_baseline": 4.995,
+      "mean_outcome": 12.63,
+      "mean_pred": 12.8,
+      "proxy_line": {
+        "what": "a line at the player's trailing average, the crude opener a book starts from; books use far more, so these rates are a floor on competence, not a measure of edge",
+        "seasons": [
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "n": 12000,
+        "over_rate": 45.2,
+        "brier_model": 0.2388,
+        "brier_trailing_avg": 0.2474,
+        "calibration": [
+          {
+            "bucket": "10%-20%",
+            "n": 68,
+            "predicted": 17.7,
+            "actual": 10.3
+          },
+          {
+            "bucket": "20%-30%",
+            "n": 612,
+            "predicted": 26.5,
+            "actual": 25.2
+          },
+          {
+            "bucket": "30%-40%",
+            "n": 2584,
+            "predicted": 36.1,
+            "actual": 36.6
+          },
+          {
+            "bucket": "40%-50%",
+            "n": 5089,
+            "predicted": 44.9,
+            "actual": 45.2
+          },
+          {
+            "bucket": "50%-60%",
+            "n": 2670,
+            "predicted": 54.0,
+            "actual": 52.3
+          },
+          {
+            "bucket": "60%-70%",
+            "n": 738,
+            "predicted": 63.8,
+            "actual": 61.5
+          },
+          {
+            "bucket": "70%-80%",
+            "n": 208,
+            "predicted": 74.0,
+            "actual": 68.3
+          }
+        ],
+        "always_under_hit_rate": 54.8,
+        "trailing_avg_side_hit_rate": 54.7,
+        "side_hit_rate_all": 58.0,
+        "side_hit_rate_confident": 65.5,
+        "n_confident": 4241
+      },
+      "per_season": [
+        {
+          "season": 2021,
+          "n": 21943,
+          "mae_model": 4.843,
+          "mae_baseline": 4.964
+        },
+        {
+          "season": 2022,
+          "n": 21528,
+          "mae_model": 4.873,
+          "mae_baseline": 5.01
+        },
+        {
+          "season": 2023,
+          "n": 21212,
+          "mae_model": 4.848,
+          "mae_baseline": 4.983
+        },
+        {
+          "season": 2024,
+          "n": 21410,
+          "mae_model": 4.926,
+          "mae_baseline": 5.052
+        },
+        {
+          "season": 2025,
+          "n": 22050,
+          "mae_model": 4.842,
+          "mae_baseline": 4.969
+        }
+      ],
+      "n_train": 256725
+    },
+    "rebounds": {
+      "market": "rebounds",
+      "seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n": 108143,
+      "mae_model": 1.968,
+      "mae_baseline": 2.002,
+      "mean_outcome": 4.71,
+      "mean_pred": 4.75,
+      "proxy_line": {
+        "what": "a line at the player's trailing average, the crude opener a book starts from; books use far more, so these rates are a floor on competence, not a measure of edge",
+        "seasons": [
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "n": 12000,
+        "over_rate": 45.1,
+        "brier_model": 0.2386,
+        "brier_trailing_avg": 0.2451,
+        "calibration": [
+          {
+            "bucket": "10%-20%",
+            "n": 72,
+            "predicted": 16.9,
+            "actual": 16.7
+          },
+          {
+            "bucket": "20%-30%",
+            "n": 518,
+            "predicted": 26.3,
+            "actual": 23.4
+          },
+          {
+            "bucket": "30%-40%",
+            "n": 2939,
+            "predicted": 36.1,
+            "actual": 36.8
+          },
+          {
+            "bucket": "40%-50%",
+            "n": 5085,
+            "predicted": 44.9,
+            "actual": 45.3
+          },
+          {
+            "bucket": "50%-60%",
+            "n": 2579,
+            "predicted": 54.0,
+            "actual": 53.5
+          },
+          {
+            "bucket": "60%-70%",
+            "n": 667,
+            "predicted": 63.9,
+            "actual": 62.8
+          },
+          {
+            "bucket": "70%-80%",
+            "n": 119,
+            "predicted": 73.7,
+            "actual": 67.2
+          }
+        ],
+        "always_under_hit_rate": 54.9,
+        "trailing_avg_side_hit_rate": 55.5,
+        "side_hit_rate_all": 58.3,
+        "side_hit_rate_confident": 65.2,
+        "n_confident": 4336
+      },
+      "per_season": [
+        {
+          "season": 2021,
+          "n": 21943,
+          "mae_model": 1.987,
+          "mae_baseline": 2.014
+        },
+        {
+          "season": 2022,
+          "n": 21528,
+          "mae_model": 1.961,
+          "mae_baseline": 2.0
+        },
+        {
+          "season": 2023,
+          "n": 21212,
+          "mae_model": 1.952,
+          "mae_baseline": 1.987
+        },
+        {
+          "season": 2024,
+          "n": 21410,
+          "mae_model": 1.99,
+          "mae_baseline": 2.026
+        },
+        {
+          "season": 2025,
+          "n": 22050,
+          "mae_model": 1.951,
+          "mae_baseline": 1.982
+        }
+      ],
+      "n_train": 256725
+    },
+    "assists": {
+      "market": "assists",
+      "seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n": 108143,
+      "mae_model": 1.423,
+      "mae_baseline": 1.454,
+      "mean_outcome": 2.89,
+      "mean_pred": 2.92,
+      "proxy_line": {
+        "what": "a line at the player's trailing average, the crude opener a book starts from; books use far more, so these rates are a floor on competence, not a measure of edge",
+        "seasons": [
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "n": 12000,
+        "over_rate": 44.5,
+        "brier_model": 0.2349,
+        "brier_trailing_avg": 0.2416,
+        "calibration": [
+          {
+            "bucket": "10%-20%",
+            "n": 161,
+            "predicted": 16.4,
+            "actual": 14.3
+          },
+          {
+            "bucket": "20%-30%",
+            "n": 1001,
+            "predicted": 26.4,
+            "actual": 25.8
+          },
+          {
+            "bucket": "30%-40%",
+            "n": 2982,
+            "predicted": 35.5,
+            "actual": 35.3
+          },
+          {
+            "bucket": "40%-50%",
+            "n": 4129,
+            "predicted": 44.8,
+            "actual": 46.1
+          },
+          {
+            "bucket": "50%-60%",
+            "n": 2475,
+            "predicted": 54.4,
+            "actual": 53.7
+          },
+          {
+            "bucket": "60%-70%",
+            "n": 989,
+            "predicted": 64.0,
+            "actual": 60.2
+          },
+          {
+            "bucket": "70%-80%",
+            "n": 223,
+            "predicted": 73.5,
+            "actual": 68.6
+          },
+          {
+            "bucket": "80%-90%",
+            "n": 34,
+            "predicted": 83.4,
+            "actual": 79.4
+          }
+        ],
+        "always_under_hit_rate": 55.5,
+        "trailing_avg_side_hit_rate": 57.4,
+        "side_hit_rate_all": 59.6,
+        "side_hit_rate_confident": 66.5,
+        "n_confident": 5396
+      },
+      "per_season": [
+        {
+          "season": 2021,
+          "n": 21943,
+          "mae_model": 1.383,
+          "mae_baseline": 1.413
+        },
+        {
+          "season": 2022,
+          "n": 21528,
+          "mae_model": 1.393,
+          "mae_baseline": 1.425
+        },
+        {
+          "season": 2023,
+          "n": 21212,
+          "mae_model": 1.451,
+          "mae_baseline": 1.485
+        },
+        {
+          "season": 2024,
+          "n": 21410,
+          "mae_model": 1.446,
+          "mae_baseline": 1.478
+        },
+        {
+          "season": 2025,
+          "n": 22050,
+          "mae_model": 1.443,
+          "mae_baseline": 1.469
+        }
+      ],
+      "n_train": 256725
+    },
+    "threes": {
+      "market": "threes",
+      "seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n": 95652,
+      "mae_model": 1.068,
+      "mae_baseline": 1.08,
+      "mean_outcome": 1.6,
+      "mean_pred": 1.64,
+      "proxy_line": {
+        "what": "a line at the player's trailing average, the crude opener a book starts from; books use far more, so these rates are a floor on competence, not a measure of edge",
+        "seasons": [
+          2022,
+          2023,
+          2024,
+          2025
+        ],
+        "n": 12000,
+        "over_rate": 43.0,
+        "brier_model": 0.2334,
+        "brier_trailing_avg": 0.2384,
+        "calibration": [
+          {
+            "bucket": "10%-20%",
+            "n": 125,
+            "predicted": 17.8,
+            "actual": 16.8
+          },
+          {
+            "bucket": "20%-30%",
+            "n": 1532,
+            "predicted": 26.4,
+            "actual": 27.2
+          },
+          {
+            "bucket": "30%-40%",
+            "n": 3680,
+            "predicted": 35.1,
+            "actual": 35.9
+          },
+          {
+            "bucket": "40%-50%",
+            "n": 3438,
+            "predicted": 45.0,
+            "actual": 45.7
+          },
+          {
+            "bucket": "50%-60%",
+            "n": 2588,
+            "predicted": 54.3,
+            "actual": 54.9
+          },
+          {
+            "bucket": "60%-70%",
+            "n": 570,
+            "predicted": 63.5,
+            "actual": 63.3
+          },
+          {
+            "bucket": "70%-80%",
+            "n": 63,
+            "predicted": 72.7,
+            "actual": 76.2
+          }
+        ],
+        "always_under_hit_rate": 57.0,
+        "trailing_avg_side_hit_rate": 59.3,
+        "side_hit_rate_all": 60.7,
+        "side_hit_rate_confident": 66.8,
+        "n_confident": 5974
+      },
+      "per_season": [
+        {
+          "season": 2021,
+          "n": 19119,
+          "mae_model": 1.067,
+          "mae_baseline": 1.07
+        },
+        {
+          "season": 2022,
+          "n": 19069,
+          "mae_model": 1.048,
+          "mae_baseline": 1.064
+        },
+        {
+          "season": 2023,
+          "n": 18805,
+          "mae_model": 1.055,
+          "mae_baseline": 1.073
+        },
+        {
+          "season": 2024,
+          "n": 18923,
+          "mae_model": 1.101,
+          "mae_baseline": 1.112
+        },
+        {
+          "season": 2025,
+          "n": 19736,
+          "mae_model": 1.071,
+          "mae_baseline": 1.079
+        }
+      ],
+      "n_train": 214234
+    }
+  },
+  "trained_at": "2026-10-20T20:22:15+00:00",
+  "sklearn": "1.9.1",
+  "features": [
+    "pos_g",
+    "pos_f",
+    "pos_c",
+    "n_eff",
+    "games_season",
+    "rest",
+    "b2b",
+    "ew_min",
+    "l_min",
+    "last_min",
+    "start_rate",
+    "ew_pts",
+    "ew_reb",
+    "ew_ast",
+    "ew_fg3m",
+    "ew_fg3a",
+    "pm_pts",
+    "pm_reb",
+    "pm_ast",
+    "pm_fg3m",
+    "pm_fg3a",
+    "pm_fga",
+    "pm_fta",
+    "pm_usg",
+    "pm_oreb",
+    "lpm_pts",
+    "lpm_reb",
+    "lpm_ast",
+    "lpm_fg3m",
+    "lpm_fg3a",
+    "lpm_usg",
+    "fg3_pct",
+    "miss_min",
+    "miss_pts",
+    "miss_reb",
+    "miss_ast",
+    "miss_usg",
+    "n_miss",
+    "is_home",
+    "playoff",
+    "exp_total",
+    "exp_margin",
+    "team_total",
+    "abs_margin",
+    "team_pace",
+    "opp_pace",
+    "team_ortg",
+    "opp_drtg",
+    "opp_pts_pos",
+    "opp_reb_pos",
+    "opp_ast_pos",
+    "opp_fg3m_pos"
+  ]
+}

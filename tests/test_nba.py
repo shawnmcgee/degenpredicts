@@ -364,8 +364,9 @@ CITY8 = {"BOS": "Boston", "NYK": "New York", "MIA": "Miami", "PHI": "Philadelphi
          "LAL": "Los Angeles", "GSW": "San Francisco", "DEN": "Denver", "UTA": "Salt Lake City"}
 
 
-def _league(seasons, teams=TEAMS8, days=40, seed=3, lines_from=None, absent=0.08):
-    """A small league with rosters, minutes, box scores, absences and (optionally) a market."""
+def _league(seasons, teams=TEAMS8, days=40, seed=3, lines_from=None, absent=0.08, box=False):
+    """A small league with rosters, minutes, box scores, absences and (optionally) a market.
+    ``box`` adds the counting stats the composition vector and the props models read."""
     rng = np.random.default_rng(seed)
     # player 0 is a genuine star, so his nights off are worth measuring
     quality = {t: [14.0 + rng.normal(0, 1)] + [rng.normal(0, 6) for _ in range(8)] for t in teams}
@@ -400,10 +401,19 @@ def _league(seasons, teams=TEAMS8, days=40, seed=3, lines_from=None, absent=0.08
                         if k in out[t]:
                             continue
                         m = mins[k] + rng.normal(0, 2)
-                        players.append({"game_id": g_id, "team": t,
-                                        "athlete_id": 1000 * (teams.index(t) + 1) + k,
-                                        "minutes": round(m, 1), "gs": round(m / 36 * (10 + quality[t][k]) + rng.normal(0, 4), 1),
-                                        "os": round(m / 36 * (8 + quality[t][k] / 2) + rng.normal(0, 3), 1)})
+                        row = {"game_id": g_id, "team": t,
+                               "athlete_id": 1000 * (teams.index(t) + 1) + k,
+                               "minutes": round(m, 1), "gs": round(m / 36 * (10 + quality[t][k]) + rng.normal(0, 4), 1),
+                               "os": round(m / 36 * (8 + quality[t][k] / 2) + rng.normal(0, 3), 1)}
+                        if box:
+                            lam = m / 36
+                            row.update({"starter": int(k < 5),
+                                        **{c: int(rng.poisson(max(0.1, lam * mu * (1 + quality[t][k] / 40))))
+                                           for c, mu in (("pts", 14), ("fgm", 5), ("fga", 11), ("fg3m", 1.5),
+                                                         ("fg3a", 4), ("ftm", 2.5), ("fta", 3), ("oreb", 1),
+                                                         ("dreb", 4 if k != 4 else 8), ("ast", 3 if k else 7),
+                                                         ("stl", 1), ("blk", 0.6), ("tov", 1.5), ("pf", 2))}})
+                        players.append(row)
                 if lines_from is not None and s >= lines_from:
                     mkt = exp_m + rng.normal(0, 0.8)
                     p = 1 / (1 + np.exp(-mkt / 7.5))
@@ -452,6 +462,76 @@ def test_garbage_time_cannot_move_a_pregame_row(env):
     a = base[base["game_id"] == last["game_id"]][BASE_FEATURES].astype(float).values
     b = moved[moved["game_id"] == last["game_id"]][BASE_FEATURES].astype(float).values
     assert np.allclose(a, b, equal_nan=True)
+
+
+def test_composition_is_leak_free_and_box_scores_of_the_game_cannot_move_its_row(env):
+    """The composition vector reads box scores, so the garbage-time test again with box scores
+    in play: rebuilding from a truncated schedule leaves earlier rows alone, and rewriting only
+    the last game's box score - a star's 50-point night - moves nothing in that game's row."""
+    from nba.features import BASE_FEATURES, COMPOSITION_FEATURES, build
+    g, p, _ = _league([2021, 2022], box=True)
+    full, _, _, _ = build(g, p, first_train_season=2022, today=date(2030, 1, 1))
+    assert (full[COMPOSITION_FEATURES].abs().sum(axis=1) > 0).mean() > 0.2, "absences show up"
+    cut = g.iloc[: len(g) // 2 + 7]
+    part, _, _, _ = build(cut, p[p["game_id"].isin(cut["game_id"])], first_train_season=2022,
+                          today=date(2030, 1, 1))
+    merged = part[["game_id"] + COMPOSITION_FEATURES].merge(
+        full[["game_id"] + COMPOSITION_FEATURES], on="game_id", suffixes=("", "_full"))
+    for c in COMPOSITION_FEATURES:
+        assert np.allclose(merged[c], merged[f"{c}_full"]), c
+    last = g.iloc[-1]
+    p2 = p.copy()
+    mine = (p2["game_id"] == last["game_id"]) & (p2["athlete_id"] % 1000 == 0)
+    p2.loc[mine, ["pts", "fga", "fg3m", "ast"]] = [50, 30, 8, 12]
+    moved, _, _, _ = build(g, p2, first_train_season=2022, today=date(2030, 1, 1))
+    a = full[full["game_id"] == last["game_id"]][BASE_FEATURES].astype(float).values
+    b = moved[moved["game_id"] == last["game_id"]][BASE_FEATURES].astype(float).values
+    assert np.allclose(a, b, equal_nan=True)
+
+
+def test_composition_counts_core_players_only():
+    """The 12- and 16-minute versions leaked game script - a coach empties his bench in a
+    blowout and shortens it in a close game - so only players who usually play 20 minutes or
+    more enter the composition vector. A 14-minute man's absence still moves the value delta."""
+    from nba.players import BOX_STATS, PlayerBook
+    b = PlayerBook()
+    line = lambda k: [10.0 + k] * len(BOX_STATS)
+    for _ in range(40):
+        b.update("BOS", [(1, 34.0, 18.0, 14.0, line(5)), (2, 14.0, 9.0, 7.0, line(0))]
+                 + [(i, 30.0, 8.0, 6.0, line(1)) for i in range(3, 8)])
+    full = {p: b.exp_min[p] / 48 for p in range(1, 8)}
+    bench_out = {p: s for p, s in full.items() if p != 2}
+    star_out = {p: s for p, s in full.items() if p != 1}
+    d_full = b.delta("BOS", full)
+    d_bench, d_star = b.delta("BOS", bench_out), b.delta("BOS", star_out)
+    assert d_bench["net"] < d_full["net"], "a rotation player's absence still counts in the value delta"
+    assert np.allclose(d_bench["x"], d_full["x"]), "but not in the composition vector"
+    assert d_star["x"][0] < d_full["x"][0], "a core scorer's absence does"
+
+
+def test_old_player_files_without_box_scores_still_build(env):
+    """Rows cached before the box-score columns existed add nothing to the composition vector
+    rather than breaking the replay."""
+    from nba.features import COMPOSITION_FEATURES, build
+    g, p, _ = _league([2021, 2022])
+    rows, _, _, _ = build(g, p, first_train_season=2022, today=date(2030, 1, 1))
+    assert len(rows) and (rows[COMPOSITION_FEATURES] == 0).all().all()
+
+
+def test_the_card_charges_for_what_kind_of_player_is_missing():
+    """price_notes adds the composition coefficients to what an absence costs, and a model
+    fitted before they existed still prices the card."""
+    from nba.linear import Ridge
+    from nba.predict import price_notes
+    df = pd.DataFrame({"h_d_net": [0.0, 1.0], "h_d_off": [0.0, 0.0], "h_miss_top": [0.0, 0.0],
+                       "h_x_pts": [0.0, 1.0], "y": [0.0, 1.0]})
+    note = {"id": 1, "name": "x", "status": "out", "p_out": 1.0, "impact": 0.0,
+            "d_net": 1.0, "d_off": 0.0, "d_x": [2.0] + [0.0] * 9}
+    old = Ridge(["h_d_net", "h_d_off", "h_miss_top"], 1e-6).fit(df, "y")
+    new = Ridge(["h_d_net", "h_d_off", "h_miss_top", "h_x_pts"], 1e-6).fit(df, "y")
+    a = price_notes([note], old, "h")[0]["impact"]
+    b = price_notes([note], new, "h")[0]["impact"]
+    assert a == a and b == b and a != b
 
 
 def test_a_missing_star_counts_and_a_returning_one_counts_back():

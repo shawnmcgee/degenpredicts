@@ -1,0 +1,58 @@
+name: NBA props
+on:
+  schedule:
+    # Kalshi lists a night's props on the day, and they move on the injury report, so this runs
+    # three times a game day, each after the game board's run of the same window (the props
+    # board reads its published spread and total). It skips any game already under way rather
+    # than pricing it in-play. UTC: 16:30 = 12:30pm ET (11:30am in winter), 22:45 = 6:45pm ET
+    # after the afternoon injury updates and before the 7pm tips, 01:30 = 9:30pm ET for the West
+    # Coast games.
+    - cron: '30 16 * * *'
+    - cron: '45 22 * * *'
+    - cron: '30 1 * * *'
+  workflow_dispatch:
+    inputs:
+      retrain:
+        description: 'Refit the props models even if they are fresh'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+# Same group as the other NBA jobs: they all commit to data/nba and docs/nba.
+concurrency: {group: nba-data, cancel-in-progress: false}
+jobs:
+  props:
+    runs-on: ubuntu-latest
+    # A refit - the replay, five walk-forward seasons and a final fit for four markets - is
+    # about eight minutes; it happens weekly, or when scikit-learn changes under it.
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.txt
+      # No secrets: hoopR, ESPN's injury report and Kalshi's market data are all public. Kalshi's
+      # prop series are overridable as repo variables if Kalshi renames one.
+      - env:
+          DEGEN_KALSHI_NBA_PTS_SERIES: ${{ vars.DEGEN_KALSHI_NBA_PTS_SERIES }}
+          DEGEN_KALSHI_NBA_REB_SERIES: ${{ vars.DEGEN_KALSHI_NBA_REB_SERIES }}
+          DEGEN_KALSHI_NBA_AST_SERIES: ${{ vars.DEGEN_KALSHI_NBA_AST_SERIES }}
+          DEGEN_KALSHI_NBA_3PT_SERIES: ${{ vars.DEGEN_KALSHI_NBA_3PT_SERIES }}
+          DEGEN_NBA_PROPS_SHRINK: ${{ vars.DEGEN_NBA_PROPS_SHRINK }}
+          DEGEN_NBA_PROPS_MIN_EDGE: ${{ vars.DEGEN_NBA_PROPS_MIN_EDGE }}
+        run: |
+          python -m nba.props.run ${{ inputs.retrain && '--retrain' || '' }}
+          # the NBA page carries the Player props tab link
+          python -m nba.site
+      - run: |
+          git config user.name  "degenbot"
+          git config user.email "actions@github.com"
+          # Commit before pulling, for the reason spelled out in nba-predict.yml.
+          git add data/nba docs/nba
+          if git diff --staged --quiet; then
+            echo "nothing to commit"
+            exit 0
+          fi
+          git commit -m "nba props $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push origin HEAD:main
