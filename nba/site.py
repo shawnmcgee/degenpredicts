@@ -54,6 +54,38 @@ def _american(dec) -> str:
     return "" if a != a else f"{a:+.0f}"
 
 
+def _spread_text(home, away, margin, line: bool = False) -> str | None:
+    """An expected home margin as a casual bettor reads a spread: the favourite, minus the
+    points. +4.3 for the home side reads "NOP -4.3"; a book's line keeps its own half points
+    ("IND -3.5"), a model's number one decimal."""
+    if margin is None or margin != margin:
+        return None
+    m = float(margin)
+    if abs(m) < 0.05:
+        return "Pick'em"
+    fav = home if m > 0 else away
+    pts = f"{abs(m):g}" if line else f"{abs(m):.1f}"
+    return f"{fav} -{pts}"
+
+
+def _gap_text(g) -> tuple[str | None, str | None]:
+    """How far the model is from the line, in words: the number a pick is staked on."""
+    out = []
+    d, team = g.get("spread_disagree"), g.get("spread_team")
+    if d is not None and d == d and team:
+        out.append(f"Our model is {abs(d):.1f} pts stronger on {team}" if abs(d) >= 0.05
+                   else "Our model matches the line")
+    else:
+        out.append(None)
+    d, side = g.get("total_disagree"), g.get("total_side")
+    if d is not None and d == d and side:
+        out.append(f"Our model is {abs(d):.1f} pts {side} the line" if abs(d) >= 0.05
+                   else "Our model matches the line")
+    else:
+        out.append(None)
+    return out[0], out[1]
+
+
 def _recent_results(limit: int = 12) -> list[dict]:
     if not config.RESULTS.exists():
         return []
@@ -171,11 +203,16 @@ def _board() -> list[dict]:
     for r in records:
         r["context"] = _context(r)
         r["injuries"] = _injuries(r)
-        m, nm = r.get("pub_margin"), r.get("nm_margin")
-        if m is not None:
-            r["model_side"] = (r["home_team"] if m >= 0 else r["away_team"], abs(m))
-        if nm is not None:
-            r["ratings_side"] = (r["home_team"] if nm >= 0 else r["away_team"], abs(nm))
+        # Three numbers per game, and a casual reader needs two of them on the card: the line,
+        # and what our model says. The published blend (what the percentages are priced off)
+        # and the ratings-only number go under "where these come from".
+        h, a = r["home_team"], r["away_team"]
+        r["line_spread"] = _spread_text(h, a, r.get("mkt_margin"), line=True)
+        r["model_spread"] = _spread_text(h, a, r.get("raw_margin"))
+        r["model_total"] = r.get("raw_total")
+        r["pub_spread"] = _spread_text(h, a, r.get("pub_margin"))
+        r["ratings_spread"] = _spread_text(h, a, r.get("nm_margin"))
+        r["spread_gap_text"], r["total_gap_text"] = _gap_text(r)
     return records
 
 

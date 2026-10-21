@@ -838,8 +838,8 @@ def test_pipeline(env, monkeypatch):
     assert "nan" not in _rendered_text(html)
     # every graded game sits in its own bucket, so each of the three priced games shows its
     # season record on all three bets - through the real predict, grade and site, not a fixture
-    assert html.count('<div class="hit">Hit ') == 9
-    assert html.count(" pts off</div>") == 6 and html.count(" EV, priced at ") == 3
+    assert html.count('<div class="hit">This season, ') == 9
+    assert html.count(" pts off the line: ") == 6 and html.count(" EV: <b class=") == 3
     assert "Record by disagreement" in html
 
 
@@ -897,9 +897,9 @@ def test_each_pick_carries_the_season_hit_rate_at_its_own_disagreement(env):
     env.METRICS.write_text(json.dumps(metrics))
     site.build()
     html = (env.DOCS / "index.html").read_text()
-    assert 'Hit <b class="up">60.0%</b> (30-20) this season at 0.5–1 pts off' in html
-    assert 'Hit <b class="down">47.1%</b> (40-45) this season at 0–1 pts off' in html
-    assert ('Hit <b class="up">22.5%</b> (9-31) this season at 10%+ EV, priced at 19.4%'
+    assert 'spreads 0.5–1 pts off the line: <b class="up">30-20</b> (60.0%)' in html
+    assert 'totals 0–1 pts off the line: <b class="down">40-45</b> (47.1%)' in html
+    assert ('moneylines at 10%+ EV: <b class="up">9-31</b> (22.5%; the prices expected 19.4%)'
             in html)
     # the table below names the same buckets the cards do, in words rather than grader keys
     assert "<td>3+ pts</td>" in html and "<td>negative</td>" in html and "<td>10%+</td>" in html
@@ -987,3 +987,17 @@ def test_the_daily_jobs_never_need_pyarrow():
     assert "pyarrow" not in reqs
     for mod in ("hoopr.py", "espn.py", "odds.py"):
         assert "parquet" not in (ROOT / "nba" / "sources" / mod).read_text()
+
+
+def test_the_card_reads_as_line_versus_our_model():
+    """The card shows the two numbers a casual reader needs - the book's line and our model's -
+    as spreads (favourite minus points), and says the gap in words rather than a signed delta."""
+    from nba.site import _gap_text, _spread_text
+    assert _spread_text("NOP", "IND", -3.5, line=True) == "IND -3.5"
+    assert _spread_text("NOP", "IND", 5.42) == "NOP -5.4"
+    assert _spread_text("NOP", "IND", 0.01) == "Pick'em" and _spread_text("NOP", "IND", None) is None
+    s, t = _gap_text({"spread_disagree": -1.92, "spread_team": "IND",
+                      "total_disagree": 2.85, "total_side": "over"})
+    assert s == "Our model is 1.9 pts stronger on IND" and t == "Our model is 2.9 pts over the line"
+    tpl = (ROOT / "nba" / "templates" / "index.html").read_text()
+    assert "Our model" in tpl and "Ratings alone" not in tpl and "&#916;" not in tpl
