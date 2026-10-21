@@ -1,7 +1,7 @@
 game_id,season,game_type,date,tip_utc,home_team,away_team,home_points,away_points,completed,neutral_site,periods,venue_city,home_poss,away_poss,poss,source
-401909088,2026,R,2026-10-20,2026-10-20T19:00:00Z,DET,BOS,,,False,False,,Detroit,,,,hoopr
-401909089,2026,R,2026-10-20,2026-10-20T23:00:00Z,NYK,PHI,,,False,False,,New York,,,,hoopr
-401909090,2026,R,2026-10-20,2026-10-21T01:30:00Z,SAS,OKC,,,False,False,,San Antonio,,,,hoopr
+401909088,2026,R,2026-10-20,2026-10-20T19:00:00Z,DET,BOS,121.0,113.0,True,False,4.0,Detroit,103.08,99.24,101.16,hoopr
+401909089,2026,R,2026-10-20,2026-10-20T23:00:00Z,NYK,PHI,100.0,106.0,True,False,4.0,New York,105.88,104.88,105.38,hoopr
+401909090,2026,R,2026-10-20,2026-10-21T01:50:00Z,SAS,OKC,104.0,116.0,True,False,4.0,San Antonio,107.0,104.8,105.9,hoopr
 401909091,2026,R,2026-10-21,2026-10-21T23:30:00Z,MIA,MIN,,,False,False,,Miami,,,,hoopr
 401909092,2026,R,2026-10-21,2026-10-22T02:00:00Z,LAL,GSW,,,False,False,,Los Angeles,,,,hoopr
 401909834,2026,R,2026-10-21,2026-10-21T23:00:00Z,ORL,ATL,,,False,False,,Orlando,,,,hoopr
