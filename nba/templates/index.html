@@ -52,8 +52,20 @@
   .probs div{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;
              color:#06121f;min-width:40px;white-space:nowrap;padding:0 4px}
   .probs .ph{background:var(--accent)} .probs .pa{background:var(--away)}
-  .scoreline{display:flex;justify-content:space-between;gap:4px 12px;flex-wrap:wrap;padding:0 14px 8px;font-size:12px;color:var(--dim)}
-  .scoreline b{color:var(--fg);font-variant-numeric:tabular-nums}
+  /* the line beside our model's number: the two a reader needs, side by side */
+  .nums{display:grid;grid-template-columns:repeat(3,max-content);justify-content:start;gap:4px 28px;align-items:baseline;
+        padding:2px 14px 6px;font-size:14px;font-variant-numeric:tabular-nums}
+  .nums .h{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.04em}
+  .nums .k{font-size:12px;color:var(--dim)}
+  .nums b{font-weight:600}
+  .nums .mine{color:var(--accent)}
+  details.more{padding:0 14px 8px;font-size:12px;color:var(--dim)}
+  details.more summary{cursor:pointer;color:var(--dim);list-style:none;display:inline-block}
+  details.more summary::-webkit-details-marker{display:none}
+  details.more summary::after{content:" \25BE"}
+  details.more[open] summary::after{content:" \25B4"}
+  details.more p{margin-top:6px;line-height:1.5}
+  details.more b{color:var(--fg);font-variant-numeric:tabular-nums}
   .bets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:4px 14px 14px}
   .bet{background:var(--card2);border-radius:9px;padding:11px}
   .bet .l{font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
@@ -240,7 +252,7 @@
        data-star="{{ g.out_star }}" data-search="{{ g.search }}" data-kick="{{ g.kick_sort or '' }}">
     <div class="ghead">
       <span>{{ g.time_label }}</span>
-      <span>{% if g.has_play %}<span class="tag play">play</span> {% elif g.waiting %}<span class="tag wait">waiting on injury news</span> {% endif %}&#916;{{ '%.1f'|format(gap) }}{% if g.thin_data %} &middot; early season{% endif %}</span>
+      <span>{% if g.has_play %}<span class="tag play">play</span> {% elif g.waiting %}<span class="tag wait">waiting on injury news</span> {% endif %}{% if gap >= 0.05 %}model {{ '%.1f'|format(gap) }} pts off the line{% else %}model matches the line{% endif %}{% if g.thin_data %} &middot; early season{% endif %}</span>
     </div>
     <div class="matchup">{{ g.away_team }}<span class="at">{% if g.neutral %}vs{% else %}at{% endif %}</span>{{ g.home_team }}</div>
     {% if g.context %}<div class="ctx">{{ g.context }}</div>{% endif %}
@@ -255,37 +267,54 @@
       <div class="pa" style="flex:{{ g.p_away_win_pct }}">{{ g.away_team }} {{ g.p_away_win_pct|round|int }}%</div>
       <div class="ph" style="flex:{{ g.p_home_win_pct }}">{{ g.home_team }} {{ g.p_home_win_pct|round|int }}%</div>
     </div>
-    <div class="scoreline">
-      {% if g.model_side %}<span>Ours <b>{{ g.model_side[0] }} by {{ '%.1f'|format(g.model_side[1]) }}</b> &middot; total <b>{{ '%.1f'|format(g.pub_total) }}</b></span>{% endif %}
-      {% if g.spread_home is not none or g.total_line is not none %}<span>Market {% if g.spread_home is not none %}<b>{{ g.home_team }} {{ '%+g'|format(g.spread_home) if g.spread_home else 'PK' }}</b>{% endif %}{% if g.total_line is not none %} &middot; <b>{{ '%g'|format(g.total_line) }}</b>{% endif %}</span>{% endif %}
-      {% if g.ratings_side %}<span>Ratings alone {{ g.ratings_side[0] }} by {{ '%.1f'|format(g.ratings_side[1]) }} &middot; {{ '%.1f'|format(g.nm_total) }}</span>{% endif %}
+    <div class="nums">
+      <span></span><span class="h">Spread</span><span class="h">Total</span>
+      <span class="k">Line{% if g.provider %} ({{ g.provider }}){% endif %}</span>
+      <b>{{ g.line_spread or '—' }}</b>
+      <b>{{ '%g'|format(g.total_line) if g.total_line is not none else '—' }}</b>
+      <span class="k">Our model</span>
+      <b class="mine">{{ g.model_spread or '—' }}</b>
+      <b class="mine">{{ '%.1f'|format(g.model_total) if g.model_total is not none else '—' }}</b>
     </div>
+    <details class="more">
+      <summary>Where these numbers come from</summary>
+      <p><b>Our model</b> starts from the line and adjusts it for what team ratings, injuries,
+        rest and travel say the line missed. How far it moves is what a pick is based on.</p>
+      {% if g.pub_spread or g.pub_total is not none %}<p>The <b>percentages</b> below use a blend:
+        the line moved {{ ((model.shrink.margin or 0) * 100)|round|int if model and model.shrink else '' }}% of the way toward our model on the spread
+        ({{ g.pub_spread or '—' }}) and {{ ((model.shrink.total or 0) * 100)|round|int if model and model.shrink else '' }}% on the total
+        ({{ '%.1f'|format(g.pub_total) if g.pub_total is not none else '—' }}). That much and no more,
+        because over seven seasons the closing line has been the more accurate number.</p>{% endif %}
+      {% if g.ratings_spread %}<p><b>Ratings only</b>, ignoring the line entirely:
+        {{ g.ratings_spread }} &middot; {{ '%.1f'|format(g.nm_total) if g.nm_total is not none else '—' }}.
+        The model's independent opinion &mdash; and the least accurate of the three.</p>{% endif %}
+    </details>
     {% endif %}
     <div class="bets">
       <div class="bet">
         <div class="l">Spread {{ tagfor(g.spread_strength, 'waiting on news') }}</div>
         {% if g.spread_pick %}
         <div class="p">{{ g.spread_pick }}{% if g.spread_price %}<span class="px">{{ g.spread_price }}</span>{% endif %}</div>
-        <div class="d">ours <b>{{ g.spread_p_live_pct }}%</b>{% if g.spread_mkt_p_pct %} &middot; market {{ g.spread_mkt_p_pct }}%{% endif %}{% if g.spread_ev_pct is not none %} &middot; EV {{ '%+.1f'|format(g.spread_ev_pct) }}%{% endif %}{% if g.spread_stake %} &middot; {{ g.spread_stake }}u{% endif %}</div>
-        <div class="d">{{ '%+.1f'|format(g.spread_disagree or 0) }} pts vs the line</div>
-        {% if g.spread_hit %}<div class="hit">Hit <b class="{{ g.spread_hit.tone }}">{{ g.spread_hit.win_pct }}%</b> ({{ g.spread_hit.wins }}-{{ g.spread_hit.losses }}) this season at {{ g.spread_hit.label }} pts off</div>{% endif %}
+        <div class="d">our chance <b>{{ g.spread_p_live_pct }}%</b>{% if g.spread_mkt_p_pct %} &middot; book's {{ g.spread_mkt_p_pct }}%{% endif %}{% if g.spread_ev_pct is not none %} &middot; EV {{ '%+.1f'|format(g.spread_ev_pct) }}%{% endif %}{% if g.spread_stake %} &middot; {{ g.spread_stake }}u{% endif %}</div>
+        {% if g.spread_gap_text %}<div class="d">{{ g.spread_gap_text }}</div>{% endif %}
+        {% if g.spread_hit %}<div class="hit">This season, spreads {{ g.spread_hit.label }} pts off the line: <b class="{{ g.spread_hit.tone }}">{{ g.spread_hit.wins }}-{{ g.spread_hit.losses }}</b> ({{ g.spread_hit.win_pct }}%)</div>{% endif %}
         {% else %}<div class="p">&mdash;</div><div class="d">no line posted yet</div>{% endif %}
       </div>
       <div class="bet">
         <div class="l">Total {{ tagfor(g.total_strength, 'waiting on news') }}</div>
         {% if g.total_pick %}
         <div class="p">{{ g.total_pick }}{% if g.total_price %}<span class="px">{{ g.total_price }}</span>{% endif %}</div>
-        <div class="d">ours <b>{{ g.total_p_live_pct }}%</b>{% if g.total_mkt_p_pct %} &middot; market {{ g.total_mkt_p_pct }}%{% endif %}{% if g.total_ev_pct is not none %} &middot; EV {{ '%+.1f'|format(g.total_ev_pct) }}%{% endif %}{% if g.total_stake %} &middot; {{ g.total_stake }}u{% endif %}</div>
-        <div class="d">{{ '%+.1f'|format(g.total_disagree or 0) }} pts vs the line</div>
-        {% if g.total_hit %}<div class="hit">Hit <b class="{{ g.total_hit.tone }}">{{ g.total_hit.win_pct }}%</b> ({{ g.total_hit.wins }}-{{ g.total_hit.losses }}) this season at {{ g.total_hit.label }} pts off</div>{% endif %}
+        <div class="d">our chance <b>{{ g.total_p_live_pct }}%</b>{% if g.total_mkt_p_pct %} &middot; book's {{ g.total_mkt_p_pct }}%{% endif %}{% if g.total_ev_pct is not none %} &middot; EV {{ '%+.1f'|format(g.total_ev_pct) }}%{% endif %}{% if g.total_stake %} &middot; {{ g.total_stake }}u{% endif %}</div>
+        {% if g.total_gap_text %}<div class="d">{{ g.total_gap_text }}</div>{% endif %}
+        {% if g.total_hit %}<div class="hit">This season, totals {{ g.total_hit.label }} pts off the line: <b class="{{ g.total_hit.tone }}">{{ g.total_hit.wins }}-{{ g.total_hit.losses }}</b> ({{ g.total_hit.win_pct }}%)</div>{% endif %}
         {% else %}<div class="p">&mdash;</div><div class="d">no total posted yet</div>{% endif %}
       </div>
       <div class="bet">
         <div class="l">Moneyline {{ tagfor(g.ml_strength, 'waiting on news') }}</div>
         {% if g.ml_pick %}
         <div class="p">{{ g.ml_pick }}{% if g.ml_price %}<span class="px">{{ g.ml_price }}</span>{% endif %}</div>
-        <div class="d">ours <b>{{ g.ml_p_win_pct }}%</b>{% if g.ml_mkt_p_pct %} &middot; market {{ g.ml_mkt_p_pct }}%{% endif %}{% if g.ml_ev_pct is not none %} &middot; EV {{ '%+.1f'|format(g.ml_ev_pct) }}%{% endif %}{% if g.ml_stake %} &middot; {{ g.ml_stake }}u{% endif %}</div>
-        {% if g.ml_hit %}<div class="hit">Hit <b class="{{ g.ml_hit.tone }}">{{ g.ml_hit.win_pct }}%</b> ({{ g.ml_hit.wins }}-{{ g.ml_hit.losses }}) this season at {{ g.ml_hit.label }} EV{% if g.ml_hit.expected_pct is not none %}, priced at {{ g.ml_hit.expected_pct }}%{% endif %}</div>{% endif %}
+        <div class="d">our chance <b>{{ g.ml_p_win_pct }}%</b>{% if g.ml_mkt_p_pct %} &middot; book's {{ g.ml_mkt_p_pct }}%{% endif %}{% if g.ml_ev_pct is not none %} &middot; EV {{ '%+.1f'|format(g.ml_ev_pct) }}%{% endif %}{% if g.ml_stake %} &middot; {{ g.ml_stake }}u{% endif %}</div>
+        {% if g.ml_hit %}<div class="hit">This season, moneylines at {{ g.ml_hit.label }} EV: <b class="{{ g.ml_hit.tone }}">{{ g.ml_hit.wins }}-{{ g.ml_hit.losses }}</b> ({{ g.ml_hit.win_pct }}%{% if g.ml_hit.expected_pct is not none %}; the prices expected {{ g.ml_hit.expected_pct }}%{% endif %})</div>{% endif %}
         {% else %}<div class="p">&mdash;</div><div class="d">no moneyline posted yet</div>{% endif %}
       </div>
     </div>
@@ -294,18 +323,17 @@
   </div>
   <div class="empty" id="noresults" style="display:none">No games match those filters.</div>
   {% if picks %}
-  <p class="sub" style="margin-top:10px"><b>Ours</b> is the published view: the market's line
-    moved toward the model by the amount the backtest earned, which is very little. <b>Ratings
-    alone</b> is the model without the market &mdash; team ratings, who is playing, rest and
-    travel. <b>ours %</b> is the chance the pick wins (net of a push on a whole-number line),
-    <b>market %</b> the same chance from the de-vigged price, and <b>EV</b> the expected return
-    per unit at the posted price. A spread or total is flagged <span class="tag play">play</span>
-    only at {{ spread_min }} points of disagreement on the spread or {{ total_min }} on the total,
-    a moneyline at {{ (ml_min * 100)|round(1) }}% EV &mdash; and only once both teams have played
-    enough games to rate and no unresolved injury could still move the number by
-    {{ wait_points }} points or more. Until then a pick that clears the bar is marked
-    <span class="tag wait">waiting on news</span>. The numbers after each name are the points a
-    game that player is worth over whoever takes his minutes. Prices are from
+  <p class="sub" style="margin-top:10px"><b>How to read a card.</b> <b>Line</b> is the
+    sportsbook's number. <b>Our model</b> is the same game after adjusting for team ratings,
+    injuries, rest and travel. A spread or total becomes a <span class="tag play">play</span> only
+    when our model is at least {{ spread_min }} points off the spread or {{ total_min }} off the
+    total &mdash; smaller gaps have never beaten the book in seven seasons of testing &mdash; and a
+    moneyline only at {{ (ml_min * 100)|round(1) }}% expected value. <b>Our chance</b> is how often we
+    expect the pick to win, next to the <b>book's</b> chance from its own price (with the vig taken
+    out); <b>EV</b> is the expected return per dollar at the posted price. A pick that clears the bar
+    waits (<span class="tag wait">waiting on news</span>) until both teams have played enough
+    games to rate and no unresolved injury could still move it {{ wait_points }} points. The
+    number after each injured player is roughly how many points a game he's worth. Prices are from
     {{ 'The Odds API consensus' if odds_source == 'oddsapi' else ('no book' if odds_source == 'none' else "ESPN's partner book") }}.</p>
   {% endif %}
 </section>
