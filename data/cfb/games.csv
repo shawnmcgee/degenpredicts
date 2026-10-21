@@ -28169,9 +28169,9 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401909130,2026,7,regular,2026-10-17,False,"Sat Oct 17, 1:00 PM",DePauw,Denison,,,,,False,True,North Coast,North Coast,False,2026-10-17T13:00:00-04:00,Sat,,
 401909142,2026,7,regular,2026-10-17,False,"Sat Oct 17, 3:00 PM",Wooster,Oberlin,,,,,False,True,North Coast,North Coast,False,2026-10-17T15:00:00-04:00,Sat,,
 401915932,2026,7,regular,2026-10-17,False,"Sat Oct 17, 1:00 PM",Keystone,Apprentice School,,,,,False,False,Independent DIII,Independent DIII,False,2026-10-17T13:00:00-04:00,Sat,,
-401871055,2026,8,regular,2026-10-20,False,"Tue Oct 20, 7:00 PM",Florida International,Middle Tennessee,,,,,False,True,Conference USA,Conference USA,False,2026-10-20T19:00:00-04:00,Tue,fbs,fbs
-401871069,2026,8,regular,2026-10-20,False,"Tue Oct 20, 7:00 PM",Delaware,Missouri State,,,,,False,True,Conference USA,Conference USA,False,2026-10-20T19:00:00-04:00,Tue,fbs,fbs
-401871092,2026,8,regular,2026-10-20,False,"Tue Oct 20, 7:30 PM",Marshall,South Alabama,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-20T19:30:00-04:00,Tue,fbs,fbs
+401871055,2026,8,regular,2026-10-20,False,"Tue Oct 20, 7:00 PM",Florida International,Middle Tennessee,23.0,26.0,49.0,-3.0,False,True,Conference USA,Conference USA,True,2026-10-20T19:00:00-04:00,Tue,fbs,fbs
+401871069,2026,8,regular,2026-10-20,False,"Tue Oct 20, 7:00 PM",Delaware,Missouri State,61.0,38.0,99.0,23.0,False,True,Conference USA,Conference USA,True,2026-10-20T19:00:00-04:00,Tue,fbs,fbs
+401871092,2026,8,regular,2026-10-20,False,"Tue Oct 20, 7:30 PM",Marshall,South Alabama,20.0,13.0,33.0,7.0,False,True,Sun Belt,Sun Belt,True,2026-10-20T19:30:00-04:00,Tue,fbs,fbs
 401871070,2026,8,regular,2026-10-21,False,"Wed Oct 21, 8:00 PM",Sam Houston,New Mexico State,,,,,False,True,Conference USA,Conference USA,False,2026-10-21T20:00:00-04:00,Wed,fbs,fbs
 401862807,2026,8,regular,2026-10-22,False,"Thu Oct 22, 7:30 PM",Memphis,East Carolina,,,,,False,True,American Athletic,American Athletic,False,2026-10-22T19:30:00-04:00,Thu,fbs,fbs
 401869845,2026,8,regular,2026-10-22,False,"Thu Oct 22, 7:00 PM",App State,James Madison,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-22T19:00:00-04:00,Thu,fbs,fbs
@@ -28511,7 +28511,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401858505,2026,9,regular,2026-10-31,True,,Oregon,Northwestern,,,,,False,True,Big Ten,Big Ten,False,2026-10-31T00:00:00-04:00,Sat,fbs,fbs
 401858506,2026,9,regular,2026-10-31,True,,Penn State,Purdue,,,,,False,True,Big Ten,Big Ten,False,2026-10-31T00:00:00-04:00,Sat,fbs,fbs
 401858507,2026,9,regular,2026-10-31,False,"Sat Oct 31, 12:30 PM",Rutgers,Michigan,,,,,False,True,Big Ten,Big Ten,False,2026-10-31T12:30:00-04:00,Sat,fbs,fbs
-401858508,2026,9,regular,2026-10-31,True,,UCLA,Nevada,,,,,False,False,Big Ten,Mountain West,False,2026-10-31T00:00:00-04:00,Sat,fbs,fbs
+401858508,2026,9,regular,2026-10-31,False,"Sat Oct 31, 4:15 PM",UCLA,Nevada,,,,,False,False,Big Ten,Mountain West,False,2026-10-31T16:15:00-04:00,Sat,fbs,fbs
 401858509,2026,9,regular,2026-10-31,False,"Sat Oct 31, 7:30 PM",USC,Ohio State,,,,,False,True,Big Ten,Big Ten,False,2026-10-31T19:30:00-04:00,Sat,fbs,fbs
 401859185,2026,9,regular,2026-10-31,False,"Sat Oct 31, 12:00 PM",Navy,Notre Dame,,,,,True,False,American Athletic,FBS Independents,False,2026-10-31T12:00:00-04:00,Sat,fbs,fbs
 401860908,2026,9,regular,2026-10-31,False,"Sat Oct 31, 10:00 PM",Boise State,Texas State,,,,,False,True,Pac-12,Pac-12,False,2026-10-31T22:00:00-04:00,Sat,fbs,fbs
