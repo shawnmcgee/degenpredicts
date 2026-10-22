@@ -863,3 +863,78 @@ pulled_at,team,athlete_id,name,status,p_out,detail
 2026-10-22T18:56:05+00:00,WAS,5142718,AJ Dybantsa,out,1.0,Left Ankle
 2026-10-22T18:56:05+00:00,WAS,4997537,Tristan Vukcevic,out,1.0,Left Hip
 2026-10-22T18:56:05+00:00,WAS,4606840,Jamir Watkins,out,1.0,Left Knee
+2026-10-22T20:14:00+00:00,ATL,4712863,Mouhamed Gueye,out,1.0,Left Foot
+2026-10-22T20:14:00+00:00,ATL,5105571,Henri Veesaar,out,1.0,Right Knee
+2026-10-22T20:14:00+00:00,BOS,4433188,Devin Carter,out,1.0,Illness
+2026-10-22T20:14:00+00:00,BKN,5105626,Tyler Bilodeau,day-to-day,0.4,Not Specified Shoulder
+2026-10-22T20:14:00+00:00,CHA,4066218,Grant Williams,day-to-day,0.4,Right Hamstring
+2026-10-22T20:14:00+00:00,CHA,4395651,Coby White,day-to-day,0.4,Left Calf
+2026-10-22T20:14:00+00:00,CHA,5061575,Kon Knueppel,day-to-day,0.4,Left Hamstring
+2026-10-22T20:14:00+00:00,CHA,4684269,Kylan Boswell,out,1.0,Right Knee
+2026-10-22T20:14:00+00:00,CHI,4683750,Jordan Hawkins,day-to-day,0.4,Illness
+2026-10-22T20:14:00+00:00,CHI,4066650,Zach Collins,day-to-day,0.4,Quadriceps
+2026-10-22T20:14:00+00:00,CHI,5105555,Tobe Awaka,day-to-day,0.4,Knee
+2026-10-22T20:14:00+00:00,CHI,4871145,Josh Giddey,day-to-day,0.4,Wrist
+2026-10-22T20:14:00+00:00,CHI,4848625,Dailyn Swain,day-to-day,0.4,Illness
+2026-10-22T20:14:00+00:00,CHI,4278067,Nic Claxton,out,1.0,Not Specified Hamstring
+2026-10-22T20:14:00+00:00,CLE,4066328,Jarrett Allen,day-to-day,0.4,Right Knee
+2026-10-22T20:14:00+00:00,CLE,4997530,Khalifa Diop,out,1.0,Left Knee
+2026-10-22T20:14:00+00:00,CLE,5106268,Nae'Qwan Tomlin,out,1.0,Back
+2026-10-22T20:14:00+00:00,DAL,3138160,Caleb Martin,out,1.0,Right Thumb
+2026-10-22T20:14:00+00:00,DAL,5148538,Tarik Biberovic,out,1.0,Right Heel
+2026-10-22T20:14:00+00:00,DAL,4683688,Dereck Lively II,out,1.0,Right Foot
+2026-10-22T20:14:00+00:00,DAL,5105806,Jett Howard,day-to-day,0.4,Right Calf
+2026-10-22T20:14:00+00:00,DAL,4593125,Santi Aldama,day-to-day,0.4,Not Specified Knee
+2026-10-22T20:14:00+00:00,DEN,4592427,Spencer Jones,day-to-day,0.4,Not Specified Hamstring
+2026-10-22T20:14:00+00:00,DEN,4432181,Julian Strawther,out,1.0,Left Knee
+2026-10-22T20:14:00+00:00,DET,2990962,Taurean Prince,day-to-day,0.4,Personal
+2026-10-22T20:14:00+00:00,GSW,4709138,Brandin Podziemski,day-to-day,0.4,Back
+2026-10-22T20:14:00+00:00,GSW,4397886,Charles Bassey,day-to-day,0.4,Knee
+2026-10-22T20:14:00+00:00,GSW,3102531,Kristaps Porzingis,out,1.0,Illness
+2026-10-22T20:14:00+00:00,GSW,4432171,Moses Moody,out,1.0,Left Knee
+2026-10-22T20:14:00+00:00,GSW,6430,Jimmy Butler III,out,1.0,Right Knee
+2026-10-22T20:14:00+00:00,HOU,2991235,Steven Adams,day-to-day,0.4,Right Calf
+2026-10-22T20:14:00+00:00,IND,4396909,Aaron Nesmith,day-to-day,0.4,Left Hamstring
+2026-10-22T20:14:00+00:00,IND,2530530,T.J. McConnell,day-to-day,0.4,Right Hamstring
+2026-10-22T20:14:00+00:00,IND,5157066,Johnny Furphy,out,1.0,Right Knee
+2026-10-22T20:14:00+00:00,LAC,6580,Bradley Beal,out,1.0,Not Specified Knee
+2026-10-22T20:14:00+00:00,LAC,4065778,Max Strus,out,1.0,Right Foot
+2026-10-22T20:14:00+00:00,LAC,5108024,Yanic Konan Niederhauser,out,1.0,Right Foot
+2026-10-22T20:14:00+00:00,LAC,3913176,Brandon Ingram,out,1.0,Not Specified Achilles
+2026-10-22T20:14:00+00:00,LAC,4396818,Jordan Miller,out,1.0,Shoulder
+2026-10-22T20:14:00+00:00,LAL,4592691,Jake LaRavia,day-to-day,0.4,Right Ankle
+2026-10-22T20:14:00+00:00,LAL,5060631,Adou Thiero,day-to-day,0.4,Left Knee
+2026-10-22T20:14:00+00:00,LAL,4277811,Collin Sexton,day-to-day,0.4,Right Calf
+2026-10-22T20:14:00+00:00,LAL,5113969,Cameron Carr,day-to-day,0.4,Right Oblique
+2026-10-22T20:14:00+00:00,MEM,4432810,Isaiah Stewart,day-to-day,0.4,Left Ankle
+2026-10-22T20:14:00+00:00,MIN,3934673,Donte DiVincenzo,out,1.0,Right Achilles
+2026-10-22T20:14:00+00:00,OKC,5159925,Nikola Topic,out,1.0,Not Specified Back
+2026-10-22T20:14:00+00:00,OKC,5061603,Thomas Sorber,out,1.0,Right Knee
+2026-10-22T20:14:00+00:00,OKC,5106270,Otega Oweh,out,1.0,Right Achilles
+2026-10-22T20:14:00+00:00,ORL,4065654,Jonathan Isaac,day-to-day,0.4,Left Knee
+2026-10-22T20:14:00+00:00,ORL,4712849,Anthony Black,day-to-day,0.4,Right Ankle
+2026-10-22T20:14:00+00:00,ORL,5214637,Noah Penda,out,1.0,Right Hamstring
+2026-10-22T20:14:00+00:00,ORL,5107251,Izaiyah Nelson,out,1.0,Left Ankle
+2026-10-22T20:14:00+00:00,PHI,3912848,Dean Wade,day-to-day,0.4,Not Specified Ankle
+2026-10-22T20:14:00+00:00,PHI,3904625,Tacko Fall,out,1.0,Left Quadriceps
+2026-10-22T20:14:00+00:00,PHI,4870562,Dominick Barlow,out,1.0,Back
+2026-10-22T20:14:00+00:00,PHI,4871141,Ariel Hukporti,out,1.0,Right Achilles
+2026-10-22T20:14:00+00:00,PHX,3913174,Luke Kennard,day-to-day,0.4,Left Knee
+2026-10-22T20:14:00+00:00,PHX,4601023,Oso Ighodaro,day-to-day,0.4,Right Hip
+2026-10-22T20:14:00+00:00,PHX,4701232,Mark Williams,out,1.0,Left Shoulder
+2026-10-22T20:14:00+00:00,POR,4592435,Branden Carlson,day-to-day,0.4,Concussion
+2026-10-22T20:14:00+00:00,POR,4706557,Chris Youngblood,day-to-day,0.4,Left Ankle
+2026-10-22T20:14:00+00:00,POR,4914336,Shaedon Sharpe,out,1.0,Right Knee
+2026-10-22T20:14:00+00:00,SAC,4066262,Malik Monk,day-to-day,0.4,Left Ankle
+2026-10-22T20:14:00+00:00,SAC,3907387,Ben Simmons,out,1.0,Achilles
+2026-10-22T20:14:00+00:00,SAC,4433174,Dylan Cardwell,out,1.0,Left Calf
+2026-10-22T20:14:00+00:00,SAC,4898371,Maxime Raynaud,out,1.0,Right Knee
+2026-10-22T20:14:00+00:00,SAS,6440,Tobias Harris,day-to-day,0.4,Left Calf
+2026-10-22T20:14:00+00:00,SAS,5101845,Jayden Quaintance,out,1.0,Right Knee
+2026-10-22T20:14:00+00:00,TOR,4432586,Nate Bittle,out,1.0,Right Foot
+2026-10-22T20:14:00+00:00,UTA,4065673,Tony Bradley,day-to-day,0.4,Left Quadriceps
+2026-10-22T20:14:00+00:00,UTA,4433268,Trey Alexander,day-to-day,0.4,Left Knee
+2026-10-22T20:14:00+00:00,UTA,3102530,Jusuf Nurkic,out,1.0,Right Foot
+2026-10-22T20:14:00+00:00,WAS,5142718,AJ Dybantsa,out,1.0,Left Ankle
+2026-10-22T20:14:00+00:00,WAS,4997537,Tristan Vukcevic,out,1.0,Left Hip
+2026-10-22T20:14:00+00:00,WAS,4606840,Jamir Watkins,out,1.0,Left Knee
