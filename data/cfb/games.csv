@@ -28172,7 +28172,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401871055,2026,8,regular,2026-10-20,False,"Tue Oct 20, 7:00 PM",Florida International,Middle Tennessee,23.0,26.0,49.0,-3.0,False,True,Conference USA,Conference USA,True,2026-10-20T19:00:00-04:00,Tue,fbs,fbs
 401871069,2026,8,regular,2026-10-20,False,"Tue Oct 20, 7:00 PM",Delaware,Missouri State,61.0,38.0,99.0,23.0,False,True,Conference USA,Conference USA,True,2026-10-20T19:00:00-04:00,Tue,fbs,fbs
 401871092,2026,8,regular,2026-10-20,False,"Tue Oct 20, 7:30 PM",Marshall,South Alabama,20.0,13.0,33.0,7.0,False,True,Sun Belt,Sun Belt,True,2026-10-20T19:30:00-04:00,Tue,fbs,fbs
-401871070,2026,8,regular,2026-10-21,False,"Wed Oct 21, 8:00 PM",Sam Houston,New Mexico State,,,,,False,True,Conference USA,Conference USA,False,2026-10-21T20:00:00-04:00,Wed,fbs,fbs
+401871070,2026,8,regular,2026-10-21,False,"Wed Oct 21, 8:00 PM",Sam Houston,New Mexico State,24.0,30.0,54.0,-6.0,False,True,Conference USA,Conference USA,True,2026-10-21T20:00:00-04:00,Wed,fbs,fbs
 401862807,2026,8,regular,2026-10-22,False,"Thu Oct 22, 7:30 PM",Memphis,East Carolina,,,,,False,True,American Athletic,American Athletic,False,2026-10-22T19:30:00-04:00,Thu,fbs,fbs
 401869845,2026,8,regular,2026-10-22,False,"Thu Oct 22, 7:00 PM",App State,James Madison,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-22T19:00:00-04:00,Thu,fbs,fbs
 401871056,2026,8,regular,2026-10-22,False,"Thu Oct 22, 7:00 PM",Kennesaw State,Liberty,,,,,False,True,Conference USA,Conference USA,False,2026-10-22T19:00:00-04:00,Thu,fbs,fbs
