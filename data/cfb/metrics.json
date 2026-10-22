@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-21",
+  "updated": "2026-10-22",
   "break_even": 51.75,
   "venue": "kalshi_taker",
   "totals": {
@@ -14,22 +14,22 @@
       "clv": -0.23
     },
     "all_games": {
-      "n": 519,
-      "wins": 276,
+      "n": 520,
+      "wins": 277,
       "losses": 243,
       "pushes": 0,
-      "win_pct": 53.2,
+      "win_pct": 53.3,
       "units": -4.42,
       "roi": -60.2,
       "clv": -0.12
     },
     "by_class": {
       "fbs": {
-        "n": 379,
-        "wins": 193,
+        "n": 380,
+        "wins": 194,
         "losses": 186,
         "pushes": 0,
-        "win_pct": 50.9,
+        "win_pct": 51.1,
         "units": -2.28,
         "roi": -78.6,
         "clv": -0.33
@@ -55,7 +55,7 @@
       "roi": -100.0,
       "clv": -2.75
     },
-    "mae": 12.26,
+    "mae": 12.25,
     "by_edge": [
       {
         "bucket": "0-1",
@@ -92,14 +92,14 @@
       },
       {
         "bucket": "3-5",
-        "n": 99,
-        "wins": 53,
+        "n": 100,
+        "wins": 54,
         "losses": 46,
         "pushes": 0,
-        "win_pct": 53.5,
+        "win_pct": 54.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.31
+        "clv": 0.3
       },
       {
         "bucket": "5-7",
@@ -137,22 +137,22 @@
       "clv": -0.8
     },
     "all_games": {
-      "n": 519,
-      "wins": 262,
+      "n": 520,
+      "wins": 263,
       "losses": 249,
       "pushes": 8,
-      "win_pct": 51.3,
+      "win_pct": 51.4,
       "units": 0.32,
       "roi": 6.5,
-      "clv": 0.04
+      "clv": 0.05
     },
     "by_class": {
       "fbs": {
-        "n": 379,
-        "wins": 194,
+        "n": 380,
+        "wins": 195,
         "losses": 177,
         "pushes": 8,
-        "win_pct": 52.3,
+        "win_pct": 52.4,
         "units": 1.49,
         "roi": 39.6,
         "clv": 0.03
@@ -178,18 +178,18 @@
       "roi": 95.2,
       "clv": 3.0
     },
-    "mae": 11.56,
+    "mae": 11.54,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 156,
-        "wins": 67,
+        "n": 157,
+        "wins": 68,
         "losses": 87,
         "pushes": 2,
-        "win_pct": 43.5,
+        "win_pct": 43.9,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.17
+        "clv": 0.18
       },
       {
         "bucket": "1-2",
@@ -314,7 +314,7 @@
     },
     {
       "week": 8,
-      "games": 3,
+      "games": 4,
       "total_units": 0.0,
       "spread_units": 0.31,
       "played": 1,
@@ -322,6 +322,6 @@
       "cum_spread": 0.31
     }
   ],
-  "graded_games": 519,
+  "graded_games": 520,
   "fcs_games": 140
 }
