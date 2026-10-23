@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-22",
+  "updated": "2026-10-23",
   "sport": "nfl",
   "break_even": 51.75,
   "venue": "kalshi_taker",
@@ -15,14 +15,14 @@
       "clv": null
     },
     "all_games": {
-      "n": 93,
-      "wins": 42,
+      "n": 94,
+      "wins": 43,
       "losses": 51,
       "pushes": 0,
-      "win_pct": 45.2,
+      "win_pct": 45.7,
       "units": 0.0,
       "roi": 0.0,
-      "clv": -0.25
+      "clv": -0.22
     },
     "last2weeks": {
       "n": 0,
@@ -34,7 +34,7 @@
       "roi": 0.0,
       "clv": null
     },
-    "mae": 10.73,
+    "mae": 10.65,
     "by_edge": [
       {
         "bucket": "0-1",
@@ -49,14 +49,14 @@
       },
       {
         "bucket": "1-2",
-        "n": 29,
-        "wins": 12,
+        "n": 30,
+        "wins": 13,
         "losses": 17,
         "pushes": 0,
-        "win_pct": 41.4,
+        "win_pct": 43.3,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.41
+        "clv": -0.33
       },
       {
         "bucket": "2-3",
@@ -105,14 +105,14 @@
       "clv": null
     },
     "all_games": {
-      "n": 93,
+      "n": 94,
       "wins": 41,
-      "losses": 47,
+      "losses": 48,
       "pushes": 5,
-      "win_pct": 46.6,
+      "win_pct": 46.1,
       "units": 0.0,
       "roi": 0.0,
-      "clv": -0.19
+      "clv": -0.2
     },
     "last2weeks": {
       "n": 0,
@@ -124,18 +124,18 @@
       "roi": 0.0,
       "clv": null
     },
-    "mae": 9.32,
+    "mae": 9.25,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 27,
+        "n": 28,
         "wins": 15,
-        "losses": 11,
+        "losses": 12,
         "pushes": 1,
-        "win_pct": 57.7,
+        "win_pct": 55.6,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.37
+        "clv": -0.41
       },
       {
         "bucket": "1-2",
@@ -232,6 +232,15 @@
     {
       "week": 6,
       "games": 14,
+      "total_units": 0.0,
+      "spread_units": 0.0,
+      "played": 0,
+      "cum_total": 0.0,
+      "cum_spread": 0.0
+    },
+    {
+      "week": 7,
+      "games": 1,
       "total_units": 0.0,
       "spread_units": 0.0,
       "played": 0,
