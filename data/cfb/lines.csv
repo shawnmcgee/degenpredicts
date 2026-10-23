@@ -12045,7 +12045,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401858269,2026,7,2026-10-17,California,Wake Forest,10.0,9.0,53.5,53.5,Bovada,2
 401858270,2026,8,2026-10-24,SMU,California,-19.0,-19.5,55.5,53.5,Bovada,2
 401858271,2026,8,2026-10-23,Virginia,Duke,-2.5,-1.0,47.0,47.0,Bovada,2
-401858272,2026,8,2026-10-23,Stanford,NC State,7.0,7.0,56.0,55.5,Bovada,2
+401858272,2026,8,2026-10-23,Stanford,NC State,7.5,7.0,55.5,55.5,Bovada,2
 401858273,2026,8,2026-10-24,Georgia Tech,Boston College,-5.5,-5.0,50.5,49.5,Bovada,2
 401858274,2026,8,2026-10-24,Miami,Pittsburgh,-20.0,-21.0,48.5,50.5,Bovada,2
 401858275,2026,8,2026-10-24,North Carolina,Syracuse,-9.5,-9.0,47.0,46.0,Bovada,2
@@ -12187,7 +12187,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401861962,2026,1,2026-09-05,UConn,Lafayette,-19.5,-19.5,51.5,51.5,Bovada,2
 401861963,2026,3,2026-09-19,Southern Miss,UConn,3.5,3.5,54.5,54.0,Bovada,2
 401861964,2026,6,2026-10-10,Temple,UConn,-4.0,-4.0,55.5,53.0,Bovada,2
-401861965,2026,8,2026-10-23,UConn,Massachusetts,-14.5,-16.0,50.5,49.0,Bovada,2
+401861965,2026,8,2026-10-23,UConn,Massachusetts,-13.5,-16.0,52.0,49.0,Bovada,2
 401861970,2026,4,2026-09-26,Miami (OH),UConn,-2.5,-4.5,52.0,51.0,Bovada,2
 401862693,2026,1,2026-08-29,UNLV,Memphis,-5.0,-3.0,55.5,60.5,Bovada,2
 401862694,2026,1,2026-09-05,Charlotte,The Citadel,-20.5,-20.0,49.0,46.5,Bovada,2
@@ -12240,8 +12240,8 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401862805,2026,7,2026-10-17,Rice,Tulsa,4.5,4.0,46.5,46.0,Bovada,2
 401862806,2026,7,2026-10-17,South Florida,Kent State,-20.5,-20.0,45.5,46.5,Bovada,2
 401862807,2026,8,2026-10-22,Memphis,East Carolina,-10.5,-10.0,55.5,54.0,Bovada,2
-401862808,2026,8,2026-10-23,Tulsa,Army,-1.5,-1.0,54.0,53.5,Bovada,2
-401862809,2026,8,2026-10-24,Florida Atlantic,Rice,-8.0,-10.0,53.0,56.0,Bovada,2
+401862808,2026,8,2026-10-23,Tulsa,Army,-1.5,-1.0,53.0,53.5,Bovada,2
+401862809,2026,8,2026-10-24,Florida Atlantic,Rice,-8.0,-10.0,53.5,56.0,Bovada,2
 401862810,2026,8,2026-10-24,Navy,North Texas,2.5,2.0,63.0,63.0,Bovada,2
 401862811,2026,8,2026-10-24,Tulane,UTSA,3.0,2.5,51.5,51.5,Bovada,2
 401862844,2026,15,2026-12-12,Army,Navy,2.5,2.5,37.5,37.5,DraftKings,1
@@ -12736,7 +12736,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401870766,2026,6,2026-10-08,Liberty,Sam Houston,-13.5,-14.0,53.0,52.5,Bovada,2
 401870790,2026,1,2026-09-05,New Mexico State,Mercyhurst,-28.5,-28.5,52.0,52.0,Bovada,2
 401870840,2026,5,2026-10-03,Yale,Merrimack,-14.0,-12.5,48.5,51.5,DraftKings,1
-401870841,2026,8,2026-10-23,Pennsylvania,Yale,5.5,4.5,49.5,49.5,DraftKings,1
+401870841,2026,8,2026-10-23,Pennsylvania,Yale,6.5,4.5,49.5,49.5,DraftKings,1
 401871045,2026,2,2026-09-12,Marshall,Middle Tennessee,-13.0,-14.0,55.5,57.5,Bovada,2
 401871046,2026,2,2026-09-12,Missouri State,Lindenwood,-17.0,-17.0,53.0,52.5,Bovada,2
 401871047,2026,3,2026-09-19,Missouri State,Marshall,4.0,4.0,52.5,52.0,Bovada,2
