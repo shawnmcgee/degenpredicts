@@ -14,7 +14,7 @@ import logging
 import re
 import unicodedata
 import statistics
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 
@@ -22,8 +22,15 @@ from .. import config
 from ..config import ET, ODDS_BOOKS, SNAPSHOTS, ODDS_API_KEY, ensure_dirs
 from core.http import get
 
+from . import espn_odds
+
 log = logging.getLogger(__name__)
 URL = "https://api.the-odds-api.com/v4/sports/americanfootball_ncaaf/odds"
+SPORTS_URL = "https://api.the-odds-api.com/v4/sports"      # free: carries the quota headers
+# groups=80 is FBS: without it ESPN returns a curated handful of games, not the slate
+ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard"
+ESPN_PARAMS = {"groups": "80", "limit": "400"}
+MAX_SPREAD = 70.0
 
 # The Odds API sends "Ole Miss Rebels"; CFBD sends "Ole Miss". Strip the mascot by matching
 # against the known CFBD team list, with a few names that don't reduce cleanly.
@@ -190,14 +197,47 @@ def _fetch():
     return get(URL, params={**base, "regions": "us"})
 
 
+def credits_left() -> int | None:
+    """Credits left on the shared key, from a call The Odds API does not charge for. None when
+    the balance could not be read - which is not the same as zero."""
+    r = get(SPORTS_URL, params={"apiKey": ODDS_API_KEY})
+    try:
+        return int(float(r.headers.get("x-requests-remaining")))
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+def use_odds_api() -> bool:
+    """Spend credits this run? Not without a key, and not once fewer than ODDS_RESERVE are
+    left: the other boards share the key, and running it dry takes their prices down too."""
+    if not ODDS_API_KEY:
+        return False
+    left = credits_left()
+    if left is not None and left < config.ODDS_RESERVE:
+        log.warning("Odds API: %d credits left, under the %d-credit reserve - using ESPN's free "
+                    "prices until they reset on the 1st", left, config.ODDS_RESERVE)
+        return False
+    return True
+
+
 def snapshot(matcher=None) -> pd.DataFrame:
+    """Live spreads and totals: The Odds API while the key has credits to spare, ESPN's free
+    scoreboard (its partner book) once it is under the reserve or the call fails."""
     if not ODDS_API_KEY:
         log.info("ODDS_API_KEY unset - skipping live prices, using CFBD numbers at -110")
         return pd.DataFrame()
-    r = _fetch()
-    if r is None or r.status_code != 200:
-        log.warning("Odds API unavailable: %s", getattr(r, "status_code", "no response"))
+    if use_odds_api():
+        r = _fetch()
+        if r is not None and r.status_code == 200:
+            return _oddsapi_frame(r, matcher)
+        log.warning("Odds API unavailable (%s) - using ESPN's free prices this run",
+                    getattr(r, "status_code", "no response"))
+    if config.ODDS_FALLBACK != "espn":
         return pd.DataFrame()
+    return espn_snapshot(matcher)
+
+
+def _oddsapi_frame(r, matcher=None) -> pd.DataFrame:
     log.info("Odds API quota used=%s remaining=%s",
              r.headers.get("x-requests-used"), r.headers.get("x-requests-remaining"))
     pulled = datetime.utcnow().isoformat(timespec="seconds")
@@ -243,7 +283,8 @@ def snapshot(matcher=None) -> pd.DataFrame:
                      "spread_away_price": s_away, "spread_book": s_book, "spread_n_books": s_n,
                      "p_over_mkt": p_o, "p_under_mkt": p_u,
                      "p_home_mkt": p_h, "p_away_mkt": p_a,
-                     "quotes": json.dumps(quotes(ev), separators=(",", ":"))})
+                     "quotes": json.dumps(quotes(ev), separators=(",", ":")),
+                     "price_source": "oddsapi"})
     if in_play:
         log.info("odds: skipped %d games already under way (in-play prices)", in_play)
     df = pd.DataFrame(rows)
@@ -251,6 +292,93 @@ def snapshot(matcher=None) -> pd.DataFrame:
         log.warning("%d Odds API team names unmatched: %s",
                     len(matcher.unmatched), sorted(matcher.unmatched))
     return df
+
+
+def _espn_day(day) -> list[dict]:
+    r = get(ESPN_URL, params={"dates": day.strftime("%Y%m%d"), **ESPN_PARAMS})
+    if r is None or r.status_code != 200:
+        return []
+    try:
+        return espn_odds.parse_scoreboard(r.json(), MAX_SPREAD)
+    except ValueError:
+        return []
+
+
+def _espn_name(team: dict, matcher):
+    """ESPN's "School Mascot" first, as from The Odds API; then the bare school ("App State",
+    "UL Monroe"), which ESPN sometimes spells differently from the mascot form."""
+    full = team["displayName"]
+    if matcher is None:
+        return full
+    got = matcher(full)
+    unmatched = getattr(matcher, "unmatched", set())
+    if full in unmatched:
+        for alt in (team["location"], team["shortDisplayName"]):
+            if alt:
+                other = matcher(alt)
+                if alt not in unmatched:
+                    unmatched.discard(full)
+                    return other
+                unmatched.discard(alt)
+    return got
+
+
+def espn_snapshot(matcher=None) -> pd.DataFrame:
+    """The same rows from ESPN's scoreboard: one book (its partner, DraftKings), no key, no
+    credits. Games already under way are skipped, as from The Odds API."""
+    today = config.today_et()
+    events = {}
+    for i in range(config.BOARD_DAYS + 1):
+        for e in _espn_day(today + timedelta(days=i)):
+            events[e["event_id"]] = e
+    now = config.now_et()
+    pulled = now.astimezone(timezone.utc).isoformat(timespec="seconds")
+    rows, in_play = [], 0
+    for e in events.values():
+        if not (espn_odds.finite(e["spread_home"]) or espn_odds.finite(e["total_line"])):
+            continue
+        if e["state"] not in ("pre", "") or e["start"] <= now:
+            in_play += 1
+            continue
+        et = e["start"].tz_convert(ET)
+        home, away = _espn_name(e["home"], matcher), _espn_name(e["away"], matcher)
+        book = e["provider"] or espn_odds.PROVIDER
+        sh, sp_h, sp_a = e["spread_home"], e["spread_home_price"], e["spread_away_price"]
+        tl, po, pu = e["total_line"], e["over_price"], e["under_price"]
+        p_o, p_u = espn_odds.devig_two(po, pu)
+        p_h, p_a = espn_odds.devig_two(sp_h, sp_a)
+        key = book.lower().replace(" ", "")
+        q = []
+        if espn_odds.finite(sh):
+            q += [{"book": book, "key": key, "m": "spread", "side": "home", "point": sh,
+                   "price": sp_h}, {"book": book, "key": key, "m": "spread", "side": "away",
+                                    "point": -sh, "price": sp_a}]
+        if espn_odds.finite(tl):
+            q += [{"book": book, "key": key, "m": "total", "side": side, "point": tl, "price": pr}
+                  for side, pr in (("over", po), ("under", pu))]
+        q = [x for x in q if espn_odds.finite(x["price"])]
+        nan = lambda v: v if espn_odds.finite(v) else None
+        rows.append({"pulled_at": pulled, "event_id": f"espn:{e['event_id']}", "date": et.date(),
+                     "tip_et": et.strftime("%a %b %d, %-I:%M %p"),
+                     "home_team": home, "away_team": away,
+                     "home_raw": e["home"]["displayName"], "away_raw": e["away"]["displayName"],
+                     "live_total": tl, "over_price": nan(po), "under_price": nan(pu),
+                     "total_book": book if espn_odds.finite(tl) else "none",
+                     "total_n_books": int(espn_odds.finite(tl)),
+                     "live_spread_home": sh, "spread_home_price": nan(sp_h),
+                     "spread_away_price": nan(sp_a),
+                     "spread_book": book if espn_odds.finite(sh) else "none",
+                     "spread_n_books": int(espn_odds.finite(sh)),
+                     "p_over_mkt": p_o, "p_under_mkt": p_u, "p_home_mkt": p_h, "p_away_mkt": p_a,
+                     "quotes": json.dumps(q, separators=(",", ":")), "price_source": "espn"})
+    if in_play:
+        log.info("ESPN: skipped %d games already under way", in_play)
+    log.info("ESPN scoreboard: %d games priced (%s)", len(rows),
+             ", ".join(sorted({r["spread_book"] for r in rows} - {"none"})) or "-")
+    if matcher is not None and getattr(matcher, "unmatched", None):
+        log.warning("%d ESPN team names unmatched: %s", len(matcher.unmatched),
+                    sorted(matcher.unmatched))
+    return pd.DataFrame(rows)
 
 
 def append_snapshot(df: pd.DataFrame) -> None:

@@ -33,6 +33,15 @@ CFBD_KEY = os.environ.get("CFBD_API_KEY", "")
 CFBD_BASE = os.environ.get("CFBD_BASE", "https://api.collegefootballdata.com").rstrip("/")
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")   # optional: live prices for EV/Kelly
 
+# --- running low on Odds API credits -------------------------------------------------------
+# Every board that prices off The Odds API shares one key and the free plan's 500 credits a
+# month. Before spending any, a run reads the key's balance from a free call; with fewer than
+# DEGEN_ODDS_RESERVE left - or if the paid call fails - it takes ESPN's free scoreboard prices
+# (its partner book, DraftKings) instead, until the credits reset on the 1st. 0 turns the
+# reserve off; DEGEN_ODDS_FALLBACK=none goes without prices instead of using ESPN.
+ODDS_RESERVE = int(os.environ.get("DEGEN_ODDS_RESERVE", "").strip() or 75)
+ODDS_FALLBACK = (os.environ.get("DEGEN_ODDS_FALLBACK", "").strip() or "espn").lower()
+
 # CFBD line providers, best first. CFBD returns several per game.
 PREFERRED_PROVIDERS = ["Bovada", "DraftKings", "ESPN Bet", "consensus", "teamrankings",
                        "numberfire", "William Hill (New Jersey)"]

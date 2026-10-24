@@ -24,7 +24,7 @@ from __future__ import annotations
 import logging
 import statistics
 from collections import Counter
-from datetime import timezone
+from datetime import timedelta, timezone
 
 import numpy as np
 import pandas as pd
@@ -32,10 +32,16 @@ import pandas as pd
 from .. import config
 from ..http import get
 from ..odds_math import devig_two
-from ..teams import UnknownTeam, from_name
+from ..teams import UnknownTeam, canon, from_name
+from . import espn_odds
 
 log = logging.getLogger(__name__)
 URL = "https://api.the-odds-api.com/v4/sports/icehockey_nhl/odds"
+SPORTS_URL = "https://api.the-odds-api.com/v4/sports"      # free: carries the quota headers
+ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard"
+# A puck line is 1.5 (2.5 now and then); ESPN's flat `details` is sometimes the moneyline
+# ("TOR -150"), and anything past this is that, not a handicap.
+MAX_SPREAD = 3.0
 
 SNAP_COLS = ["pulled_at", "event_id", "commence_time", "date", "home_team", "away_team",
              "home_dec", "away_dec", "p_home", "n_ml", "total_line", "over_dec", "under_dec",
@@ -100,17 +106,50 @@ def parse_event(ev: dict) -> dict | None:
             "n_pl": n_pl}
 
 
+def credits_left() -> int | None:
+    """Credits left on the shared key, from a call The Odds API does not charge for. None when
+    the balance could not be read - which is not the same as zero."""
+    r = get(SPORTS_URL, params={"apiKey": config.ODDS_API_KEY})
+    try:
+        return int(float(r.headers.get("x-requests-remaining")))
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+def use_odds_api() -> bool:
+    """Spend credits this run? Not without a key, and not once fewer than ODDS_RESERVE are
+    left: the other boards share the key, and running it dry takes their prices down too."""
+    if not config.ODDS_API_KEY:
+        return False
+    left = credits_left()
+    if left is not None and left < config.ODDS_RESERVE:
+        log.warning("Odds API: %d credits left, under the %d-credit reserve - using ESPN's free "
+                    "prices until they reset on the 1st", left, config.ODDS_RESERVE)
+        return False
+    return True
+
+
 def snapshot() -> pd.DataFrame:
-    """Every posted NHL game with its consensus prices. Empty without a key or on any failure."""
+    """Every posted NHL game with its prices: The Odds API's consensus while the key has
+    credits to spare, ESPN's free scoreboard (its partner book) once it is under the reserve or
+    the call fails. Empty without a key."""
     if not config.ODDS_API_KEY:
         log.info("ODDS_API_KEY unset - no live prices, so nothing on the board can be staked")
         return pd.DataFrame(columns=SNAP_COLS)
-    r = get(URL, params={"apiKey": config.ODDS_API_KEY, "regions": "us",
-                         "markets": "h2h,spreads,totals", "oddsFormat": "decimal",
-                         "dateFormat": "iso"})
-    if r is None or r.status_code != 200:
-        log.warning("Odds API unavailable: %s", getattr(r, "status_code", "no response"))
+    if use_odds_api():
+        r = get(URL, params={"apiKey": config.ODDS_API_KEY, "regions": "us",
+                             "markets": "h2h,spreads,totals", "oddsFormat": "decimal",
+                             "dateFormat": "iso"})
+        if r is not None and r.status_code == 200:
+            return _oddsapi_frame(r)
+        log.warning("Odds API unavailable (%s) - using ESPN's free prices this run",
+                    getattr(r, "status_code", "no response"))
+    if config.ODDS_FALLBACK != "espn":
         return pd.DataFrame(columns=SNAP_COLS)
+    return espn_snapshot()
+
+
+def _oddsapi_frame(r) -> pd.DataFrame:
     log.info("Odds API quota used=%s remaining=%s",
              r.headers.get("x-requests-used"), r.headers.get("x-requests-remaining"))
     now = config.now_et()
@@ -124,6 +163,68 @@ def snapshot() -> pd.DataFrame:
     rows = [x for x in rows if pd.Timestamp(x["commence_time"]) > now]
     for x in rows:
         x["pulled_at"] = pulled
+    return pd.DataFrame(rows, columns=SNAP_COLS)
+
+
+def _club(team: dict) -> str | None:
+    for name in (team["displayName"], team["abbreviation"]):
+        try:
+            return from_name(name) if name == team["displayName"] else canon(name)
+        except UnknownTeam:
+            continue
+    log.warning("ESPN: unmapped NHL club %r (%s)", team["displayName"], team["abbreviation"])
+    return None
+
+
+def _espn_day(day) -> list[dict]:
+    r = get(ESPN_URL, params={"dates": day.strftime("%Y%m%d")})
+    if r is None or r.status_code != 200:
+        return []
+    try:
+        return espn_odds.parse_scoreboard(r.json(), MAX_SPREAD)
+    except ValueError:
+        return []
+
+
+def espn_snapshot() -> pd.DataFrame:
+    """The same consensus rows from ESPN's scoreboard - one book, so every n_* is 1 - with
+    prices turned to decimal and de-vigged the way the Odds API rows are."""
+    today = config.today_et()
+    events = {}
+    for i in range(config.BOARD_DAYS + 1):
+        for e in _espn_day(today + timedelta(days=i)):
+            events[e["event_id"]] = e
+    now = config.now_et()
+    pulled = now.astimezone(timezone.utc).isoformat(timespec="seconds")
+    rows, in_play = [], 0
+    d = espn_odds.to_decimal
+    for e in events.values():
+        if not any(espn_odds.finite(e[k]) for k in ("home_ml", "total_line", "spread_home")):
+            continue
+        if e["state"] not in ("pre", "") or e["start"] <= now:
+            in_play += 1
+            continue
+        home, away = _club(e["home"]), _club(e["away"])
+        if home is None or away is None:
+            continue
+        hd, ad = d(e["home_ml"]), d(e["away_ml"])
+        od, ud = d(e["over_price"]), d(e["under_price"])
+        phd, pad = d(e["spread_home_price"]), d(e["spread_away_price"])
+        tl, pl = e["total_line"], e["spread_home"]
+        n = lambda *v: int(all(espn_odds.finite(x) for x in v))
+        rows.append({"pulled_at": pulled, "event_id": f"espn:{e['event_id']}",
+                     "commence_time": e["start"].isoformat(),
+                     "date": e["start"].tz_convert(config.ET).date(),
+                     "home_team": home, "away_team": away,
+                     "home_dec": hd, "away_dec": ad, "p_home": devig_two(hd, ad), "n_ml": n(hd, ad),
+                     "total_line": tl, "over_dec": od, "under_dec": ud,
+                     "p_over": devig_two(od, ud), "n_total": n(tl, od, ud),
+                     "pl_home": pl, "pl_home_dec": phd, "pl_away_dec": pad,
+                     "p_pl_home": devig_two(phd, pad), "n_pl": n(pl, phd, pad)})
+    if in_play:
+        log.info("ESPN: skipped %d games already under way", in_play)
+    log.info("ESPN scoreboard: %d NHL games priced, %d with a moneyline, %d with a puck line",
+             len(rows), sum(r["n_ml"] for r in rows), sum(r["n_pl"] for r in rows))
     return pd.DataFrame(rows, columns=SNAP_COLS)
 
 

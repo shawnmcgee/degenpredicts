@@ -44,6 +44,7 @@ from ..teams import UnknownTeam, from_name
 
 log = logging.getLogger(__name__)
 URL = "https://api.the-odds-api.com/v4/sports/basketball_nba/odds"
+SPORTS_URL = "https://api.the-odds-api.com/v4/sports"      # free: carries the quota headers
 
 SNAP_COLS = ["pulled_at", "source", "game_id", "event_id", "commence_time", "date", "home_team",
              "away_team", "provider", "spread_home", "spread_home_dec", "spread_away_dec",
@@ -135,12 +136,34 @@ def oddsapi_rows() -> pd.DataFrame:
     return df.reindex(columns=SNAP_COLS)
 
 
+def credits_left() -> int | None:
+    """Credits left on the shared key, from a call The Odds API does not charge for."""
+    r = get(SPORTS_URL, params={"apiKey": config.ODDS_API_KEY})
+    try:
+        return int(float(r.headers.get("x-requests-remaining")))
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
 def snapshot() -> pd.DataFrame:
-    """Every posted game that has not tipped, from the configured source. Empty on failure."""
+    """Every posted game that has not tipped, from the configured source. Empty on failure.
+
+    With ``DEGEN_NBA_ODDS=oddsapi`` the board still steps back to ESPN once the shared key is
+    under the ``DEGEN_ODDS_RESERVE`` credits the other boards need, or the call fails."""
     src = config.ODDS_SOURCE
     if src == "none":
         return pd.DataFrame(columns=SNAP_COLS)
-    if src == "oddsapi":
+    if src == "oddsapi" and config.ODDS_API_KEY:
+        left = credits_left()
+        if left is not None and left < config.ODDS_RESERVE:
+            log.warning("Odds API: %d credits left, under the %d-credit reserve - using ESPN's "
+                        "free prices until they reset on the 1st", left, config.ODDS_RESERVE)
+        else:
+            rows = oddsapi_rows()
+            if len(rows) or config.ODDS_FALLBACK != "espn":
+                return rows
+            log.warning("no Odds API prices - using ESPN's this run")
+    elif src == "oddsapi":
         return oddsapi_rows()
     if src != "espn":
         log.warning("unknown DEGEN_NBA_ODDS=%r - using espn", src)

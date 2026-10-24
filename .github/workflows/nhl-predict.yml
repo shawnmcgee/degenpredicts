@@ -29,6 +29,9 @@ jobs:
       # costs 3 Odds API credits (three markets, one region), so two runs a day is ~180 a month.
       - env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          # Under this many credits left on the shared key, the board takes ESPN's free prices
+          # until the reset on the 1st (default 75).
+          DEGEN_ODDS_RESERVE: ${{ vars.DEGEN_ODDS_RESERVE }}
           DEGEN_NHL_SPREAD_EV: ${{ vars.DEGEN_NHL_SPREAD_EV }}
           DEGEN_NHL_TOTAL_EV: ${{ vars.DEGEN_NHL_TOTAL_EV }}
           DEGEN_KELLY: ${{ vars.DEGEN_KELLY }}

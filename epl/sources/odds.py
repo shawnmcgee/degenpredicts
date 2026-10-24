@@ -23,7 +23,7 @@ from __future__ import annotations
 import difflib
 import logging
 import statistics
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import numpy as np
 import pandas as pd
@@ -35,9 +35,14 @@ from ..config import ensure_dirs
 from ..teams import CLUBS, canon, is_known
 from ..odds_math import devig_three, devig_two
 from ..http import get
+from . import espn_odds
 
 log = logging.getLogger(__name__)
 URL = "https://api.the-odds-api.com/v4/sports/soccer_epl/odds"
+SPORTS_URL = "https://api.the-odds-api.com/v4/sports"      # free: carries the quota headers
+ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/scoreboard"
+ESPN_LEAGUES = {"E0": "eng.1", "E1": "eng.2", "E2": "eng.3", "E3": "eng.4"}
+MAX_SPREAD = 3.0                 # goals: anything wider is not a handicap
 DRAW = "Draw"
 
 
@@ -118,17 +123,51 @@ def _totals(bm):
     return None
 
 
+def credits_left() -> int | None:
+    """Credits left on the shared key, from a call The Odds API does not charge for. None when
+    the balance could not be read - which is not the same as zero."""
+    r = get(SPORTS_URL, params={"apiKey": config.ODDS_API_KEY})
+    try:
+        return int(float(r.headers.get("x-requests-remaining")))
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+def use_odds_api() -> bool:
+    """Spend credits this run? Not without a key, and not once fewer than ODDS_RESERVE are
+    left: the other boards share the key, and running it dry takes their prices down too.
+    This board is the most expensive of them - two regions, six credits a run."""
+    if not config.ODDS_API_KEY:
+        return False
+    left = credits_left()
+    if left is not None and left < config.ODDS_RESERVE:
+        log.warning("Odds API: %d credits left, under the %d-credit reserve - using ESPN's free "
+                    "prices until they reset on the 1st", left, config.ODDS_RESERVE)
+        return False
+    return True
+
+
 def snapshot(matcher=None) -> pd.DataFrame:
-    """Live 1X2 and over/under prices, in decimal."""
+    """Live 1X2 and over/under prices, in decimal: The Odds API while the key has credits to
+    spare, ESPN's free scoreboard (its partner book) once it is under the reserve or the call
+    fails. The board is built from this feed, so without either there is no board."""
     if not config.ODDS_API_KEY:
         log.info("config.ODDS_API_KEY unset - skipping live prices, using football-data's")
         return pd.DataFrame()
-    r = get(URL, params={"apiKey": config.ODDS_API_KEY, "regions": "uk,eu",
-                         "markets": "h2h,totals,spreads", "oddsFormat": "decimal",
-                         "dateFormat": "iso"})
-    if r is None or r.status_code != 200:
-        log.warning("Odds API unavailable: %s", getattr(r, "status_code", "no response"))
+    if use_odds_api():
+        r = get(URL, params={"apiKey": config.ODDS_API_KEY, "regions": "uk,eu",
+                             "markets": "h2h,totals,spreads", "oddsFormat": "decimal",
+                             "dateFormat": "iso"})
+        if r is not None and r.status_code == 200:
+            return _oddsapi_frame(r, matcher)
+        log.warning("Odds API unavailable (%s) - using ESPN's free prices this run",
+                    getattr(r, "status_code", "no response"))
+    if config.ODDS_FALLBACK != "espn":
         return pd.DataFrame()
+    return espn_snapshot(matcher)
+
+
+def _oddsapi_frame(r, matcher=None) -> pd.DataFrame:
     log.info("Odds API quota used=%s remaining=%s",
              r.headers.get("x-requests-used"), r.headers.get("x-requests-remaining"))
     pulled = datetime.utcnow().isoformat(timespec="seconds")
@@ -183,12 +222,81 @@ def snapshot(matcher=None) -> pd.DataFrame:
                      "live_ah_home": ah, "live_price_ah_home": pah_h,
                      "live_price_ah_away": pah_a, "book_ah": b3, "n_books_ah": n3,
                      "p_home_mkt": mh, "p_draw_mkt": md, "p_away_mkt": ma,
-                     "p_over_mkt": p_o, "p_under_mkt": p_u})
+                     "p_over_mkt": p_o, "p_under_mkt": p_u, "price_source": "odds-api"})
     df = pd.DataFrame(rows)
     if matcher is not None and getattr(matcher, "unmatched", None):
         log.warning("%d Odds API club names unmatched: %s",
                     len(matcher.unmatched), sorted(matcher.unmatched))
     return df
+
+
+def _espn_day(day) -> list[dict]:
+    league = ESPN_LEAGUES.get(config.LEAGUE, "eng.1")
+    r = get(ESPN_URL.format(league=league), params={"dates": day.strftime("%Y%m%d")})
+    if r is None or r.status_code != 200:
+        return []
+    try:
+        return espn_odds.parse_scoreboard(r.json(), MAX_SPREAD)
+    except ValueError:
+        return []
+
+
+def espn_snapshot(matcher=None) -> pd.DataFrame:
+    """The same rows from ESPN's scoreboard: its partner book's three-way moneyline, total and
+    handicap where it quotes one, turned to decimal and de-vigged the way the Odds API rows
+    are. A fixture without all three 1X2 prices is left out - the board's supremacy is read
+    off that price, and two legs of it is not a price."""
+    today = config.today_et()
+    events = {}
+    for i in range(config.BOARD_DAYS + 1):
+        for e in _espn_day(today + timedelta(days=i)):
+            events[e["event_id"]] = e
+    now = datetime.now(timezone.utc)
+    pulled = now.isoformat(timespec="seconds")
+    rows, started, no_price = [], 0, 0
+    d = espn_odds.to_decimal
+    for e in events.values():
+        if e["state"] not in ("pre", "") or e["start"] <= pd.Timestamp(now):
+            started += 1
+            continue
+        ph, pdw, pa = d(e["home_ml"]), d(e["draw_ml"]), d(e["away_ml"])
+        if not all(espn_odds.finite(x) for x in (ph, pdw, pa)):
+            no_price += 1
+            continue
+        tl, po, pu = e["total_line"], d(e["over_price"]), d(e["under_price"])
+        ah, pah_h, pah_a = e["spread_home"], d(e["spread_home_price"]), d(e["spread_away_price"])
+        uk = e["start"].tz_convert(config.UK)
+        h_raw, a_raw = e["home"]["displayName"], e["away"]["displayName"]
+        home = matcher(h_raw) if matcher else h_raw
+        away = matcher(a_raw) if matcher else a_raw
+        book = e["provider"] or espn_odds.PROVIDER
+        mh, md, ma = devig_three(ph, pdw, pa)
+        p_o, p_u = devig_two(po, pu)
+        has_ou = all(espn_odds.finite(x) for x in (tl, po, pu))
+        has_ah = all(espn_odds.finite(x) for x in (ah, pah_h, pah_a))
+        rows.append({"pulled_at": pulled, "event_id": f"espn:{e['event_id']}", "date": uk.date(),
+                     "kickoff": uk.strftime("%H:%M"),
+                     "kickoff_uk": uk.strftime("%a %d %b, %H:%M"),
+                     "home_team": home, "away_team": away, "home_raw": h_raw, "away_raw": a_raw,
+                     "live_price_home": ph, "live_price_draw": pdw, "live_price_away": pa,
+                     "book_1x2": book, "n_books_1x2": 1,
+                     "live_total_line": tl if has_ou else float("nan"),
+                     "live_price_over": po if has_ou else float("nan"),
+                     "live_price_under": pu if has_ou else float("nan"),
+                     "book_ou": book if has_ou else "none", "n_books_ou": int(has_ou),
+                     "live_ah_home": ah if has_ah else float("nan"),
+                     "live_price_ah_home": pah_h if has_ah else float("nan"),
+                     "live_price_ah_away": pah_a if has_ah else float("nan"),
+                     "book_ah": book if has_ah else "none", "n_books_ah": int(has_ah),
+                     "p_home_mkt": mh, "p_draw_mkt": md, "p_away_mkt": ma,
+                     "p_over_mkt": p_o if has_ou else float("nan"),
+                     "p_under_mkt": p_u if has_ou else float("nan"), "price_source": "espn"})
+    log.info("ESPN scoreboard: %d fixtures priced (%d already started, %d without a full 1X2)",
+             len(rows), started, no_price)
+    if matcher is not None and getattr(matcher, "unmatched", None):
+        log.warning("%d ESPN club names unmatched: %s", len(matcher.unmatched),
+                    sorted(matcher.unmatched))
+    return pd.DataFrame(rows)
 
 
 def board(matcher=None) -> pd.DataFrame:
@@ -236,7 +344,8 @@ def board(matcher=None) -> pd.DataFrame:
             "matchweek": _cfg.matchweek(gdate, season),
             "home_team": r["home_team"], "away_team": r["away_team"],
             "completed": False, "no_crowd": 0,
-            "odds_source": f"odds-api:{r.get('book_1x2') or 'consensus'}", "is_closing": False,
+            "odds_source": f"{r.get('price_source') or 'odds-api'}:{r.get('book_1x2') or 'consensus'}",
+            "is_closing": False,
             "price_home": ph, "price_draw": pdw, "price_away": pa,
             "ah_home": ah,
             "price_ah_home": r.get("live_price_ah_home"),
@@ -261,9 +370,14 @@ def _game_id(season, home, away):
 
 
 def append_snapshot(df: pd.DataFrame) -> None:
+    """Append a pull, in the file's own column order. A plain append of a frame with a column
+    the file has never had (`price_source` arrived with the ESPN fallback) would write rows
+    longer than the header and leave the file unreadable."""
     if df.empty:
         return
     ensure_dirs()
+    if config.SNAPSHOTS.exists():
+        df = df.reindex(columns=pd.read_csv(config.SNAPSHOTS, nrows=0).columns.tolist())
     df.to_csv(config.SNAPSHOTS, mode="a", header=not config.SNAPSHOTS.exists(), index=False)
 
 
