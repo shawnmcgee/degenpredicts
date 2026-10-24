@@ -28176,11 +28176,11 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401862807,2026,8,regular,2026-10-22,False,"Thu Oct 22, 7:30 PM",Memphis,East Carolina,41.0,34.0,75.0,7.0,False,True,American Athletic,American Athletic,True,2026-10-22T19:30:00-04:00,Thu,fbs,fbs
 401869845,2026,8,regular,2026-10-22,False,"Thu Oct 22, 7:00 PM",App State,James Madison,34.0,31.0,65.0,3.0,False,True,Sun Belt,Sun Belt,True,2026-10-22T19:00:00-04:00,Thu,fbs,fbs
 401871056,2026,8,regular,2026-10-22,False,"Thu Oct 22, 7:00 PM",Kennesaw State,Liberty,6.0,34.0,40.0,-28.0,False,True,Conference USA,Conference USA,True,2026-10-22T19:00:00-04:00,Thu,fbs,fbs
-401858271,2026,8,regular,2026-10-23,False,"Fri Oct 23, 7:00 PM",Virginia,Duke,,,,,False,True,ACC,ACC,False,2026-10-23T19:00:00-04:00,Fri,fbs,fbs
-401858272,2026,8,regular,2026-10-23,False,"Fri Oct 23, 10:30 PM",Stanford,NC State,,,,,False,True,ACC,ACC,False,2026-10-23T22:30:00-04:00,Fri,fbs,fbs
-401861965,2026,8,regular,2026-10-23,False,"Fri Oct 23, 7:00 PM",UConn,Massachusetts,,,,,False,False,FBS Independents,Mid-American,False,2026-10-23T19:00:00-04:00,Fri,fbs,fbs
-401862808,2026,8,regular,2026-10-23,False,"Fri Oct 23, 8:30 PM",Tulsa,Army,,,,,False,True,American Athletic,American Athletic,False,2026-10-23T20:30:00-04:00,Fri,fbs,fbs
-401864525,2026,8,regular,2026-10-23,False,"Fri Oct 23, 9:00 PM",Wyoming,Air Force,,,,,False,True,Mountain West,Mountain West,False,2026-10-23T21:00:00-04:00,Fri,fbs,fbs
+401858271,2026,8,regular,2026-10-23,False,"Fri Oct 23, 7:00 PM",Virginia,Duke,16.0,19.0,35.0,-3.0,False,True,ACC,ACC,True,2026-10-23T19:00:00-04:00,Fri,fbs,fbs
+401858272,2026,8,regular,2026-10-23,False,"Fri Oct 23, 10:30 PM",Stanford,NC State,31.0,28.0,59.0,3.0,False,True,ACC,ACC,True,2026-10-23T22:30:00-04:00,Fri,fbs,fbs
+401861965,2026,8,regular,2026-10-23,False,"Fri Oct 23, 7:00 PM",UConn,Massachusetts,35.0,16.0,51.0,19.0,False,False,FBS Independents,Mid-American,True,2026-10-23T19:00:00-04:00,Fri,fbs,fbs
+401862808,2026,8,regular,2026-10-23,False,"Fri Oct 23, 8:30 PM",Tulsa,Army,35.0,38.0,73.0,-3.0,False,True,American Athletic,American Athletic,True,2026-10-23T20:30:00-04:00,Fri,fbs,fbs
+401864525,2026,8,regular,2026-10-23,False,"Fri Oct 23, 9:00 PM",Wyoming,Air Force,28.0,14.0,42.0,14.0,False,True,Mountain West,Mountain West,True,2026-10-23T21:00:00-04:00,Fri,fbs,fbs
 401867955,2026,8,regular,2026-10-23,False,"Fri Oct 23, 5:00 PM",Delaware State,North Carolina Central,,,,,False,True,MEAC,MEAC,False,2026-10-23T17:00:00-04:00,Fri,,
 401870841,2026,8,regular,2026-10-23,False,"Fri Oct 23, 7:00 PM",Pennsylvania,Yale,,,,,False,True,Ivy,Ivy,False,2026-10-23T19:00:00-04:00,Fri,,
 401908352,2026,8,regular,2026-10-23,False,"Fri Oct 23, 6:00 PM",Johns Hopkins,Gettysburg,,,,,False,True,Centennial,Centennial,False,2026-10-23T18:00:00-04:00,Fri,,
