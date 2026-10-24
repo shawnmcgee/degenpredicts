@@ -2078,7 +2078,7 @@ athlete_id,name,pos
 4432737,Jaden Bradley,G
 4432808,James Wiseman,C
 4432809,Cole Anthony,G
-4432810,Isaiah Stewart,F
+4432810,Isaiah Stewart,C
 4432811,Josh Green,G
 4432812,Scottie Lewis,G
 4432813,Jeremiah Robinson-Earl,F
@@ -2364,10 +2364,13 @@ athlete_id,name,pos
 5105832,Nick Martinelli,F
 5105837,Bruce Thornton,G
 5105839,Brice Sensabaugh,F
+5105841,Felix Okpara,F
 5105977,Rasheer Fleming,F
+5106040,Tobi Lawal,F
 5106058,Emanuel Sharp,G
 5106060,Jarace Walker,F
 5106258,Gradey Dick,G
+5106262,Zuby Ejiofor,F
 5106268,Nae'Qwan Tomlin,F
 5107156,Lachlan Olbrich,C
 5107157,Ryan Conwell,G
@@ -2420,4 +2423,5 @@ athlete_id,name,pos
 5279129,Sergio de Larrea,F
 5279130,Nolan Traore,G
 5279133,Joan Beringer,F
+5281370,Hannes Steinbach,F
 5289900,Mohamed Diawara,F
