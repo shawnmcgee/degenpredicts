@@ -31,6 +31,9 @@ jobs:
       # spends 3 credits a run from the key the other four boards share, so it is opt-in.
       - env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          # Under this many credits left on the shared key, the board takes ESPN's free prices
+          # until the reset on the 1st (default 75).
+          DEGEN_ODDS_RESERVE: ${{ vars.DEGEN_ODDS_RESERVE }}
           DEGEN_NBA_ODDS: ${{ vars.DEGEN_NBA_ODDS }}
           DEGEN_NBA_SPREAD_EDGE: ${{ vars.DEGEN_NBA_SPREAD_EDGE }}
           DEGEN_NBA_TOTAL_EDGE: ${{ vars.DEGEN_NBA_TOTAL_EDGE }}

@@ -157,6 +157,36 @@ worse, and closes itself after the reset. Close it yourself to say "I know", and
 for the rest of the month unless things get worse. **Actions → Odds API quota → Run workflow**
 shows this month's usage at any time.
 
+### 8. Running low: every board switches itself to ESPN
+
+Five boards can spend the one key — college football (2 credits a run), the NFL (2), the NHL (3,
+twice a day), the Premier League (6: two regions) and, only if you opt in, the NBA (3). October
+2026 had it down to 56 credits by the 22nd at about 19 a day.
+
+So before spending anything, each run reads the key's balance from the same free `/v4/sports`
+call. **Under `DEGEN_ODDS_RESERVE` credits (75), or if the paid call fails outright, the board
+takes ESPN's free scoreboard prices instead** — its partner book, DraftKings — and goes back to
+The Odds API on its own once the credits reset on the 1st. The log says which:
+`Odds API: 18 credits left, under the 75-credit reserve - using ESPN's free prices until they
+reset on the 1st`, then `ESPN scoreboard: N games priced`.
+
+What you give up for those days is the consensus: one book's line instead of the median of six,
+and on the NFL and college cards the "best price" shopping shows DraftKings only (Kalshi's own
+ladders still come straight from Kalshi, which never cost credits). The models, thresholds and
+grading are unchanged — they were built on sportsbook lines, and a sportsbook line is what they
+get. Rows are marked `price_source: espn` in each board's snapshots.
+
+ESPN's feed is the one the NBA board has priced from since launch, so its shape is proven; each
+board reads it through its own copy of `sources/espn_odds.py` (four identical copies, one per
+sport, per the isolation rule below — `tests/test_odds_fallback.py` fails if they drift). The
+NHL copy refuses a "spread" bigger than 3, because ESPN's flat `details` field is sometimes the
+moneyline ("TOR -150"). The Premier League board needs all three legs of the 1X2 price, since
+its market supremacy is read off them; a fixture ESPN quotes without a draw price is left off.
+
+`DEGEN_ODDS_RESERVE=0` turns the reserve off; `DEGEN_ODDS_FALLBACK=none` goes without prices
+instead of using ESPN. With no `ODDS_API_KEY` at all nothing changes: the boards run on their
+own free sources as before.
+
 ---
 
 ## About this weekend
@@ -1880,6 +1910,8 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_NHL_SPLIT_SHRINK` / `DEGEN_NHL_TOTAL_SHRINK` | 0.5 / 0.25 | fallback shrinks, used only when too few priced games exist to fit them |
 | `DEGEN_NHL_DOCS` | `docs/nhl` | where the NHL board is written |
 | `DEGEN_NHL_STATS_API` | `https://api.nhle.com/stats/rest/en` | the NHL Stats API base |
+| `DEGEN_ODDS_RESERVE` | 75 | under this many Odds API credits left, or when the paid call fails, every board prices off ESPN's free scoreboard until the reset on the 1st; 0 turns it off |
+| `DEGEN_ODDS_FALLBACK` | `espn` | `none` goes without prices instead of using ESPN when the reserve is hit |
 | `DEGEN_ODDS_ALERT_BELOW` | 100 | the quota alert opens an issue once fewer credits than this remain and this month's pace would use them up before the reset |
 | `DEGEN_NBA_ODDS` | `espn` | where NBA prices come from: `espn` (free, ESPN's partner book), `oddsapi` (The Odds API consensus, 3 credits a run from the shared key) or `none` |
 | `DEGEN_NBA_SPREAD_EDGE` / `DEGEN_NBA_TOTAL_EDGE` | 3.0 / 5.0 | min points of the market-aware model's raw disagreement with the line to stake an NBA spread / total |

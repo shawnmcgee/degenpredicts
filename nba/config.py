@@ -72,6 +72,15 @@ MODEL_DIR = DATA / "models"
 
 # --- credentials and sources --------------------------------------------------------
 ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")
+
+# --- running low on Odds API credits -------------------------------------------------------
+# Every board that prices off The Odds API shares one key and the free plan's 500 credits a
+# month. Before spending any, a run reads the key's balance from a free call; with fewer than
+# DEGEN_ODDS_RESERVE left - or if the paid call fails - it takes ESPN's free scoreboard prices
+# (its partner book, DraftKings) instead, until the credits reset on the 1st. 0 turns the
+# reserve off; DEGEN_ODDS_FALLBACK=none goes without prices instead of using ESPN.
+ODDS_RESERVE = _env_int("DEGEN_ODDS_RESERVE", 75)
+ODDS_FALLBACK = _env("DEGEN_ODDS_FALLBACK", "espn").lower()
 # "espn" (default): the free ESPN scoreboard's lines and prices, one book, no quota.
 # "oddsapi": The Odds API's consensus across US books - 3 credits a run, from the shared key.
 # "none": no prices at all; the board still predicts every game.

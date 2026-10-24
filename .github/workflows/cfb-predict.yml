@@ -21,6 +21,9 @@ jobs:
       - env:
           CFBD_API_KEY: ${{ secrets.CFBD_API_KEY }}
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          # Under this many credits left on the shared key, the board takes ESPN's free prices
+          # until the reset on the 1st (default 75).
+          DEGEN_ODDS_RESERVE: ${{ vars.DEGEN_ODDS_RESERVE }}
         run: |
           python -m cfb.predict ${{ inputs.week && format('--week {0}', inputs.week) || '' }}
           python -m cfb.site

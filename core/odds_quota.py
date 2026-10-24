@@ -46,9 +46,11 @@ ALERTS = ("low", "out", "refused")
 # The pace is read as if at least this many days of the month had passed. On the morning of the
 # 1st the month holds a single run's usage, and extrapolating that to 30 days cries wolf.
 MIN_PACE_DAYS = 3.0
-WHAT_TO_DO = ("**What to do:** upgrade the plan at the-odds-api.com, or pause a board you can "
-              "spare until the reset (**Actions → its picks workflow → ⋯ → Disable workflow**). "
-              "This issue refreshes itself on each daily check and closes once the credits reset.")
+WHAT_TO_DO = ("**Nothing has to be done:** under `DEGEN_ODDS_RESERVE` credits (75 unless the "
+              "repo variable says otherwise) every board switches itself to ESPN's free prices "
+              "until the reset, and back to The Odds API after it. To keep the multi-book prices "
+              "instead, upgrade the plan at the-odds-api.com. This issue refreshes itself on each "
+              "daily check and closes once the credits reset.")
 
 
 def _env_int(name: str, default: int) -> int:

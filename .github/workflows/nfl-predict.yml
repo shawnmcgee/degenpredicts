@@ -23,6 +23,9 @@ jobs:
       # nflverse's numbers and assumes -110 rather than pricing EV against a real book.
       - env:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          # Under this many credits left on the shared key, the board takes ESPN's free prices
+          # until the reset on the 1st (default 75).
+          DEGEN_ODDS_RESERVE: ${{ vars.DEGEN_ODDS_RESERVE }}
           # Kalshi's NFL series tickers, overridable as repo variables (Settings ->
           # Secrets and variables -> Actions -> Variables). Confirm the defaults once with
           # `python -m nfl.sources.kalshi --discover`; leave the variables unset to keep

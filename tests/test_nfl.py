@@ -1545,6 +1545,8 @@ def test_every_shop_book_is_asked_for_at_one_regions_cost(env, monkeypatch):
             return [event]
 
     def get(url, params=None):
+        if url == odds.SPORTS_URL:              # the free balance check: no headers, so unknown
+            return Response(200)
         calls.append(params)
         return Response(422 if "bookmakers" in params and len(calls) == 1 and refuse else 200)
 
