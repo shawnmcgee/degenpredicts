@@ -4729,8 +4729,8 @@ game_id,season,week,date,home_team,away_team,provider,spread_home,spread_open,to
 2026_07_GB_DET,2026,7,2026-10-25,DET,GB,nflverse_close,-3.0,,53.5,,-180.0,150.0,1
 2026_07_IND_MIN,2026,7,2026-10-25,MIN,IND,nflverse_close,-6.5,,41.5,,-290.0,235.0,1
 2026_07_KC_SEA,2026,7,2026-10-25,SEA,KC,nflverse_close,-3.0,,42.5,,-148.0,124.0,1
-2026_07_LA_LV,2026,7,2026-10-25,LV,LA,nflverse_close,3.0,,48.5,,145.0,-175.0,1
-2026_07_MIA_NYJ,2026,7,2026-10-25,NYJ,MIA,nflverse_close,-4.5,,39.5,,-225.0,185.0,1
+2026_07_LA_LV,2026,7,2026-10-25,LV,LA,nflverse_close,3.0,,48.5,,150.0,-180.0,1
+2026_07_MIA_NYJ,2026,7,2026-10-25,NYJ,MIA,nflverse_close,-4.5,,39.5,,-230.0,190.0,1
 2026_07_NYG_HOU,2026,7,2026-10-25,HOU,NYG,nflverse_close,-10.0,,42.5,,-500.0,380.0,1
 2026_07_PIT_NO,2026,7,2026-10-25,NO,PIT,nflverse_close,3.0,,44.5,,136.0,-162.0,1
 2026_07_SF_ATL,2026,7,2026-10-25,ATL,SF,nflverse_close,2.5,,49.5,,124.0,-148.0,1
