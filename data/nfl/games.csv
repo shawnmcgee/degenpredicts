@@ -4732,7 +4732,7 @@ game_id,season,week,season_type,playoff_round,date,tip_et,kickoff_utc,start_time
 2026_07_LA_LV,2026,7,REG,0,2026-10-25,"Sun Oct 25, 4:25 PM",2026-10-25T16:25:00-04:00,False,Sunday,LV,LA,,,,,False,False,AFC West,NFC West,7.0,7.0,dome,grass,,,VEG00,Kirk Cousins,Matthew Stafford,False
 2026_07_MIA_NYJ,2026,7,REG,0,2026-10-25,"Sun Oct 25, 1:00 PM",2026-10-25T13:00:00-04:00,False,Sunday,NYJ,MIA,,,,,False,True,AFC East,AFC East,7.0,14.0,outdoors,fieldturf,,,NYC01,Geno Smith,Malik Willis,False
 2026_07_NYG_HOU,2026,7,REG,0,2026-10-25,"Sun Oct 25, 1:00 PM",2026-10-25T13:00:00-04:00,False,Sunday,HOU,NYG,,,,,False,False,AFC South,NFC East,7.0,7.0,,astroturf,,,HOU00,C.J. Stroud,J.J. McCarthy,False
-2026_07_PIT_NO,2026,7,REG,0,2026-10-25,"Sun Oct 25, 9:30 AM",2026-10-25T09:30:00-04:00,False,Sunday,NO,PIT,,,,,True,False,NFC South,AFC North,7.0,7.0,dome,sportturf,,,PAR00,Tyler Shough,Aaron Rodgers,False
+2026_07_PIT_NO,2026,7,REG,0,2026-10-25,"Sun Oct 25, 9:30 AM",2026-10-25T09:30:00-04:00,False,Sunday,NO,PIT,10.0,16.0,26.0,-6.0,True,False,NFC South,AFC North,7.0,7.0,dome,,,,PAR00,Tyler Shough,Aaron Rodgers,True
 2026_07_SF_ATL,2026,7,REG,0,2026-10-25,"Sun Oct 25, 1:00 PM",2026-10-25T13:00:00-04:00,False,Sunday,ATL,SF,,,,,False,False,NFC South,NFC West,7.0,6.0,,fieldturf,,,ATL97,Michael Penix Jr.,Brock Purdy,False
 2026_07_TB_CAR,2026,7,REG,0,2026-10-25,"Sun Oct 25, 1:00 PM",2026-10-25T13:00:00-04:00,False,Sunday,CAR,TB,,,,,False,True,NFC South,NFC South,7.0,7.0,outdoors,grass,,,CAR00,Bryce Young,Jalon Daniels,False
 2026_07_DAL_PHI,2026,7,REG,0,2026-10-26,"Mon Oct 26, 8:15 PM",2026-10-26T20:15:00-04:00,False,Monday,PHI,DAL,,,,,False,True,NFC East,NFC East,8.0,8.0,outdoors,grass,,,PHI00,Jalen Hurts,Dak Prescott,False
