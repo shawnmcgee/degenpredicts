@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-10-18T16:11:28+00:00",
+  "trained_at": "2026-10-25T17:31:57+00:00",
   "sklearn": "1.9.1",
   "features": [
     "pos_qb",
@@ -66,61 +66,61 @@
         2025
       ],
       "n": 3621,
-      "mae_model": 60.81,
+      "mae_model": 60.72,
       "mae_baseline": 66.49,
       "mean_outcome": 232.28,
-      "mean_pred": 232.94,
+      "mean_pred": 233.32,
       "proxy_line": {
         "what": "a line at the player's trailing average, the crude opener a book starts from. Books use far more than that, so these rates flatter the model; they are a floor on competence, not a measure of edge",
         "n_raw": 2639,
-        "brier_raw": 0.223,
+        "brier_raw": 0.2224,
         "calibration_raw": [
           {
             "bucket": "20%-30%",
-            "n": 103,
+            "n": 115,
             "predicted": 26.2,
-            "actual": 30.1
+            "actual": 33.9
           },
           {
             "bucket": "30%-40%",
-            "n": 334,
+            "n": 320,
             "predicted": 35.4,
-            "actual": 33.5
+            "actual": 31.2
           },
           {
             "bucket": "40%-50%",
-            "n": 532,
+            "n": 521,
             "predicted": 45.2,
-            "actual": 45.7
+            "actual": 44.9
           },
           {
             "bucket": "50%-60%",
-            "n": 661,
+            "n": 667,
             "predicted": 55.0,
-            "actual": 52.8
+            "actual": 52.9
           },
           {
             "bucket": "60%-70%",
-            "n": 400,
-            "predicted": 64.5,
-            "actual": 56.0
+            "n": 405,
+            "predicted": 64.4,
+            "actual": 57.8
           },
           {
             "bucket": "70%-80%",
-            "n": 217,
-            "predicted": 74.5,
-            "actual": 70.5
+            "n": 219,
+            "predicted": 74.3,
+            "actual": 68.0
           },
           {
             "bucket": "80%-90%",
-            "n": 155,
+            "n": 159,
             "predicted": 84.7,
-            "actual": 76.1
+            "actual": 77.4
           },
           {
             "bucket": "90%-100%",
-            "n": 212,
-            "predicted": 95.4,
+            "n": 213,
+            "predicted": 95.3,
             "actual": 92.0
           }
         ],
@@ -132,74 +132,74 @@
         ],
         "n": 2106,
         "over_rate": 55.2,
-        "brier_model": 0.2217,
+        "brier_model": 0.2211,
         "brier_trailing_avg": 0.2265,
         "calibration": [
           {
             "bucket": "20%-30%",
-            "n": 80,
-            "predicted": 26.3,
-            "actual": 31.2
+            "n": 85,
+            "predicted": 26.6,
+            "actual": 37.6
           },
           {
             "bucket": "30%-40%",
-            "n": 295,
-            "predicted": 35.8,
-            "actual": 35.3
+            "n": 282,
+            "predicted": 35.7,
+            "actual": 31.9
           },
           {
             "bucket": "40%-50%",
-            "n": 555,
+            "n": 580,
             "predicted": 45.3,
-            "actual": 47.6
+            "actual": 47.8
           },
           {
             "bucket": "50%-60%",
-            "n": 575,
-            "predicted": 54.3,
-            "actual": 53.9
+            "n": 565,
+            "predicted": 54.5,
+            "actual": 55.8
           },
           {
             "bucket": "60%-70%",
-            "n": 256,
-            "predicted": 64.4,
-            "actual": 67.2
+            "n": 244,
+            "predicted": 64.3,
+            "actual": 64.8
           },
           {
             "bucket": "70%-80%",
-            "n": 145,
-            "predicted": 74.8,
-            "actual": 78.6
+            "n": 154,
+            "predicted": 75.0,
+            "actual": 77.3
           },
           {
             "bucket": "80%-90%",
-            "n": 101,
+            "n": 95,
             "predicted": 85.3,
-            "actual": 81.2
+            "actual": 85.3
           },
           {
             "bucket": "90%-100%",
-            "n": 94,
-            "predicted": 94.5,
-            "actual": 95.7
+            "n": 95,
+            "predicted": 94.6,
+            "actual": 94.7
           }
         ],
         "always_under_hit_rate": 44.8,
         "trailing_avg_side_hit_rate": 60.2,
-        "side_hit_rate_all": 62.2,
-        "side_hit_rate_confident": 72.5,
-        "n_confident": 976,
-        "stderr_confident": 1.6
+        "side_hit_rate_all": 62.5,
+        "side_hit_rate_confident": 72.7,
+        "n_confident": 961,
+        "stderr_confident": 1.61
       },
       "platt": {
-        "a": -0.0917,
-        "b": 0.7888
+        "a": -0.0989,
+        "b": 0.8012
       },
       "per_season": [
         {
           "season": 2019,
           "n": 489,
-          "mae_model": 62.37,
+          "mae_model": 62.84,
           "mae_baseline": 66.75
         },
         {
@@ -211,35 +211,35 @@
         {
           "season": 2021,
           "n": 533,
-          "mae_model": 60.0,
+          "mae_model": 60.12,
           "mae_baseline": 67.17
         },
         {
           "season": 2022,
           "n": 526,
-          "mae_model": 58.54,
+          "mae_model": 58.33,
           "mae_baseline": 63.08
         },
         {
           "season": 2023,
           "n": 537,
-          "mae_model": 61.69,
+          "mae_model": 61.2,
           "mae_baseline": 68.03
         },
         {
           "season": 2024,
           "n": 508,
-          "mae_model": 59.87,
+          "mae_model": 59.5,
           "mae_baseline": 67.11
         },
         {
           "season": 2025,
           "n": 535,
-          "mae_model": 60.04,
+          "mae_model": 59.91,
           "mae_baseline": 64.52
         }
       ],
-      "n_train": 6290
+      "n_train": 6318
     },
     "rush_yds": {
       "market": "rush_yds",
@@ -253,56 +253,56 @@
         2025
       ],
       "n": 13568,
-      "mae_model": 18.29,
+      "mae_model": 18.31,
       "mae_baseline": 18.55,
       "mean_outcome": 29.93,
-      "mean_pred": 29.68,
+      "mean_pred": 29.71,
       "proxy_line": {
         "what": "a line at the player's trailing average, the crude opener a book starts from. Books use far more than that, so these rates flatter the model; they are a floor on competence, not a measure of edge",
         "n_raw": 9809,
-        "brier_raw": 0.2337,
+        "brier_raw": 0.234,
         "calibration_raw": [
           {
             "bucket": "10%-20%",
-            "n": 202,
-            "predicted": 16.9,
-            "actual": 24.8
+            "n": 194,
+            "predicted": 17.0,
+            "actual": 25.8
           },
           {
             "bucket": "20%-30%",
             "n": 1282,
             "predicted": 26.1,
-            "actual": 28.6
+            "actual": 27.3
           },
           {
             "bucket": "30%-40%",
-            "n": 3208,
+            "n": 3276,
             "predicted": 35.4,
             "actual": 36.0
           },
           {
             "bucket": "40%-50%",
-            "n": 3102,
+            "n": 3056,
             "predicted": 44.6,
-            "actual": 41.5
+            "actual": 42.2
           },
           {
             "bucket": "50%-60%",
-            "n": 1431,
-            "predicted": 54.2,
+            "n": 1421,
+            "predicted": 54.4,
             "actual": 49.1
           },
           {
             "bucket": "60%-70%",
-            "n": 470,
-            "predicted": 64.1,
-            "actual": 60.0
+            "n": 449,
+            "predicted": 63.9,
+            "actual": 59.5
           },
           {
             "bucket": "70%-80%",
-            "n": 91,
-            "predicted": 74.0,
-            "actual": 59.3
+            "n": 103,
+            "predicted": 73.4,
+            "actual": 58.3
           }
         ],
         "seasons": [
@@ -313,62 +313,56 @@
         ],
         "n": 7857,
         "over_rate": 39.6,
-        "brier_model": 0.232,
+        "brier_model": 0.2323,
         "brier_trailing_avg": 0.2386,
         "calibration": [
           {
-            "bucket": "10%-20%",
-            "n": 30,
-            "predicted": 17.3,
-            "actual": 13.3
-          },
-          {
             "bucket": "20%-30%",
-            "n": 633,
-            "predicted": 27.1,
-            "actual": 24.2
+            "n": 545,
+            "predicted": 27.2,
+            "actual": 24.6
           },
           {
             "bucket": "30%-40%",
-            "n": 3451,
-            "predicted": 35.8,
-            "actual": 34.7
+            "n": 3599,
+            "predicted": 35.9,
+            "actual": 34.5
           },
           {
             "bucket": "40%-50%",
-            "n": 3014,
+            "n": 3035,
             "predicted": 44.1,
-            "actual": 44.4
+            "actual": 44.9
           },
           {
             "bucket": "50%-60%",
-            "n": 656,
-            "predicted": 53.5,
-            "actual": 56.9
+            "n": 597,
+            "predicted": 53.2,
+            "actual": 56.6
           },
           {
             "bucket": "60%-70%",
-            "n": 70,
-            "predicted": 63.2,
-            "actual": 60.0
+            "n": 55,
+            "predicted": 62.9,
+            "actual": 54.5
           }
         ],
         "always_under_hit_rate": 60.4,
         "trailing_avg_side_hit_rate": 60.3,
-        "side_hit_rate_all": 61.7,
-        "side_hit_rate_confident": 66.9,
-        "n_confident": 4187,
+        "side_hit_rate_all": 61.5,
+        "side_hit_rate_confident": 66.7,
+        "n_confident": 4225,
         "stderr_confident": 0.77
       },
       "platt": {
-        "a": -0.1551,
-        "b": 0.7239
+        "a": -0.1589,
+        "b": 0.7087
       },
       "per_season": [
         {
           "season": 2019,
           "n": 1791,
-          "mae_model": 18.58,
+          "mae_model": 18.61,
           "mae_baseline": 18.69
         },
         {
@@ -380,35 +374,35 @@
         {
           "season": 2021,
           "n": 1965,
-          "mae_model": 18.25,
+          "mae_model": 18.27,
           "mae_baseline": 18.62
         },
         {
           "season": 2022,
           "n": 1997,
-          "mae_model": 18.56,
+          "mae_model": 18.62,
           "mae_baseline": 18.95
         },
         {
           "season": 2023,
           "n": 1972,
-          "mae_model": 17.52,
+          "mae_model": 17.57,
           "mae_baseline": 17.81
         },
         {
           "season": 2024,
           "n": 1964,
-          "mae_model": 18.6,
+          "mae_model": 18.59,
           "mae_baseline": 18.63
         },
         {
           "season": 2025,
           "n": 1963,
-          "mae_model": 17.99,
+          "mae_model": 18.0,
           "mae_baseline": 18.32
         }
       ],
-      "n_train": 23494
+      "n_train": 23594
     },
     "rec_yds": {
       "market": "rec_yds",
@@ -422,50 +416,50 @@
         2025
       ],
       "n": 31519,
-      "mae_model": 18.17,
+      "mae_model": 18.15,
       "mae_baseline": 18.53,
       "mean_outcome": 26.98,
-      "mean_pred": 27.21,
+      "mean_pred": 27.23,
       "proxy_line": {
         "what": "a line at the player's trailing average, the crude opener a book starts from. Books use far more than that, so these rates flatter the model; they are a floor on competence, not a measure of edge",
         "n_raw": 12496,
-        "brier_raw": 0.2303,
+        "brier_raw": 0.2298,
         "calibration_raw": [
           {
             "bucket": "10%-20%",
-            "n": 385,
+            "n": 372,
             "predicted": 17.1,
-            "actual": 20.5
+            "actual": 18.8
           },
           {
             "bucket": "20%-30%",
-            "n": 2178,
+            "n": 2285,
             "predicted": 26.0,
-            "actual": 28.2
+            "actual": 28.1
           },
           {
             "bucket": "30%-40%",
-            "n": 4630,
-            "predicted": 35.2,
-            "actual": 35.9
+            "n": 4577,
+            "predicted": 35.3,
+            "actual": 36.2
           },
           {
             "bucket": "40%-50%",
-            "n": 3855,
-            "predicted": 44.4,
-            "actual": 43.3
+            "n": 3801,
+            "predicted": 44.5,
+            "actual": 43.0
           },
           {
             "bucket": "50%-60%",
-            "n": 1260,
-            "predicted": 53.7,
-            "actual": 48.9
+            "n": 1280,
+            "predicted": 53.8,
+            "actual": 50.0
           },
           {
             "bucket": "60%-70%",
-            "n": 154,
-            "predicted": 62.8,
-            "actual": 52.6
+            "n": 155,
+            "predicted": 63.1,
+            "actual": 50.3
           }
         ],
         "seasons": [
@@ -476,50 +470,50 @@
         ],
         "n": 9997,
         "over_rate": 38.2,
-        "brier_model": 0.2305,
+        "brier_model": 0.2301,
         "brier_trailing_avg": 0.2361,
         "calibration": [
           {
             "bucket": "10%-20%",
-            "n": 71,
+            "n": 92,
             "predicted": 17.7,
-            "actual": 7.0
+            "actual": 10.9
           },
           {
             "bucket": "20%-30%",
-            "n": 1395,
-            "predicted": 26.5,
-            "actual": 25.7
+            "n": 1537,
+            "predicted": 26.6,
+            "actual": 26.0
           },
           {
             "bucket": "30%-40%",
-            "n": 5024,
-            "predicted": 35.4,
-            "actual": 36.7
+            "n": 4763,
+            "predicted": 35.3,
+            "actual": 36.9
           },
           {
             "bucket": "40%-50%",
-            "n": 3106,
-            "predicted": 43.8,
-            "actual": 45.6
+            "n": 3137,
+            "predicted": 43.9,
+            "actual": 44.9
           },
           {
             "bucket": "50%-60%",
-            "n": 385,
-            "predicted": 52.7,
-            "actual": 49.9
+            "n": 456,
+            "predicted": 52.9,
+            "actual": 52.9
           }
         ],
         "always_under_hit_rate": 61.8,
         "trailing_avg_side_hit_rate": 61.7,
-        "side_hit_rate_all": 61.7,
-        "side_hit_rate_confident": 66.0,
-        "n_confident": 6506,
+        "side_hit_rate_all": 62.0,
+        "side_hit_rate_confident": 66.1,
+        "n_confident": 6404,
         "stderr_confident": 0.62
       },
       "platt": {
-        "a": -0.1262,
-        "b": 0.7515
+        "a": -0.1147,
+        "b": 0.7746
       },
       "per_season": [
         {
@@ -531,41 +525,41 @@
         {
           "season": 2020,
           "n": 4424,
-          "mae_model": 18.77,
+          "mae_model": 18.72,
           "mae_baseline": 18.99
         },
         {
           "season": 2021,
           "n": 4638,
-          "mae_model": 18.56,
+          "mae_model": 18.51,
           "mae_baseline": 18.91
         },
         {
           "season": 2022,
           "n": 4622,
-          "mae_model": 17.96,
+          "mae_model": 17.98,
           "mae_baseline": 18.35
         },
         {
           "season": 2023,
           "n": 4672,
-          "mae_model": 17.6,
+          "mae_model": 17.59,
           "mae_baseline": 18.04
         },
         {
           "season": 2024,
           "n": 4529,
-          "mae_model": 17.59,
+          "mae_model": 17.55,
           "mae_baseline": 17.95
         },
         {
           "season": 2025,
           "n": 4398,
-          "mae_model": 17.64,
+          "mae_model": 17.67,
           "mae_baseline": 18.01
         }
       ],
-      "n_train": 53873
+      "n_train": 54102
     },
     "receptions": {
       "market": "receptions",
@@ -586,49 +580,49 @@
       "proxy_line": {
         "what": "a line at the player's trailing average, the crude opener a book starts from. Books use far more than that, so these rates flatter the model; they are a floor on competence, not a measure of edge",
         "n_raw": 12500,
-        "brier_raw": 0.2338,
+        "brier_raw": 0.2337,
         "calibration_raw": [
           {
             "bucket": "10%-20%",
-            "n": 581,
-            "predicted": 16.8,
-            "actual": 21.3
+            "n": 540,
+            "predicted": 16.7,
+            "actual": 20.7
           },
           {
             "bucket": "20%-30%",
-            "n": 1467,
-            "predicted": 25.9,
-            "actual": 29.7
+            "n": 1532,
+            "predicted": 25.4,
+            "actual": 29.0
           },
           {
             "bucket": "30%-40%",
-            "n": 3226,
-            "predicted": 35.2,
-            "actual": 35.6
+            "n": 3175,
+            "predicted": 35.4,
+            "actual": 36.1
           },
           {
             "bucket": "40%-50%",
-            "n": 4068,
-            "predicted": 45.1,
-            "actual": 45.5
+            "n": 4058,
+            "predicted": 44.9,
+            "actual": 45.4
           },
           {
             "bucket": "50%-60%",
-            "n": 2368,
-            "predicted": 54.2,
-            "actual": 52.2
+            "n": 2418,
+            "predicted": 54.1,
+            "actual": 51.4
           },
           {
             "bucket": "60%-70%",
-            "n": 642,
-            "predicted": 63.6,
-            "actual": 60.7
+            "n": 614,
+            "predicted": 63.7,
+            "actual": 63.0
           },
           {
             "bucket": "70%-80%",
-            "n": 123,
-            "predicted": 73.5,
-            "actual": 65.9
+            "n": 139,
+            "predicted": 72.9,
+            "actual": 64.7
           }
         ],
         "seasons": [
@@ -639,56 +633,56 @@
         ],
         "n": 10000,
         "over_rate": 42.1,
-        "brier_model": 0.2328,
+        "brier_model": 0.2327,
         "brier_trailing_avg": 0.2394,
         "calibration": [
           {
             "bucket": "10%-20%",
             "n": 98,
-            "predicted": 17.7,
+            "predicted": 17.9,
             "actual": 11.2
           },
           {
             "bucket": "20%-30%",
-            "n": 921,
-            "predicted": 25.6,
-            "actual": 24.8
+            "n": 993,
+            "predicted": 25.7,
+            "actual": 24.9
           },
           {
             "bucket": "30%-40%",
-            "n": 2828,
-            "predicted": 35.6,
-            "actual": 33.4
+            "n": 2768,
+            "predicted": 35.8,
+            "actual": 34.0
           },
           {
             "bucket": "40%-50%",
-            "n": 4161,
-            "predicted": 44.9,
-            "actual": 45.9
+            "n": 4156,
+            "predicted": 45.0,
+            "actual": 45.6
           },
           {
             "bucket": "50%-60%",
-            "n": 1749,
-            "predicted": 53.7,
-            "actual": 54.5
+            "n": 1719,
+            "predicted": 53.6,
+            "actual": 54.6
           },
           {
             "bucket": "60%-70%",
-            "n": 223,
-            "predicted": 63.2,
-            "actual": 68.2
+            "n": 256,
+            "predicted": 63.5,
+            "actual": 66.8
           }
         ],
         "always_under_hit_rate": 57.9,
         "trailing_avg_side_hit_rate": 58.4,
-        "side_hit_rate_all": 60.3,
-        "side_hit_rate_confident": 69.1,
-        "n_confident": 4090,
+        "side_hit_rate_all": 60.4,
+        "side_hit_rate_confident": 68.8,
+        "n_confident": 4125,
         "stderr_confident": 0.78
       },
       "platt": {
-        "a": -0.0434,
-        "b": 0.8201
+        "a": -0.0407,
+        "b": 0.8228
       },
       "per_season": [
         {
@@ -734,7 +728,7 @@
           "mae_baseline": 1.37
         }
       ],
-      "n_train": 53873
+      "n_train": 54102
     },
     "anytime_td": {
       "market": "anytime_td",
@@ -748,7 +742,7 @@
         2025
       ],
       "n": 33133,
-      "log_loss_model": 0.4753,
+      "log_loss_model": 0.4752,
       "log_loss_baseline": 0.5166,
       "log_loss_base_rate": 0.5167,
       "brier_model": 0.1529,
@@ -757,82 +751,82 @@
       "calibration": [
         {
           "bucket": "0%-10%",
-          "n": 7023,
+          "n": 7032,
           "predicted": 7.5,
-          "actual": 8.5
+          "actual": 8.3
         },
         {
           "bucket": "10%-20%",
-          "n": 11622,
+          "n": 11664,
           "predicted": 14.5,
-          "actual": 14.6
+          "actual": 14.9
         },
         {
           "bucket": "20%-30%",
-          "n": 7240,
+          "n": 7169,
           "predicted": 24.6,
-          "actual": 25.9
+          "actual": 25.4
         },
         {
           "bucket": "30%-40%",
-          "n": 4187,
+          "n": 4216,
           "predicted": 34.5,
-          "actual": 34.6
+          "actual": 35.2
         },
         {
           "bucket": "40%-50%",
-          "n": 2006,
-          "predicted": 44.3,
-          "actual": 42.3
+          "n": 1982,
+          "predicted": 44.2,
+          "actual": 41.7
         },
         {
           "bucket": "50%-60%",
-          "n": 822,
-          "predicted": 54.2,
-          "actual": 52.4
+          "n": 836,
+          "predicted": 54.3,
+          "actual": 54.2
         },
         {
           "bucket": "60%-70%",
-          "n": 223,
-          "predicted": 63.6,
-          "actual": 54.7
+          "n": 214,
+          "predicted": 63.4,
+          "actual": 50.5
         }
       ],
       "per_season": [
         {
           "season": 2019,
           "n": 4433,
-          "log_loss_model": 0.4876,
+          "log_loss_model": 0.4884,
           "log_loss_baseline": 0.5351
         },
         {
           "season": 2020,
           "n": 4650,
-          "log_loss_model": 0.5027,
+          "log_loss_model": 0.5024,
           "log_loss_baseline": 0.5399
         },
         {
           "season": 2021,
           "n": 4867,
-          "log_loss_model": 0.4808,
+          "log_loss_model": 0.4812,
           "log_loss_baseline": 0.519
         },
         {
           "season": 2022,
           "n": 4858,
-          "log_loss_model": 0.4641,
+          "log_loss_model": 0.464,
           "log_loss_baseline": 0.5117
         },
         {
           "season": 2023,
           "n": 4852,
-          "log_loss_model": 0.445,
+          "log_loss_model": 0.4453,
           "log_loss_baseline": 0.4857
         },
         {
           "season": 2024,
           "n": 4765,
-          "log_loss_model": 0.4743,
+          "log_loss_model": 0.4729,
           "log_loss_baseline": 0.5089
         },
         {
@@ -845,90 +839,90 @@
       "recalibration": [
         {
           "bucket": "0%-5%",
-          "n": 608,
+          "n": 614,
           "predicted": 4.2,
-          "actual": 7.2
+          "actual": 6.7
         },
         {
           "bucket": "5%-10%",
-          "n": 6415,
+          "n": 6418,
           "predicted": 7.8,
-          "actual": 8.7
+          "actual": 8.5
         },
         {
           "bucket": "10%-15%",
-          "n": 6713,
+          "n": 6735,
           "predicted": 12.4,
-          "actual": 11.9
+          "actual": 12.0
         },
         {
           "bucket": "15%-20%",
-          "n": 4909,
+          "n": 4929,
           "predicted": 17.4,
-          "actual": 18.2
+          "actual": 18.7
         },
         {
           "bucket": "20%-25%",
-          "n": 4079,
+          "n": 4025,
           "predicted": 22.4,
           "actual": 23.5
         },
         {
           "bucket": "25%-30%",
-          "n": 3161,
+          "n": 3144,
           "predicted": 27.4,
-          "actual": 29.0
+          "actual": 28.0
         },
         {
           "bucket": "30%-35%",
-          "n": 2400,
-          "predicted": 32.3,
-          "actual": 32.6
+          "n": 2450,
+          "predicted": 32.4,
+          "actual": 33.3
         },
         {
           "bucket": "35%-40%",
-          "n": 1787,
+          "n": 1766,
           "predicted": 37.4,
-          "actual": 37.2
+          "actual": 37.8
         },
         {
           "bucket": "40%-45%",
-          "n": 1191,
+          "n": 1220,
           "predicted": 42.3,
-          "actual": 40.3
+          "actual": 39.8
         },
         {
           "bucket": "45%-50%",
-          "n": 815,
+          "n": 762,
           "predicted": 47.3,
-          "actual": 45.2
+          "actual": 44.8
         },
         {
           "bucket": "50%-55%",
-          "n": 498,
+          "n": 500,
           "predicted": 52.3,
           "actual": 53.6
         },
         {
           "bucket": "55%-60%",
-          "n": 324,
+          "n": 336,
           "predicted": 57.2,
-          "actual": 50.6
+          "actual": 55.1
         },
         {
           "bucket": "60%-65%",
-          "n": 158,
-          "predicted": 62.2,
-          "actual": 57.6
+          "n": 157,
+          "predicted": 62.1,
+          "actual": 53.5
         },
         {
           "bucket": "65%-70%",
-          "n": 65,
+          "n": 57,
           "predicted": 67.0,
-          "actual": 47.7
+          "actual": 42.1
         }
       ],
-      "n_train": 57091
+      "n_train": 57339
     }
   }
 }
