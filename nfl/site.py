@@ -5,6 +5,11 @@
 No Flask, no server, no uploads. The workflow commits docs/ and Pages publishes it. The NFL
 page lives in a subfolder so it and the college page can share one Pages deployment without
 either overwriting the other's index.html.
+
+The page is a prediction board, not a bet sheet. Every game gets the side of the spread and
+the total the model thinks is likelier to happen, the score it projects, and how far it sits
+from the line. Stakes, prices, EV and play/pass are still computed by predict.py and kept in
+picks.csv and results.csv; they are just not what this page is for.
 """
 from __future__ import annotations
 
@@ -16,43 +21,73 @@ from pathlib import Path
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from . import config, teasers
+from . import config
 
 log = logging.getLogger("nfl.site")
 TEMPLATES = Path(__file__).resolve().parent / "templates"  # ships with the package
 
 
-def _mult(ask, prob):
-    """Turn an exchange ask into what a punter actually reads: a payout multiple.
-
-    You pay `ask` plus the taker fee for a contract that settles at $1, so the return per unit
-    risked is 1/(ask+fee). "Fair" is 1/prob - what the multiple would have to be for the bet to
-    break even at our estimated probability. Edge is the ratio, i.e. the ROI.
-    """
-    from .sources.kalshi import fee
+def _num(v):
     try:
-        ask = float(ask)
-        prob = float(prob)
+        f = float(v)
     except (TypeError, ValueError):
-        return None, None, None
-    if not (0 < ask < 1) or not (0 < prob < 1):
-        return None, None, None
-    cost = ask + fee(ask)
-    if cost <= 0 or cost >= 1:
-        return None, None, None
-    return round(1.0 / cost, 2), round(1.0 / prob, 2), round(100 * (prob / cost - 1), 1)
+        return None
+    return None if f != f else f
 
 
-def _recent_results(limit: int = 12) -> list[dict]:
-    """Last graded games, newest first - gives the page a memory instead of resetting daily."""
-    if not config.RESULTS.exists():
-        return []
-    df = pd.read_csv(config.RESULTS, dtype={"game_id": str})
-    if df.empty:
-        return []
-    df["date"] = pd.to_datetime(df["date"]).dt.date
-    df = df.sort_values("date", ascending=False).head(limit)
-    return df.astype(object).where(pd.notna(df), None).to_dict("records")
+def _gap(disagree) -> float | None:
+    """How many points the model sits from the line, toward the side it picked.
+
+    This is what each card shows as the strength of a lean, rather than a win probability.
+    The calibrated probability (`*_p_win`, the line nudged a tenth of the way toward the
+    model) sits between 50% and 51.5% on nine picks in ten, so printed per card it reads as
+    "50%" on almost every game and tells a reader nothing; the honest calibration is stated
+    once at the top of the page instead. The side is always the direction of the gap, so the
+    absolute value is the whole story.
+    """
+    d = _num(disagree)
+    return round(abs(d), 1) if d is not None else None
+
+
+def _projected(r: dict) -> dict:
+    """The model's own projected final score, read off its raw total and home margin.
+
+    The raw numbers, not the shrunk ones: the shrunk margin is the line nudged a tenth of the
+    way toward the model, so a score built from it would just be the line restated. The side
+    each pick takes comes from the same raw numbers, so the score and the picks always agree.
+    """
+    total = _num(r.get("total_raw"))
+    if total is None:
+        total = _num(r.get("total_pred"))
+    margin = _num(r.get("margin_raw"))
+    if margin is None:
+        margin = _num(r.get("margin_pred"))
+    if total is None or margin is None:
+        return {}
+    home, away = (total + margin) / 2, (total - margin) / 2
+    h, a = r.get("home_team"), r.get("away_team")
+    first = [(h, home), (a, away)] if home >= away else [(a, away), (h, home)]
+    return {"proj": " – ".join(f"{t} {round(p)}" for t, p in first)}
+
+
+def _spread_label(team, number) -> str:
+    n = _num(number)
+    if not team or n is None:
+        return ""
+    return f"{team} PK" if n == 0 else f"{team} {n:+g}"
+
+
+def _model_margin(r: dict) -> str:
+    """'Model: GB by 1.7', said from whichever team the model has winning."""
+    m = _num(r.get("margin_raw"))
+    if m is None:
+        m = _num(r.get("margin_pred"))
+    if m is None:
+        return ""
+    if abs(m) < 0.05:
+        return "Model: dead even"
+    team = r.get("home_team") if m > 0 else r.get("away_team")
+    return f"Model: {team} by {abs(m):.1f}"
 
 
 def _context(g) -> str:
@@ -86,7 +121,7 @@ def _context(g) -> str:
 
 
 def _kick_key(kickoff_utc, tip_et) -> str:
-    """Sort key for the "Sort by kickoff" control: the ISO timestamp, or "" if unannounced.
+    """Sort key for kickoff order: the ISO timestamp, or "" if unannounced.
 
     The page used to sort on the display label ("Wed Sep 09, 8:20 PM"). That sorts
     alphabetically, which means by WEEKDAY NAME - Fri, Mon, Sat, Sun, Thu, Tue, Wed - so
@@ -107,49 +142,20 @@ def _kick_key(kickoff_utc, tip_et) -> str:
 
 
 def _board() -> tuple[list[dict], int | None]:
-    """This week's games, freshest prediction per game, ready for the template."""
+    """This week's games in kickoff order, freshest prediction per game, with a spread pick
+    and a total pick on every one."""
     if not config.PICKS.exists():
         return [], None
     df = pd.read_csv(config.PICKS, dtype={"game_id": str})
     if df.empty:
         return [], None
     df["date"] = pd.to_datetime(df["date"]).dt.date
-    # rows predicted before the board flagged teaser legs get them read off their own line
-    if "teaser_team" not in df and {"spread_home", "total_line"} <= set(df.columns):
-        df = df.join(teasers.legs(df))
     upcoming = df[df["date"] >= config.today_et()]
     df = upcoming if len(upcoming) else df[df["week"] == df["week"].max()]
     week = int(df["week"].mode().iloc[0]) if len(df) else None
     # Everything below adds columns one at a time; copying once here keeps pandas from
     # warning about a fragmented frame on every build.
     df = df.sort_values("prediction_date").drop_duplicates("game_id", keep="last").copy()
-
-    # Rank by the model's largest disagreement with the line, but a tradeable exchange edge
-    # outranks it - that is the only number here tied to a price you could actually pay.
-    df["_rank"] = df[["total_disagree", "margin_disagree"]].abs().max(axis=1).fillna(0)
-    playable = pd.Series(False, index=df.index)
-    for c in ("kt_pick", "ks_pick", "ml_pick"):
-        if c in df:
-            playable |= df[c].notna()
-    df["has_play"] = playable
-    df.loc[playable, "_rank"] = df.loc[playable, "_rank"] + 100
-    df = df.sort_values("_rank", ascending=False)
-
-    for pre, ask_c, prob_c in (("kt", "kt_ask", "kt_prob"), ("ks", "ks_ask", "ks_prob"),
-                               ("ml", "ml_ask", "ml_ref_prob")):
-        ref_ask, ref_prob = f"{pre}_ref_ask", f"{pre}_ref_prob"
-        ask = df[ask_c] if ask_c in df else None
-        if ref_ask in df:
-            ask = df[ref_ask] if ask is None else ask.fillna(df[ref_ask])
-        prob = df[prob_c] if prob_c in df else None
-        if ref_prob in df:
-            prob = df[ref_prob] if prob is None else prob.fillna(df[ref_prob])
-        if ask is None or prob is None:
-            continue
-        trio = [_mult(a, p) for a, p in zip(ask, prob)]
-        df[f"{pre}_pays"] = [t[0] for t in trio]
-        df[f"{pre}_fair"] = [t[1] for t in trio]
-        df[f"{pre}_edge"] = [t[2] for t in trio]
 
     df["day"] = pd.to_datetime(df["date"]).dt.strftime("%a %b %-d")
     df["day_key"] = pd.to_datetime(df["date"]).dt.strftime("%Y-%m-%d")
@@ -159,13 +165,17 @@ def _board() -> tuple[list[dict], int | None]:
     df["kick_sort"] = [_kick_key(k, t) for k, t in
                        zip(df["kickoff_utc"] if "kickoff_utc" in df else _blank,
                            df["tip_et"] if "tip_et" in df else _blank)]
-    div_h = df["home_div"] if "home_div" in df else pd.Series([""] * len(df), index=df.index)
-    div_a = df["away_div"] if "away_div" in df else pd.Series([""] * len(df), index=df.index)
+    # Kickoff order with scripts off too; unannounced kickoffs go last. Parsed, not compared
+    # as text: the feed stamps -04:00 before the clocks change and -05:00 after.
+    df["_at"] = pd.to_datetime(df["kick_sort"].replace("", None), utc=True, errors="coerce")
+    df = df.sort_values(["_at", "date"], na_position="last").drop(columns="_at")
+    div_h = df["home_div"] if "home_div" in df else _blank
+    div_a = df["away_div"] if "away_div" in df else _blank
     df["search"] = (df["home_team"].fillna("") + " " + df["away_team"].fillna("") + " "
                     + div_h.fillna("") + " " + div_a.fillna("") + " "
-                    + df.get("home_qb", pd.Series([""] * len(df), index=df.index)).fillna("")
+                    + df.get("home_qb", _blank).fillna("")
                     + " "
-                    + df.get("away_qb", pd.Series([""] * len(df), index=df.index)).fillna("")
+                    + df.get("away_qb", _blank).fillna("")
                     ).str.lower()
 
     # pandas cannot hold None inside a float64 column, so `where(notna, None)` leaves NaN in
@@ -175,95 +185,87 @@ def _board() -> tuple[list[dict], int | None]:
     records = df.to_dict("records")
     for r in records:
         r["context"] = _context(r)
-        r.update(_shop(r))
+        r.update(_projected(r))
+        r["spread_label"] = _spread_label(r.get("spread_side"), r.get("spread_number")) \
+            or (r.get("spread_pick") or "")
+        r["model_margin"] = _model_margin(r)
+        r["spread_gap"] = _gap(r.get("margin_disagree"))
+        r["total_gap"] = _gap(r.get("total_disagree"))
+        r["lean"] = max(r["spread_gap"] or 0.0, r["total_gap"] or 0.0)
     return records, week
 
 
-KEY_NUMBERS = (3, 7)
-BOOK_NAMES = {"draftkings": "DraftKings", "fanduel": "FanDuel", "kalshi": "Kalshi",
-              "polymarket": "Polymarket", "novig": "Novig", "betmgm": "BetMGM",
-              "williamhill_us": "Caesars", "bovada": "Bovada"}
+def _wlp(results: pd.Series) -> dict:
+    w, l, p = int((results == "win").sum()), int((results == "loss").sum()), \
+        int((results == "push").sum())
+    return {"wins": w, "losses": l, "pushes": p,
+            "pct": round(100 * w / (w + l), 1) if w + l else None}
 
 
-def _price(p) -> str:
-    try:
-        return f"{float(p):+.0f}"
-    except (TypeError, ValueError):
+def _graded_season() -> pd.DataFrame:
+    """This season's graded games: every game, since every game gets a pick."""
+    if not config.RESULTS.exists():
+        return pd.DataFrame()
+    df = pd.read_csv(config.RESULTS, dtype={"game_id": str})
+    if df.empty or "season" not in df:
+        return pd.DataFrame()
+    season = df[df["season"] == config.season_of(config.today_et())]
+    return season if len(season) else df[df["season"] == df["season"].max()]
+
+
+def _records(df: pd.DataFrame) -> dict:
+    """Season and week-by-week records for both markets, newest week first."""
+    if df.empty:
+        return {}
+    weeks = [{"week": int(wk), "spread": _wlp(g["spread_result"]),
+              "total": _wlp(g["total_result"])}
+             for wk, g in df.groupby("week")]
+    weeks.sort(key=lambda w: w["week"], reverse=True)
+    return {"spread": _wlp(df["spread_result"]), "total": _wlp(df["total_result"]),
+            "weeks": weeks, "last": weeks[0] if weeks else None}
+
+
+def _final(r: dict) -> str:
+    """'SEA 20 – KC 3', winner first."""
+    hp, ap = _num(r.get("home_points")), _num(r.get("away_points"))
+    if hp is None or ap is None:
         return ""
+    h, a = (r.get("home_team"), int(hp)), (r.get("away_team"), int(ap))
+    first, second = (h, a) if hp >= ap else (a, h)
+    return f"{first[0]} {first[1]} – {second[0]} {second[1]}"
 
 
-def _num(v):
-    try:
-        f = float(v)
-    except (TypeError, ValueError):
-        return None
-    return None if f != f else f
-
-
-def _key_note(posted, best) -> str:
-    """"through 3" when shopping moves a side across a key number, "off 7" when it moves it
-    off one it would have pushed on. Those half-points are worth several points of cover rate;
-    any other half-point is worth one or two."""
-    if posted is None or best is None or best <= posted:
-        return ""
-    for k in KEY_NUMBERS:
-        for key in (k, -k):
-            if posted < key < best:
-                return f"through {k}"
-            if posted == key < best:
-                return f"off {k}"
-    return ""
-
-
-def _shop(r: dict) -> dict:
-    """What the card says about where to bet each pick: the best price across the shop books
-    and the worst number it is still worth taking. Empty for a row predicted before either
-    existed, or with no shop book quoting it."""
-    out = {}
-    side = r.get("spread_side")
-    num, best = _num(r.get("spread_number")), _num(r.get("spread_best_number"))
-    if r.get("spread_best_book") and best is not None and side:
-        out["spread_best_label"] = f"{side} {best:+g} {_price(r.get('spread_best_price'))}"
-        out["spread_key_note"] = _key_note(num, best)
-    worth = _num(r.get("spread_worth"))
-    if worth is not None and side:
-        out["spread_worth_label"] = f"{side} {worth:+g} or better"
-    pick = r.get("total_pick")
-    tbest = _num(r.get("total_best_number"))
-    if r.get("total_best_book") and tbest is not None and pick:
-        out["total_best_label"] = f"{pick} {tbest:g} {_price(r.get('total_best_price'))}"
-    tworth = _num(r.get("total_worth"))
-    if tworth is not None and pick:
-        out["total_worth_label"] = (f"{pick} {tworth:g} or "
-                                    f"{'lower' if pick == 'Over' else 'higher'}")
-    for k in ("spread", "total"):
-        ev = _num(r.get(f"{k}_best_ev"))
-        out[f"{k}_best_ev_pct"] = round(100 * ev, 1) if ev is not None else None
-    return out
-
-
-def _teaser_backtest() -> list[dict]:
-    """The teaser rule against nflverse's closing lines and finals, by era."""
-    try:
-        from .sources import nflverse
-        return teasers.backtest(nflverse.load_games(), nflverse.load_lines())
-    except Exception as e:                       # the page must render without history
-        log.warning("teaser backtest unavailable: %s", e)
-        return []
-
-
-def _metrics() -> dict:
-    if config.METRICS.exists():
-        return json.loads(config.METRICS.read_text())
-    return {}
+def _last_week(df: pd.DataFrame) -> tuple[int | None, list[dict]]:
+    """Every graded game from the most recent graded week, in kickoff order: the pick on each
+    market, the final score, and whether the pick hit."""
+    if df.empty:
+        return None, []
+    wk = int(df["week"].max())
+    g = df[df["week"] == wk].copy()
+    if "kickoff_utc" in g:
+        g["_at"] = pd.to_datetime(g["kickoff_utc"], utc=True, errors="coerce")
+        g = g.sort_values("_at", na_position="last").drop(columns="_at")
+    g = g.astype(object).where(pd.notna(g), None)
+    rows = []
+    for r in g.to_dict("records"):
+        line = _num(r.get("total_line"))
+        rows.append({
+            "matchup": f"{r.get('away_team')} at {r.get('home_team')}",
+            "final": _final(r),
+            "spread_label": _spread_label(r.get("spread_side"), r.get("spread_number"))
+            or (r.get("spread_pick") or ""),
+            "spread_result": r.get("spread_result"),
+            "total_label": f"{r.get('total_pick')} {line:g}" if line is not None else "",
+            "total_result": r.get("total_result"),
+        })
+    return wk, rows
 
 
 def _model_note() -> dict:
-    """What the last training run concluded, surfaced on the page rather than buried in JSON.
+    """How the model's side has done out of sample, for the 'how to read this' note.
 
-    If the model does not beat the closing line, the page should say so where a reader will
-    see it. Publishing the number while hiding that finding would be the dishonest version of
-    this project.
+    The page should say plainly how often the likelier side actually hit across the
+    walk-forward, so a reader calibrates a 52% against what 52% has meant in the past.
     """
     path = config.MODEL_DIR / "meta.json"
     if not path.exists():
@@ -272,106 +274,14 @@ def _model_note() -> dict:
         meta = json.loads(path.read_text())
     except (ValueError, OSError):
         return {}
-    e = (meta.get("eval") or {}).get("margin_market") or {}
-    if e.get("skipped") or not e:
+    ev = meta.get("eval") or {}
+    sp, tot = ev.get("margin_market") or {}, ev.get("total_market") or {}
+    if sp.get("skipped") or not sp.get("ats_rate"):
         return {}
-    return {"beats_market": e.get("beats_market"), "mae_model": e.get("mae_model"),
-            "mae_market": e.get("mae_market_baseline"), "ats_rate": e.get("ats_rate"),
-            "ats_stderr": e.get("ats_stderr"), "ats_n": e.get("ats_n"),
-            "shrink": e.get("shrink"), "seasons": e.get("test_seasons")}
-
-
-def _backtest_buckets() -> dict:
-    """The out-of-sample disagreement table from the last training run.
-
-    The page's live "cover rate by model disagreement" table is built from graded picks, so
-    it is empty until games have actually been played and stays thin for months afterwards.
-    Meanwhile the walk-forward already measured the same thing across ~1,700 out-of-sample
-    games, and it was sitting unread in models/meta.json. This surfaces it, clearly labelled
-    as a backtest, with the significance correction attached - a bucket that looks strong
-    here has usually not survived the number of segments the report looked at.
-    """
-    path = config.MODEL_DIR / "meta.json"
-    if not path.exists():
-        return {}
-    try:
-        meta = json.loads(path.read_text())
-    except (ValueError, OSError):
-        return {}
-    ev = (meta.get("eval") or {}).get("margin_market") or {}
-    tot = (meta.get("eval") or {}).get("total_market") or {}
-    if ev.get("skipped") or not ev.get("ats_by_disagreement"):
-        return {}
-    by_total = {b.get("disagreement"): b for b in tot.get("ats_by_disagreement") or []}
-    rows = []
-    for b in ev["ats_by_disagreement"]:
-        rows.append({"bucket": b.get("disagreement"),
-                     "spread": b,
-                     "total": by_total.get(b.get("disagreement"))})
-    sig = ev.get("significance") or {}
-    return {"rows": rows,
-            "seasons": ev.get("test_seasons") or [],
-            "n": ev.get("n_test_total"),
-            "z_required": sig.get("z_required"),
-            "verdict": sig.get("verdict"),
-            "break_even": ev.get("break_even_pct")}
-
-
-# A disagreement bucket needs this many graded games before the page colours its hit rate
-# against break-even. The record is printed either way, but colour is what gets read at a
-# glance, and 3-1 is 75% while meaning nothing.
-HIT_RATE_MIN_N = 20
-
-
-def _bucket_range(label) -> tuple[float, float] | None:
-    """Read a grader bucket label back into bounds: "2-3" -> (2, 3), "7-+" -> (7, inf).
-
-    The grader owns the bucket edges. Parsing its labels rather than restating the edges here
-    means a pick can never be matched to a different bucket than the table beside it shows.
-    """
-    lo, _, hi = str(label or "").partition("-")
-    try:
-        return float(lo), (float("inf") if hi == "+" else float(hi))
-    except ValueError:
-        return None
-
-
-def _hit_rows(metrics: dict) -> list[dict]:
-    """This season's hit rate by model-vs-line disagreement, totals and spreads side by side.
-
-    Built from the union of both markets' buckets, so a bucket only one market has reached
-    still gets a row instead of vanishing because the other side had no games in it.
-    """
-    be = metrics.get("break_even")
-    rows: dict[str, dict] = {}
-    for key, side in (("totals", "total"), ("spreads", "spread")):
-        for r in (metrics.get(key) or {}).get("by_edge") or []:
-            bounds = _bucket_range(r.get("bucket"))
-            if bounds is None:
-                continue
-            lo, hi = bounds
-            row = rows.setdefault(r["bucket"], {
-                "lo": lo, "hi": hi, "total": None, "spread": None,
-                "label": f"{lo:g}+" if hi == float("inf") else f"{lo:g}–{hi:g}"})
-            tone = ""
-            if be is not None and (r.get("n") or 0) >= HIT_RATE_MIN_N:
-                tone = "up" if (r.get("win_pct") or 0) > be else "down"
-            row[side] = {**r, "tone": tone}
-    return sorted(rows.values(), key=lambda r: r["lo"])
-
-
-def _hit_for(rows: list[dict], side: str, disagree) -> dict | None:
-    """The season record at a pick's own disagreement, for one market, or None."""
-    try:
-        gap = abs(float(disagree))
-    except (TypeError, ValueError):
-        return None
-    if gap != gap:
-        return None
-    for r in rows:
-        if r["lo"] <= gap < r["hi"]:
-            return {**r[side], "label": r["label"]} if r[side] else None
-    return None
+    seasons = sp.get("test_seasons") or []
+    return {"spread_rate": sp.get("ats_rate"), "spread_n": sp.get("ats_n"),
+            "total_rate": tot.get("ats_rate"), "total_n": tot.get("ats_n"),
+            "first": seasons[0] if seasons else None, "last": seasons[-1] if seasons else None}
 
 
 def _days(picks: list[dict]) -> list[dict]:
@@ -388,29 +298,15 @@ def build() -> None:
     config.ensure_dirs()
     env = Environment(loader=FileSystemLoader(TEMPLATES),
                       autoescape=select_autoescape(["html"]))
-    env.filters["money"] = lambda v: ("+" if (v or 0) >= 0 else "") + f"{v or 0:.2f}"
     picks, week = _board()
-    metrics = _metrics()
-    # Each card carries the season record at its own disagreement, so the hit rate is read
-    # where the pick is, not in a table below the whole board.
-    hit_rows = _hit_rows(metrics)
-    for g in picks:
-        g["total_hit"] = _hit_for(hit_rows, "total", g.get("total_disagree"))
-        g["spread_hit"] = _hit_for(hit_rows, "spread", g.get("margin_disagree"))
+    graded = _graded_season()
+    results_week, results = _last_week(graded)
     published = str(config.today_et())
     html = env.get_template("index.html").render(
-        title=config.SITE_TITLE, picks=picks, m=metrics, week=week,
-        hit_rows=hit_rows, hit_min=HIT_RATE_MIN_N,
-        results=_recent_results(), venue=config.VENUE, model=_model_note(),
+        title=config.SITE_TITLE, picks=picks, week=week, updated=published,
+        days=_days(picks), model=_model_note(), rec=_records(graded),
+        results=results, results_week=results_week,
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL,
-        days=_days(picks), updated=published,
-        backtest=_backtest_buckets(),
-        total_min=config.TOTAL_EDGE_MIN, spread_min=config.SPREAD_EDGE_MIN,
-        teaser_legs=[g for g in picks if g.get("teaser_team")],
-        teaser_season=(metrics.get("teasers") or {}), teaser_backtest=_teaser_backtest(),
-        teaser_be=round(100 * teasers.break_even(), 1), teaser_price=_price(config.TEASER_PRICE),
-        teaser_points=config.TEASER_POINTS, teaser_max_total=config.TEASER_MAX_TOTAL,
-        shop_books=", ".join(BOOK_NAMES.get(b, b.title()) for b in config.SHOP_BOOKS),
     )
     (config.DOCS / "index.html").write_text(html)
     # the chooser's card reads this; metrics.json's `updated` only moves when grading runs

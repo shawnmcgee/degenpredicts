@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from datetime import date, timedelta
 
 import numpy as np
@@ -667,13 +668,14 @@ def test_pipeline(env, monkeypatch):
     assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
     assert "not betting advice" in html and "1-800-GAMBLER" in html, \
         "the page is public: it must carry the responsible-gambling notice"
-    assert "Worth it at" in html and "<h2>Teasers</h2>" in html
-    # a negative CLV is the line moving AGAINST us, and the caption has to say so
-    m["spreads"]["all_games"]["clv"], m["totals"]["all_games"]["clv"] = -0.5, 0.25
-    env.METRICS.write_text(json.dumps(m, default=str))
-    site.build()
-    html = (env.DOCS / "index.html").read_text()
-    assert html.count("line moved against us") == 1 and html.count("line moved our way") == 1
+    # every game gets a pick on both markets, with the score the model projects
+    assert html.count('class="game"') == 16
+    assert html.count("<span>Spread</span>") == 16 and html.count("<span>Total</span>") == 16
+    assert html.count("Projected score <b>") == 16
+    # and every graded game is listed with its final score, not a units column
+    assert "Week 1 results" in html and html.count('<span class="sub fin">') == 16
+    assert html.count('<span class="sub fin">') == len(re.findall(r'class="sub fin">\w+ 27 – \w+ 20<', html))
+    _assert_no_bet_sheet(html)
 
 
 def test_games_under_way_are_never_priced_in_play(env, monkeypatch):
@@ -1235,57 +1237,24 @@ def test_the_nfl_page_is_reachable_from_the_site_root(env):
         assert 'href="../"' in html and 'href="../cfb/"' in html
 
 
-def test_backtest_disagreement_table_fills_the_gap_before_any_grading(env):
-    """The live cover-rate table is empty until games are graded; the backtest is not.
-
-    The page builds "cover rate by model disagreement" from graded picks, so on a board
-    published before kickoff it renders nothing - for the NFL that is the whole preseason and
-    then a thin table for months. The walk-forward already measured the same quantity across
-    ~1,700 out-of-sample games and it was sitting unread in models/meta.json.
-    """
+def test_the_page_states_how_often_the_model_side_has_hit(env):
+    """The board's calibration is said once, plainly, above the picks: how often the model's
+    side hit across the walk-forward. A missing or unreadable meta.json must not take the
+    page down."""
     import json
     from nfl import site
 
     env.ensure_dirs()
     (env.MODEL_DIR / "meta.json").write_text(json.dumps({"eval": {
-        "margin_market": {
-            "test_seasons": [2020, 2025], "n_test_total": 1693, "break_even_pct": 51.75,
-            "ats_by_disagreement": [
-                {"disagreement": "0-1", "n": 517, "cover_pct": 53.2,
-                 "vs_break_even_se": 0.66, "significant": False},
-                {"disagreement": "3-5", "n": 264, "cover_pct": 57.2,
-                 "vs_break_even_se": 1.79, "significant": False},
-            ],
-            "significance": {"z_required": 3.11, "verdict": "no segment survives correction"},
-        },
-        "total_market": {"ats_by_disagreement": [
-            {"disagreement": "0-1", "n": 488, "cover_pct": 49.6,
-             "vs_break_even_se": -0.9, "significant": False}]},
-    }}))
+        "margin_market": {"test_seasons": [2020, 2025], "ats_rate": 51.1, "ats_n": 1660},
+        "total_market": {"ats_rate": 50.9, "ats_n": 1675}}}))
+    assert site._model_note() == {"spread_rate": 51.1, "spread_n": 1660, "total_rate": 50.9,
+                                  "total_n": 1675, "first": 2020, "last": 2025}
 
-    bt = site._backtest_buckets()
-    assert bt["n"] == 1693 and bt["z_required"] == 3.11
-    assert [r["bucket"] for r in bt["rows"]] == ["0-1", "3-5"]
-    # the two markets are paired by bucket, and a bucket missing from one side is tolerated
-    assert bt["rows"][0]["total"]["n"] == 488
-    assert bt["rows"][1]["total"] is None
-
-    # a missing or unreadable meta must not take the page down
     (env.MODEL_DIR / "meta.json").write_text("{not json")
-    assert site._backtest_buckets() == {}
+    assert site._model_note() == {}
     (env.MODEL_DIR / "meta.json").unlink()
-    assert site._backtest_buckets() == {}
-
-
-def test_backtest_table_yields_to_real_graded_results(env):
-    """Once live results exist they are the better evidence and the backtest steps aside."""
-    from pathlib import Path
-    tpl = (Path(__file__).resolve().parent.parent
-           / "nfl" / "templates" / "index.html").read_text()
-    assert "not (m.totals and m.totals.by_edge)" in tpl, (
-        "the backtest section must render only while the live table is empty")
-    assert "backtest" in tpl and "not live picks" in tpl, (
-        "the backtest table must be labelled as a backtest, not passed off as results")
+    assert site._model_note() == {}
 
 
 def test_kalshi_discover_is_runnable_without_a_local_machine(env):
@@ -1424,47 +1393,95 @@ def _rendered_text(html: str) -> str:
     return re.sub(r"<style\b.*?</style>", "", body, flags=re.S | re.I).lower()
 
 
-def test_each_pick_carries_the_season_hit_rate_at_its_own_disagreement(env):
-    """The live cover-rate table sits below the whole board. Each card now shows the row it
-    falls in, uncoloured while the bucket is too thin to say anything, and a floating button
-    jumps to the table itself."""
-    import json
+_BET_SHEET = ("Worth it at", "<h2>Teasers</h2>", "Plays only", "no play", "pays <b",
+              "Kelly", "ROI", "line moved")
+
+
+def _assert_no_bet_sheet(html: str) -> None:
+    """The board is a pick on every game, not a bet sheet: no stakes, prices, EV, units or
+    play/pass anywhere a reader can see. predict.py still computes them into picks.csv."""
+    import re
+    text = re.sub(r"<script\b.*?</script>", "", html, flags=re.S | re.I)
+    for s in _BET_SHEET:
+        assert s not in text, f"bet-sheet text {s!r} is back on the page"
+    assert not re.search(r"\bEV\b|\bunits?\b", text, flags=re.I), "units or EV on the page"
+
+
+def test_every_game_is_a_pick_with_its_projected_score_and_gap_to_the_line(env, monkeypatch,
+                                                                        tmp_path):
+    """Every game gets the side the model thinks is likelier on the spread and the total, the
+    score it projects, and how far it sits from the line. The results list every pick from the
+    last graded week with its final score, and the record counts every game."""
     from nfl import site
 
-    def edge(bucket, wins, losses):
-        return {"bucket": bucket, "n": wins + losses, "wins": wins, "losses": losses,
-                "pushes": 0, "win_pct": round(100 * wins / (wins + losses), 1)}
+    monkeypatch.setattr(env, "PICKS", tmp_path / "picks.csv")
+    monkeypatch.setattr(env, "RESULTS", tmp_path / "results.csv")
 
-    metrics = {"updated": "2026-09-22", "sport": "nfl", "break_even": 51.75,
-               "totals": {"by_edge": [edge("0-1", 4, 5), edge("7-+", 1, 0)]},
-               "spreads": {"by_edge": [edge("1-2", 14, 9), edge("2-3", 1, 4)]}}
-    rows = site._hit_rows(metrics)
-    assert [r["label"] for r in rows] == ["0–1", "1–2", "2–3", "7+"]
-    assert site._hit_for(rows, "spread", -1.6)["tone"] == "up"
-    assert site._hit_for(rows, "spread", 2.8)["tone"] == "", "1-4 is too few games to colour"
-    assert site._hit_for(rows, "total", 9.5)["wins"] == 1
-    assert site._hit_for(rows, "total", 1.5) is None
-    assert site._hit_for(rows, "total", None) is None
+    # the projected score comes from the model's raw numbers, winner first
+    g = {"home_team": "KC", "away_team": "IND", "total_raw": 45.1, "margin_raw": 8.1}
+    assert site._projected(g) == {"proj": "KC 27 – IND 18"}
+    assert site._projected({**g, "margin_raw": -3.0})["proj"].startswith("IND ")
+    assert site._projected({"home_team": "KC", "away_team": "IND"}) == {}
+    # the margin is said from the team the model has winning, never as a signed home number:
+    # "model margin -5.2" on DAL -4.5 read as the model disagreeing with its own pick
+    assert site._model_margin({**g, "margin_raw": -5.2}) == "Model: IND by 5.2"
+    assert site._model_margin({**g, "margin_raw": 0.0}) == "Model: dead even"
+    assert site._spread_label("CAR", 3.0) == "CAR +3"
+    assert site._spread_label("JAX", -7.5) == "JAX -7.5"
+    assert site._spread_label("NYJ", 0.0) == "NYJ PK"
+    assert site._gap(-2.34) == 2.3 and site._gap(None) is None
 
-    env.ensure_dirs()
     pd.DataFrame([{
-        "prediction_date": "2026-09-22", "game_id": "g1", "season": 2026, "week": 3,
+        "prediction_date": "2026-09-22", "game_id": "g1", "season": THIS, "week": 8,
         "date": "2026-09-22", "tip_et": "Mon Sep 22, 8:15 PM",
+        "kickoff_utc": "2026-09-22T20:15:00-04:00",
         "home_team": "KC", "away_team": "IND", "neutral_site": False,
         "total_line": 45.5, "spread_home": -6.5, "total_raw": 45.1, "total_disagree": -0.4,
         "total_pick": "Under", "total_strength": "pass", "margin_raw": 8.1,
-        "margin_disagree": 1.6, "spread_pick": "KC -6.5", "spread_strength": "pass",
+        "margin_disagree": 1.6, "spread_side": "KC", "spread_number": -6.5,
+        "spread_pick": "KC -6.5", "spread_strength": "pass", "spread_stake": 0.0,
         "thin_data": False, "kalshi_incoherent": False,
     }]).to_csv(env.PICKS, index=False)
-    env.METRICS.write_text(json.dumps(metrics))
+
+    def graded(gid, week, kick, home, away, hp, ap, side, num, sres, tpick, tline, tres):
+        return {"game_id": gid, "season": THIS, "week": week, "date": kick[:10],
+                "kickoff_utc": kick, "home_team": home, "away_team": away,
+                "home_points": hp, "away_points": ap, "spread_side": side,
+                "spread_number": num, "spread_result": sres, "total_pick": tpick,
+                "total_line": tline, "total_result": tres}
+
+    results = pd.DataFrame([
+        graded("a", 6, "2026-10-18T13:00:00-04:00", "SEA", "KC", 20, 3, "SEA", -3.0, "win",
+               "Under", 42.5, "win"),
+        # listed out of kickoff order, and the 1pm game is on the later -05:00 offset
+        graded("c", 7, "2026-10-25T20:20:00-04:00", "ARI", "DEN", 16, 30, "ARI", 3.0, "push",
+               "Under", 43.5, "win"),
+        graded("b", 7, "2026-10-25T12:00:00-05:00", "BAL", "CIN", 13, 35, "BAL", 1.5, "loss",
+               "Under", 47.5, "loss"),
+    ])
+    results.to_csv(env.RESULTS, index=False)
+
+    rec = site._records(site._graded_season())
+    assert rec["spread"] == {"wins": 1, "losses": 1, "pushes": 1, "pct": 50.0}
+    assert rec["total"] == {"wins": 2, "losses": 1, "pushes": 0, "pct": 66.7}
+    assert [w["week"] for w in rec["weeks"]] == [7, 6] and rec["last"]["week"] == 7
+
+    wk, rows = site._last_week(site._graded_season())
+    assert wk == 7
+    assert [r["final"] for r in rows] == ["CIN 35 – BAL 13", "DEN 30 – ARI 16"]
+    assert rows[0]["spread_label"] == "BAL +1.5" and rows[0]["total_label"] == "Under 47.5"
 
     site.build()
     html = (env.DOCS / "index.html").read_text()
-    assert 'Hit <b class="">44.4%</b> (4-5) this season at 0–1 pts off' in html
-    assert 'Hit <b class="up">60.9%</b> (14-9) this season at 1–2 pts off' in html
+    assert "Projected score <b>KC 27 – IND 18</b>" in html
+    assert "KC -6.5" in html and "Model: KC by 8.1" in html and "Under 45.5" in html
+    assert "1.6 pts off" in html and "0.4 pts off" in html
+    assert "Week 7 results" in html and "CIN 35 – BAL 13" in html
+    assert "SEA 20 – KC 3" not in html, "only the most recent graded week is listed"
+    assert ">1-1-1<" in html and ">2-1<" in html
     assert 'id="jump" href="#stats"' in html and 'id="stats"' in html and 'id="top"' in html
-    if "Recent results" in html:
-        assert html.index("Cover rate by model disagreement") < html.index("Recent results")
+    assert html.index('id="list"') < html.index("Record this season"), "picks come first"
+    _assert_no_bet_sheet(html)
     assert "nan" not in _rendered_text(html), "empty fields must not render as 'nan'"
 
 
