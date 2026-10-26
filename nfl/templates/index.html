@@ -19,11 +19,11 @@
           background:var(--warn);color:#2a1c00;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
   section{margin-top:22px}
   h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:10px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .stat{background:var(--card);border-radius:10px;padding:13px;text-align:center}
-  .stat .v{font-size:22px;font-weight:600;margin:3px 0}
+  .stat .v{font-size:22px;font-weight:600;margin:3px 0;font-variant-numeric:tabular-nums}
   .stat .l{font-size:11px;color:var(--dim);text-transform:uppercase}
-  .up{color:var(--good)} .down{color:var(--bad)}
+  .stat .s{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
   .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
   input[type=search]{flex:1;min-width:190px;background:var(--card);border:1px solid var(--line);
     border-radius:8px;color:var(--fg);padding:9px 12px;font-size:14px}
@@ -32,40 +32,38 @@
         padding:7px 14px;font-size:13px;cursor:pointer}
   .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
   .game{background:var(--card);border-radius:12px;margin-bottom:11px;overflow:hidden;border:1px solid var(--line)}
-  .game.hot{border-color:var(--accent)}
   .ghead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 14px;
          background:var(--card2);font-size:12px;color:var(--dim)}
-  .matchup{padding:12px 14px 2px;font-size:17px;font-weight:600}
+  .matchup{padding:12px 14px 0;font-size:17px;font-weight:600}
   .matchup .at{color:var(--dim);font-weight:400;font-size:14px;margin:0 6px}
-  .ctx{padding:0 14px 6px;font-size:12px;color:var(--warn)}
-  .bets{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 14px 14px}
-  .bet{background:var(--card2);border-radius:9px;padding:11px}
-  .bet .l{font-size:11px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;display:flex;gap:6px;align-items:center}
-  .bet .p{font-size:18px;font-weight:600;line-height:1.25}
-  .bet .d{font-size:12px;color:var(--dim);margin-top:5px}
-  .bet .hit{font-size:12px;color:var(--dim);margin-top:3px}
-  .bet .shop{font-size:12px;color:var(--dim);margin-top:3px}
-  .bet .shop b{color:var(--fg)}
-  .key{background:var(--warn);color:#2a1c00;border-radius:4px;padding:0 5px;font-size:11px;font-weight:600}
-  .bet .hit b{color:var(--fg);font-variant-numeric:tabular-nums}
-  .bet .hit .up{color:var(--good)} .bet .hit .down{color:var(--bad)}
-  .exch{margin:0 14px 14px;background:var(--card2);border-radius:9px;padding:10px 12px}
-  .exrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;padding:4px 0}
-  .exrow + .exrow{border-top:1px solid var(--line)}
-  .mult{font-variant-numeric:tabular-nums;font-weight:600}
+  .proj{padding:2px 14px 0;font-size:13px;color:var(--dim)}
+  .proj b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+  .ctx{padding:4px 14px 0;font-size:12px;color:var(--warn)}
+  .picks{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 14px 14px}
+  .pick{background:var(--card2);border-radius:9px;padding:11px}
+  .pick .l{font-size:11px;color:var(--dim);text-transform:uppercase;display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:4px}
+  .pick .pct{font-size:13px;font-weight:600;color:var(--fg);text-transform:none;font-variant-numeric:tabular-nums}
+  .pick .pct.toss{color:var(--dim);font-weight:500}
+  .pick .p{font-size:19px;font-weight:600;line-height:1.25}
+  .pick .d{font-size:12px;color:var(--dim);margin-top:4px}
+  .meter{height:4px;background:var(--line);border-radius:2px;margin-top:8px;overflow:hidden}
+  .meter i{display:block;height:100%;background:var(--accent);border-radius:2px}
   .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
-  .tag.play,.tag.bold{background:var(--good);color:#052e16}
-  .tag.pass{background:var(--line);color:var(--dim)}
-  .tag.early,.tag.thin{background:var(--warn);color:#2a1c00}
   .tag.win{background:var(--good);color:#052e16}
   .tag.loss{background:var(--bad);color:#3f0a0a}
   .tag.push{background:var(--line);color:var(--dim)}
   table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:10px;overflow:hidden}
-  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
-  th:first-child,td:first-child{text-align:left}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
   th{color:var(--dim);font-weight:500;font-size:11px;text-transform:uppercase}
-  .note{background:var(--card);border-left:3px solid var(--warn);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  td .fin{white-space:nowrap}
+  td .pk{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px 5px}
+  td .pk b{font-weight:500;white-space:nowrap}
+  /* on a phone the tag always sits under its pick, so every row reads the same way */
+  @media(max-width:560px){th,td{padding:8px 7px}td .pk{flex-direction:column;align-items:flex-start}}
+  .note{background:var(--card);border-left:3px solid var(--accent);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
   .note b{color:var(--fg)}
+  .note.warn{border-left-color:var(--warn)}
   .empty{text-align:center;color:var(--dim);padding:26px 0;font-size:14px}
   footer{margin-top:36px;color:var(--dim);font-size:12px;text-align:center}
   a{color:var(--accent)}
@@ -73,7 +71,7 @@
   nav.sports .chip{text-decoration:none}
   nav.sports .chip[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
   #stats{scroll-margin-top:12px}
-  /* floating jump: down to the hit-rate and results tables, back up once there */
+  /* floating jump: down to the results, back up once there */
   .jump{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:10;
         display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 16px;border-radius:999px;
         background:var(--accent);color:#06121f;font-size:14px;font-weight:600;text-decoration:none;
@@ -81,7 +79,7 @@
   .jump svg{transition:transform .2s}
   .jump.up svg{transform:rotate(180deg)}
   @media print{.jump{display:none}}
-  @media(max-width:560px){.bets{grid-template-columns:1fr}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr 1fr}.grid .stat.wide{grid-column:1 / -1}}
   /* The NFL has two views: every game, and player props */
   .tabs{display:inline-flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;
         padding:4px;margin:10px 0 2px}
@@ -102,7 +100,7 @@
   <div class="topbar">
     <div>
       <h1>{{ title }} — NFL</h1>
-      <div class="sub">NFL spreads and totals{% if week %} &middot; Week {{ week }}{% endif %}
+      <div class="sub">A pick on every spread and total{% if week %} &middot; Week {{ week }}{% endif %}
         &middot; updated {{ updated or "—" }}</div>
     </div>
     {% if support_url %}
@@ -117,58 +115,15 @@
 
 <main>
 
-{% if model and model.mae_model %}
 <section>
-  <div class="note">
-    {% if model.beats_market %}
-    Out of sample across {{ model.seasons|length }} seasons the margin model's error was
-    <b>{{ model.mae_model }}</b> points against the closing line's <b>{{ model.mae_market }}</b>.
-    It beat the close on that sample — which is unusual for this market, so treat it as a
-    finding to keep testing rather than a settled edge.
-    {% else %}
-    <b>This model does not beat the NFL closing line.</b> Out of sample across
-    {{ model.seasons|length }} seasons its margin error was {{ model.mae_model }} points against
-    the line's {{ model.mae_market }}{% if model.ats_rate %}, covering {{ model.ats_rate }}% of
-    the time on {{ model.ats_n }} games — about {{ model.ats_stderr }} points of standard error,
-    so indistinguishable from a coin flip{% endif %}. The published number is therefore the
-    line nudged {{ (model.shrink * 100)|round|int }}% of the way toward the model, and the
-    numbers below are worth tracking rather than backing.
-    {% endif %}
+  <h2>{% if week %}Week {{ week }}{% else %}This week{% endif %} picks</h2>
+  <div class="note" style="margin-bottom:12px">
+    The side the model thinks is likelier on every spread and total. NFL lines are sharp, so these
+    are leans, not locks{% if model and model.spread_rate %}: across {{ "{:,}".format(model.spread_n) if model.spread_n else "past" }}
+    games from {{ model.first }}&ndash;{{ model.last }} the model's side hit
+    <b>{{ model.spread_rate }}%</b> on spreads{% if model.total_rate %} and
+    <b>{{ model.total_rate }}%</b> on totals{% endif %}{% endif %}.
   </div>
-</section>
-{% endif %}
-
-{% macro record(r, label) %}
-  <div class="stat">
-    <div class="l">{{ label }}</div>
-    <div class="v {% if r.units > 0 %}up{% elif r.units < 0 %}down{% endif %}">{{ r.units|money }}u</div>
-    <div class="l">{{ r.wins }}-{{ r.losses }}{% if r.pushes %}-{{ r.pushes }}{% endif %}
-      &middot; {{ r.win_pct }}% &middot; ROI {{ r.roi }}%</div>
-  </div>
-{% endmacro %}
-
-{% if m.totals and m.totals.all_games and m.totals.all_games.n %}
-<section>
-  <h2>Season</h2>
-  <div class="grid">
-    {{ record(m.totals.all_games, "Totals (all games)") }}
-    {{ record(m.spreads.all_games, "Spreads (all games)") }}
-    <div class="stat"><div class="l">Totals CLV</div>
-      <div class="v {% if m.totals.all_games.clv and m.totals.all_games.clv > 0 %}up{% elif m.totals.all_games.clv and m.totals.all_games.clv < 0 %}down{% endif %}">{% if m.totals.all_games.clv is not none %}{{ '%+.2f'|format(m.totals.all_games.clv) }}{% else %}—{% endif %}</div>
-      <div class="l">{{ 'line moved against us' if m.totals.all_games.clv and m.totals.all_games.clv < 0 else 'line moved our way' }}</div></div>
-    <div class="stat"><div class="l">Spreads CLV</div>
-      <div class="v {% if m.spreads.all_games.clv and m.spreads.all_games.clv > 0 %}up{% elif m.spreads.all_games.clv and m.spreads.all_games.clv < 0 %}down{% endif %}">{% if m.spreads.all_games.clv is not none %}{{ '%+.2f'|format(m.spreads.all_games.clv) }}{% else %}—{% endif %}</div>
-      <div class="l">{{ 'line moved against us' if m.spreads.all_games.clv and m.spreads.all_games.clv < 0 else 'line moved our way' }}</div></div>
-  </div>
-  <p class="sub">Break-even at {{ m.venue or venue }} is {{ m.break_even }}%. Every game is
-    predicted and graded whether or not it is staked, so CLV accumulates from the whole board —
-    it is the fastest honest read on whether there is an edge, and with only 272 games a season
-    a win rate needs years to say anything.</p>
-</section>
-{% endif %}
-
-<section>
-  <h2>{% if week %}Week {{ week }}{% else %}This week{% endif %} board</h2>
   {% if picks %}
   <div class="controls">
     <input type="search" id="q" placeholder="Search a team, division or quarterback" aria-label="Search">
@@ -178,232 +133,127 @@
     {% for d in days %}<button class="chip" aria-pressed="false" data-day="{{ d.key }}">{{ d.label }}</button>{% endfor %}
   </div>
   <div class="controls" role="group" aria-label="Filters">
-    <button class="chip" aria-pressed="false" data-f="plays">Plays only</button>
+    <button class="chip" aria-pressed="false" data-f="lean">Biggest gaps first</button>
     <button class="chip" aria-pressed="false" data-f="div">Divisional</button>
     <button class="chip" aria-pressed="false" data-f="ctx">Situational</button>
-    <button class="chip" aria-pressed="false" data-f="kick">Sort by kickoff</button>
   </div>
   <div id="count" class="sub" style="margin-bottom:10px"></div>
   {% else %}
   <div class="note">No games on the board yet. The pipeline posts the slate each morning once lines are up.</div>
   {% endif %}
 
+  {% macro gap(pts) %}
+    {% if pts is not none %}<span class="pct{% if pts < 1 %} toss{% endif %}">{% if pts < 0.1 %}on the line{% else %}{{ '%.1f'|format(pts) }} pts off{% endif %}</span>{% endif %}
+  {% endmacro %}
+  {% macro meter(pts) %}
+    {% if pts is not none %}{# how far the model sits from the line: 5+ points fills the bar #}
+    <div class="meter" aria-hidden="true"><i style="width:{{ [[pts * 20, 4]|max, 100]|min }}%"></i></div>
+    {% endif %}
+  {% endmacro %}
+
   <div id="list">
   {% for g in picks %}
-  {% set gap = [(g.total_disagree or 0)|abs, (g.margin_disagree or 0)|abs]|max %}
-  <div class="game {% if g.has_play %}hot{% endif %}"
-       data-day="{{ g.day_key }}" data-play="{{ 1 if g.has_play else 0 }}"
+  <div class="game"
+       data-day="{{ g.day_key }}" data-lean="{{ g.lean }}"
        data-div="{{ 1 if g.div_game else 0 }}" data-ctx="{{ 1 if g.context else 0 }}"
        data-search="{{ g.search }}" data-kick="{{ g.kick_sort or '' }}">
     <div class="ghead">
       <span>{{ g.time_label }}</span>
-      <span>{% if g.has_play %}<span class="tag play">play</span> {% endif %}&#916;{{ '%.1f'|format(gap) }}{% if g.thin_data %} &middot; early season{% endif %}</span>
+      {% if g.thin_data %}<span>early season</span>{% endif %}
     </div>
     <div class="matchup">{{ g.away_team }}<span class="at">{% if g.neutral_site %}vs{% else %}at{% endif %}</span>{{ g.home_team }}</div>
+    {% if g.proj %}<div class="proj">Projected score <b>{{ g.proj }}</b></div>{% endif %}
     {% if g.context %}<div class="ctx">{{ g.context }}</div>{% endif %}
-    <div class="bets">
-      <div class="bet">
-        <div class="l">Total <span class="tag {{ 'early' if g.total_strength == 'thin' else g.total_strength }}">{{ 'no play' if g.total_strength in ('thin','pass') else g.total_strength }}</span></div>
-        <div class="p">{{ g.total_pick }} {{ g.total_line }}</div>
-        <div class="d">model {{ g.total_raw }} &middot; {{ '%+.1f'|format(g.total_disagree or 0) }} vs line</div>
-        {% if g.total_best_label %}<div class="shop">Best: <b>{{ g.total_best_book }}</b> {{ g.total_best_label }}{% if g.total_best_ev_pct is not none %} &middot; <span class="{{ 'up' if g.total_best_ev_pct > 0 else 'down' }}">EV {{ '%+.1f'|format(g.total_best_ev_pct) }}%</span>{% endif %}</div>{% endif %}
-        {% if g.total_worth_label %}<div class="shop">Worth it at {{ g.total_worth_label }}</div>{% endif %}
-        {% if g.total_hit %}<div class="hit">Hit <b class="{{ g.total_hit.tone }}">{{ g.total_hit.win_pct }}%</b> ({{ g.total_hit.wins }}-{{ g.total_hit.losses }}) this season at {{ g.total_hit.label }} pts off</div>{% endif %}
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>{{ gap(g.spread_gap) }}</div>
+        <div class="p">{{ g.spread_label }}</div>
+        {% if g.model_margin %}<div class="d">{{ g.model_margin }}</div>{% endif %}
+        {{ meter(g.spread_gap) }}
       </div>
-      <div class="bet">
-        <div class="l">Spread <span class="tag {{ 'early' if g.spread_strength == 'thin' else g.spread_strength }}">{{ 'no play' if g.spread_strength in ('thin','pass') else g.spread_strength }}</span></div>
-        <div class="p">{{ g.spread_pick }}</div>
-        <div class="d">model margin {{ g.margin_raw }} &middot; {{ '%+.1f'|format(g.margin_disagree or 0) }} vs line</div>
-        {% if g.spread_best_label %}<div class="shop">Best: <b>{{ g.spread_best_book }}</b> {{ g.spread_best_label }}{% if g.spread_key_note %} <span class="key">{{ g.spread_key_note }}</span>{% endif %}{% if g.spread_best_ev_pct is not none %} &middot; <span class="{{ 'up' if g.spread_best_ev_pct > 0 else 'down' }}">EV {{ '%+.1f'|format(g.spread_best_ev_pct) }}%</span>{% endif %}</div>{% endif %}
-        {% if g.spread_worth_label %}<div class="shop">Worth it at {{ g.spread_worth_label }}</div>{% endif %}
-        {% if g.spread_hit %}<div class="hit">Hit <b class="{{ g.spread_hit.tone }}">{{ g.spread_hit.win_pct }}%</b> ({{ g.spread_hit.wins }}-{{ g.spread_hit.losses }}) this season at {{ g.spread_hit.label }} pts off</div>{% endif %}
+      <div class="pick">
+        <div class="l"><span>Total</span>{{ gap(g.total_gap) }}</div>
+        <div class="p">{{ g.total_pick }} {{ '%g'|format(g.total_line) if g.total_line is not none else '' }}</div>
+        {% if g.total_raw is not none %}<div class="d">Model total {{ '%.1f'|format(g.total_raw) }}</div>{% endif %}
+        {{ meter(g.total_gap) }}
       </div>
     </div>
-    {% if g.kt_pays or g.ks_pays or g.ml_pays %}
-    <div class="exch">
-      {% if g.kt_pays %}
-      <div class="exrow">
-        <span>{{ g.kt_pick or ('Over ' ~ g.kt_ref_strike) }}</span>
-        <span>pays <b class="mult">{{ '%.2f'|format(g.kt_pays) }}x</b>
-          <span style="color:var(--dim)">fair {{ '%.2f'|format(g.kt_fair) }}x</span>
-          <b class="{% if (g.kt_edge or 0) > 0 %}up{% else %}down{% endif %}">{{ '%+.0f'|format(g.kt_edge or 0) }}%</b></span>
-      </div>
-      {% endif %}
-      {% if g.ks_pays %}
-      <div class="exrow">
-        <span>{{ g.ks_pick or ((g.ks_ref_side or '') ~ ' by over ' ~ g.ks_ref_strike) }}</span>
-        <span>pays <b class="mult">{{ '%.2f'|format(g.ks_pays) }}x</b>
-          <span style="color:var(--dim)">fair {{ '%.2f'|format(g.ks_fair) }}x</span>
-          <b class="{% if (g.ks_edge or 0) > 0 %}up{% else %}down{% endif %}">{{ '%+.0f'|format(g.ks_edge or 0) }}%</b></span>
-      </div>
-      {% endif %}
-      {% if g.ml_pays %}
-      <div class="exrow">
-        <span>{{ g.ml_pick or ((g.ml_ref_side or '') ~ ' to win') }}</span>
-        <span>pays <b class="mult">{{ '%.2f'|format(g.ml_pays) }}x</b>
-          <span style="color:var(--dim)">fair {{ '%.2f'|format(g.ml_fair) }}x</span>
-          <b class="{% if (g.ml_edge or 0) > 0 %}up{% else %}down{% endif %}">{{ '%+.0f'|format(g.ml_edge or 0) }}%</b></span>
-      </div>
-      {% endif %}
-    </div>
-    {% endif %}
-    {% if g.kalshi_incoherent %}
-    <div style="padding:6px 14px 12px;font-size:11px;color:var(--warn)">
-      Ladder quotes contradict each other — at least one price is stale.
-    </div>
-    {% endif %}
   </div>
   {% endfor %}
   </div>
   <div class="empty" id="noresults" style="display:none">No games match those filters.</div>
   {% if picks %}
-  <p class="sub" style="margin-top:10px"><b>pays</b> is what a Kalshi contract returns per unit
-    risked after the taker fee. <b>fair</b> is what our model says it should return. Paying more
-    than fair is the edge. The amber line under a matchup flags the situational facts the model
-    weights and a glance at the line does not show: quarterback changes, rest mismatches, long
-    trips, wind.</p>
-  {% endif %}
-</section>
-
-{% if picks %}
-<section>
-  <p class="sub" style="margin-top:-6px"><b>Best</b> is the most valuable price for the pick across
-    {{ shop_books }}, with its expected value at the model's number. <b>Worth it
-    at</b> is the worst number the pick still has positive EV at, at a standard &minus;110 price &mdash; take
-    it there or better, and pass on anything worse. Both read off real NFL margins rather than a bell
-    curve: about one game in seven ends on exactly 3 and one in eleven on 7, so a half-point across
-    either (<span class="key">through 3</span>) is worth several points of cover rate, and any other
-    half-point one or two.</p>
-</section>
-{% endif %}
-
-<section>
-  <h2>Teasers</h2>
-  <p class="sub" style="margin-bottom:10px">Underdogs at +1.5 or +2.5, teased {{ '%g'|format(teaser_points) }}
-    points to +7.5 or +8.5, in games totalled {{ '%g'|format(teaser_max_total) }} or less. Those
-    {{ '%g'|format(teaser_points) }} points cross both 3 and 7, the margins NFL games land on most, while
-    books price every teased point alike. A two-team teaser at {{ teaser_price }} needs each leg to win
-    {{ teaser_be }}%. Sportsbooks only &mdash; exchanges don't sell teasers.</p>
-  {% if teaser_legs %}
-  <div class="wrap">
-  <table>
-    <tr><th>This week</th><th>Leg</th><th>Kickoff</th></tr>
-    {% for g in teaser_legs %}
-    <tr><td>{{ g.away_team }} at {{ g.home_team }}</td>
-      <td><b>{{ g.teaser_team }} {{ '%+g'|format(g.teaser_to) }}</b> <span class="sub">from {{ '%+g'|format(g.teaser_line) }}</span></td>
-      <td>{{ g.time_label }}</td></tr>
-    {% endfor %}
-  </table>
-  </div>
-  {% else %}
-  <div class="note">No qualifying legs on the board right now.</div>
-  {% endif %}
-  {% if teaser_season and teaser_season.legs %}
-  <p class="sub" style="margin-top:10px">This season: <b>{{ teaser_season.wins }}-{{ teaser_season.losses }}</b>
-    ({{ teaser_season.win_pct }}%) against a {{ teaser_season.break_even }}% break-even, graded at each
-    game's own line &mdash; a two-team teaser at that rate returns {{ '%+.1f'|format(teaser_season.two_team_ev) }}%.</p>
-  {% endif %}
-  {% if teaser_backtest %}
-  <div class="wrap" style="margin-top:10px">
-  <table>
-    <tr><th>Backtest, closing lines</th><th>Legs</th><th>Won</th><th>Two-team EV</th></tr>
-    {% for r in teaser_backtest %}
-    <tr><td>{{ r.era }}</td><td>{{ r.legs }}</td>
-      <td class="{{ 'up' if r.win_pct > r.break_even else 'down' }}">{{ r.win_pct }}%</td>
-      <td class="{{ 'up' if r.two_team_ev > 0 else 'down' }}">{{ '%+.1f'|format(r.two_team_ev) }}%</td></tr>
-    {% endfor %}
-  </table>
-  </div>
-  <p class="sub" style="margin-top:8px">Closing lines are the numbers nflverse keeps; a live bet takes an
-    earlier one, and books shade teaser prices or limit them, so read this as the rule's long-run shape
-    rather than a promise. The favourite side of the same teaser stopped working after 2020 and is not
-    shown.</p>
+  <p class="sub" style="margin-top:10px"><b>Projected score</b> is the model's own number before it
+    is compared with the line. <b>Pts off</b> is how far the model sits from the line toward the
+    pick: under a point is close to a coin flip, and in past seasons the bigger gaps have hit at
+    best in the mid 50s. The amber line flags what the model weights and the line
+    alone doesn't show: quarterback changes, rest mismatches, long trips, wind.</p>
   {% endif %}
 </section>
 
 <div id="stats">
-{% if backtest and backtest.rows and not (m.totals and m.totals.by_edge) %}
+{% if rec and rec.last %}
 <section>
-  <h2>Cover rate by model disagreement &mdash; backtest</h2>
-  <p class="sub" style="margin-bottom:10px">No games graded this season yet, so this is the
-    walk-forward result over {{ backtest.n }} out-of-sample games from
-    {{ backtest.seasons|first }}&ndash;{{ backtest.seasons|last }} &mdash; not live picks.
-    Break-even is {{ backtest.break_even }}%.</p>
-  <table>
-    <tr><th>|Model &minus; line|</th><th>Spreads</th><th>Cover</th><th>Totals</th><th>Cover</th></tr>
-    {% for r in backtest.rows %}
-    <tr>
-      <td>{{ r.bucket }}</td>
-      <td>{{ r.spread.n }}</td>
-      <td class="{% if r.spread.significant %}up{% endif %}">{{ r.spread.cover_pct }}%
-        <span class="sub">{{ '%+.1f'|format(r.spread.vs_break_even_se) }}&sigma;</span></td>
-      <td>{% if r.total %}{{ r.total.n }}{% endif %}</td>
-      <td>{% if r.total %}{{ r.total.cover_pct }}%
-        <span class="sub">{{ '%+.1f'|format(r.total.vs_break_even_se) }}&sigma;</span>{% endif %}</td>
-    </tr>
-    {% endfor %}
-  </table>
-  {% if backtest.z_required %}
-  <p class="sub" style="margin-top:8px">This report looked at many segments, so a bucket needs
-    |&sigma;| &ge; {{ backtest.z_required }} &mdash; not 2 &mdash; before it means anything.
-    {{ backtest.verdict|capitalize }}.</p>
-  {% endif %}
-</section>
-{% endif %}
-
-{% if hit_rows %}
-<section>
-  <h2>Cover rate by model disagreement</h2>
-  <table>
-    <tr><th>|Model − line|</th><th>Totals</th><th>Win%</th><th>Spreads</th><th>Win%</th></tr>
-    {% for row in hit_rows %}
-    <tr><td>{{ row.label }} pts</td>
-      <td>{% if row.total %}{{ row.total.wins }}-{{ row.total.losses }}{% endif %}</td>
-      <td class="{{ row.total.tone if row.total }}">{% if row.total %}{{ row.total.win_pct }}%{% endif %}</td>
-      <td>{% if row.spread %}{{ row.spread.wins }}-{{ row.spread.losses }}{% endif %}</td>
-      <td class="{{ row.spread.tone if row.spread }}">{% if row.spread %}{{ row.spread.win_pct }}%{% endif %}</td></tr>
-    {% endfor %}
-  </table>
-  <p class="sub" style="margin-top:8px">Every graded game this season, bucketed by how far the
-    model sat from the line &mdash; each pick above shows the row it falls in. Green clears the
-    {{ m.break_even }}% break-even and red falls short; a bucket stays uncoloured until it has
-    {{ hit_min }} games.</p>
+  <h2>Record this season</h2>
+  <div class="grid">
+    <div class="stat"><div class="l">Spreads</div>
+      <div class="v">{{ rec.spread.wins }}-{{ rec.spread.losses }}{% if rec.spread.pushes %}-{{ rec.spread.pushes }}{% endif %}</div>
+      <div class="s">{% if rec.spread.pct is not none %}{{ rec.spread.pct }}%{% else %}—{% endif %}</div></div>
+    <div class="stat"><div class="l">Totals</div>
+      <div class="v">{{ rec.total.wins }}-{{ rec.total.losses }}{% if rec.total.pushes %}-{{ rec.total.pushes }}{% endif %}</div>
+      <div class="s">{% if rec.total.pct is not none %}{{ rec.total.pct }}%{% else %}—{% endif %}</div></div>
+    <div class="stat wide"><div class="l">Week {{ rec.last.week }}</div>
+      <div class="v" style="font-size:17px;margin:6px 0 4px">{{ rec.last.spread.wins }}-{{ rec.last.spread.losses }}{% if rec.last.spread.pushes %}-{{ rec.last.spread.pushes }}{% endif %}
+        &middot; {{ rec.last.total.wins }}-{{ rec.last.total.losses }}{% if rec.last.total.pushes %}-{{ rec.last.total.pushes }}{% endif %}</div>
+      <div class="s">spreads &middot; totals</div></div>
+  </div>
+  <p class="sub" style="margin-top:8px">Every game is picked and every pick is graded.</p>
 </section>
 {% endif %}
 
 {% if results %}
 <section>
-  <h2>Recent results</h2>
+  <h2>Week {{ results_week }} results</h2>
   <table>
-    <tr><th>Game</th><th>Total</th><th>Spread</th><th>Units</th></tr>
+    <tr><th>Game</th><th>Spread</th><th>Total</th></tr>
     {% for r in results %}
-    {% set u = (r.total_units or 0) + (r.spread_units or 0) %}
     <tr>
-      <td>{{ r.away_team }} at {{ r.home_team }}<br>
-        <span class="sub">{{ r.date }}{% if r.total_points %} &middot; {{ r.total_points|int }} pts{% endif %}</span></td>
-      <td><span class="tag {{ r.total_result }}">{{ r.total_result }}</span></td>
-      <td><span class="tag {{ r.spread_result }}">{{ r.spread_result }}</span></td>
-      <td class="{% if u > 0 %}up{% elif u < 0 %}down{% endif %}">{{ u|money }}</td>
+      <td>{{ r.matchup }}{% if r.final %}<br><span class="sub fin">{{ r.final }}</span>{% endif %}</td>
+      <td><span class="pk"><b>{{ r.spread_label }}</b><span class="tag {{ r.spread_result }}">{{ r.spread_result }}</span></span></td>
+      <td><span class="pk"><b>{{ r.total_label }}</b><span class="tag {{ r.total_result }}">{{ r.total_result }}</span></span></td>
     </tr>
     {% endfor %}
   </table>
 </section>
 {% endif %}
 
+{% if rec and rec.weeks %}
+<section>
+  <h2>Week by week</h2>
+  <table>
+    <tr><th>Week</th><th class="num">Spreads</th><th class="num">Totals</th></tr>
+    {% for w in rec.weeks %}
+    <tr><td>Week {{ w.week }}</td>
+      <td class="num">{{ w.spread.wins }}-{{ w.spread.losses }}{% if w.spread.pushes %}-{{ w.spread.pushes }}{% endif %}</td>
+      <td class="num">{{ w.total.wins }}-{{ w.total.losses }}{% if w.total.pushes %}-{{ w.total.pushes }}{% endif %}</td></tr>
+    {% endfor %}
+  </table>
+</section>
+{% endif %}
 </div>
 
 <section>
-  <div class="note">
+  <div class="note warn">
     Model output, not advice. NFL spread and total markets are the most efficient in sports —
     every game is nationally televised, heavily bet and priced by people with better data than
-    this. A public-data model beating those closing numbers is the exception, not the
-    expectation. Bet only what you can afford to lose.
+    this. A pick on every game means a lot of near coin flips, and at standard &minus;110 pricing
+    a 51% hit rate still loses money over a season. Bet only what you can afford to lose.
   </div>
 </section>
 </main>
 
 <footer>
-  Data: nflverse &middot; prices via Kalshi and The Odds API.
+  Data: nflverse &middot; lines via The Odds API and Kalshi.
   <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
   &middot; <a href="../cfb/">college football</a> &middot; <a href="../epl/">Premier League</a>
   &middot; <a href="../nhl/">NHL</a> &middot; <a href="../nba/">NBA</a>
@@ -411,12 +261,10 @@
   <p style="margin-top:10px;line-height:1.5">For information and entertainment only &mdash; not betting advice. Past results don't guarantee future ones and no pick is a sure thing; never bet more than you can afford to lose. You must be of legal betting age where you live (21+ in most US states). Gambling problem? Call <a href="tel:+18004262537">1-800-GAMBLER</a>.</p>
 </footer>
 
-{% set has_hit = hit_rows or (backtest and backtest.rows) %}
-{% if has_hit or results %}
-<a class="jump" id="jump" href="#stats"
-   aria-label="Jump to {{ 'hit rate and recent results' if has_hit else 'recent results' }}">
+{% if results or (rec and rec.last) %}
+<a class="jump" id="jump" href="#stats" aria-label="Jump to results">
   <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5v11M3.5 9 8 13.5 12.5 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  <span class="jl">{{ 'Hit rate' if has_hit else 'Results' }}</span>
+  <span class="jl">Results</span>
 </a>
 {% endif %}
 
@@ -425,11 +273,10 @@
   var games = Array.prototype.slice.call(document.querySelectorAll('.game'));
   if (!games.length) return;
   var list = document.getElementById('list');
-  var order = games.slice();
   var q = document.getElementById('q');
   var count = document.getElementById('count');
   var none = document.getElementById('noresults');
-  var state = { day: 'all', plays: false, div: false, ctx: false, kick: false, q: '' };
+  var state = { day: 'all', lean: false, div: false, ctx: false, q: '' };
 
   function kickAt(el) {
     // Real time order, not alphabetical order on the printed label. Anything without an
@@ -437,18 +284,23 @@
     var t = Date.parse(el.dataset.kick || '');
     return t === t ? t : Infinity;   // NaN is the only value that fails self-equality
   }
+  function leanOf(el) { return parseFloat(el.dataset.lean || '0') || 0; }
 
   function apply() {
-    var seq = order.slice();
-    if (state.kick) {
-      seq.sort(function (a, b) { return kickAt(a) - kickAt(b); });
-    }
+    var seq = games.slice();
+    seq.sort(function (a, b) {
+      if (state.lean) {
+        var d = leanOf(b) - leanOf(a);
+        if (d) return d;
+      }
+      var ka = kickAt(a), kb = kickAt(b);
+      return ka === kb ? 0 : (ka < kb ? -1 : 1);   // Infinity - Infinity is NaN
+    });
     seq.forEach(function (el) { list.appendChild(el); });
     var shown = 0;
     games.forEach(function (el) {
       var ok = true;
       if (state.day !== 'all' && el.dataset.day !== state.day) ok = false;
-      if (state.plays && el.dataset.play !== '1') ok = false;
       if (state.div && el.dataset.div !== '1') ok = false;
       if (state.ctx && el.dataset.ctx !== '1') ok = false;
       if (state.q && (el.dataset.search || '').indexOf(state.q) === -1) ok = false;
@@ -459,8 +311,7 @@
     none.style.display = shown ? 'none' : '';
   }
 
-  Array.prototype.forEach.call(document.querySelectorAll('[data-day]'), function (c) {
-    if (c.tagName !== 'BUTTON') return;
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-day]'), function (c) {
     c.addEventListener('click', function () {
       state.day = c.dataset.day;
       Array.prototype.forEach.call(document.querySelectorAll('button[data-day]'), function (o) {
