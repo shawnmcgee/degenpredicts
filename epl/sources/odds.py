@@ -251,7 +251,9 @@ def espn_snapshot(matcher=None) -> pd.DataFrame:
     for i in range(config.BOARD_DAYS + 1):
         for e in _espn_day(today + timedelta(days=i)):
             events[e["event_id"]] = e
-    now = datetime.now(timezone.utc)
+    # The board's clock, not the wall clock: "has it kicked off" must agree with `today`
+    # above, and a test that pins the date then still sees its fixture as upcoming.
+    now = config.now_et().astimezone(timezone.utc)
     pulled = now.isoformat(timespec="seconds")
     rows, started, no_price = [], 0, 0
     d = espn_odds.to_decimal
