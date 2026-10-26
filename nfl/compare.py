@@ -229,6 +229,13 @@ def main(argv=None):
     if summary:
         with open(summary, "a") as f:
             f.write("## NFL model comparison\n\n" + md + "\n")
+    if os.environ.get("GITHUB_ACTIONS"):
+        # Also as check annotations: they are readable from the plain REST API, where job
+        # logs, summaries and artifacts all sit behind a separate storage host.
+        for part in md.split("\n### ")[1:]:
+            title, _, body = part.partition("\n")
+            esc = body.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+            print(f"::notice title={title.strip()}::{esc}")
 
 
 if __name__ == "__main__":
