@@ -84,9 +84,24 @@ def make_model(params=None):
             learning_rate=p["learning_rate"], random_state=42), "sklearn"
 
 
-def _fit(df, feats, target, params=None):
+def season_weights(seasons, halflife: float | None = None, ref: int | None = None):
+    """Per-row training weight: 1 for the latest season, half for one `halflife` seasons
+    older, and so on. None when weighting is off, which fits exactly as before."""
+    h = config.RECENCY_HALFLIFE if halflife is None else halflife
+    if not h or h <= 0:
+        return None
+    s = np.asarray(seasons, dtype=float)
+    r = float(np.nanmax(s)) if ref is None else float(ref)
+    return np.power(0.5, (r - s) / h)
+
+
+def _fit(df, feats, target, params=None, halflife: float | None = None):
     m, backend = make_model(params)
-    m.fit(df[feats], df[target])
+    w = season_weights(df["season"].values, halflife)
+    if w is None:
+        m.fit(df[feats], df[target])
+    else:
+        m.fit(df[feats], df[target], sample_weight=w)
     return m, backend
 
 
@@ -119,12 +134,14 @@ def assemble(fetch: bool = True) -> pd.DataFrame:
         games = nflverse.update_games()
         nflverse.update_epa()
         nflverse.update_continuity()
+        nflverse.update_injuries()
     else:
         games = nflverse.load_games()
     if games.empty:
         raise SystemExit("no games cached - run once with network access")
     train_rows, _, _ = build(games, lines=nflverse.load_lines(), epa=nflverse.load_epa(),
-                             continuity=nflverse.load_continuity())
+                             continuity=nflverse.load_continuity(),
+                             injuries=nflverse.load_injuries())
     log.info("%d completed games, seasons %s, %d with a closing line",
              len(train_rows), sorted(train_rows["season"].unique()),
              int(train_rows["total_line"].notna().sum()))
@@ -140,11 +157,16 @@ def complete_seasons(df: pd.DataFrame) -> list[int]:
 
 
 def walk_forward(df: pd.DataFrame, kind: str, market: bool, params=None,
-                 n_seasons: int = WALK_FORWARD_SEASONS) -> dict:
+                 n_seasons: int = WALK_FORWARD_SEASONS, base_features: list | None = None,
+                 halflife: float | None = None) -> dict:
     """Train on everything before season S, predict S, for each of the last n_seasons
-    complete seasons; pool the out-of-sample predictions."""
+    complete seasons; pool the out-of-sample predictions.
+
+    `base_features` and `halflife` override the defaults so nfl.compare can score variants
+    of the model on exactly the same folds."""
     target = TARGETS[kind]
-    feats = BASE_FEATURES + (MARKET_FEATURES if market else [])
+    feats = (BASE_FEATURES if base_features is None else base_features) \
+        + (MARKET_FEATURES if market else [])
     line_col = "total_line" if kind == "total" else "spread_home"
     rating_col = "exp_total" if kind == "total" else "exp_margin"
 
@@ -161,7 +183,7 @@ def walk_forward(df: pd.DataFrame, kind: str, market: bool, params=None,
         tr, te = d[d["season"] < s], d[d["season"] == s]
         if len(tr) < MIN_TRAIN_GAMES or len(te) < MIN_TEST_GAMES:
             continue
-        model, _ = _fit(tr, feats, target, params)
+        model, _ = _fit(tr, feats, target, params, halflife)
         pred = model.predict(te[feats])
         line = (te[line_col] if kind == "total" else -te[line_col]).values \
             if market else np.full(len(te), np.nan)
@@ -475,6 +497,7 @@ def main(argv=None):
     meta = {"trained_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "sport": "nfl",
             "base_features": BASE_FEATURES, "market_features": MARKET_FEATURES,
+            "recency_halflife": config.RECENCY_HALFLIFE,
             "n_rows": int(len(df)), "seasons": [int(s) for s in sorted(df.season.unique())],
             "eval": {}, "models": [], "sigma": {}, "shrink": {}}
     backend = "xgboost"

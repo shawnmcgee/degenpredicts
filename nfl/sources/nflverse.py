@@ -390,7 +390,19 @@ def player_crosswalk() -> dict[str, str]:
             p = p[["pfr_id", "gsis_id"]].dropna()
             _PLAYER_XWALK = dict(zip(p["pfr_id"], p["gsis_id"]))
             log.info("players crosswalk: %d pfr->gsis ids", len(_PLAYER_XWALK))
+            # kept on disk so the daily board can read injuries without the 7 MB download
+            ensure_dirs()
+            p.to_csv(config.XWALK, index=False)
     return _PLAYER_XWALK
+
+
+def cached_crosswalk() -> dict[str, str]:
+    """The crosswalk the last retrain saved, or a fresh download if there is none."""
+    if config.XWALK.exists():
+        p = pd.read_csv(config.XWALK)
+        if len(p):
+            return dict(zip(p["pfr_id"], p["gsis_id"]))
+    return player_crosswalk()
 
 
 def season_continuity(season: int, snaps: pd.DataFrame | None = None,
@@ -467,6 +479,172 @@ def update_continuity(seasons: list[int] | None = None) -> pd.DataFrame:
     out.sort_values(["season", "team"]).to_csv(config.CONTINUITY, index=False)
     log.info("roster continuity: %d team-seasons", len(out))
     return load_continuity()
+
+
+# ---------------------------------------------------------------------------------
+# Injuries - who is missing this week, weighted by how much they have been playing
+# ---------------------------------------------------------------------------------
+INJ_COLS = ["season", "week", "team", "inj_off", "inj_def", "n_out"]
+
+# How likely a listed player is to miss the game, read off 2016 - the first season of the
+# current designations and before any season the model is tested on. Of players listed Out
+# or Doubtful, 0% played that week; of those listed Questionable, 74% did.
+INJURY_WEIGHT = {"Out": 1.0, "Doubtful": 1.0, "Questionable": 0.25}
+# A player's importance is his snap share over the team's last few games, counting a game he
+# missed as zero. Someone hurt this week was playing every snap a week ago and counts in full;
+# someone out since September has no recent snaps and counts for nothing, because his absence
+# is already in the team's recent results - and in the line.
+RECENT_TEAM_GAMES = 3
+
+
+def _canon_or_none(code):
+    try:
+        return canon(code)
+    except UnknownTeam:
+        return None
+
+
+def injury_load(season: int, injuries: pd.DataFrame, snaps: pd.DataFrame,
+                rosters: pd.DataFrame, xwalk: dict[str, str]) -> pd.DataFrame:
+    """Starters out, per team and week of `season`, in starter-equivalents.
+
+    ``inj_off`` is the summed recent offensive snap share of everyone ruled out (or likely
+    out) for that week's game, weighted by INJURY_WEIGHT - so a full-time left tackle who is
+    Out adds 1.0, a rotational receiver at 40% of snaps who is Questionable adds 0.1.
+    ``inj_def`` is the same for defence. Quarterbacks are left out: the starter is already
+    modelled by name (``qb_new``, ``qb_starts``), and counting him twice would double the
+    single biggest effect in the sport.
+
+    Leak-free by construction. The injury report and weekly roster for week W are published
+    before week W's games, and importance is read only from the team's games before week W.
+    Week W's own snap counts are never touched.
+
+    `snaps` must hold this season's games and should hold the previous season's, so that
+    early-season weeks have three prior games to read. A week the injury report has not
+    reached yet emits no row at all, which the model reads as missing rather than as "nobody
+    is hurt".
+    """
+    if injuries.empty or snaps.empty:
+        return pd.DataFrame(columns=INJ_COLS)
+
+    s = snaps.copy()
+    s["team"] = s["team"].map(_canon_or_none)
+    s["gsis"] = s["pfr_player_id"].map(xwalk)
+    s = s.dropna(subset=["team", "gsis"])
+    for c in ("offense_pct", "defense_pct"):
+        s[c] = pd.to_numeric(s[c], errors="coerce").fillna(0.0)
+    s["order"] = s["season"].astype(int) * 100 + s["week"].astype(int)
+    # (team, order) -> {gsis: (off, def)}
+    played = {k: dict(zip(g["gsis"], zip(g["offense_pct"], g["defense_pct"])))
+              for k, g in s.groupby(["team", "order"])}
+    team_orders: dict[str, list[int]] = {}
+    for team, order in played:
+        team_orders.setdefault(team, []).append(order)
+    for v in team_orders.values():
+        v.sort()
+
+    inj = injuries[injuries["season"].astype(int) == int(season)].copy()
+    inj["team"] = inj["team"].map(_canon_or_none)
+    inj["w"] = inj["report_status"].map(INJURY_WEIGHT)
+    inj = inj.dropna(subset=["team", "gsis_id", "w"])
+    inj = inj[inj["position"].astype(str).str.upper() != "QB"]
+
+    res = pd.DataFrame(columns=["week", "team", "gsis_id"])
+    if not rosters.empty and "status" in rosters:
+        r = rosters[(rosters["season"].astype(int) == int(season))
+                    & (rosters["status"].astype(str).str.upper() == "RES")
+                    & (rosters["position"].astype(str).str.upper() != "QB")].copy()
+        r["team"] = r["team"].map(_canon_or_none)
+        res = r.dropna(subset=["team", "gsis_id"])[["week", "team", "gsis_id"]]
+
+    out_rows = []
+    weeks = sorted(int(w) for w in inj["week"].unique()) if len(inj) else []
+    for week in weeks:
+        order = int(season) * 100 + week
+        listed = inj[inj["week"].astype(int) == week]
+        reserve = res[res["week"].astype(int) == week]
+        teams = set(listed["team"]) | set(reserve["team"])
+        for team in teams:
+            prior = [o for o in team_orders.get(team, []) if o < order][-RECENT_TEAM_GAMES:]
+            if not prior:
+                continue
+            missing: dict[str, float] = {}
+            for g, w in zip(listed.loc[listed["team"] == team, "gsis_id"],
+                            listed.loc[listed["team"] == team, "w"]):
+                missing[g] = max(missing.get(g, 0.0), float(w))
+            for g in reserve.loc[reserve["team"] == team, "gsis_id"]:
+                missing[g] = 1.0
+            off = dfn = 0.0
+            n_out = 0
+            for g, w in missing.items():
+                o = sum(played[(team, p)].get(g, (0.0, 0.0))[0] for p in prior) / len(prior)
+                d = sum(played[(team, p)].get(g, (0.0, 0.0))[1] for p in prior) / len(prior)
+                off += w * o
+                dfn += w * d
+                n_out += int(w >= 0.75 and max(o, d) >= 0.5)
+            out_rows.append({"season": int(season), "week": week, "team": team,
+                             "inj_off": round(off, 3), "inj_def": round(dfn, 3),
+                             "n_out": n_out})
+    return pd.DataFrame(out_rows, columns=INJ_COLS)
+
+
+def load_injuries() -> pd.DataFrame:
+    return pd.read_csv(config.INJURIES) if config.INJURIES.exists() \
+        else pd.DataFrame(columns=INJ_COLS)
+
+
+def update_injuries(seasons: list[int] | None = None,
+                    refresh_xwalk: bool = True) -> pd.DataFrame:
+    """Refresh the starters-out table. Past seasons are fetched once; the current season is
+    rebuilt on every call, because each new injury report adds a week to it.
+
+    The daily board passes ``refresh_xwalk=False`` to read the player crosswalk the Tuesday
+    retrain saved rather than downloading it again."""
+    this = season_of(today_et())
+    start = max(config.FIRST_SEASON, config.INJURY_FIRST_SEASON)
+    cache = load_injuries()
+    if len(cache):
+        cache = cache[cache["season"].astype(int) >= start]
+    have = set(cache["season"].astype(int)) if len(cache) else set()
+    if seasons is None:
+        seasons = [s for s in range(start, this + 1) if s not in have or s >= this]
+    seasons = [s for s in seasons if s >= start]
+    if not seasons:
+        return cache
+    xw = player_crosswalk() if refresh_xwalk else cached_crosswalk()
+    if not xw:
+        return cache
+    frames = [cache[~cache["season"].isin(seasons)]] if len(cache) else []
+    snaps_by = {}
+
+    def snaps_for(s):
+        if s not in snaps_by:
+            snaps_by[s] = _release("snap_counts", f"snap_counts_{s}.csv")
+        return snaps_by[s]
+
+    for s in seasons:
+        inj = _release("injuries", f"injuries_{s}.csv")
+        if inj.empty:
+            log.info("  injuries %s: no report published yet", s)
+            continue
+        snaps = pd.concat([f for f in (snaps_for(s - 1), snaps_for(s)) if len(f)],
+                          ignore_index=True) if len(snaps_for(s)) or len(snaps_for(s - 1)) \
+            else pd.DataFrame()
+        rosters = _release("weekly_rosters", f"roster_weekly_{s}.csv")
+        f = injury_load(s, inj, snaps, rosters, xw)
+        if len(f):
+            frames.append(f)
+            log.info("  injuries %s: %d team-weeks, mean %.2f off / %.2f def starters out",
+                     s, len(f), f["inj_off"].mean(), f["inj_def"].mean())
+    if not frames:
+        log.warning("no injury data retrieved")
+        return cache
+    out = pd.concat(frames, ignore_index=True).drop_duplicates(
+        ["season", "week", "team"], keep="last")
+    ensure_dirs()
+    out.sort_values(["season", "week", "team"]).to_csv(config.INJURIES, index=False)
+    log.info("injury load: %d team-weeks", len(out))
+    return load_injuries()
 
 
 # ---------------------------------------------------------------------------------

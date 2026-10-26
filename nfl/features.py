@@ -52,7 +52,7 @@ from .teams import haversine_km, tz_shift, venue
 
 log = logging.getLogger(__name__)
 
-BASE_FEATURES = [
+CORE_FEATURES = [
     # calendar, era-normalised
     "neutral_site", "div_game", "week_frac", "playoff_round", "is_early_season", "no_crowd",
     # ratings
@@ -76,6 +76,19 @@ BASE_FEATURES = [
     "is_indoor", "is_grass", "temp", "wind",
 ]
 
+# How much home field is worth *lately*, league-wide. The rating engine credits a fixed 1.7
+# points, and lines move with the league - but home edge swings by season (+0.1 points in
+# 2020 and again so far in 2026, +2.7 in 2023), and a model that only knows the long-run
+# average keeps leaning home through every season it shrinks. Both are read off the last
+# LEAGUE_WINDOW non-neutral games completed before the day being predicted.
+LEAGUE_FEATURES = ["lg_home_margin", "lg_home_ats"]
+
+# Starters out this week, from the injury report and the reserve list - see
+# sources.nflverse.injury_load. Quarterbacks are excluded there; they are the qb_* features.
+INJURY_FEATURES = ["h_inj_off", "h_inj_def", "a_inj_off", "a_inj_def", "inj_diff"]
+
+BASE_FEATURES = CORE_FEATURES + LEAGUE_FEATURES + INJURY_FEATURES
+
 # nflverse publishes the CLOSING number only - there is no opening line in the feed - so the
 # line-movement features the college model uses have no historical counterpart here. Rather
 # than train on a column that is zero for every historical row and non-zero live (a
@@ -88,6 +101,8 @@ REST_CAP = 21
 SHORT_WEEK = 5          # Thursday off a Sunday game
 BYE_REST = 12
 EARLY_WEEKS = 4
+LEAGUE_WINDOW = 128     # about half a season of games
+LEAGUE_MIN = 32         # fewer than this and the league features stay empty
 
 
 def _text(v) -> str:
@@ -171,6 +186,67 @@ class QBTracker:
             return
         self.starts[(team, qb)] = self.starts.get((team, qb), 0) + 1
         self.last[team] = qb
+
+
+class LeagueHomeEdge:
+    """League-wide home margin, and home margin against the closing spread, over the last
+    LEAGUE_WINDOW non-neutral games.
+
+    Results are staged and only folded in once the calendar day changes, so every game on a
+    Sunday sees the league as it stood on Saturday night. The rating book updates game by game,
+    which is harmless for a team's own rating; a league-wide average would otherwise let a
+    4pm game read the 1pm slate's results, which a morning prediction cannot.
+    """
+
+    def __init__(self, window: int = LEAGUE_WINDOW):
+        from collections import deque
+        self.margin = deque(maxlen=window)
+        self.ats = deque(maxlen=window)
+        self.day = None
+        self.pending: list[tuple[float, float]] = []
+
+    def _roll(self, day) -> None:
+        if day is not None and self.day is not None and day <= self.day:
+            return
+        for m, a in self.pending:
+            self.margin.append(m)
+            if a == a:
+                self.ats.append(a)
+        self.pending = []
+        self.day = day
+
+    def look(self, day) -> dict:
+        self._roll(day)
+        m = float(np.mean(self.margin)) if len(self.margin) >= LEAGUE_MIN else np.nan
+        a = float(np.mean(self.ats)) if len(self.ats) >= LEAGUE_MIN else np.nan
+        return {"lg_home_margin": m, "lg_home_ats": a}
+
+    def stage(self, day, home_margin, spread_home, neutral: bool) -> None:
+        self._roll(day)
+        if neutral or home_margin is None or home_margin != home_margin:
+            return
+        ats = float(home_margin) + float(spread_home) \
+            if spread_home is not None and spread_home == spread_home else np.nan
+        self.pending.append((float(home_margin), ats))
+
+    def flush(self) -> None:
+        """Fold in everything completed - used before predicting unplayed games."""
+        self._roll(None)
+
+
+def _injury_row(inj: dict, season: int, week: int, home: str, away: str) -> dict:
+    h = inj.get((season, week, home))
+    a = inj.get((season, week, away))
+    out = {"h_inj_off": np.nan, "h_inj_def": np.nan, "a_inj_off": np.nan,
+           "a_inj_def": np.nan, "inj_diff": np.nan}
+    if h is not None:
+        out["h_inj_off"], out["h_inj_def"] = h
+    if a is not None:
+        out["a_inj_off"], out["a_inj_def"] = a
+    if h is not None and a is not None:
+        # positive = the AWAY side is missing more, i.e. good for the home team
+        out["inj_diff"] = (a[0] + a[1]) - (h[0] + h[1])
+    return out
 
 
 def _travel(homes: dict, season: int, home: str, away: str, stadium_id: str,
@@ -334,7 +410,7 @@ def _market(row: dict, total_line, spread_home, home_ml=np.nan, away_ml=np.nan) 
 def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
           lines: pd.DataFrame | None = None, epa: pd.DataFrame | None = None,
           continuity: pd.DataFrame | None = None, cfg: RatingConfig | None = None,
-          first_train_season: int | None = None
+          first_train_season: int | None = None, injuries: pd.DataFrame | None = None
           ) -> tuple[pd.DataFrame, pd.DataFrame, RatingBook]:
     """Replay the schedule and emit one feature row per completed game.
 
@@ -354,6 +430,10 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
     if continuity is not None and len(continuity):
         cont = {(int(r.season), r.team): {"off": r.cont_off, "def": r.cont_def}
                 for r in continuity.itertuples()}
+    inj = {}
+    if injuries is not None and len(injuries):
+        inj = {(int(r.season), int(r.week), r.team): (float(r.inj_off), float(r.inj_def))
+               for r in injuries.itertuples()}
 
     line_map = {}
     if lines is not None and len(lines):
@@ -369,7 +449,7 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
     except Exception as e:                      # travel is a nice-to-have, not a dependency
         log.warning("could not derive home stadiums (%s) - travel features will be empty", e)
 
-    book, qbs = RatingBook(cfg), QBTracker()
+    book, qbs, league = RatingBook(cfg), QBTracker(), LeagueHomeEdge()
     rows = []
     for g in games.itertuples(index=False):
         if not bool(getattr(g, "completed", False)):
@@ -379,6 +459,7 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
         rec = {k: getattr(g, k, np.nan) for k in
                ("home_rest", "away_rest", "roof", "surface", "temp", "wind", "stadium_id",
                 "home_qb", "away_qb")}
+        sh, tl, hml, aml = line_map.get(str(g.game_id), (np.nan, np.nan, np.nan, np.nan))
         if season < first_train:
             # Warm-up: advance the state, emit nothing. Skipping the row build is also the
             # expensive part, so warm-up seasons are close to free.
@@ -386,11 +467,13 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
                         g.date, hfa_suppressed(season, neutral))
             qbs.update(g.home_team, _text(rec.get("home_qb")))
             qbs.update(g.away_team, _text(rec.get("away_qb")))
+            league.stage(g.date, g.home_margin, sh, neutral)
             continue
         r = _row(book, qbs, homes, epa_prev, cont, season, week,
                  int(getattr(g, "playoff_round", 0)), g.home_team, g.away_team, g.date,
                  neutral, bool(getattr(g, "div_game", False)), rec)
-        sh, tl, hml, aml = line_map.get(str(g.game_id), (np.nan, np.nan, np.nan, np.nan))
+        r.update(league.look(g.date))
+        r.update(_injury_row(inj, season, week, g.home_team, g.away_team))
         r = _market(r, tl, sh, hml, aml)
         r.update({"game_id": g.game_id, "date": g.date, "season": season, "week": week,
                   "home_team": g.home_team, "away_team": g.away_team,
@@ -409,18 +492,24 @@ def build(games: pd.DataFrame, upcoming: pd.DataFrame | None = None,
                     hfa_suppressed(season, neutral))
         qbs.update(g.home_team, _text(rec.get("home_qb")))
         qbs.update(g.away_team, _text(rec.get("away_qb")))
+        league.stage(g.date, g.home_margin, sh, neutral)
 
     train_rows = pd.DataFrame(rows)
 
     up_rows = []
     if upcoming is not None and len(upcoming):
+        league.flush()
+        lg = league.look(None)
         for rec in upcoming.to_dict("records"):
             gdate = pd.Timestamp(rec["date"]).date()
             season = int(rec.get("season") or config.season_of(gdate))
-            r = _row(book, qbs, homes, epa_prev, cont, season, int(rec.get("week", 1)),
+            week = int(rec.get("week", 1))
+            r = _row(book, qbs, homes, epa_prev, cont, season, week,
                      int(rec.get("playoff_round", 0) or 0), rec["home_team"], rec["away_team"],
                      gdate, bool(rec.get("neutral_site", False)),
                      bool(rec.get("div_game", False)), rec)
+            r.update(lg)
+            r.update(_injury_row(inj, season, week, rec["home_team"], rec["away_team"]))
             r = _market(r, rec.get("total_line", np.nan), rec.get("spread_home", np.nan),
                         rec.get("home_ml", np.nan), rec.get("away_ml", np.nan))
             r.update(rec)

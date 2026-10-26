@@ -166,7 +166,17 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         return board.iloc[0:0]
     board = board[priced].copy()
 
-    _, up, _ = build(games, board, lines=lines, epa=epa, continuity=continuity)
+    # Injuries, unlike EPA and continuity, change during the week: the report that decides
+    # Sunday's absences is published Wednesday to Friday. Rebuild the current season's rows
+    # every run, and fall back to the cached table if nflverse is unreachable.
+    try:
+        injuries = nflverse.update_injuries([config.season_of(today)], refresh_xwalk=False)
+    except Exception as e:                       # a missing report must not stop the board
+        log.warning("injury refresh failed (%s) - using the cached table", e)
+        injuries = nflverse.load_injuries()
+
+    _, up, _ = build(games, board, lines=lines, epa=epa, continuity=continuity,
+                     injuries=injuries)
 
     keep = ["game_id", "season", "week", "season_type", "playoff_round", "date", "tip_et",
             "kickoff_utc", "start_time_tbd", "weekday", "home_team", "away_team",
@@ -185,7 +195,14 @@ def run(dry_run: bool = False, week: int | None = None) -> pd.DataFrame:
         if name not in models:
             log.warning("no model for %s - skipping", kind)
             continue
-        feats = BASE_FEATURES + (MARKET_FEATURES if use_market else [])
+        # The feature list the model was TRAINED with, from its meta - not this module's
+        # current list. The two differ between deploying a feature change and the next
+        # retrain, and predicting with the wrong columns fails (or, worse, silently shifts).
+        base = meta.get("base_features") or BASE_FEATURES
+        feats = base + ((meta.get("market_features") or MARKET_FEATURES) if use_market else [])
+        for c in feats:
+            if c not in up:
+                up[c] = np.nan
         usable = has_line if use_market else pd.Series(True, index=up.index)
 
         raw = np.full(len(up), np.nan)

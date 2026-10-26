@@ -563,6 +563,7 @@ def test_pipeline(env, monkeypatch):
     monkeypatch.setattr(nflverse, "update_lines", lambda *a, **k: nflverse.load_lines())
     monkeypatch.setattr(nflverse, "update_epa", lambda *a, **k: pd.DataFrame())
     monkeypatch.setattr(nflverse, "update_continuity", lambda *a, **k: pd.DataFrame())
+    monkeypatch.setattr(nflverse, "update_injuries", lambda *a, **k: pd.DataFrame())
     monkeypatch.setattr(odds, "snapshot", lambda *a, **k: pd.DataFrame())
 
     train.main(["--no-fetch"])
@@ -1634,3 +1635,80 @@ def test_teaser_legs_cross_3_and_7_and_grade_without_pushes(env):
     assert teasers.break_even() == pytest.approx(0.7385, abs=1e-3)
     rec = teasers.record(pd.Series(["win"] * 3 + ["loss"]))
     assert (rec["wins"], rec["losses"], rec["win_pct"]) == (3, 1, 75.0)
+
+
+# ---------------------------------------------------------------------------------
+# Injuries, league home edge and recency weighting
+# ---------------------------------------------------------------------------------
+def _snaps(rows):
+    return pd.DataFrame([dict(season=2026, week=w, team=t, pfr_player_id=p,
+                              offense_pct=o, defense_pct=d) for w, t, p, o, d in rows])
+
+
+def test_injury_load_counts_recent_starters_and_never_reads_the_week_itself():
+    """A starter ruled out counts his recent snap share; a player out for weeks counts for
+    nothing (his absence is already in the results); quarterbacks are left to the qb_*
+    features; and week W's own snap counts are never read."""
+    from nfl.sources.nflverse import injury_load
+    xw = {"LT": "g_lt", "WR": "g_wr", "CB": "g_cb", "QB": "g_qb", "OLD": "g_old"}
+    snaps = _snaps([
+        (1, "KC", "LT", 1.0, 0), (2, "KC", "LT", 1.0, 0), (3, "KC", "LT", 1.0, 0),
+        (1, "KC", "WR", 0.6, 0), (2, "KC", "WR", 0.6, 0), (3, "KC", "WR", 0.6, 0),
+        (1, "KC", "CB", 0, 0.9), (2, "KC", "CB", 0, 0.9), (3, "KC", "CB", 0, 0.9),
+        (1, "KC", "QB", 1.0, 0), (2, "KC", "QB", 1.0, 0), (3, "KC", "QB", 1.0, 0),
+        # out since week 1: only played in a game older than the last three
+        (0, "KC", "OLD", 1.0, 0),
+        # week 4 itself - must not be read for week 4's load
+        (4, "KC", "WR", 0.0, 0), (4, "KC", "LT", 0.0, 0),
+    ])
+    injuries = pd.DataFrame([
+        dict(season=2026, week=4, team="KC", gsis_id="g_lt", position="T", report_status="Out"),
+        dict(season=2026, week=4, team="KC", gsis_id="g_wr", position="WR",
+             report_status="Questionable"),
+        dict(season=2026, week=4, team="KC", gsis_id="g_qb", position="QB", report_status="Out"),
+        dict(season=2026, week=4, team="KC", gsis_id="g_old", position="G", report_status="Out"),
+    ])
+    rosters = pd.DataFrame([dict(season=2026, week=4, team="KC", gsis_id="g_cb",
+                                 position="CB", status="RES")])
+    out = injury_load(2026, injuries, snaps, rosters, xw).set_index(["week", "team"])
+    row = out.loc[(4, "KC")]
+    # LT 1.0 full + WR 0.6 x 0.25 questionable; QB and the long-absent guard add nothing
+    assert row["inj_off"] == pytest.approx(1.0 + 0.6 * 0.25)
+    assert row["inj_def"] == pytest.approx(0.9)            # CB moved to reserve this week
+    assert row["n_out"] == 2                                # LT and CB
+    # a team with no earlier game has nothing to weigh a player by, so no row at all
+    assert injury_load(2026, injuries.assign(week=0), snaps, rosters.assign(week=0), xw).empty
+
+
+def test_league_home_edge_never_sees_games_from_the_same_day():
+    """A 4pm kickoff must not read the 1pm results: a morning prediction cannot."""
+    from datetime import date
+    from nfl import features
+    t = features.LeagueHomeEdge(window=64)
+    d0, d1 = date(2026, 10, 4), date(2026, 10, 11)
+    for _ in range(features.LEAGUE_MIN):
+        t.stage(d0, 3.0, -1.0, False)          # home by 3 as 1-point favourites: +2 ATS
+    assert np.isnan(t.look(d0)["lg_home_margin"]), "same-day games are still pending"
+    first = t.look(d1)
+    assert first == {"lg_home_margin": 3.0, "lg_home_ats": 2.0}
+    t.stage(d1, -10.0, -3.0, False)
+    assert t.look(d1) == first, "a game on the day being predicted changes nothing"
+    t.stage(d1, 0.0, -3.0, True)               # neutral site: not a home game at all
+    t.flush()
+    assert len(t.margin) == features.LEAGUE_MIN + 1
+
+
+def test_recency_weights_halve_every_halflife():
+    from nfl import train
+    w = train.season_weights([2025, 2021, 2017], halflife=4.0)
+    assert w.tolist() == pytest.approx([1.0, 0.5, 0.25])
+    assert train.season_weights([2025, 2021], halflife=0) is None
+
+
+def test_predict_uses_the_feature_list_the_model_was_trained_with():
+    """Between deploying a feature change and the next retrain, the module's feature list and
+    the saved model's disagree. predict must follow the model's."""
+    import inspect
+    from nfl import predict
+    src = inspect.getsource(predict.run)
+    assert 'meta.get("base_features")' in src and 'meta.get("market_features")' in src

@@ -51,6 +51,8 @@ LINES = DATA / "lines.csv"          # closing spread/total/moneyline, split out 
 SNAPSHOTS = DATA / "snapshots.csv"  # our own live pulls, for closing-line value
 EPA_PRIOR = DATA / "team_epa.csv"   # opponent-adjusted EPA/play by season - used from season-1
 CONTINUITY = DATA / "continuity.csv"  # snap-weighted roster continuity by season
+INJURIES = DATA / "injury_load.csv"   # starters out per team-week, from the injury report
+XWALK = DATA / "players_xwalk.csv"    # pfr -> gsis player ids, saved by the weekly retrain
 PICKS = DATA / "picks.csv"
 RESULTS = DATA / "results.csv"
 METRICS = DATA / "metrics.json"
@@ -193,6 +195,17 @@ LOAD_FROM_SEASON = FIRST_SEASON - WARMUP_SEASONS
 # for games before 2014. That is fine - the trees handle a missing feature - but it is why
 # you will see the column empty in the early seasons.
 FIRST_SNAP_SEASON = 2013
+# Injury features start here, not at the first snap-count season. nflverse's weekly rosters
+# before 2016 were rebuilt after the fact: ~73% of players they mark as on reserve in
+# 2013-15 actually played that week, against ~0% from 2016 on, so the older seasons leak the
+# future. 2016 is also when the league dropped "Probable" and redefined "Questionable", so
+# the injury report itself means something different before it.
+INJURY_FIRST_SEASON = 2016
+# How heavily training leans on recent seasons: a season this many years back counts half as
+# much as the latest one. The game drifts - home field fell from ~2.5 points to ~1.5 in a
+# decade - and an unweighted fit treats 2011 as just as informative as last season.
+# 0 turns weighting off.
+RECENCY_HALFLIFE = _env_float("DEGEN_RECENCY_HALFLIFE", 4.0)
 # An NFL week is Thursday to Monday; 7 days ahead covers the full slate from any weekday.
 BOARD_DAYS = _env_int("DEGEN_BOARD_DAYS", 7)
 

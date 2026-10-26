@@ -1,0 +1,23 @@
+name: NFL model comparison
+# Scores model variants against each other on identical folds - a 2020-2025 walk-forward and
+# a week-by-week replay of the current season - with the production learner (xgboost).
+# Read-only: prints to the job summary and uploads the numbers, commits nothing.
+on:
+  workflow_dispatch:
+  push:
+    branches: [nfl-model-v2]
+    paths: ['nfl/**', 'data/nfl/injury_load.csv', '.github/workflows/nfl-compare.yml']
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.txt
+      - run: python -m nfl.compare --out compare.json
+      - uses: actions/upload-artifact@v4
+        with: {name: nfl-compare, path: compare.json}
