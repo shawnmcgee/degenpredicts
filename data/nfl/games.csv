@@ -4735,7 +4735,7 @@ game_id,season,week,season_type,playoff_round,date,tip_et,kickoff_utc,start_time
 2026_07_PIT_NO,2026,7,REG,0,2026-10-25,"Sun Oct 25, 9:30 AM",2026-10-25T09:30:00-04:00,False,Sunday,NO,PIT,10.0,16.0,26.0,-6.0,True,False,NFC South,AFC North,7.0,7.0,dome,,,,PAR00,Tyler Shough,Aaron Rodgers,True
 2026_07_SF_ATL,2026,7,REG,0,2026-10-25,"Sun Oct 25, 1:00 PM",2026-10-25T13:00:00-04:00,False,Sunday,ATL,SF,29.0,20.0,49.0,9.0,False,False,NFC South,NFC West,7.0,6.0,open,,,,ATL97,Michael Penix Jr.,Brock Purdy,True
 2026_07_TB_CAR,2026,7,REG,0,2026-10-25,"Sun Oct 25, 1:00 PM",2026-10-25T13:00:00-04:00,False,Sunday,CAR,TB,13.0,43.0,56.0,-30.0,False,True,NFC South,NFC South,7.0,7.0,outdoors,,,,CAR00,Bryce Young,Baker Mayfield,True
-2026_07_DAL_PHI,2026,7,REG,0,2026-10-26,"Mon Oct 26, 8:15 PM",2026-10-26T20:15:00-04:00,False,Monday,PHI,DAL,,,,,False,True,NFC East,NFC East,8.0,8.0,outdoors,grass,,,PHI00,Jalen Hurts,Dak Prescott,False
+2026_07_DAL_PHI,2026,7,REG,0,2026-10-26,"Mon Oct 26, 8:15 PM",2026-10-26T20:15:00-04:00,False,Monday,PHI,DAL,21.0,38.0,59.0,-17.0,False,True,NFC East,NFC East,8.0,8.0,outdoors,,,,PHI00,Jalen Hurts,Dak Prescott,True
 2026_08_CAR_GB,2026,8,REG,0,2026-10-29,"Thu Oct 29, 8:15 PM",2026-10-29T20:15:00-04:00,False,Thursday,GB,CAR,,,,,False,False,NFC North,NFC South,4.0,4.0,outdoors,grass,,,GNB00,Jordan Love,Bryce Young,False
 2026_08_ARI_DAL,2026,8,REG,0,2026-11-01,"Sun Nov 01, 1:00 PM",2026-11-01T13:00:00-05:00,False,Sunday,DAL,ARI,,,,,False,False,NFC East,NFC West,6.0,7.0,,matrixturf,,,DAL00,Dak Prescott,Jacoby Brissett,False
 2026_08_ATL_TB,2026,8,REG,0,2026-11-01,"Sun Nov 01, 1:00 PM",2026-11-01T13:00:00-05:00,False,Sunday,TB,ATL,,,,,False,True,NFC South,NFC South,7.0,7.0,outdoors,grass,,,TAM00,Baker Mayfield,Michael Penix Jr.,False
