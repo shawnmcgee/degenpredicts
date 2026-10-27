@@ -24,69 +24,75 @@
         ],
         "n": 12000,
         "over_rate": 45.2,
-        "brier_model": 0.2388,
+        "brier_model": 0.239,
         "brier_trailing_avg": 0.2474,
         "calibration": [
           {
             "bucket": "10%-20%",
-            "n": 68,
-            "predicted": 17.7,
-            "actual": 10.3
+            "n": 72,
+            "predicted": 17.6,
+            "actual": 12.5
           },
           {
             "bucket": "20%-30%",
-            "n": 612,
-            "predicted": 26.5,
-            "actual": 25.2
+            "n": 587,
+            "predicted": 26.6,
+            "actual": 25.7
           },
           {
             "bucket": "30%-40%",
-            "n": 2584,
+            "n": 2619,
             "predicted": 36.1,
-            "actual": 36.6
+            "actual": 36.4
           },
           {
             "bucket": "40%-50%",
-            "n": 5089,
-            "predicted": 44.9,
-            "actual": 45.2
+            "n": 5115,
+            "predicted": 45.0,
+            "actual": 45.5
           },
           {
             "bucket": "50%-60%",
-            "n": 2670,
-            "predicted": 54.0,
-            "actual": 52.3
+            "n": 2625,
+            "predicted": 54.1,
+            "actual": 51.9
           },
           {
             "bucket": "60%-70%",
-            "n": 738,
+            "n": 737,
             "predicted": 63.8,
-            "actual": 61.5
+            "actual": 60.5
           },
           {
             "bucket": "70%-80%",
-            "n": 208,
-            "predicted": 74.0,
-            "actual": 68.3
+            "n": 206,
+            "predicted": 73.7,
+            "actual": 67.5
+          },
+          {
+            "bucket": "80%-90%",
+            "n": 36,
+            "predicted": 82.9,
+            "actual": 91.7
           }
         ],
         "always_under_hit_rate": 54.8,
         "trailing_avg_side_hit_rate": 54.7,
-        "side_hit_rate_all": 58.0,
-        "side_hit_rate_confident": 65.5,
-        "n_confident": 4241
+        "side_hit_rate_all": 57.8,
+        "side_hit_rate_confident": 65.4,
+        "n_confident": 4260
       },
       "per_season": [
         {
           "season": 2021,
           "n": 21943,
-          "mae_model": 4.843,
+          "mae_model": 4.841,
           "mae_baseline": 4.964
         },
         {
           "season": 2022,
           "n": 21528,
-          "mae_model": 4.873,
+          "mae_model": 4.875,
           "mae_baseline": 5.01
         },
         {
@@ -104,11 +110,11 @@
         {
           "season": 2025,
           "n": 22050,
-          "mae_model": 4.842,
+          "mae_model": 4.843,
           "mae_baseline": 4.969
         }
       ],
-      "n_train": 256725
+      "n_train": 257604
     },
     "rebounds": {
       "market": "rebounds",
@@ -134,75 +140,75 @@
         ],
         "n": 12000,
         "over_rate": 45.1,
-        "brier_model": 0.2386,
-        "brier_trailing_avg": 0.2451,
+        "brier_model": 0.2387,
+        "brier_trailing_avg": 0.2452,
         "calibration": [
           {
             "bucket": "10%-20%",
-            "n": 72,
-            "predicted": 16.9,
-            "actual": 16.7
+            "n": 85,
+            "predicted": 17.1,
+            "actual": 15.3
           },
           {
             "bucket": "20%-30%",
-            "n": 518,
-            "predicted": 26.3,
-            "actual": 23.4
+            "n": 533,
+            "predicted": 26.6,
+            "actual": 25.0
           },
           {
             "bucket": "30%-40%",
-            "n": 2939,
-            "predicted": 36.1,
-            "actual": 36.8
+            "n": 2866,
+            "predicted": 36.2,
+            "actual": 36.9
           },
           {
             "bucket": "40%-50%",
-            "n": 5085,
+            "n": 5171,
             "predicted": 44.9,
-            "actual": 45.3
+            "actual": 45.2
           },
           {
             "bucket": "50%-60%",
-            "n": 2579,
+            "n": 2528,
             "predicted": 54.0,
-            "actual": 53.5
+            "actual": 54.0
           },
           {
             "bucket": "60%-70%",
-            "n": 667,
-            "predicted": 63.9,
-            "actual": 62.8
+            "n": 674,
+            "predicted": 63.7,
+            "actual": 61.0
           },
           {
             "bucket": "70%-80%",
-            "n": 119,
-            "predicted": 73.7,
-            "actual": 67.2
+            "n": 122,
+            "predicted": 73.4,
+            "actual": 68.0
           }
         ],
         "always_under_hit_rate": 54.9,
         "trailing_avg_side_hit_rate": 55.5,
         "side_hit_rate_all": 58.3,
-        "side_hit_rate_confident": 65.2,
-        "n_confident": 4336
+        "side_hit_rate_confident": 64.9,
+        "n_confident": 4301
       },
       "per_season": [
         {
           "season": 2021,
           "n": 21943,
-          "mae_model": 1.987,
+          "mae_model": 1.986,
           "mae_baseline": 2.014
         },
         {
           "season": 2022,
           "n": 21528,
-          "mae_model": 1.961,
+          "mae_model": 1.963,
           "mae_baseline": 2.0
         },
         {
           "season": 2023,
           "n": 21212,
-          "mae_model": 1.952,
+          "mae_model": 1.951,
           "mae_baseline": 1.987
         },
         {
@@ -218,7 +224,7 @@
           "mae_baseline": 1.982
         }
       ],
-      "n_train": 256725
+      "n_train": 257604
     },
     "assists": {
       "market": "assists",
@@ -244,75 +250,75 @@
         ],
         "n": 12000,
         "over_rate": 44.5,
-        "brier_model": 0.2349,
+        "brier_model": 0.2347,
         "brier_trailing_avg": 0.2416,
         "calibration": [
           {
             "bucket": "10%-20%",
-            "n": 161,
-            "predicted": 16.4,
-            "actual": 14.3
+            "n": 160,
+            "predicted": 16.3,
+            "actual": 13.8
           },
           {
             "bucket": "20%-30%",
-            "n": 1001,
-            "predicted": 26.4,
-            "actual": 25.8
+            "n": 1042,
+            "predicted": 26.5,
+            "actual": 25.9
           },
           {
             "bucket": "30%-40%",
-            "n": 2982,
+            "n": 2948,
             "predicted": 35.5,
-            "actual": 35.3
+            "actual": 34.9
           },
           {
             "bucket": "40%-50%",
-            "n": 4129,
+            "n": 4096,
             "predicted": 44.8,
-            "actual": 46.1
+            "actual": 46.4
           },
           {
             "bucket": "50%-60%",
-            "n": 2475,
+            "n": 2498,
             "predicted": 54.4,
-            "actual": 53.7
+            "actual": 53.4
           },
           {
             "bucket": "60%-70%",
-            "n": 989,
+            "n": 994,
             "predicted": 64.0,
-            "actual": 60.2
+            "actual": 61.2
           },
           {
             "bucket": "70%-80%",
             "n": 223,
             "predicted": 73.5,
-            "actual": 68.6
+            "actual": 67.7
           },
           {
             "bucket": "80%-90%",
             "n": 34,
-            "predicted": 83.4,
+            "predicted": 83.6,
             "actual": 79.4
           }
         ],
         "always_under_hit_rate": 55.5,
         "trailing_avg_side_hit_rate": 57.4,
         "side_hit_rate_all": 59.6,
-        "side_hit_rate_confident": 66.5,
-        "n_confident": 5396
+        "side_hit_rate_confident": 67.0,
+        "n_confident": 5406
       },
       "per_season": [
         {
           "season": 2021,
           "n": 21943,
-          "mae_model": 1.383,
+          "mae_model": 1.384,
           "mae_baseline": 1.413
         },
         {
           "season": 2022,
           "n": 21528,
-          "mae_model": 1.393,
+          "mae_model": 1.391,
           "mae_baseline": 1.425
         },
         {
@@ -334,7 +340,7 @@
           "mae_baseline": 1.469
         }
       ],
-      "n_train": 256725
+      "n_train": 257604
     },
     "threes": {
       "market": "threes",
@@ -360,57 +366,57 @@
         ],
         "n": 12000,
         "over_rate": 43.0,
-        "brier_model": 0.2334,
+        "brier_model": 0.2335,
         "brier_trailing_avg": 0.2384,
         "calibration": [
           {
             "bucket": "10%-20%",
-            "n": 125,
-            "predicted": 17.8,
-            "actual": 16.8
+            "n": 119,
+            "predicted": 18.0,
+            "actual": 16.0
           },
           {
             "bucket": "20%-30%",
-            "n": 1532,
-            "predicted": 26.4,
-            "actual": 27.2
+            "n": 1500,
+            "predicted": 26.3,
+            "actual": 27.3
           },
           {
             "bucket": "30%-40%",
-            "n": 3680,
-            "predicted": 35.1,
-            "actual": 35.9
+            "n": 3675,
+            "predicted": 35.0,
+            "actual": 35.8
           },
           {
             "bucket": "40%-50%",
-            "n": 3438,
+            "n": 3474,
             "predicted": 45.0,
             "actual": 45.7
           },
           {
             "bucket": "50%-60%",
-            "n": 2588,
+            "n": 2591,
             "predicted": 54.3,
-            "actual": 54.9
+            "actual": 54.7
           },
           {
             "bucket": "60%-70%",
-            "n": 570,
-            "predicted": 63.5,
-            "actual": 63.3
+            "n": 576,
+            "predicted": 63.6,
+            "actual": 63.7
           },
           {
             "bucket": "70%-80%",
             "n": 63,
-            "predicted": 72.7,
+            "predicted": 73.0,
             "actual": 76.2
           }
         ],
         "always_under_hit_rate": 57.0,
         "trailing_avg_side_hit_rate": 59.3,
-        "side_hit_rate_all": 60.7,
+        "side_hit_rate_all": 60.6,
         "side_hit_rate_confident": 66.8,
-        "n_confident": 5974
+        "n_confident": 5935
       },
       "per_season": [
         {
@@ -434,7 +440,7 @@
         {
           "season": 2024,
           "n": 18923,
-          "mae_model": 1.101,
+          "mae_model": 1.1,
           "mae_baseline": 1.112
         },
         {
@@ -444,10 +450,10 @@
           "mae_baseline": 1.079
         }
       ],
-      "n_train": 214234
+      "n_train": 215037
     }
   },
-  "trained_at": "2026-10-20T20:22:15+00:00",
+  "trained_at": "2026-10-27T20:50:09+00:00",
   "sklearn": "1.9.1",
   "features": [
     "pos_g",
