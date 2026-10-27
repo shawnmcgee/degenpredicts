@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-10-20T18:49:44+00:00",
+  "trained_at": "2026-10-27T19:45:14+00:00",
   "sport": "nhl",
   "models": [
     "market",
@@ -42,7 +42,7 @@
     "own_km",
     "own_tz_abs"
   ],
-  "n_rows": 24682,
+  "n_rows": 24729,
   "seasons": [
     2007,
     2008,
@@ -141,47 +141,47 @@
   },
   "effects": {
     "nomarket": {
-      "log_lam": 5.94,
-      "log_L": 1.54,
-      "log_S": 4.65,
-      "log_p": 2.93,
-      "opp_goalie": 0.56,
-      "is_home": -1.76,
-      "playoff": -1.15,
-      "own_b2b": -1.39,
-      "opp_b2b": 1.31,
-      "own_rest": 0.46,
-      "opp_rest": 0.0,
-      "own_km": 0.02,
-      "opp_km": 0.63,
-      "own_tz_abs": 0.32,
-      "opp_tz_abs": -0.33,
-      "own_3in4": -0.66,
+      "log_lam": 5.99,
+      "log_L": 1.44,
+      "log_S": 4.63,
+      "log_p": 3.02,
+      "opp_goalie": 0.54,
+      "is_home": -1.71,
+      "playoff": -1.16,
+      "own_b2b": -1.42,
+      "opp_b2b": 1.3,
+      "own_rest": 0.37,
+      "opp_rest": 0.07,
+      "own_km": -0.02,
+      "opp_km": 0.58,
+      "own_tz_abs": 0.43,
+      "opp_tz_abs": -0.3,
+      "own_3in4": -0.59,
       "opp_3in4": 0.12,
-      "early": 0.43
+      "early": 0.37
     },
     "market": {
-      "dev_lam": 4.6,
-      "dev_L": -1.23,
-      "log_S": -0.04,
-      "opp_goalie": -0.13,
-      "opp_b2b": 0.78,
-      "own_b2b": -1.05,
-      "own_rest": 0.34,
-      "opp_rest": 0.21,
-      "own_3in4": -0.51,
+      "dev_lam": 4.65,
+      "dev_L": -1.3,
+      "log_S": -0.13,
+      "opp_goalie": -0.12,
+      "opp_b2b": 0.76,
+      "own_b2b": -1.08,
+      "own_rest": 0.24,
+      "opp_rest": 0.28,
+      "own_3in4": -0.43,
       "opp_3in4": 0.21,
       "playoff": -0.68,
-      "early": 0.36,
-      "is_home": -0.27,
-      "own_km": 0.87,
-      "own_tz_abs": -0.48
+      "early": 0.3,
+      "is_home": -0.21,
+      "own_km": 0.81,
+      "own_tz_abs": -0.33
     }
   },
   "lines": {
     "sbr_close": 19281,
     "oddsapi_noon": 3500,
-    "oddsapi_pregame": 140
+    "oddsapi_pregame": 187
   },
   "eval": {
     "test_seasons": [
