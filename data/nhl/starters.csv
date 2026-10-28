@@ -1329,3 +1329,19 @@ pulled_at,date,game_id,side,team,goalie,goalie_id,status,matched_by
 2026-10-27T19:26:45+00:00,2026-10-28,2026020201,a,NJD,Connor Hellebuyck,8476945,projected,"name, other team"
 2026-10-27T19:26:45+00:00,2026-10-28,2026020202,h,SEA,Philipp Grubauer,8475831,projected,name
 2026-10-27T19:26:45+00:00,2026-10-28,2026020202,a,TOR,Sergei Bobrovsky,8475683,projected,name
+2026-10-28T00:44:42+00:00,2026-10-27,2026020195,h,UTA,Karel Vejmelka,8478872,confirmed,name
+2026-10-28T00:44:42+00:00,2026-10-27,2026020195,a,MIN,Jesper Wallstedt,8482661,confirmed,name
+2026-10-28T00:44:42+00:00,2026-10-27,2026020196,h,VGK,Adin Hill,8478499,confirmed,name
+2026-10-28T00:44:42+00:00,2026-10-27,2026020196,a,OTT,Jonas Johansson,8477992,confirmed,name
+2026-10-28T00:44:42+00:00,2026-10-27,2026020197,h,ANA,Lukas Dostal,8480843,confirmed,name
+2026-10-28T00:44:42+00:00,2026-10-27,2026020197,a,VAN,Leevi Merilainen,8482447,projected,name
+2026-10-28T00:44:42+00:00,2026-10-27,2026020198,h,SJS,Yaroslav Askarov,8482137,confirmed,name
+2026-10-28T00:44:42+00:00,2026-10-27,2026020198,a,BUF,Colten Ellis,8481551,likely,name
+2026-10-28T00:44:42+00:00,2026-10-28,2026020199,h,WSH,Charlie Lindgren,8479292,projected,name
+2026-10-28T00:44:42+00:00,2026-10-28,2026020199,a,PHI,Dan Vladar,8478435,projected,name
+2026-10-28T00:44:42+00:00,2026-10-28,2026020200,h,EDM,Tristan Jarry,8477465,projected,name
+2026-10-28T00:44:42+00:00,2026-10-28,2026020200,a,CGY,Devin Cooley,8482445,projected,name
+2026-10-28T00:44:42+00:00,2026-10-28,2026020201,h,COL,Mackenzie Blackwood,8478406,projected,name
+2026-10-28T00:44:42+00:00,2026-10-28,2026020201,a,NJD,Connor Hellebuyck,8476945,projected,"name, other team"
+2026-10-28T00:44:42+00:00,2026-10-28,2026020202,h,SEA,Philipp Grubauer,8475831,projected,name
+2026-10-28T00:44:42+00:00,2026-10-28,2026020202,a,TOR,Sergei Bobrovsky,8475683,projected,name
