@@ -12266,7 +12266,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401862809,2026,8,2026-10-24,Florida Atlantic,Rice,-9.5,-10.0,55.0,56.0,Bovada,2
 401862810,2026,8,2026-10-24,Navy,North Texas,3.0,2.0,60.5,63.0,Bovada,2
 401862811,2026,8,2026-10-24,Tulane,UTSA,3.0,2.5,52.0,51.5,Bovada,2
-401862812,2026,9,2026-10-29,North Texas,Florida Atlantic,-14.0,-13.0,77.0,72.5,Bovada,2
+401862812,2026,9,2026-10-29,North Texas,Florida Atlantic,-14.0,-13.0,76.5,72.5,Bovada,2
 401862813,2026,9,2026-10-30,Charlotte,Tulane,10.0,10.0,47.0,46.0,Bovada,2
 401862814,2026,9,2026-10-31,Memphis,Army,-6.0,-7.0,60.0,58.0,Bovada,2
 401862815,2026,9,2026-10-31,East Carolina,Temple,-6.0,-6.0,50.0,50.0,Bovada,2
@@ -12366,8 +12366,8 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401866448,2026,8,2026-10-24,Buffalo,Bowling Green,-3.0,-4.5,45.0,44.5,Bovada,2
 401866449,2026,8,2026-10-24,Ohio,Eastern Michigan,-11.5,-11.0,49.0,49.5,Bovada,2
 401866450,2026,8,2026-10-24,Toledo,Western Michigan,-2.5,-3.5,48.0,45.5,Bovada,2
-401866451,2026,9,2026-10-30,Sacramento State,Kent State,10.0,10.5,46.5,46.5,Bovada,2
-401866452,2026,9,2026-10-31,Western Michigan,Bowling Green,-13.5,-14.0,44.0,44.0,Bovada,2
+401866451,2026,9,2026-10-30,Sacramento State,Kent State,9.5,10.5,46.5,46.5,Bovada,2
+401866452,2026,9,2026-10-31,Western Michigan,Bowling Green,-13.0,-14.0,43.5,44.0,Bovada,2
 401866476,2026,8,2026-10-24,Central Michigan,Miami (OH),3.5,1.5,41.0,43.0,Bovada,2
 401866477,2026,5,2026-10-03,Miami (OH),Bowling Green,-12.0,-15.0,43.0,47.0,Bovada,2
 401866478,2026,7,2026-10-17,Miami (OH),Akron,-9.5,-10.0,46.5,47.0,Bovada,2
@@ -12814,7 +12814,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401869960,2026,1,2026-09-05,James Madison,Liberty,-6.0,-6.0,50.5,50.5,Bovada,2
 401869961,2026,4,2026-09-26,Old Dominion,James Madison,7.0,5.0,44.0,47.5,Bovada,2
 401869962,2026,5,2026-10-03,James Madison,Marshall,-18.0,-17.5,56.0,54.5,Bovada,2
-401869963,2026,9,2026-10-29,James Madison,Troy,-21.0,-21.0,49.5,52.5,Bovada,2
+401869963,2026,9,2026-10-29,James Madison,Troy,-20.5,-21.0,49.5,52.5,Bovada,2
 401869965,2026,6,2026-10-10,Louisiana Tech,Louisiana,-3.0,-2.5,48.0,49.5,Bovada,2
 401869966,2026,7,2026-10-17,Louisiana,Troy,-3.0,-4.5,49.0,49.5,Bovada,2
 401869967,2026,8,2026-10-24,Southern Miss,Louisiana,11.5,10.0,52.5,52.5,Bovada,2
@@ -12854,7 +12854,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401871093,2026,8,2026-10-24,Louisiana Tech,Old Dominion,-13.5,-10.5,43.5,45.0,Bovada,2
 401871094,2026,8,2026-10-24,Troy,UL Monroe,-13.5,-17.0,50.5,51.0,Bovada,2
 401871095,2026,9,2026-10-31,UL Monroe,Southern Miss,3.5,3.0,56.0,53.5,Bovada,2
-401871096,2026,9,2026-10-31,Old Dominion,Marshall,2.5,3.0,45.0,44.5,Bovada,2
+401871096,2026,9,2026-10-31,Old Dominion,Marshall,2.5,3.0,44.0,44.5,Bovada,2
 401871097,2026,9,2026-10-31,South Alabama,Louisiana Tech,5.5,5.5,58.5,57.0,Bovada,2
 401871472,2026,4,2026-09-26,Southeast Missouri State,West Florida,-6.0,-6.5,52.5,52.5,DraftKings,1
 401871473,2026,6,2026-10-10,Lindenwood,Southeast Missouri State,4.5,2.5,44.5,45.5,DraftKings,1
