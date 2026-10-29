@@ -28473,8 +28473,8 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401909143,2026,8,regular,2026-10-24,False,"Sat Oct 24, 1:00 PM",Oberlin,Ohio Wesleyan,,,,,False,True,North Coast,North Coast,False,2026-10-24T13:00:00-04:00,Sat,,
 401871071,2026,9,regular,2026-10-27,False,"Tue Oct 27, 7:00 PM",Western Kentucky,Delaware,21.0,35.0,56.0,-14.0,False,True,Conference USA,Conference USA,True,2026-10-27T19:00:00-04:00,Tue,fbs,fbs
 401871072,2026,9,regular,2026-10-27,False,"Tue Oct 27, 8:00 PM",Missouri State,Sam Houston,24.0,3.0,27.0,21.0,False,True,Conference USA,Conference USA,True,2026-10-27T20:00:00-04:00,Tue,fbs,fbs
-401871057,2026,9,regular,2026-10-28,False,"Wed Oct 28, 8:00 PM",New Mexico State,Jacksonville State,,,,,False,True,Conference USA,Conference USA,False,2026-10-28T20:00:00-04:00,Wed,fbs,fbs
-401871058,2026,9,regular,2026-10-28,False,"Wed Oct 28, 7:00 PM",Middle Tennessee,Kennesaw State,,,,,False,True,Conference USA,Conference USA,False,2026-10-28T19:00:00-04:00,Wed,fbs,fbs
+401871057,2026,9,regular,2026-10-28,False,"Wed Oct 28, 8:00 PM",New Mexico State,Jacksonville State,0.0,24.0,24.0,-24.0,False,True,Conference USA,Conference USA,True,2026-10-28T20:00:00-04:00,Wed,fbs,fbs
+401871058,2026,9,regular,2026-10-28,False,"Wed Oct 28, 7:00 PM",Middle Tennessee,Kennesaw State,28.0,44.0,72.0,-16.0,False,True,Conference USA,Conference USA,True,2026-10-28T19:00:00-04:00,Wed,fbs,fbs
 401862812,2026,9,regular,2026-10-29,False,"Thu Oct 29, 7:30 PM",North Texas,Florida Atlantic,,,,,False,True,American Athletic,American Athletic,False,2026-10-29T19:30:00-04:00,Thu,fbs,fbs
 401867969,2026,9,regular,2026-10-29,False,"Thu Oct 29, 7:00 PM",Morgan State,South Carolina State,,,,,False,True,MEAC,MEAC,False,2026-10-29T19:00:00-04:00,Thu,,
 401869963,2026,9,regular,2026-10-29,False,"Thu Oct 29, 7:30 PM",James Madison,Troy,,,,,False,True,Sun Belt,Sun Belt,False,2026-10-29T19:30:00-04:00,Thu,fbs,fbs
