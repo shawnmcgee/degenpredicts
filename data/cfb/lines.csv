@@ -12439,8 +12439,8 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401866673,2026,8,2026-10-24,Hampton,Monmouth,22.5,26.5,57.5,58.5,DraftKings,1
 401866674,2026,8,2026-10-24,Merrimack,New Hampshire,-1.5,-1.5,46.5,46.5,DraftKings,1
 401866675,2026,9,2026-10-31,UAlbany,Campbell,2.5,1.5,55.5,52.5,DraftKings,1
-401866676,2026,9,2026-10-31,Rhode Island,Maine,-11.5,-15.5,44.5,45.5,DraftKings,1
-401866677,2026,9,2026-10-31,Stony Brook,Sacred Heart,-10.5,-12.5,53.5,52.5,DraftKings,1
+401866676,2026,9,2026-10-31,Rhode Island,Maine,-13.5,-15.5,45.5,45.5,DraftKings,1
+401866677,2026,9,2026-10-31,Stony Brook,Sacred Heart,-10.0,-12.5,52.5,52.5,DraftKings,1
 401866678,2026,9,2026-10-31,Monmouth,Bryant,-13.5,-13.5,55.5,55.5,DraftKings,1
 401866679,2026,9,2026-10-31,North Carolina A&T,Elon,10.5,10.5,45.5,45.5,DraftKings,1
 401866680,2026,9,2026-10-31,Towson,Hampton,-18.5,-18.5,55.5,56.5,DraftKings,1
@@ -12591,7 +12591,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401868026,2026,9,2026-10-31,Holy Cross,Richmond,1.5,1.5,42.5,42.5,DraftKings,1
 401868028,2026,2,2026-09-12,Lafayette,Marist,-15.5,-12.5,47.5,47.5,DraftKings,1
 401868029,2026,5,2026-10-03,Lafayette,Richmond,6.5,6.5,43.5,42.5,DraftKings,1
-401868030,2026,9,2026-10-31,Lafayette,Villanova,7.0,7.0,51.5,51.5,DraftKings,1
+401868030,2026,9,2026-10-31,Lafayette,Villanova,7.5,7.0,51.5,51.5,DraftKings,1
 401868033,2026,2,2026-09-12,Lehigh,William & Mary,-13.5,-11.5,47.5,47.5,DraftKings,1
 401868034,2026,4,2026-09-26,Pennsylvania,Lehigh,12.5,10.5,45.5,48.5,DraftKings,1
 401868035,2026,8,2026-10-24,Villanova,Lehigh,6.5,6.5,49.5,49.5,DraftKings,1
@@ -12854,7 +12854,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401869147,2026,3,2026-09-19,Incarnate Word,Houston Christian,-14.0,-14.0,50.5,50.5,DraftKings,1
 401869151,2026,5,2026-10-03,Houston Christian,Nicholls,-1.5,-1.5,53.5,51.5,DraftKings,1
 401869152,2026,7,2026-10-17,Houston Christian,East Texas A&M,-3.0,-3.0,48.5,47.5,DraftKings,1
-401869154,2026,9,2026-10-31,New Haven,Duquesne,4.5,4.5,49.5,50.5,DraftKings,1
+401869154,2026,9,2026-10-31,New Haven,Duquesne,5.5,4.5,49.5,50.5,DraftKings,1
 401869842,2026,5,2026-10-03,Louisiana Tech,Army,1.0,3.0,47.0,46.5,Bovada,2
 401869843,2026,6,2026-10-10,App State,Old Dominion,-9.5,-10.0,45.5,51.0,Bovada,2
 401869844,2026,7,2026-10-16,Coastal Carolina,App State,1.0,1.0,49.0,52.0,Bovada,2
