@@ -12277,7 +12277,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401862814,2026,9,2026-10-31,Memphis,Army,-6.0,-7.0,60.0,58.0,Bovada,2
 401862815,2026,9,2026-10-31,East Carolina,Temple,-4.5,-6.0,50.5,50.0,Bovada,2
 401862816,2026,9,2026-10-31,South Florida,UAB,-7.5,-7.5,41.5,41.5,Bovada,2
-401862823,2026,10,2026-11-07,Army,Air Force,-5.5,-6.0,51.5,52.5,DraftKings,1
+401862823,2026,10,2026-11-07,Army,Air Force,-5.5,-6.0,50.5,52.5,DraftKings,1
 401862844,2026,15,2026-12-12,Army,Navy,2.5,2.5,37.5,37.5,DraftKings,1
 401864424,2026,1,2026-09-03,Delaware,Merrimack,-31.5,-28.5,56.5,55.5,DraftKings,1
 401864425,2026,1,2026-09-03,Kennesaw State,West Georgia,-22.5,-22.5,50.5,51.5,DraftKings,1
@@ -12438,12 +12438,12 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401866672,2026,8,2026-10-24,Bryant,Stony Brook,4.0,3.0,52.5,50.5,DraftKings,1
 401866673,2026,8,2026-10-24,Hampton,Monmouth,22.5,26.5,57.5,58.5,DraftKings,1
 401866674,2026,8,2026-10-24,Merrimack,New Hampshire,-1.5,-1.5,46.5,46.5,DraftKings,1
-401866675,2026,9,2026-10-31,UAlbany,Campbell,2.5,1.5,54.5,52.5,DraftKings,1
-401866676,2026,9,2026-10-31,Rhode Island,Maine,-13.5,-15.5,45.5,45.5,DraftKings,1
-401866677,2026,9,2026-10-31,Stony Brook,Sacred Heart,-10.0,-12.5,52.5,52.5,DraftKings,1
-401866678,2026,9,2026-10-31,Monmouth,Bryant,-13.5,-13.5,54.5,55.5,DraftKings,1
-401866679,2026,9,2026-10-31,North Carolina A&T,Elon,10.5,10.5,45.5,45.5,DraftKings,1
-401866680,2026,9,2026-10-31,Towson,Hampton,-18.5,-18.5,53.5,56.5,DraftKings,1
+401866675,2026,9,2026-10-31,UAlbany,Campbell,2.5,1.5,53.5,52.5,DraftKings,1
+401866676,2026,9,2026-10-31,Rhode Island,Maine,-10.5,-15.5,45.5,45.5,DraftKings,1
+401866677,2026,9,2026-10-31,Stony Brook,Sacred Heart,-8.5,-12.5,52.5,52.5,DraftKings,1
+401866678,2026,9,2026-10-31,Monmouth,Bryant,-13.5,-13.5,55.5,55.5,DraftKings,1
+401866679,2026,9,2026-10-31,North Carolina A&T,Elon,7.5,10.5,45.5,45.5,DraftKings,1
+401866680,2026,9,2026-10-31,Towson,Hampton,-18.5,-18.5,51.5,56.5,DraftKings,1
 401867684,2026,1,2026-09-05,UT Martin,Chicago State,-45.5,-44.5,61.5,61.5,DraftKings,1
 401867686,2026,3,2026-09-19,Butler,Chicago State,-20.5,-19.5,54.5,53.5,DraftKings,1
 401867687,2026,4,2026-09-26,Chicago State,Norfolk State,17.5,17.5,55.5,54.5,DraftKings,1
@@ -12456,13 +12456,13 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401867806,2026,4,2026-09-25,Brown,Harvard,13.5,13.5,42.5,45.5,DraftKings,1
 401867807,2026,7,2026-10-17,Princeton,Brown,-4.0,-6.5,38.5,36.5,DraftKings,1
 401867808,2026,8,2026-10-24,Brown,Cornell,2.5,1.5,49.5,46.5,DraftKings,1
-401867809,2026,9,2026-10-31,Brown,Pennsylvania,-3.0,-3.0,38.5,40.5,DraftKings,1
+401867809,2026,9,2026-10-31,Brown,Pennsylvania,-3.5,-3.0,40.5,40.5,DraftKings,1
 401867817,2026,3,2026-09-19,Columbia,Lafayette,-3.0,-2.5,47.5,47.5,DraftKings,1
 401867818,2026,4,2026-09-26,Georgetown,Columbia,7.0,7.0,46.5,51.5,DraftKings,1
 401867819,2026,5,2026-10-03,Columbia,Princeton,-1.5,1.5,42.5,42.5,DraftKings,1
 401867821,2026,7,2026-10-16,Pennsylvania,Columbia,-6.5,-6.5,46.5,46.5,DraftKings,1
 401867822,2026,8,2026-10-24,Columbia,Dartmouth,1.5,1.5,47.5,45.5,DraftKings,1
-401867823,2026,9,2026-10-31,Columbia,Yale,7.5,7.0,51.5,48.5,DraftKings,1
+401867823,2026,9,2026-10-31,Columbia,Yale,9.5,7.0,51.5,48.5,DraftKings,1
 401867826,2026,3,2026-09-19,Colgate,Cornell,-12.5,-12.5,50.5,52.5,DraftKings,1
 401867827,2026,4,2026-09-26,Cornell,Yale,14.0,15.5,48.5,49.5,DraftKings,1
 401867828,2026,5,2026-10-03,Georgetown,Cornell,8.5,7.5,45.5,45.5,DraftKings,1
@@ -12483,14 +12483,14 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401867848,2026,5,2026-10-03,Illinois State,South Dakota State,2.5,1.5,51.5,55.5,DraftKings,1
 401867849,2026,7,2026-10-17,Southern Illinois,Illinois State,7.0,7.5,54.5,54.5,DraftKings,1
 401867850,2026,8,2026-10-24,Illinois State,Indiana State,-22.5,-22.5,57.5,57.5,DraftKings,1
-401867851,2026,9,2026-10-31,Illinois State,Murray State,-29.5,-29.5,55.5,55.5,DraftKings,1
+401867851,2026,9,2026-10-31,Illinois State,Murray State,-29.5,-29.5,54.5,55.5,DraftKings,1
 401867855,2026,1,2026-08-29,Indiana State,Southeast Missouri State,-2.5,-2.5,52.5,52.5,DraftKings,1
 401867856,2026,2,2026-09-12,Eastern Illinois,Indiana State,3.0,1.5,49.5,49.5,DraftKings,1
 401867857,2026,3,2026-09-19,Indiana State,Valparaiso,-22.5,-22.5,53.5,53.5,DraftKings,1
 401867858,2026,4,2026-09-26,Indiana State,North Dakota,17.5,16.5,54.5,57.5,DraftKings,1
 401867859,2026,5,2026-10-03,South Dakota,Indiana State,-16.5,-18.5,60.5,60.5,DraftKings,1
 401867860,2026,6,2026-10-10,Indiana State,Youngstown State,19.5,19.5,64.5,64.5,DraftKings,1
-401867861,2026,9,2026-10-31,Northern Iowa,Indiana State,-8.5,-8.5,56.5,56.5,DraftKings,1
+401867861,2026,9,2026-10-31,Northern Iowa,Indiana State,-8.5,-8.5,53.5,56.5,DraftKings,1
 401867865,2026,1,2026-08-27,Murray State,Eastern Illinois,-4.5,,49.5,,DraftKings,1
 401867866,2026,1,2026-09-05,Middle Tennessee,Murray State,-22.5,-21.0,56.0,57.5,Bovada,2
 401867867,2026,2,2026-09-12,Murray State,Valparaiso,-14.0,-10.5,47.5,51.5,DraftKings,1
@@ -12504,7 +12504,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401867877,2026,6,2026-10-10,Northern Iowa,North Dakota,13.5,11.5,58.5,58.5,DraftKings,1
 401867878,2026,7,2026-10-17,North Dakota,South Dakota State,14.0,11.5,56.5,56.5,DraftKings,1
 401867879,2026,8,2026-10-24,South Dakota,North Dakota,-3.0,-2.5,57.5,56.5,DraftKings,1
-401867880,2026,9,2026-10-31,Youngstown State,North Dakota,-5.5,-6.5,61.5,63.5,DraftKings,1
+401867880,2026,9,2026-10-31,Youngstown State,North Dakota,-5.5,-6.5,59.5,63.5,DraftKings,1
 401867882,2026,1,2026-08-29,South Dakota,Central Connecticut,-20.5,-22.5,49.5,53.5,DraftKings,1
 401867883,2026,1,2026-09-05,Northern Colorado,South Dakota,20.5,20.5,56.5,56.5,DraftKings,1
 401867884,2026,2,2026-09-12,South Dakota,Eastern Washington,-15.5,-16.5,61.5,58.5,DraftKings,1
@@ -12523,7 +12523,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401867899,2026,5,2026-10-03,Central Connecticut,Wagner,-14.0,-14.5,46.5,45.5,DraftKings,1
 401867901,2026,7,2026-10-17,Mercyhurst,Central Connecticut,8.5,7.0,54.5,53.5,DraftKings,1
 401867902,2026,8,2026-10-24,Central Connecticut,New Haven,-13.5,-14.5,52.5,54.5,DraftKings,1
-401867903,2026,9,2026-10-31,Central Connecticut,Robert Morris,-8.5,-10.0,56.5,57.5,DraftKings,1
+401867903,2026,9,2026-10-31,Central Connecticut,Robert Morris,-8.5,-10.0,53.5,57.5,DraftKings,1
 401867908,2026,3,2026-09-19,Long Island University,Villanova,18.5,18.5,50.5,45.5,DraftKings,1
 401867909,2026,4,2026-09-26,Florida International,Long Island University,-37.5,-35.5,54.0,53.0,Bovada,2
 401867910,2026,5,2026-10-03,Long Island University,Mercyhurst,-8.5,-9.5,47.5,42.5,DraftKings,1
@@ -12537,18 +12537,18 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401867921,2026,8,2026-10-24,Robert Morris,Mercyhurst,-4.5,-5.5,49.5,48.5,DraftKings,1
 401867924,2026,1,2026-09-05,New Haven,Stonehill,-6.5,-7.0,42.5,41.5,DraftKings,1
 401867925,2026,7,2026-10-17,Stonehill,Duquesne,-4.5,-2.5,43.5,46.5,DraftKings,1
-401867926,2026,9,2026-10-31,Stonehill,Mercyhurst,-6.5,-5.5,46.5,46.5,DraftKings,1
+401867926,2026,9,2026-10-31,Stonehill,Mercyhurst,-7.0,-5.5,45.5,46.5,DraftKings,1
 401867929,2026,2,2026-09-12,James Madison,Wagner,-46.5,-45.5,57.0,55.0,Bovada,2
 401867930,2026,6,2026-10-10,Wagner,Princeton,25.5,22.5,43.5,43.5,DraftKings,1
 401867931,2026,8,2026-10-24,Duquesne,Wagner,-13.5,-14.0,46.5,46.5,DraftKings,1
-401867932,2026,9,2026-10-31,Merrimack,Wagner,-15.5,-15.5,47.5,51.5,DraftKings,1
+401867932,2026,9,2026-10-31,Merrimack,Wagner,-16.5,-15.5,43.5,51.5,DraftKings,1
 401867935,2026,1,2026-08-29,Howard,Alabama A&M,1.5,-2.5,46.5,46.5,DraftKings,1
 401867939,2026,1,2026-09-06,Florida A&M,South Carolina State,19.5,17.5,52.5,,DraftKings,1
 401867955,2026,8,2026-10-23,Delaware State,North Carolina Central,-5.5,-5.5,52.5,55.5,DraftKings,1
-401867956,2026,9,2026-10-31,Norfolk State,Delaware State,-1.5,-3.0,49.5,48.5,DraftKings,1
+401867956,2026,9,2026-10-31,Norfolk State,Delaware State,2.5,-3.0,49.5,48.5,DraftKings,1
 401867960,2026,6,2026-10-10,Pennsylvania,Howard,-11.5,-14.0,42.5,42.5,DraftKings,1
 401867962,2026,8,2026-10-24,Morgan State,Howard,-7.0,-7.0,48.5,48.5,DraftKings,1
-401867963,2026,9,2026-10-31,North Carolina Central,Howard,-4.5,-4.5,46.5,46.5,DraftKings,1
+401867963,2026,9,2026-10-31,North Carolina Central,Howard,-5.5,-4.5,46.5,46.5,DraftKings,1
 401867967,2026,5,2026-10-03,Villanova,Morgan State,-16.5,-10.5,48.5,45.5,DraftKings,1
 401867968,2026,7,2026-10-17,Tennessee State,Morgan State,6.0,5.5,50.5,51.5,DraftKings,1
 401867969,2026,9,2026-10-29,Morgan State,South Carolina State,7.0,7.0,52.5,51.5,DraftKings,1
@@ -12568,7 +12568,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401867992,2026,6,2026-10-10,Georgetown,Bucknell,-2.5,-1.5,44.5,47.5,DraftKings,1
 401867993,2026,7,2026-10-17,Bucknell,Lafayette,4.5,4.5,52.5,52.5,DraftKings,1
 401867994,2026,8,2026-10-24,Holy Cross,Bucknell,-10.0,-10.0,47.5,47.5,DraftKings,1
-401867995,2026,9,2026-10-31,Lehigh,Bucknell,-26.5,-27.5,45.5,47.5,DraftKings,1
+401867995,2026,9,2026-10-31,Lehigh,Bucknell,-26.5,-27.5,44.5,47.5,DraftKings,1
 401868000,2026,1,2026-09-05,Colgate,Holy Cross,-4.5,-4.5,49.5,47.5,DraftKings,1
 401868001,2026,4,2026-09-26,Villanova,Colgate,-3.0,-2.5,44.5,46.5,DraftKings,1
 401868002,2026,7,2026-10-17,Colgate,Georgetown,-20.5,-18.5,43.5,45.5,DraftKings,1
@@ -12591,7 +12591,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401868026,2026,9,2026-10-31,Holy Cross,Richmond,1.5,1.5,42.5,42.5,DraftKings,1
 401868028,2026,2,2026-09-12,Lafayette,Marist,-15.5,-12.5,47.5,47.5,DraftKings,1
 401868029,2026,5,2026-10-03,Lafayette,Richmond,6.5,6.5,43.5,42.5,DraftKings,1
-401868030,2026,9,2026-10-31,Lafayette,Villanova,7.5,7.0,51.5,51.5,DraftKings,1
+401868030,2026,9,2026-10-31,Lafayette,Villanova,7.0,7.0,51.5,51.5,DraftKings,1
 401868033,2026,2,2026-09-12,Lehigh,William & Mary,-13.5,-11.5,47.5,47.5,DraftKings,1
 401868034,2026,4,2026-09-26,Pennsylvania,Lehigh,12.5,10.5,45.5,48.5,DraftKings,1
 401868035,2026,8,2026-10-24,Villanova,Lehigh,6.5,6.5,49.5,49.5,DraftKings,1
@@ -12622,7 +12622,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401868078,2026,6,2026-10-10,Idaho State,Cal Poly,-14.5,-14.5,63.5,63.5,DraftKings,1
 401868079,2026,7,2026-10-17,Northern Colorado,Cal Poly,3.0,3.0,52.5,53.5,DraftKings,1
 401868080,2026,8,2026-10-24,Cal Poly,Utah Tech,-15.5,-17.5,54.5,54.5,DraftKings,1
-401868081,2026,9,2026-10-31,Montana State,Cal Poly,-27.5,-27.5,64.5,64.5,DraftKings,1
+401868081,2026,9,2026-10-31,Montana State,Cal Poly,-27.5,-27.5,63.5,64.5,DraftKings,1
 401868084,2026,1,2026-08-29,Northern Arizona,Eastern Washington,-5.5,-3.0,55.5,56.5,DraftKings,1
 401868085,2026,1,2026-09-05,Eastern Washington,Northern Iowa,-7.0,-6.5,52.5,52.5,DraftKings,1
 401868086,2026,5,2026-10-03,UC Davis,Eastern Washington,-8.5,-9.5,61.5,60.5,DraftKings,1
@@ -12641,7 +12641,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401868104,2026,5,2026-10-03,Idaho State,Northern Arizona,-7.5,-6.5,55.5,55.5,DraftKings,1
 401868105,2026,7,2026-10-17,Weber State,Idaho State,4.5,7.0,63.5,63.5,DraftKings,1
 401868106,2026,8,2026-10-24,Idaho State,Portland State,-14.0,-14.0,62.5,62.5,DraftKings,1
-401868107,2026,9,2026-10-31,Utah Tech,Idaho State,17.5,17.5,56.5,56.5,DraftKings,1
+401868107,2026,9,2026-10-31,Utah Tech,Idaho State,16.5,17.5,55.5,56.5,DraftKings,1
 401868110,2026,1,2026-08-29,Montana,Southern Utah,-15.5,-16.5,59.5,58.5,DraftKings,1
 401868111,2026,1,2026-09-05,Montana,Drake,-35.5,-34.5,60.5,57.5,DraftKings,1
 401868112,2026,2,2026-09-12,Montana,Utah Tech,-38.5,-38.5,56.5,56.5,Bovada,2
@@ -12655,7 +12655,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401868123,2026,2,2026-09-12,Northern Arizona,Incarnate Word,-4.5,-4.5,54.5,54.5,DraftKings,1
 401868124,2026,3,2026-09-19,Utah Tech,Northern Arizona,16.5,21.5,51.5,53.5,DraftKings,1
 401868125,2026,7,2026-10-17,Northern Arizona,Portland State,-17.5,-17.5,63.5,61.5,DraftKings,1
-401868126,2026,9,2026-10-31,Southern Utah,Northern Arizona,1.5,1.5,60.5,60.5,DraftKings,1
+401868126,2026,9,2026-10-31,Southern Utah,Northern Arizona,3.0,1.5,61.5,60.5,DraftKings,1
 401868129,2026,1,2026-08-28,Northern Colorado,Weber State,-3.0,-3.5,50.5,49.5,DraftKings,1
 401868131,2026,4,2026-09-26,Northern Colorado,Utah Tech,-7.5,-7.5,49.5,49.5,DraftKings,1
 401868132,2026,8,2026-10-24,UC Davis,Northern Colorado,-9.5,-9.5,58.5,58.5,DraftKings,1
@@ -12684,7 +12684,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401868161,2026,7,2026-10-17,Southern Utah,UC Davis,4.5,5.5,65.5,64.5,DraftKings,1
 401868163,2026,1,2026-09-05,San Diego,UC Davis,14.5,15.5,54.5,57.5,DraftKings,1
 401868164,2026,3,2026-09-19,UC Davis,Stetson,-47.5,-47.5,64.5,64.5,Bovada,2
-401868165,2026,9,2026-10-31,Weber State,UC Davis,-1.5,-1.5,68.5,68.5,DraftKings,1
+401868165,2026,9,2026-10-31,Weber State,UC Davis,1.5,-1.5,67.5,68.5,DraftKings,1
 401868168,2026,3,2026-09-19,Weber State,Northwestern State,-35.5,-34.5,56.5,54.5,DraftKings,1
 401868169,2026,1,2026-08-27,Lindenwood,Charleston Southern,-7.5,,45.5,,DraftKings,1
 401868170,2026,1,2026-09-05,Georgia Southern,Charleston Southern,-28.0,-25.5,52.5,51.5,Bovada,2
@@ -12696,7 +12696,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401868180,2026,6,2026-10-10,Gardner-Webb,Eastern Illinois,-12.5,-13.5,47.5,51.5,DraftKings,1
 401868181,2026,7,2026-10-17,Eastern Illinois,Lindenwood,-1.5,1.5,49.5,49.5,DraftKings,1
 401868182,2026,8,2026-10-24,Eastern Illinois,Southeast Missouri State,7.0,7.0,50.5,50.5,DraftKings,1
-401868183,2026,9,2026-10-31,UT Martin,Eastern Illinois,-4.0,-4.0,48.5,48.5,DraftKings,1
+401868183,2026,9,2026-10-31,UT Martin,Eastern Illinois,-5.5,-4.0,48.5,48.5,DraftKings,1
 401868186,2026,1,2026-09-05,Wofford,Gardner-Webb,-8.5,-7.0,50.5,47.5,DraftKings,1
 401868187,2026,2,2026-09-12,Liberty,Gardner-Webb,-28.5,-27.5,55.5,55.0,Bovada,2
 401868188,2026,4,2026-09-26,Marshall,Gardner-Webb,-25.5,-23.5,56.0,52.0,Bovada,2
@@ -12725,7 +12725,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401868228,2026,5,2026-10-03,Drake,Dayton,3.0,5.5,56.5,53.5,DraftKings,1
 401868229,2026,6,2026-10-10,Dayton,Morehead State,-21.5,-20.5,54.5,54.5,DraftKings,1
 401868230,2026,8,2026-10-24,Dayton,San Diego,-6.0,-6.0,54.5,55.5,DraftKings,1
-401868231,2026,9,2026-10-31,Stetson,Dayton,18.5,18.5,56.5,56.5,DraftKings,1
+401868231,2026,9,2026-10-31,Stetson,Dayton,18.5,18.5,53.5,56.5,DraftKings,1
 401868235,2026,1,2026-08-29,Tarleton State,Prairie View A&M,-19.5,-21.5,54.5,54.5,DraftKings,1
 401868236,2026,2,2026-09-12,McNeese,Tarleton State,19.5,20.5,56.5,56.5,DraftKings,1
 401868237,2026,3,2026-09-19,Tarleton State,Merrimack,-32.5,-34.5,54.5,58.5,DraftKings,1
@@ -12761,7 +12761,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401868285,2026,2,2026-09-12,Bethune-Cookman,Stetson,-14.5,-14.5,56.5,56.5,DraftKings,1
 401868289,2026,7,2026-10-17,San Diego,Valparaiso,-6.0,-5.5,51.5,51.5,DraftKings,1
 401868295,2026,5,2026-10-03,Jackson State,Alabama A&M,-10.0,-9.5,54.5,49.5,DraftKings,1
-401868296,2026,9,2026-10-31,Alabama A&M,Alabama State,-6.0,-6.0,58.5,58.5,DraftKings,1
+401868296,2026,9,2026-10-31,Alabama A&M,Alabama State,-7.0,-6.0,56.5,58.5,DraftKings,1
 401868299,2026,4,2026-09-26,Florida A&M,Alabama A&M,3.0,-1.5,51.5,49.5,DraftKings,1
 401868300,2026,6,2026-10-10,Alabama A&M,Bethune-Cookman,-4.0,-3.0,48.5,52.5,DraftKings,1
 401868301,2026,7,2026-10-17,Alabama A&M,Grambling,-7.0,-7.0,60.5,59.5,DraftKings,1
@@ -12790,7 +12790,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401868339,2026,5,2026-10-03,East Tennessee State,Chattanooga,-3.0,-3.0,52.5,53.5,DraftKings,1
 401868340,2026,6,2026-10-10,Chattanooga,Samford,-11.5,-11.5,40.5,43.5,DraftKings,1
 401868341,2026,8,2026-10-24,Western Carolina,Chattanooga,-2.5,-3.0,49.5,45.5,DraftKings,1
-401868342,2026,9,2026-10-31,Chattanooga,VMI,-35.5,-35.5,44.5,47.5,DraftKings,1
+401868342,2026,9,2026-10-31,Chattanooga,VMI,-35.5,-35.5,43.5,47.5,DraftKings,1
 401868346,2026,4,2026-09-26,East Tennessee State,Western Carolina,-1.5,-1.5,63.5,62.5,DraftKings,1
 401868347,2026,6,2026-10-10,The Citadel,East Tennessee State,7.0,11.5,55.5,50.5,DraftKings,1
 401868348,2026,8,2026-10-24,VMI,East Tennessee State,36.5,30.5,55.5,55.5,DraftKings,1
@@ -12805,11 +12805,11 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401868375,2026,5,2026-10-03,Furman,Wofford,-4.0,-4.5,44.5,44.5,DraftKings,1
 401868376,2026,6,2026-10-10,Tennessee Tech,Furman,-13.5,-13.5,44.5,45.5,DraftKings,1
 401868377,2026,8,2026-10-24,Furman,Samford,-8.5,-9.5,42.5,45.5,DraftKings,1
-401868378,2026,9,2026-10-31,Furman,Western Carolina,2.5,2.5,54.5,54.5,DraftKings,1
+401868378,2026,9,2026-10-31,Furman,Western Carolina,1.5,2.5,52.5,54.5,DraftKings,1
 401868381,2026,5,2026-10-03,VMI,Mercer,34.5,35.5,48.5,50.5,DraftKings,1
 401868382,2026,6,2026-10-10,Mercer,Western Carolina,-7.5,-6.0,60.5,57.5,DraftKings,1
 401868383,2026,7,2026-10-17,Samford,Mercer,15.5,13.5,48.5,51.5,DraftKings,1
-401868384,2026,9,2026-10-31,Mercer,The Citadel,-17.5,-18.5,52.5,52.5,DraftKings,1
+401868384,2026,9,2026-10-31,Mercer,The Citadel,-16.5,-18.5,52.5,52.5,DraftKings,1
 401868386,2026,2,2026-09-12,Tennessee Tech,Samford,-26.5,-26.5,48.5,48.5,DraftKings,1
 401868387,2026,4,2026-09-26,Samford,VMI,-15.5,-18.5,46.5,48.5,DraftKings,1
 401868388,2026,9,2026-10-31,Samford,Wofford,5.5,4.5,48.5,47.5,DraftKings,1
@@ -12821,11 +12821,11 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401868398,2026,7,2026-10-17,Wofford,VMI,-30.5,-28.5,46.5,46.5,DraftKings,1
 401868936,2026,5,2026-10-03,Southern,Arkansas-Pine Bluff,-3.0,-4.5,55.5,56.5,DraftKings,1
 401868937,2026,8,2026-10-24,Florida A&M,Arkansas-Pine Bluff,-3.0,-3.0,55.5,55.5,DraftKings,1
-401868938,2026,9,2026-10-31,Arkansas-Pine Bluff,Bethune-Cookman,-1.5,-1.5,54.5,54.5,DraftKings,1
+401868938,2026,9,2026-10-31,Arkansas-Pine Bluff,Bethune-Cookman,-1.5,-1.5,53.5,54.5,DraftKings,1
 401868943,2026,7,2026-10-17,Mississippi Valley State,Bethune-Cookman,6.5,7.5,50.5,57.5,DraftKings,1
 401868944,2026,8,2026-10-24,Bethune-Cookman,Jackson State,8.5,7.0,53.5,50.5,DraftKings,1
 401868949,2026,7,2026-10-17,Jackson State,Florida A&M,-15.5,-13.5,54.5,54.5,DraftKings,1
-401868950,2026,9,2026-10-31,Florida A&M,Southern,-6.5,-7.0,53.5,55.5,DraftKings,1
+401868950,2026,9,2026-10-31,Florida A&M,Southern,-6.5,-7.0,52.5,55.5,DraftKings,1
 401868954,2026,4,2026-09-26,Grambling,Prairie View A&M,11.5,9.5,55.5,54.5,DraftKings,1
 401868955,2026,6,2026-10-10,Grambling,Jackson State,8.5,8.5,55.5,54.5,DraftKings,1
 401868956,2026,9,2026-10-31,Texas Southern,Grambling,6.5,7.0,61.5,61.5,DraftKings,1
