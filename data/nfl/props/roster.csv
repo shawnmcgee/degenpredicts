@@ -6,7 +6,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,BAL,DL,93.0,ACT,Calais Campbell,Calais,Campbell,Calais,00-0026190
 2026,CIN,QB,11.0,DEV,Josh Johnson,Joshua,Johnson,Josh,00-0026300
 2026,LA,QB,9.0,ACT,Matthew Stafford,John,Stafford,Matthew,00-0026498
-2026,TEN,P,7.0,DEV,Thomas Morstead,Thomas,Morstead,Thomas,00-0027114
+2026,TEN,P,7.0,ACT,Thomas Morstead,Thomas,Morstead,Thomas,00-0027114
 2026,SF,LS,46.0,ACT,Jon Weeks,Jonathan,Weeks,Jonathan,00-0027224
 2026,TEN,LS,46.0,ACT,Morgan Cox,Charles,Cox,Morgan,00-0027557
 2026,SF,OL,71.0,ACT,Trent Williams,Trent,Williams,Trent,00-0027857
@@ -16,7 +16,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,ATL,QB,13.0,ACT,Andy Dalton,Andrew,Dalton,Andy,00-0027973
 2026,GB,QB,6.0,ACT,Tyrod Taylor,Tyrod,Taylor,Tyrod,00-0028118
 2026,WAS,LB,57.0,RET,Nick Bellore,Nick,Bellore,Nick,00-0028292
-2026,LA,LS,44.0,DEV,Jake McQuaide,Jacob,McQuaide,Jake,00-0028394
+2026,LA,LS,43.0,ACT,Jake McQuaide,Jacob,McQuaide,Jake,00-0028394
 2026,LAC,LS,47.0,ACT,Josh Harris,Josh,Harris,Josh,00-0028845
 2026,MIN,P,6.0,CUT,Johnny Hekker,John,Hekker,Johnny,00-0028872
 2026,CHI,QB,11.0,ACT,Case Keenum,Casey,Keenum,Case,00-0028986
@@ -165,7 +165,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,LV,DL,69.0,ACT,Adam Butler,Adam,Butler,Adam,00-0033381
 2026,PHI,DB,23.0,ACT,Kenny Moore II,Kenny,Moore,Kenny,00-0033393
 2026,IND,TE,49.0,ACT,Pharaoh Brown,Pharaoh,Brown,Pharaoh,00-0033439
-2026,IND,DL,99.0,DEV,Carl Lawson,Carl,Lawson,Carl,00-0033463
+2026,IND,DL,96.0,ACT,Carl Lawson,Carl,Lawson,Carl,00-0033463
 2026,CIN,DL,93.0,ACT,Jonathan Allen,Jonathan,Allen,Jonathan,00-0033523
 2026,CIN,RB,34.0,ACT,Samaje Perine,Samaje,Perine,Samaje,00-0033526
 2026,CLE,QB,4.0,ACT,Deshaun Watson,Derrick,Watson,Deshaun,00-0033537
@@ -189,9 +189,9 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,ATL,OL,62.0,ACT,Corey Levin,Corey,Levin,Corey,00-0033793
 2026,WAS,OL,71.0,ACT,Andrew Wylie,Andrew,Wylie,Andrew,00-0033831
 2026,HOU,RB,23.0,ACT,Dare Ogunbowale,Oluwadare,Ogunbowale,Dare,00-0033854
-2026,GB,TE,18.0,ACT,Jonnu Smith,Jonnu,Smith,Jonnu,00-0033858
+2026,GB,TE,18.0,INA,Jonnu Smith,Jonnu,Smith,Jonnu,00-0033858
 2026,NO,DL,92.0,ACT,Davon Godchaux,Davon,Godchaux,Davon,00-0033860
-2026,MIA,K,31.0,DEV,Zane Gonzalez,Zane,Gonzalez,Zane,00-0033862
+2026,MIA,K,31.0,ACT,Zane Gonzalez,Zane,Gonzalez,Zane,00-0033862
 2026,LA,LB,95.0,RES,Myles Garrett,Myles,Garrett,Myles,00-0033868
 2026,TEN,QB,10.0,ACT,Mitchell Trubisky,Mitchell,Trubisky,Mitchell,00-0033869
 2026,TEN,DL,90.0,ACT,Solomon Thomas,Solomon,Thomas,Solomon,00-0033870
@@ -275,7 +275,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,NE,OL,65.0,ACT,Matt Pryor,Matthew,Pryor,Matt,00-0034417
 2026,NYG,WR,87.0,RES,Braxton Berrios,Braxton,Berrios,Braxton,00-0034419
 2026,PHI,OL,68.0,ACT,Jordan Mailata,Lafoga,Mailata,Jordan,00-0034429
-2026,GB,LB,44.0,ACT,Zaire Franklin,Zaire,Franklin,Zaire,00-0034431
+2026,GB,LB,44.0,INA,Zaire Franklin,Zaire,Franklin,Zaire,00-0034431
 2026,JAX,P,9.0,ACT,Logan Cooke,Logan,Cooke,Logan,00-0034437
 2026,CIN,DB,35.0,RES,Jalen Davis,Jalen,Davis,Jalen,00-0034446
 2026,WAS,DB,39.0,ACT,Jeremy Reaves,Jeremy,Reaves,Jeremy,00-0034465
@@ -309,7 +309,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,WAS,DB,37.0,ACT,Isaac Yiadom,Isaac,Yiadom,Isaac,00-0034780
 2026,NYJ,DL,97.0,ACT,Harrison Phillips,Harrison,Phillips,Harrison,00-0034782
 2026,NYJ,DB,29.0,ACT,Minkah Fitzpatrick,Minkah,Fitzpatrick,Minkah,00-0034789
-2026,LAC,DB,3.0,ACT,Derwin James,Derwin,James,Derwin,00-0034790
+2026,LAC,DB,3.0,RES,Derwin James,Derwin,James,Derwin,00-0034790
 2026,NYJ,K,19.0,ACT,Jason Sanders,Jason,Sanders,Jason,00-0034794
 2026,BAL,QB,8.0,ACT,Lamar Jackson,Lamar,Jackson,Lamar,00-0034796
 2026,BAL,TE,80.0,RES,Durham Smythe,Durham,Smythe,Durham,00-0034798
@@ -354,10 +354,10 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,HOU,LB,45.0,RES,E.J. Speed,E.J.,Speed,E.J.,00-0034987
 2026,TB,OL,77.0,ACT,Justin Skule,Justin,Skule,Justin,00-0034989
 2026,PHI,DB,29.0,ACT,Marcus Epps,Marcus,Epps,Marcus,00-0034993
-2026,NYJ,DL,43.0,DEV,Quinton Bell,Quinton,Bell,Quinton,00-0035000
+2026,NYJ,DL,43.0,ACT,Quinton Bell,Quinton,Bell,Quinton,00-0035000
 2026,BUF,LB,50.0,RES,Demetrius Flannigan-Fowles,Demetrius,Flannigan-Fowles,Demetrius,00-0035020
 2026,IND,WR,16.0,ACT,Ashton Dulin,Ashton,Dulin,Ashton,00-0035021
-2026,SF,DL,90.0,CUT,Kevin Givens,Kevin,Givens,Kevin,00-0035026
+2026,IND,DL,90.0,ACT,Kevin Givens,Kevin,Givens,Kevin,00-0035026
 2026,CHI,TE,88.0,DEV,Stephen Carlson,Stephen,Carlson,Stephen,00-0035039
 2026,IND,WR,3.0,RES,D.J. Montgomery,Dewery,Montgomery,D.J.,00-0035045
 2026,JAX,OL,69.0,RES,Sam Mustipher,Samuel,Mustipher,Sam,00-0035062
@@ -368,7 +368,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,LAC,RB,30.0,RES,Alec Ingold,Alec,Ingold,Alec,00-0035125
 2026,BAL,OL,61.0,CUT,Andre James,Andre,James,Andre,00-0035127
 2026,GB,DB,25.0,ACT,Keisean Nixon,Keisean,Nixon,Keisean,00-0035133
-2026,IND,WR,1.0,DEV,Mecole Hardman,Mecole,Hardman,Mecole,00-0035140
+2026,IND,WR,11.0,DEV,Mecole Hardman,Mecole,Hardman,Mecole,00-0035140
 2026,DEN,DB,35.0,CUT,Ugo Amadi,Ugochukwu,Amadi,Ugochukwu,00-0035142
 2026,ARI,LB,1.0,ACT,Mack Wilson,Mack,Wilson,Mack,00-0035144
 2026,WAS,OL,67.0,ACT,Nick Allegretti,Nicholas,Allegretti,Nick,00-0035149
@@ -378,7 +378,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,TEN,K,6.0,ACT,Joey Slye,Joey,Slye,Joey,00-0035192
 2026,LAC,LB,53.0,ACT,Del'Shawn Phillips,Del'Shawn,Phillips,Del'Shawn,00-0035202
 2026,ATL,WR,14.0,ACT,Olamide Zaccheaus,Olamide,Zaccheaus,Olamide,00-0035208
-2026,DAL,DB,1.0,RES,P.J. Locke,James,Locke,P.J.,00-0035227
+2026,DAL,DB,1.0,ACT,P.J. Locke,James,Locke,P.J.,00-0035227
 2026,MIN,QB,1.0,ACT,Kyler Murray,Kyler,Murray,Kyler,00-0035228
 2026,MIN,TE,87.0,ACT,T.J. Hockenson,Thomas,Hockenson,T.J.,00-0035229
 2026,BUF,DL,91.0,ACT,Ed Oliver,Ed,Oliver,Ed,00-0035230
@@ -405,7 +405,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,MIN,LB,43.0,ACT,Andrew Van Ginkel,Andrew,Van Ginkel,Andrew,00-0035272
 2026,MIN,LB,51.0,ACT,Blake Cashman,Blake,Cashman,Blake,00-0035276
 2026,CAR,DB,2.0,RES,Mike Jackson,Michael,Jackson,Michael,00-0035277
-2026,WAS,DL,55.0,DEV,Byron Cowart,Byron,Cowart,Byron,00-0035278
+2026,WAS,DL,55.0,ACT,Byron Cowart,Byron,Cowart,Byron,00-0035278
 2026,WAS,DL,90.0,ACT,Charles Omenihu,Charles,Omenihu,Charles,00-0035279
 2026,ATL,P,16.0,ACT,Jake Bailey,Jacob,Bailey,Jake,00-0035280
 2026,TB,QB,16.0,DEV,Easton Stick,Easton,Stick,Easton,00-0035282
@@ -448,13 +448,13 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,DAL,WR,11.0,RET,Parris Campbell,Parris,Campbell,Parris,00-0035639
 2026,PIT,WR,4.0,ACT,DK Metcalf,DeKaylin,Metcalf,DK,00-0035640
 2026,JAX,DL,41.0,ACT,Josh Hines-Allen,Joshua,Hines-Allen,Josh,00-0035642
-2026,TEN,DL,98.0,ACT,Jeffery Simmons,Jeffery,Simmons,Jeffery,00-0035643
+2026,CHI,DL,99.0,ACT,Jeffery Simmons,Jeffery,Simmons,Jeffery,00-0035643
 2026,NO,TE,87.0,ACT,Noah Fant,Noah,Fant,Noah,00-0035644
 2026,NYG,WR,80.0,RES,Gunner Olszewski,Kaleb,Olszewski,Gunner,00-0035645
 2026,CHI,DL,98.0,ACT,Montez Sweat,Montez,Sweat,Montez,00-0035647
 2026,WAS,WR,17.0,RES,Terry McLaurin,Terry,McLaurin,Terry,00-0035659
 2026,PHI,WR,0.0,ACT,Marquise Brown,Marquise,Brown,Marquise,00-0035662
-2026,DEN,DB,30.0,DEV,Taylor Rapp,Taylor,Rapp,Taylor,00-0035663
+2026,DEN,DB,30.0,ACT,Taylor Rapp,Taylor,Rapp,Taylor,00-0035663
 2026,NO,DB,45.0,RES,David Long,David,Long,David,00-0035665
 2026,BUF,DL,97.0,ACT,Greg Gaines,Greg,Gaines,Greg,00-0035667
 2026,NO,OL,76.0,ACT,David Edwards,David,Edwards,David,00-0035668
@@ -472,8 +472,8 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,LAC,OL,79.0,RES,Trey Pipkins,Trey,Pipkins,Trey,00-0035688
 2026,BUF,TE,88.0,ACT,Dawson Knox,Dawson,Knox,Dawson,00-0035689
 2026,MIA,DL,98.0,ACT,Clelin Ferrell,Clelin,Ferrell,Clelin,00-0035692
-2026,IND,LB,59.0,DEV,Germaine Pratt,Germaine,Pratt,Germaine,00-0035697
-2026,BAL,OL,62.0,DEV,Chuma Edoga,Chuma,Edoga,Chuma,00-0035698
+2026,IND,LB,59.0,CUT,Germaine Pratt,Germaine,Pratt,Germaine,00-0035697
+2026,BAL,OL,62.0,ACT,Chuma Edoga,Chuma,Edoga,Chuma,00-0035698
 2026,PIT,DB,35.0,ACT,Jamel Dean,Jamel,Dean,Jamel,00-0035699
 2026,GB,RB,8.0,ACT,Josh Jacobs,Joshua,Jacobs,Josh,00-0035700
 2026,CIN,OL,66.0,ACT,Dalton Risner,Dalton,Risner,Dalton,00-0035702
@@ -537,8 +537,9 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,NE,RB,44.0,RES,Reggie Gilliam,Reggie,Gilliam,Reggie,00-0036187
 2026,PHI,LB,57.0,ACT,A.J. Epenesa,Andrew,Epenesa,A.J.,00-0036192
 2026,NO,LB,33.0,ACT,Anfernee Jennings,Anfernee,Jennings,Anfernee,00-0036193
+2026,IND,OL,73.0,ACT,Charlie Heck,Charles,Heck,Charlie,00-0036195
 2026,NE,OL,71.0,RES,Mike Onwenu,Michael,Onwenu,Michael,00-0036198
-2026,BUF,DB,25.0,DEV,Geno Stone,Geno,Stone,Geno,00-0036199
+2026,BUF,DB,25.0,ACT,Geno Stone,Geno,Stone,Geno,00-0036199
 2026,ATL,DL,94.0,ACT,LaCale London,Lacale,London,Lacale,00-0036204
 2026,ATL,QB,1.0,ACT,Tua Tagovailoa,Tua,Tagovailoa,Tua,00-0036212
 2026,BAL,OL,63.0,RES,Danny Pinter,Daniel,Pinter,Danny,00-0036215
@@ -563,16 +564,16 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,WAS,DL,99.0,ACT,Javon Kinlaw,Javon,Kinlaw,Javon,00-0036260
 2026,JAX,DL,52.0,ACT,DaVon Hamilton,Davon,Hamilton,Davon,00-0036262
 2026,GB,QB,10.0,ACT,Jordan Love,Jordan,Love,Jordan,00-0036264
-2026,CAR,RB,28.0,ACT,AJ Dillon,Algiers,Dillon,A.J.,00-0036265
+2026,CAR,RB,28.0,INA,AJ Dillon,Algiers,Dillon,A.J.,00-0036265
 2026,TEN,DL,95.0,CUT,Jordan Elliott,Jordan,Elliott,Jordan,00-0036266
 2026,ARI,OL,79.0,ACT,Jedrick Wills,Jedrick,Wills,Jedrick,00-0036267
-2026,IND,WR,86.0,DEV,Quez Watkins,Terrance,Watkins,Quez,00-0036271
+2026,IND,WR,9.0,DEV,Quez Watkins,Terrance,Watkins,Quez,00-0036271
 2026,DET,OL,78.0,RES,Ben Bartch,Benjamin,Bartch,Ben,00-0036272
 2026,CHI,RB,4.0,ACT,D'Andre Swift,D'Andre,Swift,D'Andre,00-0036275
 2026,NYG,LB,54.0,ACT,Malik Harrison,Malik,Harrison,Malik,00-0036280
 2026,ATL,DB,26.0,ACT,C.J. Henderson,Christopher,Henderson,C.J.,00-0036281
 2026,CLE,DB,9.0,ACT,Grant Delpit,Grant,Delpit,Grant,00-0036282
-2026,GB,OL,73.0,ACT,Mekhi Becton,Mekhi,Becton,Mekhi,00-0036284
+2026,GB,OL,74.0,ACT,Mekhi Becton,Mekhi,Becton,Mekhi,00-0036284
 2026,ATL,DB,24.0,ACT,A.J. Terrell,A.J.,Terrell,A.J.,00-0036285
 2026,WAS,LB,45.0,ACT,K'Lavon Chaisson,K'Lavon,Chaisson,K'Lavon,00-0036286
 2026,CLE,DB,20.0,ACT,Noah Igbinoghene,Noah,Igbinoghene,Noah,00-0036287
@@ -617,7 +618,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,SEA,OL,74.0,ACT,Josh Jones,Josh,Jones,Josh,00-0036363
 2026,CHI,DL,90.0,ACT,Neville Gallimore,Neville,Gallimore,Neville,00-0036366
 2026,BAL,OL,74.0,ACT,John Simpson,John,Simpson,John,00-0036369
-2026,KC,DB,38.0,ACT,L'Jarius Sneed,L'Jarius,Sneed,L'Jarius,00-0036374
+2026,KC,DB,38.0,RES,L'Jarius Sneed,L'Jarius,Sneed,L'Jarius,00-0036374
 2026,WAS,DB,2.0,ACT,Amik Robertson,Amik,Robertson,Amik,00-0036375
 2026,LAC,OL,63.0,RES,Tyler Biadasz,Tyler,Biadasz,Tyler,00-0036376
 2026,BUF,LB,51.0,ACT,Michael Danna,Michael,Danna,Michael,00-0036378
@@ -639,12 +640,12 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,TB,DB,31.0,ACT,Antoine Winfield Jr.,Antoine,Winfield,Antoine,00-0036411
 2026,WAS,WR,12.0,ACT,Van Jefferson,Vanchii,Jefferson,Van,00-0036415
 2026,KC,DB,8.0,ACT,Kristian Fulton,Kristian,Fulton,Kristian,00-0036416
-2026,CAR,OL,68.0,ACT,Damien Lewis,Damien,Lewis,Damien,00-0036417
+2026,CAR,OL,68.0,INA,Damien Lewis,Damien,Lewis,Damien,00-0036417
 2026,PHI,LB,53.0,ACT,Zack Baun,Zack,Baun,Zack,00-0036418
 2026,TEN,DB,38.0,ACT,Terrell Burgess,Terrell,Burgess,Terrell,00-0036421
 2026,DEN,TE,82.0,ACT,Adam Trautman,Adam,Trautman,Adam,00-0036422
 2026,LV,TE,85.0,DEV,Albert Okwuegbunam,Albert,Okwuegbunam,Albert,00-0036423
-2026,MIN,RB,31.0,DEV,DeeJay Dallas,Demetrius,Dallas,DeeJay,00-0036425
+2026,MIN,RB,31.0,ACT,DeeJay Dallas,Demetrius,Dallas,DeeJay,00-0036425
 2026,NYJ,WR,83.0,CUT,Tyler Johnson,Tyler,Johnson,Tyler,00-0036427
 2026,DEN,LB,40.0,ACT,Justin Strnad,Justin,Strnad,Justin,00-0036428
 2026,ATL,TE,89.0,ACT,Charlie Woerner,Charlie,Woerner,Charlie,00-0036429
@@ -662,7 +663,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,PHI,DB,35.0,ACT,Michael Carter II,Michael,Carter,Michael,00-0036501
 2026,NYG,DB,25.0,ACT,Jason Pinnock,Jason,Pinnock,Jason,00-0036502
 2026,PIT,DB,26.0,ACT,Brandin Echols,Brandin,Echols,Brandin,00-0036504
-2026,ARI,TE,45.0,DEV,Kenny Yeboah,Kenny,Yeboah,Kenny,00-0036510
+2026,ARI,TE,45.0,ACT,Kenny Yeboah,Kenny,Yeboah,Kenny,00-0036510
 2026,TEN,LB,45.0,RES,Milo Eifler,Camilo,Eifler,Milo,00-0036511
 2026,NE,TE,80.0,CUT,Shane Zylstra,Shane,Zylstra,Shane,00-0036534
 2026,NO,OL,66.0,ACT,Will Sherman,William,Sherman,William,00-0036535
@@ -676,7 +677,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,PHI,DB,30.0,DEV,Shaun Wade,Shaun,Wade,Shaun,00-0036559
 2026,SF,DB,2.0,ACT,Deommodore Lenoir,Deommodore,Lenoir,Deommodore,00-0036563
 2026,DEN,DB,9.0,ACT,Talanoa Hufanga,Sione Leti,Hufanga,Talanoa,00-0036564
-2026,PHI,RB,49.0,DEV,Elijah Mitchell,Elijah,Mitchell,Elijah,00-0036567
+2026,PHI,RB,49.0,ACT,Elijah Mitchell,Elijah,Mitchell,Elijah,00-0036567
 2026,ARI,DL,51.0,ACT,Roy Lopez,Roy,Lopez,Roy,00-0036568
 2026,SF,OL,70.0,DEV,Foster Sarell,Foster,Sarell,Foster,00-0036584
 2026,NYG,DB,24.0,ACT,Ar'Darius Washington,Ar'Darius,Washington,Ar'Darius,00-0036587
@@ -730,11 +731,11 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,SF,TE,83.0,DEV,Jack Stoll,Jack,Stoll,Jack,00-0036741
 2026,DET,TE,89.0,ACT,Brock Wright,Brock,Wright,Brock,00-0036754
 2026,CLE,RB,41.0,CUT,Jaret Patterson,Jaret,Patterson,Jaret,00-0036755
-2026,PIT,WR,87.0,DEV,Brandon Smith,Brandon,Smith,Brandon,00-0036775
+2026,PIT,WR,87.0,ACT,Brandon Smith,Brandon,Smith,Brandon,00-0036775
 2026,PIT,OL,62.0,ACT,Ryan McCollum,Ryan,McCollum,Ryan,00-0036783
 2026,NYJ,DL,96.0,ACT,Jack Heflin,Jack,Heflin,Jack,00-0036788
-2026,CAR,OL,74.0,DEV,Jake Curhan,Jake,Curhan,Jake,00-0036795
-2026,LA,LB,46.0,DEV,Jon Rhattigan,Jon,Rhattigan,Jon,00-0036802
+2026,CAR,OL,74.0,ACT,Jake Curhan,Jake,Curhan,Jake,00-0036795
+2026,LA,LB,58.0,DEV,Jon Rhattigan,Jon,Rhattigan,Jon,00-0036802
 2026,NE,LB,53.0,ACT,Christian Elliss,Christian,Elliss,Christian,00-0036813
 2026,MIA,K,47.0,CUT,Riley Patterson,Riley,Patterson,Riley,00-0036816
 2026,CAR,TE,81.0,ACT,Feleipe Franks,Feleipe,Franks,Feleipe,00-0036825
@@ -760,7 +761,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,DEN,QB,4.0,ACT,Sam Ehlinger,Samuel,Ehlinger,Sam,00-0036879
 2026,DET,OL,58.0,ACT,Penei Sewell,Penei,Sewell,Penei,00-0036880
 2026,HOU,DL,72.0,ACT,Tommy Togiai,Tommy,Togiai,Tommy,00-0036883
-2026,CAR,DB,35.0,DEV,Marco Wilson,Marco,Wilson,Marco,00-0036884
+2026,CAR,DB,35.0,ACT,Marco Wilson,Marco,Wilson,Marco,00-0036884
 2026,NYJ,DB,30.0,RES,Tre Brown,Tre,Brown,Tre,00-0036885
 2026,SF,TE,89.0,ACT,Luke Farrell,Luke,Farrell,Luke,00-0036887
 2026,BUF,DB,3.0,ACT,Damar Hamlin,Damar,Hamlin,Damar,00-0036888
@@ -771,10 +772,10 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,CIN,WR,1.0,ACT,Ja'Marr Chase,Ja'Marr,Chase,Ja'Marr,00-0036900
 2026,LV,DB,5.0,ACT,Eric Stokes,Eric,Stokes,Eric,00-0036901
 2026,NYJ,LB,46.0,ACT,Joseph Ossai,Joseph,Ossai,Joseph,00-0036902
-2026,CAR,DL,97.0,ACT,Bobby Brown III,Bobby,Brown,Bobby,00-0036903
+2026,CAR,DL,97.0,INA,Bobby Brown III,Bobby,Brown,Bobby,00-0036903
 2026,CAR,DB,38.0,DEV,Robert Rochell,Robert,Rochell,Robert,00-0036904
 2026,DET,OL,79.0,ACT,Larry Borom,Larry,Borom,Larry,00-0036905
-2026,ATL,RB,25.0,DEV,Khalil Herbert,Khalil,Herbert,Khalil,00-0036906
+2026,ATL,RB,25.0,ACT,Khalil Herbert,Khalil,Herbert,Khalil,00-0036906
 2026,KC,DL,92.0,ACT,Khyiris Tonga,Khyiris,Tonga,Khyiris,00-0036909
 2026,PHI,WR,6.0,ACT,DeVonta Smith,DeVonta,Smith,DeVonta,00-0036912
 2026,BUF,LB,15.0,ACT,Greg Rousseau,Gregory,Rousseau,Gregory,00-0036914
@@ -782,14 +783,14 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,NE,DL,97.0,ACT,Milton Williams,Milton,Williams,Milton,00-0036916
 2026,LA,DB,41.0,RES,Zech McPhearson,Zech,McPhearson,Zech,00-0036917
 2026,TB,RB,1.0,ACT,Kenny Gainwell,Kenneth,Gainwell,Kenneth,00-0036919
-2026,LV,LB,93.0,ACT,Patrick Johnson,Patrick,Johnson,Patrick,00-0036922
+2026,LV,LB,93.0,RES,Patrick Johnson,Patrick,Johnson,Patrick,00-0036922
 2026,TEN,RB,35.0,ACT,Michael Carter,Michael,Carter,Michael,00-0036924
 2026,DET,DL,92.0,RES,Payton Turner,Payton,Turner,Payton,00-0036926
 2026,NO,LB,20.0,ACT,Pete Werner,Pete,Werner,Pete,00-0036927
 2026,DAL,QB,14.0,DEV,Kyle Trask,Kyle,Trask,Kyle,00-0036928
 2026,GB,LB,1.0,RES,Micah Parsons,Micah,Parsons,Micah,00-0036932
 2026,ARI,LB,25.0,ACT,Zaven Collins,Zaven,Collins,Zaven,00-0036933
-2026,CAR,LB,5.0,ACT,Jaelan Phillips,Jaelan,Phillips,Jaelan,00-0036934
+2026,CAR,LB,5.0,INA,Jaelan Phillips,Jaelan,Phillips,Jaelan,00-0036934
 2026,NYG,DB,21.0,ACT,Paulson Adebo,Saiid,Adebo,Paulson,00-0036937
 2026,WAS,LB,98.0,ACT,Odafe Oweh,Odafe,Oweh,Odafe,00-0036940
 2026,NYJ,DB,8.0,ACT,Andre Cisco,Andre,Cisco,Andre,00-0036941
@@ -852,11 +853,11 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,PHI,DL,90.0,ACT,Jordan Davis,Jordan,Davis,Jordan,00-0037073
 2026,LV,LB,7.0,ACT,Quay Walker,Quay,Walker,Quay,00-0037074
 2026,GB,DL,95.0,ACT,Devonte Wyatt,Devonte,Wyatt,Devonte,00-0037075
-2026,GB,OL,75.0,ACT,Sean Rhyan,Sean,Rhyan,Sean,00-0037076
+2026,GB,OL,75.0,INA,Sean Rhyan,Sean,Rhyan,Sean,00-0037076
 2026,DAL,QB,16.0,ACT,Sam Howell,Sam,Howell,Sam,00-0037077
 2026,MIA,TE,87.0,RES,Cole Turner,Cole,Turner,Cole,00-0037078
 2026,PHI,DB,2.0,ACT,Riq Woolen,Tariq,Woolen,Tariq,00-0037079
-2026,KC,DL,57.0,DEV,Tyreke Smith,Tyreke,Smith,Tyreke,00-0037080
+2026,KC,DL,57.0,ACT,Tyreke Smith,Tyreke,Smith,Tyreke,00-0037080
 2026,CHI,OL,70.0,RES,Braxton Jones,Braxton,Jones,Braxton,00-0037081
 2026,HOU,DL,94.0,ACT,Dominique Robinson,Dominique,Robinson,Dominique,00-0037082
 2026,NYJ,LB,52.0,ACT,Kingsley Enagbare,Kingsley,Enagbare,Kingsley,00-0037083
@@ -909,7 +910,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,NO,WR,12.0,ACT,Chris Olave,Chris,Olave,Chris,00-0037239
 2026,DET,WR,1.0,ACT,Jameson Williams,Jameson,Williams,Jameson,00-0037240
 2026,LAC,OL,75.0,RES,Trevor Penning,Trevor,Penning,Trevor,00-0037241
-2026,LAC,DB,29.0,DEV,Kaiir Elam,Kaiir,Elam,Kaiir,00-0037242
+2026,LAC,DB,29.0,ACT,Kaiir Elam,Kaiir,Elam,Kaiir,00-0037242
 2026,DAL,OL,73.0,ACT,Tyler Smith,Tyler,Smith,Tyler,00-0037243
 2026,CAR,LB,55.0,ACT,Devin Lloyd,Devin,Lloyd,Devin,00-0037244
 2026,HOU,DB,5.0,INA,Jalen Pitre,Jalen,Pitre,Jalen,00-0037246
@@ -941,7 +942,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,ARI,TE,47.0,ACT,Teagan Quitoriano,Teagan,Quitoriano,Teagan,00-0037277
 2026,DEN,OL,60.0,ACT,Luke Wattenberg,Luke,Wattenberg,Luke,00-0037278
 2026,DET,LB,11.0,RES,Damone Clark,Damone,Clark,Damone,00-0037281
-2026,DAL,TE,84.0,DEV,James Mitchell,James,Mitchell,James,00-0037282
+2026,DAL,TE,84.0,ACT,James Mitchell,James,Mitchell,James,00-0037282
 2026,NO,DL,95.0,INA,John Ridgeway,John,Ridgeway,John,00-0037283
 2026,KC,P,14.0,ACT,Matt Araiza,Matt,Araiza,Matt,00-0037284
 2026,SF,OL,76.0,ACT,Vederian Lowe,Vederian,Lowe,Vederian,00-0037287
@@ -975,10 +976,10 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,SEA,OL,65.0,CUT,Kellen Diesch,Kellen,Diesch,Kellen,00-0037349
 2026,KC,DB,26.0,DEV,Kader Kohou,Kader,Kohou,Kader,00-0037353
 2026,DET,DL,96.0,DEV,Ben Stille,Ben,Stille,Ben,00-0037356
-2026,GB,LB,53.0,DEV,Arron Mosby,Arron,Mosby,Arron,00-0037364
+2026,GB,LB,53.0,ACT,Arron Mosby,Arron,Mosby,Arron,00-0037364
 2026,CHI,WR,81.0,DEV,Kaden Davis,Kaden,Davis,Kaden,00-0037380
 2026,DAL,OL,61.0,CUT,Sebastian Gutierrez,Sebastian,Gutierrez,Sebastian,00-0037381
-2026,PIT,WR,89.0,DEV,Brandon Johnson,Brandon,Johnson,Brandon,00-0037382
+2026,PIT,WR,89.0,ACT,Brandon Johnson,Brandon,Johnson,Brandon,00-0037382
 2026,DEN,DB,29.0,ACT,Ja'Quan McMillian,Ja'Quan,McMillian,Ja'Quan,00-0037384
 2026,DET,OL,62.0,CUT,Michael Niese,Michael,Niese,Michael,00-0037385
 2026,CHI,DB,37.0,RES,Dallis Flowers,Dallis,Flowers,Dallis,00-0037395
@@ -1074,7 +1075,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,CLE,OL,77.0,ACT,Zion Johnson,Zion,Johnson,Zion,00-0037818
 2026,WAS,LB,54.0,RES,Leo Chenal,Leo,Chenal,Leo,00-0037819
 2026,SEA,OL,67.0,ACT,Charles Cross,Charles,Cross,Charles,00-0037821
-2026,ATL,LB,41.0,DEV,Brian Asamoah II,Brian,Asamoah,Brian,00-0037822
+2026,ATL,LB,41.0,ACT,Brian Asamoah II,Brian,Asamoah,Brian,00-0037822
 2026,ATL,LB,45.0,ACT,Christian Harris,Christian,Harris,Christian,00-0037823
 2026,LV,OL,65.0,ACT,Tyler Linderbaum,Tyler,Linderbaum,Tyler,00-0037825
 2026,ATL,LB,91.0,ACT,Drake Jackson,Drake,Jackson,Drake,00-0037826
@@ -1094,7 +1095,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,CHI,DL,92.0,ACT,Daniel Hardy,Daniel,Hardy,Daniel,00-0037843
 2026,CIN,DB,22.0,ACT,Russ Yeast,Craig,Yeast,Russ,00-0037844
 2026,BAL,OL,68.0,DEV,A.J. Arcuri,A.J.,Arcuri,A.J.,00-0037845
-2026,LA,DB,28.0,DEV,Pepe Williams,Damarion,Williams,Damarion,00-0037984
+2026,LA,DB,26.0,DEV,Pepe Williams,Damarion,Williams,Damarion,00-0037984
 2026,BAL,DB,14.0,ACT,Kyle Hamilton,Kyle,Hamilton,Kyle,00-0038038
 2026,SF,DB,25.0,ACT,Jack Jones,Jack,Jones,Jack,00-0038039
 2026,NO,RB,26.0,DEV,Zamir White,Zamir,White,Zamir,00-0038040
@@ -1109,7 +1110,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,GB,RB,22.0,ACT,Pierre Strong,Pierre,Strong,Pierre,00-0038098
 2026,BUF,DL,72.0,DEV,Phidarian Mathis,Phidarian,Mathis,Phidarian,00-0038099
 2026,WAS,DB,35.0,ACT,Percy Butler,Percy,Butler,Percy,00-0038100
-2026,CAR,DB,29.0,ACT,Akayleb Evans,Akayleb,Evans,Akayleb,00-0038101
+2026,CAR,DB,29.0,RES,Akayleb Evans,Akayleb,Evans,Akayleb,00-0038101
 2026,CAR,QB,12.0,ACT,Kenny Pickett,Kenny,Pickett,Kenny,00-0038102
 2026,LAC,OL,69.0,ACT,Cole Strange,Devin,Strange,Cole,00-0038103
 2026,KC,WR,2.0,RES,Tyquan Thornton,Tyquan,Thornton,Tyquan,00-0038104
@@ -1144,7 +1145,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,NYJ,OL,60.0,ACT,Kohl Levao,Kohl,Levao,Kohl,00-0038194
 2026,NYJ,OL,50.0,CUT,Liam Fornadel,Liam,Fornadel,Liam,00-0038223
 2026,NO,OL,69.0,CUT,Barry Wesley,Barry,Wesley,Barry,00-0038304
-2026,DAL,DB,31.0,CUT,Josh Butler,Josh,Butler,Josh,00-0038348
+2026,CHI,DB,26.0,DEV,Josh Butler,Josh,Butler,Josh,00-0038348
 2026,NO,K,46.0,CUT,Tanner Brown,Tanner,Brown,Tanner,00-0038354
 2026,SF,WR,19.0,DEV,Xavier Smith,Xavier,Smith,Xavier,00-0038359
 2026,LV,LS,47.0,ACT,Alex Ward,Alex,Ward,Alex,00-0038360
@@ -1262,7 +1263,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,HOU,LB,39.0,ACT,Henry To'oTo'o,Henry,To'oTo'o,Henry,00-0038599
 2026,TEN,LB,40.0,CUT,Owen Pappoe,Owen,Pappoe,Owen,00-0038600
 2026,NO,OL,72.0,ACT,Asim Richards,Asim,Richards,Asim,00-0038601
-2026,MIA,DL,51.0,ACT,Rob Beal Jr.,Robert,Beal,Robert,00-0038603
+2026,MIA,DL,51.0,CUT,Rob Beal Jr.,Robert,Beal,Robert,00-0038603
 2026,DET,DB,5.0,CUT,Eric Scott Jr.,Eric,Scott,Eric,00-0038604
 2026,DEN,DB,34.0,ACT,JL Skinner,J.L.,Skinner,J.L.,00-0038605
 2026,JAX,WR,11.0,ACT,Parker Washington,Christopher,Washington,Parker,00-0038606
@@ -1309,13 +1310,13 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,BUF,WR,14.0,RES,Tyrell Shavers,Tyrell,Shavers,Tyrell,00-0038679
 2026,MIA,DB,27.0,DEV,Ethan Bonner,Ethan,Bonner,Ethan,00-0038684
 2026,GB,RB,30.0,RES,Chris Brooks,Christopher,Brooks,Christopher,00-0038685
-2026,LA,LB,59.0,DEV,Garrett Nelson,Garrett,Nelson,Garrett,00-0038693
+2026,LA,LB,51.0,DEV,Garrett Nelson,Garrett,Nelson,Garrett,00-0038693
 2026,SEA,DL,95.0,ACT,Brandon Pili,Brandon,Pili,Brandon,00-0038694
 2026,CHI,DB,33.0,DEV,Keidron Smith,Keidron,Smith,Keidron,00-0038696
 2026,TEN,DB,30.0,RES,Kendell Brooks,Kendell,Brooks,Kendell,00-0038703
 2026,DAL,RB,31.0,CUT,Emari Demercado,Emari,Demercado,Emari,00-0038705
 2026,CLE,TE,86.0,ACT,Blake Whiteheart,Blake,Whiteheart,Blake,00-0038710
-2026,TEN,LB,44.0,DEV,Mohamoud Diabate,Mohamoud,Diabate,Mohamoud,00-0038711
+2026,TEN,LB,44.0,CUT,Mohamoud Diabate,Mohamoud,Diabate,Mohamoud,00-0038711
 2026,CLE,DB,33.0,ACT,Ronnie Hickman Jr.,Ronnie,Hickman,Ronnie,00-0038715
 2026,CHI,DL,69.0,CUT,Jeremiah Martin,Jeremiah,Martin,Jeremiah,00-0038716
 2026,KC,DB,34.0,CUT,Tanner McCalister,Tanner,McCalister,Tanner,00-0038717
@@ -1354,7 +1355,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,TB,OL,72.0,ACT,Luke Haggard,Luke,Haggard,Luke,00-0038818
 2026,DET,DB,5.0,ACT,Christian Izien,Christian,Izien,Christian,00-0038820
 2026,JAX,DB,26.0,ACT,Kaevon Merriweather,Kaevon,Merriweather,Kaevon,00-0038823
-2026,NE,WR,84.0,DEV,Ryan Miller,Ryan,Miller,Ryan,00-0038824
+2026,NE,WR,84.0,ACT,Ryan Miller,Ryan,Miller,Ryan,00-0038824
 2026,CIN,WR,82.0,ACT,Mitchell Tinsley,Mitchell,Tinsley,Mitch,00-0038839
 2026,CAR,WR,87.0,ACT,Brycen Tremayne,Brycen,Tremayne,Brycen,00-0038840
 2026,DET,DB,38.0,DEV,Nick Whiteside,Nick,Whiteside,Nick,00-0038841
@@ -1390,7 +1391,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,ATL,WR,80.0,DEV,Dylan Drummond,Dylan,Drummond,Dylan,00-0038953
 2026,DET,DB,43.0,CUT,Ekow Boye-Doe,Ekow,Boye-Doe,Ekow,00-0038956
 2026,CLE,LB,61.0,RET,Markees Watts,Markees,Watts,Markees,00-0038958
-2026,IND,DB,28.0,DEV,Natrone Brooks,Natrone,Brooks,Natrone,00-0038966
+2026,IND,DB,40.0,DEV,Natrone Brooks,Natrone,Brooks,Natrone,00-0038966
 2026,DEN,WR,19.0,ACT,Marvin Mims Jr.,Marvin,Mims,Marvin,00-0038976
 2026,HOU,WR,1.0,ACT,Tank Dell,Nathaniel,Dell,Tank,00-0038977
 2026,PHI,DL,94.0,ACT,Byron Young,Byron,Young,Byron,00-0038978
@@ -1494,7 +1495,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,NO,K,39.0,DEV,Charlie Smyth,Charles,Smyth,Charlie,00-0039229
 2026,BAL,DB,2.0,ACT,Nate Wiggins,Nathaniel,Wiggins,Nate,00-0039232
 2026,BAL,OL,70.0,ACT,Roger Rosengarten,Roger,Rosengarten,Roger,00-0039233
-2026,BAL,DB,27.0,RES,T.J. Tampa,Marques,Tampa,T.J.,00-0039234
+2026,BAL,DB,27.0,ACT,T.J. Tampa,Marques,Tampa,T.J.,00-0039234
 2026,PHI,WR,89.0,RES,Johnny Wilson,Johnny,Wilson,Johnny,00-0039236
 2026,MIN,OL,62.0,RES,Nick Samac,Nick,Samac,Nick,00-0039237
 2026,ARI,DB,35.0,ACT,Kalen King,Kalen,King,Kalen,00-0039239
@@ -1504,14 +1505,14 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,DET,DB,40.0,CUT,Ryan Cooper Jr.,Ryan,Cooper,Ryan,00-0039245
 2026,NE,OL,61.0,CUT,Darrian Dalcourt,Darrian,Dalcourt,Darrian,00-0039246
 2026,BAL,WR,18.0,CUT,Dayton Wade,Dayton,Wade,Dayton,00-0039259
-2026,MIA,OL,72.0,DEV,Gottlieb Ayedze,Gottlieb,Ayedze,Gottlieb,00-0039262
+2026,MIA,OL,72.0,CUT,Gottlieb Ayedze,Gottlieb,Ayedze,Gottlieb,00-0039262
 2026,GB,TE,47.0,RES,McCallan Castles,McCallan,Castles,McCallan,00-0039263
 2026,PHI,DL,96.0,DEV,Gabe Hall,Gabe,Hall,Gabe,00-0039265
 2026,CIN,RB,36.0,DEV,Kendall Milton,Kendall,Milton,Kendall,00-0039266
 2026,PHI,DB,32.0,RES,Andre' Sam,Andre',Sam,Andre',00-0039267
 2026,LAC,LS,59.0,CUT,Peter Bowden,Peter,Bowden,Peter,00-0039268
 2026,MIA,OL,65.0,DEV,James Ester,James,Ester,James,00-0039269
-2026,GB,OL,67.0,ACT,Donovan Jennings,Donovan,Jennings,Donovan,00-0039272
+2026,GB,OL,67.0,INA,Donovan Jennings,Donovan,Jennings,Donovan,00-0039272
 2026,CLE,TE,84.0,CUT,Messiah Swinson,Messiah,Swinson,Messiah,00-0039275
 2026,SEA,LB,46.0,DEV,Jimmy Ciarlo,Jimmy,Ciarlo,Jimmy,00-0039277
 2026,NYJ,LB,55.0,RES,Braiden McGregor,Braiden,McGregor,Braiden,00-0039284
@@ -1519,7 +1520,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,NO,LB,47.0,DEV,Jackson Sirmon,Jackson,Sirmon,Jackson,00-0039288
 2026,NE,DL,93.0,ACT,Leonard Taylor III,Leonard,Taylor,Leonard,00-0039289
 2026,MIA,DL,95.0,DEV,Eric Watts,Eric,Watts,Eric,00-0039291
-2026,IND,DB,45.0,DEV,Shemar Bartholomew,Shemar,Bartholomew,Shemar,00-0039292
+2026,IND,DB,39.0,DEV,Shemar Bartholomew,Shemar,Bartholomew,Shemar,00-0039292
 2026,SEA,RB,36.0,ACT,George Holani,George,Holani,George,00-0039299
 2026,WAS,TE,89.0,DEV,Jack Westover,Jack,Westover,Jack,00-0039305
 2026,SEA,DL,91.0,ACT,Byron Murphy II,Byron,Murphy,Byron,00-0039309
@@ -1554,7 +1555,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,JAX,DB,4.0,ACT,Jarrian Jones,Jarrian,Jones,Jarrian,00-0039353
 2026,SF,DL,91.0,DEV,McKinnley Jackson,McKinnley,Jackson,McKinnley,00-0039354
 2026,WAS,WR,11.0,ACT,Luke McCaffrey,Luke,McCaffrey,Luke,00-0039355
-2026,CAR,TE,0.0,ACT,Ja'Tavion Sanders,Ja'Tavion,Sanders,Ja'Tavion,00-0039356
+2026,CAR,TE,0.0,INA,Ja'Tavion Sanders,Ja'Tavion,Sanders,Ja'Tavion,00-0039356
 2026,NO,DB,25.0,ACT,Decamerion Richardson,Decamerion,Richardson,Decamerion,00-0039357
 2026,PIT,OL,66.0,ACT,Mason McCormick,Mason,McCormick,Mason,00-0039358
 2026,HOU,TE,8.0,ACT,Cade Stover,Cade,Stover,Cade,00-0039359
@@ -1578,7 +1579,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,CHI,DB,37.0,CUT,Deantre Prince,Deantre,Prince,Deantre,00-0039378
 2026,LV,WR,80.0,CUT,Jamari Thrash,Jamari,Thrash,Jamari,00-0039379
 2026,CAR,DB,26.0,ACT,Chau Smith-Wade,Chau,Smith-Wade,Chau,00-0039380
-2026,TEN,LB,40.0,RES,Dominique Hampton,Dominique,Hampton,Dominique,00-0039381
+2026,TEN,LB,40.0,DEV,Dominique Hampton,Dominique,Hampton,Dominique,00-0039381
 2026,CHI,OL,72.0,DEV,Christian Jones,Christian,Jones,Christian,00-0039382
 2026,MIA,DB,32.0,ACT,Jaylin Simpson,Jaylin,Simpson,Jaylin,00-0039383
 2026,NYG,RB,29.0,ACT,Tyrone Tracy Jr.,Tyrone,Tracy,Tyrone,00-0039384
@@ -1590,7 +1591,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,LAC,RB,28.0,ACT,Kimani Vidal,Kimani,Vidal,Kimani,00-0039391
 2026,TB,WR,39.0,CUT,Jha'Quan Jackson,Jha'quan,Jackson,Jha'Quan,00-0039392
 2026,CAR,WR,85.0,DEV,Casey Washington,Casey,Washington,Casey,00-0039394
-2026,JAX,LB,54.0,DEV,Jamal Hill,Jamal,Hill,Jamal,00-0039395
+2026,JAX,LB,54.0,ACT,Jamal Hill,Jamal,Hill,Jamal,00-0039395
 2026,DET,DL,94.0,ACT,Mekhi Wingo,Mekhi,Wingo,Mekhi,00-0039396
 2026,LAC,WR,31.0,DEV,Tejhaun Palmer,Tejhaun,Palmer,Tejhaun,00-0039397
 2026,PHI,QB,14.0,ACT,Joe Milton III,Joe,Milton,Joe,00-0039398
@@ -1636,11 +1637,11 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,JAX,TE,83.0,DEV,Brenden Bates,Brenden,Bates,Brenden,00-0039458
 2026,CHI,OL,79.0,ACT,Theo Benedet,Theo,Benedet,Theo,00-0039459
 2026,BAL,LB,48.0,DEV,Carl Jones,Carl,Jones,Carl,00-0039460
-2026,CHI,DL,59.0,ACT,Jamree Kromah,Jamree,Kromah,Jamree,00-0039461
+2026,MIA,DL,59.0,ACT,Jamree Kromah,Jamree,Kromah,Jamree,00-0039461
 2026,BAL,QB,15.0,CUT,Austin Reed,Austin,Reed,Austin,00-0039464
 2026,DAL,DB,27.0,DEV,Reddy Steward,Reddy,Steward,Reddy,00-0039465
 2026,PHI,RB,49.0,CUT,Ian Wheeler,Ian,Wheeler,Ian,00-0039466
-2026,BUF,DB,33.0,DEV,Te'Cory Couch,Te'Cory,Couch,Te'Cory,00-0039469
+2026,BUF,DB,33.0,ACT,Te'Cory Couch,Te'Cory,Couch,Te'Cory,00-0039469
 2026,BUF,RB,20.0,DEV,Frank Gore Jr.,Frank,Gore,Frank,00-0039471
 2026,CIN,WR,18.0,CUT,Xavier Johnson,Xavier,Johnson,Xavier,00-0039473
 2026,DET,WR,80.0,CUT,Lawrence Keys,Lawrence,Keys,Lawrence,00-0039474
@@ -1703,14 +1704,14 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,WAS,QB,15.0,DEV,Sam Hartman,Sam,Hartman,Sam,00-0039677
 2026,IND,WR,34.0,CUT,Ben Nikkel,Ben,Nikkel,Ben,00-0039679
 2026,WAS,DB,18.0,ACT,Tyler Owens,Tyler,Owens,Tyler,00-0039681
-2026,BUF,DB,31.0,DEV,A.J. Woods,Anthony,Woods,A.J.,00-0039685
+2026,BUF,DB,31.0,ACT,A.J. Woods,Anthony,Woods,A.J.,00-0039685
 2026,WAS,TE,80.0,ACT,Colson Yankoff,Colson,Yankoff,Colson,00-0039686
 2026,NE,DB,24.0,RES,Dell Pettus,Dell,Pettus,Dell,00-0039692
 2026,SF,DL,90.0,CUT,Evan Anderson,Evan,Anderson,Evan,00-0039696
 2026,PHI,DB,39.0,CUT,Jaylen Mahoney,Jaylen,Mahoney,Jaylen,00-0039697
 2026,SF,OL,66.0,DEV,Drake Nugent,Drake,Nugent,Drake,00-0039700
 2026,KC,TE,46.0,CUT,Mason Pline,Mason,Pline,Mason,00-0039702
-2026,DEN,RB,25.0,DEV,Cody Schrader,Cody,Schrader,Cody,00-0039703
+2026,DEN,RB,25.0,ACT,Cody Schrader,Cody,Schrader,Cody,00-0039703
 2026,MIN,WR,82.0,DEV,Jeshaun Jones,Jeshaun,Jones,Jeshaun,00-0039710
 2026,MIN,DB,6.0,CUT,Dwight McGlothern,Dwight,McGlothern,Dwight,00-0039714
 2026,PIT,OL,72.0,DEV,Doug Nester,Doug,Nester,Doug,00-0039716
@@ -1735,11 +1736,11 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,CHI,P,19.0,ACT,Tory Taylor,Tory,Taylor,Tory,00-0039745
 2026,PHI,RB,28.0,RES,Will Shipley,Will,Shipley,Will,00-0039746
 2026,LA,DL,90.0,ACT,Tyler Davis,Tyler,Davis,Tyler,00-0039749
-2026,LA,K,98.0,DEV,Joshua Karty,Joshua,Karty,Joshua,00-0039750
+2026,LA,K,16.0,ACT,Joshua Karty,Joshua,Karty,Joshua,00-0039750
 2026,LA,WR,88.0,ACT,Jordan Whittington,Jordan,Whittington,Jordan,00-0039751
 2026,CIN,DL,52.0,ACT,Cedric Johnson,Cedric,Johnson,Cedric,00-0039752
 2026,LA,OL,50.0,ACT,Beaux Limmer,Beaux,Limmer,Beaux,00-0039753
-2026,MIN,TE,82.0,DEV,Devin Culp,Devin,Culp,Devin,00-0039754
+2026,MIN,TE,48.0,DEV,Devin Culp,Devin,Culp,Devin,00-0039754
 2026,CLE,OL,72.0,DEV,KT Leveston,Kaitori,Leveston,K.T.,00-0039755
 2026,BUF,LB,44.0,ACT,Joe Andreessen,Joe,Andreessen,Joe,00-0039763
 2026,CLE,DL,62.0,RES,Elijah Chatman,Elijah,Chatman,Elijah,00-0039764
@@ -1754,7 +1755,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,LA,OL,67.0,RES,Justin Dedich,Justin,Dedich,Justin,00-0039784
 2026,NYJ,DB,37.0,ACT,Qwan'tez Stiggers,Qwan'tez,Stiggers,Qwan'tez,00-0039789
 2026,NYJ,OL,74.0,ACT,Olumuyiwa Fashanu,Olumuyiwa,Fashanu,Olu,00-0039790
-2026,BAL,LB,50.0,DEV,Adisa Isaac,Adisa,Isaac,Adisa,00-0039791
+2026,BAL,LB,50.0,ACT,Adisa Isaac,Adisa,Isaac,Adisa,00-0039791
 2026,BAL,WR,81.0,ACT,Devontez Walker,Devontez,Walker,Devontez,00-0039792
 2026,SEA,TE,88.0,ACT,AJ Barner,A.J.,Barner,A.J.,00-0039793
 2026,NYJ,RB,0.0,ACT,Braelon Allen,Braelon,Allen,Braelon,00-0039794
@@ -1773,7 +1774,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,IND,WR,6.0,ACT,Anthony Gould,Anthony,Gould,Anthony,00-0039816
 2026,GB,OL,62.0,RES,Jacob Monk,Jacob,Monk,Jacob,00-0039817
 2026,GB,DB,27.0,ACT,Kitan Oladapo,Kitan,Oladapo,Kitan,00-0039818
-2026,GB,OL,79.0,ACT,Travis Glover,Travis,Glover,Travis,00-0039819
+2026,GB,OL,79.0,INA,Travis Glover,Travis,Glover,Travis,00-0039819
 2026,NYG,DB,22.0,ACT,Andru Phillips,Andru,Phillips,Andru,00-0039821
 2026,PHI,OL,73.0,DEV,Kiran Amegadjie,Kiran,Amegadjie,Kiran,00-0039822
 2026,CHI,DB,37.0,DEV,Elijah Jones,Elijah,Jones,Elijah,00-0039823
@@ -1830,7 +1831,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,BUF,OL,68.0,ACT,Tylan Grable,Tylan,Grable,Tylan,00-0039882
 2026,PIT,DB,31.0,RES,Daequan Hardy,Daequan,Hardy,Daequan,00-0039883
 2026,PHI,WR,48.0,CUT,Tahj Washington,Tahj,Washington,Tahj,00-0039884
-2026,NYJ,DL,99.0,ACT,T'Vondre Sweat,T'Vondre,Sweat,T'Vondre,00-0039886
+2026,NYJ,DL,99.0,RES,T'Vondre Sweat,T'Vondre,Sweat,T'Vondre,00-0039886
 2026,PHI,DB,27.0,ACT,Quinyon Mitchell,Quinyon,Mitchell,Quinyon,00-0039888
 2026,ATL,DL,92.0,ACT,Maason Smith,Maason,Smith,Maason,00-0039889
 2026,NYJ,WR,15.0,ACT,Adonai Mitchell,Adonai,Mitchell,Adonai,00-0039890
@@ -1896,7 +1897,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,SEA,DB,43.0,DEV,Maxen Hook,Maxen,Hook,Maxen,00-0040026
 2026,TB,DB,28.0,DEV,Brandon Johnson,Brandon,Johnson,Brandon,00-0040027
 2026,GB,DB,37.0,RES,Johnathan Baldwin,Johnathan,Baldwin,Johnathan,00-0040033
-2026,NYJ,OL,75.0,DEV,Brant Banks,Brant,Banks,Brant,00-0040034
+2026,NYJ,OL,75.0,ACT,Brant Banks,Brant,Banks,Brant,00-0040034
 2026,BAL,LB,47.0,CUT,Jamon Johnson,Jamon,Johnson,Jamon,00-0040037
 2026,LAC,RB,35.0,DEV,Amar Johnson,Amar,Johnson,Amar,00-0040039
 2026,TEN,DL,93.0,ACT,Nazir Stackhouse,Nazir,Stackhouse,Nazir,00-0040041
@@ -1914,7 +1915,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,SEA,LB,57.0,ACT,Connor O'Toole,Connor,O'Toole,Connor,00-0040061
 2026,SEA,DL,70.0,CUT,J.R. Singleton,J.R.,Singleton,J.R.,00-0040063
 2026,SEA,DL,69.0,CUT,Wy'Kevious Thomas,Wy'Kevious,Thomas,Wy'Kevious,00-0040064
-2026,LAC,DB,37.0,DEV,Isas Waxter,Isas,Waxter,Isas,00-0040065
+2026,LAC,DB,37.0,ACT,Isas Waxter,Isas,Waxter,Isas,00-0040065
 2026,MIA,LB,42.0,ACT,Jackson Woodard,Jackson,Woodard,Jackson,00-0040066
 2026,SEA,RB,31.0,DEV,Jacardia Wright,Jacardia,Wright,Jacardia,00-0040067
 2026,BAL,OL,51.0,ACT,Emery Jones Jr.,Emery,Jones,Emery,00-0040068
@@ -1935,7 +1936,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,CLE,DL,68.0,CUT,Coziah Izzard,Coziah,Izzard,Coziah,00-0040088
 2026,TB,DB,38.0,ACT,Kevin Knowles,Kevin,Knowles,Kevin,00-0040089
 2026,WAS,OL,77.0,DEV,Esa Pole,Christopher,Pole,Esa,00-0040092
-2026,KC,DB,39.0,DEV,Melvin Smith Jr.,Melvin,Smith,Melvin,00-0040093
+2026,KC,DB,39.0,ACT,Melvin Smith Jr.,Melvin,Smith,Melvin,00-0040093
 2026,MIA,TE,87.0,DEV,Tre Watson,Tre,Watson,Tre,00-0040094
 2026,BAL,OL,78.0,DEV,Gerad Lichtenhan,Gerad,Christian-Lichtenhan,Gerad,00-0040098
 2026,BAL,WR,16.0,CUT,Xavier Guillory,Xavier,Guillory,Xavier,00-0040099
@@ -1969,7 +1970,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,IND,DB,27.0,ACT,Justin Walley,Justin,Walley,Justin,00-0040139
 2026,CIN,OL,63.0,ACT,Dylan Fairchild,Dylan,Fairchild,Dylan,00-0040140
 2026,TEN,DB,23.0,ACT,Kevin Winston Jr.,Kevin,Winston,Kevin,00-0040141
-2026,GB,RB,26.0,ACT,Kaleb Johnson,Kaleb,Johnson,Kaleb,00-0040142
+2026,GB,RB,26.0,INA,Kaleb Johnson,Kaleb,Johnson,Kaleb,00-0040142
 2026,TB,DB,25.0,ACT,Jacob Parrish,Jacob,Parrish,Jacob,00-0040143
 2026,LAC,DL,99.0,ACT,Jamaree Caldwell,Jamaree,Caldwell,Jamaree,00-0040144
 2026,JAX,DB,27.0,RES,Caleb Ransaw,Caleb,Ransaw,Caleb,00-0040145
@@ -2088,7 +2089,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,CHI,WR,83.0,DEV,JP Richardson,John Paul,Richardson,J.P.,00-0040275
 2026,CHI,WR,9.0,ACT,Jahdae Walker,Jahdae,Walker,Jahdae,00-0040277
 2026,CAR,K,10.0,ACT,Ryan Fitzgerald,Ryan,Fitzgerald,Ryan,00-0040279
-2026,ARI,DL,98.0,DEV,Jared Harrison-Hunte,Jared,Harrison-Hunte,Jared,00-0040283
+2026,ARI,DL,98.0,ACT,Jared Harrison-Hunte,Jared,Harrison-Hunte,Jared,00-0040283
 2026,PIT,DB,48.0,CUT,Jack Henderson,Jack,Henderson,Jack,00-0040284
 2026,CAR,LB,54.0,ACT,Bam Martin-Scott,Tavareon,Martin-Scott,Bam,00-0040289
 2026,NO,DB,42.0,INA,Michael Reid,Mike,Reid,Mike,00-0040293
@@ -2099,7 +2100,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,MIA,WR,82.0,DEV,A.J. Henning,A.J.,Henning,A.J.,00-0040302
 2026,MIA,DL,96.0,CUT,Alex Huntley,Alex,Huntley,Alex,00-0040304
 2026,MIN,OL,67.0,DEV,Josh Priebe,Josh,Priebe,Josh,00-0040307
-2026,CLE,DB,27.0,TRD,John Saunders Jr.,John,Saunders,John,00-0040310
+2026,CLE,DB,27.0,CUT,John Saunders Jr.,John,Saunders,John,00-0040310
 2026,LAC,WR,82.0,ACT,Theo Wease Jr.,Theo,Wease,Theo,00-0040311
 2026,KC,LB,53.0,CUT,Kam Arnold,Kam,Arnold,Kam,00-0040313
 2026,WAS,DL,50.0,DEV,Ricky Barber,Ricky,Barber,Ricky,00-0040314
@@ -2121,7 +2122,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,JAX,DB,42.0,DEV,Cam'Ron Silmon-Craig,Cam'Ron,Silmon-Craig,Cam'Ron,00-0040339
 2026,PIT,DB,40.0,ACT,Doneiko Slaughter,Doneiko,Slaughter,Doneiko,00-0040341
 2026,JAX,DL,92.0,ACT,Danny Striggow,Daniel,Striggow,Danny,00-0040342
-2026,IND,DB,35.0,DEV,Johnathan Edwards,Johnathan,Edwards,Johnathan,00-0040347
+2026,IND,DB,35.0,ACT,Johnathan Edwards,Johnathan,Edwards,Johnathan,00-0040347
 2026,TB,OL,74.0,CUT,Marshall Foerner,Marshall,Foerner,Marshall,00-0040349
 2026,GB,WR,13.0,ACT,Coleman Owen,Coleman,Owen,Coleman,00-0040352
 2026,IND,DB,41.0,DEV,Trey Washington,Samuel,Washington,Trey,00-0040357
@@ -2153,9 +2154,9 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,MIA,RB,36.0,CUT,Donovan Edwards,Donovan,Edwards,Donovan,00-0040400
 2026,DET,OL,60.0,CUT,Gus Hartwig,Gus,Hartwig,Gus,00-0040401
 2026,MIA,DL,95.0,CUT,Fatorma Mulbah,Fatorma,Mulbah,Fatorma,00-0040403
-2026,NYJ,DL,98.0,DEV,Payton Page,Payton,Page,Payton,00-0040404
+2026,NYJ,DL,98.0,ACT,Payton Page,Payton,Page,Payton,00-0040404
 2026,NYJ,WR,81.0,DEV,Jamaal Pritchett,Jamaal,Pritchett,Jamaal,00-0040405
-2026,PHI,WR,18.0,DEV,Quentin Skinner,Quentin,Skinner,Quentin,00-0040406
+2026,PHI,WR,84.0,DEV,Quentin Skinner,Quentin,Skinner,Quentin,00-0040406
 2026,SEA,LB,42.0,CUT,Aaron Smith,Aaron,Smith,Aaron,00-0040407
 2026,CAR,LB,46.0,DEV,Ja'Markis Weston,Ja'Markis,Weston,Ja'Markis,00-0040408
 2026,HOU,LS,40.0,ACT,Austin Brinkman,Austin,Brinkman,Austin,00-0040409
@@ -2182,7 +2183,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,NE,OL,60.0,CUT,Joseph Michalski,Joseph,Michalski,Joe,00-0040446
 2026,DEN,LB,47.0,ACT,Karene Reid,Karene,Reid,Karene,00-0040449
 2026,NYG,DB,33.0,DEV,Jaden Robinson,Jaden,Robinson,Jaden,00-0040450
-2026,PHI,OL,77.0,CUT,Xavier Truss,Xavier,Truss,Xavier,00-0040451
+2026,PHI,OL,77.0,TRC,Xavier Truss,Xavier,Truss,Xavier,00-0040451
 2026,DEN,LB,59.0,DEV,Johnny Walker Jr.,Johnny,Walker,Johnny,00-0040452
 2026,DEN,DL,75.0,CUT,Kristian Williams,Kristian,Williams,Kristian,00-0040454
 2026,CLE,TE,85.0,CUT,Jermaine Terry,Jermaine,Terry,Jermaine,00-0040457
@@ -2219,7 +2220,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,TEN,OL,78.0,ACT,Brandon Crenshaw-Dickson,Brandon,Crenshaw-Dickson,Brandon,00-0040512
 2026,ARI,DL,93.0,DEV,Cam Horsley,Cameron,Horsley,Cam,00-0040517
 2026,CIN,DB,40.0,CUT,Jalen Kimber,Jalen,Kimber,Jalen,00-0040518
-2026,TEN,WR,87.0,DEV,Xavier Restrepo,Xavier,Restrepo,Xavier,00-0040522
+2026,TEN,WR,87.0,ACT,Xavier Restrepo,Xavier,Restrepo,Xavier,00-0040522
 2026,ARI,RB,26.0,CUT,Tre Stewart,Tre,Stewart,Tre,00-0040526
 2026,PIT,DB,49.0,DEV,Sebastian Castro,Sebastian,Castro,Sebastian,00-0040527
 2026,IND,TE,47.0,CUT,JJ Galbreath,J.J.,Galbreath,J.J.,00-0040528
@@ -2229,10 +2230,10 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,NO,DB,37.0,CUT,Dalys Beanum,Dalys,Beanum,Dalys,00-0040535
 2026,NE,DB,27.0,ACT,Elliott Davison,Elliott,Davison,Elliott,00-0040537
 2026,NO,OL,73.0,ACT,Easton Kilty,Easton,Kilty,Easton,00-0040539
-2026,CAR,OL,65.0,ACT,Torricelli Simpkins III,Torricelli,Simpkins,Torricelli,00-0040541
+2026,CAR,OL,65.0,INA,Torricelli Simpkins III,Torricelli,Simpkins,Torricelli,00-0040541
 2026,ATL,DB,37.0,CUT,Cobee Bryant,Jacobee,Bryant,Cobee,00-0040546
 2026,KC,RB,35.0,DEV,Nate Carter,Nate,Carter,Nate,00-0040547
-2026,MIN,OL,79.0,CUT,Joshua Gray,Joshua,Gray,Joshua,00-0040548
+2026,IND,OL,66.0,DEV,Joshua Gray,Joshua,Gray,Joshua,00-0040548
 2026,CHI,DB,27.0,RES,Dontae Manning,Dontae,Manning,Dontae,00-0040550
 2026,WAS,WR,19.0,CUT,Nick Nash,Nick,Nash,Nick,00-0040551
 2026,WAS,TE,47.0,DEV,Joshua Simon,Joshua,Simon,Joshua,00-0040552
@@ -2248,7 +2249,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,NE,DB,39.0,CUT,Brandon Crossley,Brandon,Crossley,Brandon,00-0040565
 2026,TB,TE,82.0,DEV,CJ Dippre,C.J.,Dippre,C.J.,00-0040566
 2026,BUF,RB,45.0,DEV,Brock Lampe,Brock,Lampe,Brock,00-0040567
-2026,NE,RB,34.0,DEV,Lan Larison,Lan,Larison,Lan,00-0040568
+2026,NE,RB,34.0,ACT,Lan Larison,Lan,Larison,Lan,00-0040568
 2026,NE,WR,29.0,CUT,Jeremiah Webb,Jeremiah,Webb,Jeremiah,00-0040570
 2026,MIN,DL,96.0,DEV,Jahvaree Ritzie,Jahvaree,Ritzie,Jahvaree,00-0040572
 2026,MIA,LB,38.0,CUT,Cam Riley,Cam,Riley,Cam,00-0040573
@@ -2362,8 +2363,8 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,GB,OL,71.0,ACT,Anthony Belton,Anthony,Belton,Anthony,00-0040726
 2026,LAC,WR,9.0,ACT,Tre Harris,Cleveland,Harris,Tre,00-0040727
 2026,DET,OL,69.0,ACT,Tate Ratledge,Tate,Ratledge,Tate,00-0040728
-2026,LV,WR,18.0,RES,Jack Bech,John,Bech,Jack,00-0040729
-2026,DEN,RB,12.0,ACT,RJ Harvey,Robert,Harvey,R.J.,00-0040730
+2026,LV,WR,18.0,ACT,Jack Bech,John,Bech,Jack,00-0040729
+2026,DEN,RB,12.0,RES,RJ Harvey,Robert,Harvey,R.J.,00-0040730
 2026,WAS,DB,23.0,ACT,Trey Amos,Trey,Amos,Trey,00-0040731
 2026,SEA,DB,3.0,ACT,Nick Emmanwori,Nick,Emmanwori,Nick,00-0040733
 2026,NE,RB,32.0,ACT,TreVeyon Henderson,TreVeyon,Henderson,TreVeyon,00-0040734
@@ -2448,7 +2449,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,KC,QB,19.0,ACT,Garrett Nussmeier,Garrett,Nussmeier,Garrett,00-0040906
 2026,BAL,DL,99.0,DEV,Rayshaun Benny,Rayshaun,Benny,Rayshaun,00-0040907
 2026,PHI,LB,50.0,DEV,Keyshawn James-Newby,Keyshawn,James-Newby,Keyshawn,00-0040908
-2026,PHI,OL,60.0,DEV,Evan Beerntsen,Evan,Beerntsen,Evan,00-0040909
+2026,PHI,OL,64.0,DEV,Evan Beerntsen,Evan,Beerntsen,Evan,00-0040909
 2026,SEA,DB,37.0,DEV,Michael Dansby,Michael,Dansby,Michael,00-0040910
 2026,TEN,WR,13.0,CUT,Hank Beatty,Hank,Beatty,Hank,00-0040912
 2026,DET,DB,34.0,ACT,Bishop Fitzgerald,Bishop,Fitzgerald,Bishop,00-0040914
@@ -2534,7 +2535,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,LV,OL,77.0,RES,Justin Pickett,Justin,Pickett,Justin,00-0041003
 2026,LV,WR,86.0,RES,Chase Roberts,Chase,Roberts,Chase,00-0041004
 2026,LV,WR,32.0,CUT,Corey Rucker,Corey,Rucker,Corey,00-0041005
-2026,LV,LB,48.0,DEV,Cian Slone,Cian,Slone,Cian,00-0041006
+2026,LV,LB,48.0,ACT,Cian Slone,Cian,Slone,Cian,00-0041006
 2026,SEA,DL,77.0,DEV,Gary Smith III,Gary,Smith,Gary,00-0041007
 2026,LV,LB,53.0,CUT,Xavian Sorey Jr.,Xavian,Sorey,Xavian,00-0041008
 2026,NYJ,DB,39.0,CUT,Tanner Wall,Tanner,Wall,Tanner,00-0041010
@@ -2653,7 +2654,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,BUF,OL,60.0,ACT,Ar'maj Reed-Adams,Ar'maj,Reed-Adams,Ar'maj,00-0041128
 2026,ATL,RB,38.0,DEV,Jam Miller,Jamarion,Miller,Jam,00-0041129
 2026,DEN,DB,39.0,DEV,Miles Scott,Miles,Scott,Miles,00-0041130
-2026,CLE,TE,48.0,DEV,Carsen Ryan,Carsen,Ryan,Carsen,00-0041131
+2026,CLE,TE,48.0,ACT,Carsen Ryan,Carsen,Ryan,Carsen,00-0041131
 2026,IND,WR,80.0,ACT,Deion Burks,Deion,Burks,Deion,00-0041132
 2026,DEN,TE,89.0,ACT,Dallen Bentley,Dallen,Bentley,Dallen,00-0041133
 2026,DEN,LB,50.0,DEV,Red Murdock,Khalil,Murdock,Red,00-0041134
@@ -2670,7 +2671,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,CAR,OL,60.0,DEV,Isaia Glass,Isaia,Glass,Isaia,00-0041146
 2026,PIT,DB,21.0,CUT,Jaylon Guilbeau,Jaylon,Guilbeau,Jaylon,00-0041147
 2026,CAR,DL,94.0,ACT,Aaron Hall,Aaron,Hall,Aaron,00-0041148
-2026,CAR,QB,16.0,ACT,Haynes King,Haynes,King,Haynes,00-0041149
+2026,CAR,QB,16.0,INA,Haynes King,Haynes,King,Haynes,00-0041149
 2026,CAR,DB,42.0,CUT,Cam Miller,Cam,Miller,Cam,00-0041150
 2026,CAR,DL,69.0,DEV,Parker Petersen,Parker,Petersen,Parker,00-0041151
 2026,NYG,WR,81.0,CUT,Kobe Prentice,Kobe,Prentice,Kobe,00-0041152
@@ -2681,7 +2682,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,MIA,DL,59.0,ACT,Rodney McGraw,Rodney,McGraw,Rodney,00-0041159
 2026,MIA,DB,41.0,CUT,Louis Moore,Louis,Moore,Louis,00-0041160
 2026,MIA,RB,37.0,RET,Le'Veon Moss,Le'Veon,Moss,Le'Veon,00-0041161
-2026,PHI,LB,43.0,DEV,Mason Reiger,Mason,Reiger,Mason,00-0041162
+2026,PHI,LB,43.0,ACT,Mason Reiger,Mason,Reiger,Mason,00-0041162
 2026,NO,DL,67.0,CUT,Kahlil Saunders,Kahlil,Saunders,Kahlil,00-0041163
 2026,CHI,OL,76.0,DEV,Caden Barnett,Caden,Barnett,Caden,00-0041164
 2026,MIA,RB,38.0,CUT,Coleman Bennett,Coleman,Bennett,Coleman,00-0041165
@@ -2705,7 +2706,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,ATL,DL,79.0,DEV,Carlos Allen Jr.,Carlos,Allen,Carlos,00-0041184
 2026,ATL,WR,86.0,DEV,Vinny Anthony II,Vinny,Anthony,Vinny,00-0041185
 2026,PHI,OL,64.0,CUT,James Brockermeyer,James,Brockermeyer,James,00-0041186
-2026,CAR,DB,36.0,DEV,Malcolm DeWalt IV,Malcolm,DeWalt,Malcolm,00-0041188
+2026,CAR,DB,36.0,ACT,Malcolm DeWalt IV,Malcolm,DeWalt,Malcolm,00-0041188
 2026,ATL,RB,32.0,CUT,Cash Jones,Cashion,Jones,Cash,00-0041191
 2026,ATL,OL,76.0,DEV,Riley Mahlman,Riley,Mahlman,Riley,00-0041192
 2026,ATL,QB,18.0,ACT,Jack Strand,Jack,Strand,Jack,00-0041194
@@ -2721,7 +2722,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,JAX,OL,74.0,RES,Garrett DiGiorgio,Garrett,DiGiorgio,Garrett,00-0041208
 2026,JAX,DL,59.0,CUT,Quindarius Dunnigan,Quindarius,Dunnigan,Quindarius,00-0041209
 2026,JAX,DB,26.0,CUT,Preston Hodge,Preston,Hodge,Preston,00-0041210
-2026,LA,DL,96.0,DEV,Jalen Hunt,Jalen,Hunt,Jalen,00-0041211
+2026,LA,DL,92.0,DEV,Jalen Hunt,Jalen,Hunt,Jalen,00-0041211
 2026,JAX,DB,36.0,CUT,Devin Neal,Devin,Neal,Devin,00-0041213
 2026,JAX,OL,62.0,CUT,Jimto Obidegwu,Jimto,Obidegwu,Jimto,00-0041214
 2026,CLE,WR,38.0,CUT,Ben Patterson,Ben,Patterson,Ben,00-0041215
@@ -2792,7 +2793,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,DEN,WR,86.0,CUT,Joseph Manjack,Joseph,Manjack,Joseph,00-0041294
 2026,DEN,LB,57.0,CUT,Dasan McCullough,Dasan,McCullough,Dasan,00-0041295
 2026,DEN,OL,71.0,DEV,Tyler Miller,Tyler,Miller,Tyler,00-0041296
-2026,DEN,OL,68.0,DEV,Gavin Ortega,Gavin,Ortega,Gavin,00-0041297
+2026,DEN,OL,68.0,ACT,Gavin Ortega,Gavin,Ortega,Gavin,00-0041297
 2026,DEN,DB,36.0,CUT,Parker Robertson,Parker,Robertson,Parker,00-0041298
 2026,DEN,WR,80.0,DEV,Cameron Ross,Cameron,Ross,Cam,00-0041299
 2026,CHI,DB,16.0,CUT,William Wright,William,Wright,William,00-0041300
@@ -2903,7 +2904,7 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,LA,TE,83.0,DEV,Dan Villari,Daniel,Villari,Dan,00-0041422
 2026,LA,DL,62.0,CUT,Payton Zdroik,Payton,Zdroik,Payton,00-0041423
 2026,TB,LB,48.0,DEV,Javin Wright,Javin,Wright,Javin,00-0041424
-2026,LA,OL,64.0,DEV,Austin Blaske,Austin,Blaske,Austin,00-0041425
+2026,LA,OL,64.0,CUT,Austin Blaske,Austin,Blaske,Austin,00-0041425
 2026,LA,DL,98.0,DEV,Jaxson Moi,Jaxson,Moi,Jaxson,00-0041428
 2026,LA,LB,51.0,RES,Eddie Walls III,Eddie,Walls,Eddie,00-0041429
 2026,PIT,OL,61.0,CUT,Greg Crippen,Greg,Crippen,Greg,00-0041430
@@ -2994,11 +2995,11 @@ season,team,position,jersey_number,status,full_name,first_name,last_name,footbal
 2026,MIA,LB,19.0,ACT,Kyle Louis,Kyle,Louis,Kyle,00-0041527
 2026,MIA,DB,16.0,ACT,Michael Taaffe,Michael,Taaffe,Michael,00-0041528
 2026,MIA,WR,21.0,ACT,Kevin Coleman Jr.,Kevin,Coleman,Kevin,00-0041529
-2026,MIA,OL,63.0,CUT,DJ Campbell,Devon,Campbell,D.J.,00-0041530
-2026,MIA,DL,57.0,DEV,Max Llewellyn,Max,Llewellyn,Max,00-0041531
+2026,MIA,OL,63.0,DEV,DJ Campbell,Devon,Campbell,D.J.,00-0041530
+2026,MIA,DL,57.0,ACT,Max Llewellyn,Max,Llewellyn,Max,00-0041531
 2026,HOU,OL,66.0,ACT,Keylan Rutledge,Keylan,Rutledge,Keylan,00-0041532
 2026,MIA,DB,3.0,ACT,Chris Johnson,Chris,Johnson,Chris,00-0041533
-2026,LV,DL,91.0,DEV,Tim Keenan III,Tim,Keenan,Tim,00-0041534
+2026,LV,DL,91.0,ACT,Tim Keenan III,Tim,Keenan,Tim,00-0041534
 2026,HOU,TE,47.0,CUT,Louis Hansen,Louis,Hansen,Louis,00-0041535
 2026,DAL,LB,57.0,ACT,Malachi Lawrence,Malachi,Lawrence,Malachi,00-0041537
 2026,CHI,DB,31.0,ACT,Dillon Thieneman,Dillon,Thieneman,Dillon,00-0041538

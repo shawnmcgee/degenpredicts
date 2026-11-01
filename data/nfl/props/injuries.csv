@@ -2138,57 +2138,67 @@ season,week,team,gsis_id,position,full_name,report_status,report_primary_injury,
 2026,7,TEN,00-0039032,RB,Tyjae Spears,Questionable,Not injury related - resting player,Limited Participation in Practice
 2026,7,TEN,00-0040141,S,Kevin Winston Jr.,Questionable,Quadricep,Limited Participation in Practice
 2026,7,TEN,00-0040503,LB,Dorian Mausi,Questionable,Foot,Full Participation in Practice
-2026,8,ARI,00-0032954,G,Isaac Seumalo,,,Did Not Participate In Practice
-2026,8,ARI,00-0033676,T,Elijah Wilkinson,,,Did Not Participate In Practice
-2026,8,ARI,00-0033890,S,Budda Baker,,,Did Not Participate In Practice
-2026,8,ARI,00-0034381,LB,Josh Sweat,,,Did Not Participate In Practice
-2026,8,ARI,00-0035144,LB,Mack Wilson,,,Did Not Participate In Practice
-2026,8,ARI,00-0035378,S,Andrew Wingard,,,Limited Participation in Practice
-2026,8,ARI,00-0036933,LB,Zaven Collins,,,Did Not Participate In Practice
-2026,8,ARI,00-0037263,RB,Tyler Allgeier,,,Did Not Participate In Practice
+2026,8,ARI,00-0032954,G,Isaac Seumalo,,,Full Participation in Practice
+2026,8,ARI,00-0033676,T,Elijah Wilkinson,,,Full Participation in Practice
+2026,8,ARI,00-0033890,S,Budda Baker,,,Full Participation in Practice
+2026,8,ARI,00-0034381,LB,Josh Sweat,,,Full Participation in Practice
+2026,8,ARI,00-0035144,LB,Mack Wilson,,,Full Participation in Practice
+2026,8,ARI,00-0035258,C,Hjalte Froholdt,Questionable,Knee,Did Not Participate In Practice
+2026,8,ARI,00-0035378,S,Andrew Wingard,Questionable,Knee,Limited Participation in Practice
+2026,8,ARI,00-0036933,LB,Zaven Collins,,,Full Participation in Practice
+2026,8,ARI,00-0037263,RB,Tyler Allgeier,,,Limited Participation in Practice
 2026,8,ARI,00-0038559,WR,Michael Wilson,,,Limited Participation in Practice
-2026,8,ARI,00-0038571,G,Jon Gaines II,,,Did Not Participate In Practice
-2026,8,ARI,00-0038984,CB,Kei'Trel Clark,,,Limited Participation in Practice
-2026,8,ARI,00-0039807,CB,Max Melton,,,Limited Participation in Practice
-2026,8,ARI,00-0040706,DT,Walter Nolen,,,Did Not Participate In Practice
-2026,8,ARI,00-0041027,RB,Jeremiyah Love,,,Limited Participation in Practice
-2026,8,ARI,00-0041561,QB,Carson Beck,,,Limited Participation in Practice
-2026,8,ATL,00-0031576,DE,Za'Darius Smith,,,Did Not Participate In Practice
-2026,8,ATL,00-0033945,DE,Samson Ebukam,,,Limited Participation in Practice
-2026,8,ATL,00-0035208,WR,Olamide Zaccheaus,,,Limited Participation in Practice
+2026,8,ARI,00-0038571,G,Jon Gaines II,Out,Ankle,Did Not Participate In Practice
+2026,8,ARI,00-0038984,CB,Kei'Trel Clark,,,Full Participation in Practice
+2026,8,ARI,00-0039807,CB,Max Melton,Questionable,Knee,Limited Participation in Practice
+2026,8,ARI,00-0040706,DT,Walter Nolen,Out,Ankle,Did Not Participate In Practice
+2026,8,ARI,00-0041027,RB,Jeremiyah Love,,,Full Participation in Practice
+2026,8,ARI,00-0041561,QB,Carson Beck,,,Full Participation in Practice
+2026,8,ATL,00-0031279,T,Jake Matthews,,,Limited Participation in Practice
+2026,8,ATL,00-0031576,DE,Za'Darius Smith,,,Full Participation in Practice
+2026,8,ATL,00-0033945,DE,Samson Ebukam,Questionable,Hamstring,Limited Participation in Practice
+2026,8,ATL,00-0035208,WR,Olamide Zaccheaus,Questionable,Shoulder,Limited Participation in Practice
 2026,8,ATL,00-0035237,T,Jawaan Taylor,,,Limited Participation in Practice
+2026,8,ATL,00-0035630,G,Chris Lindstrom,,,Did Not Participate In Practice
 2026,8,ATL,00-0036204,DT,LaCale London,,,Limited Participation in Practice
-2026,8,ATL,00-0036711,LB,Charles Snowden,,,Limited Participation in Practice
-2026,8,ATL,00-0036990,LB,Divine Deablo,,,Did Not Participate In Practice
-2026,8,ATL,00-0037746,RB,Brian Robinson,,,Did Not Participate In Practice
-2026,8,ATL,00-0040156,CB,Billy Bowman Jr.,,,Did Not Participate In Practice
-2026,8,ATL,00-0040432,WR,Beaux Collins,,,Full Participation in Practice
-2026,8,ATL,00-0040687,T,Cameron Williams,,,Full Participation in Practice
-2026,8,ATL,00-0041469,CB,Avieon Terrell,,,Limited Participation in Practice
+2026,8,ATL,00-0036281,CB,C.J. Henderson,,,Full Participation in Practice
+2026,8,ATL,00-0036285,CB,A.J. Terrell,,,Full Participation in Practice
+2026,8,ATL,00-0036711,DE,Charles Snowden,Questionable,Back,Limited Participation in Practice
+2026,8,ATL,00-0036990,LB,Divine Deablo,Questionable,Forearm,Limited Participation in Practice
+2026,8,ATL,00-0037746,RB,Brian Robinson,Out,Hamstring,Did Not Participate In Practice
+2026,8,ATL,00-0037815,DE,Cameron Thomas,,,Full Participation in Practice
+2026,8,ATL,00-0040156,CB,Billy Bowman Jr.,Questionable,Hamstring,Limited Participation in Practice
+2026,8,ATL,00-0040432,WR,Beaux Collins,Questionable,Hip,Full Participation in Practice
+2026,8,ATL,00-0040687,T,Cameron Williams,Questionable,Ankle,Full Participation in Practice
+2026,8,ATL,00-0041066,LB,Kendal Daniels,,,Full Participation in Practice
+2026,8,ATL,00-0041469,CB,Avieon Terrell,Questionable,Illness,Limited Participation in Practice
 2026,8,BAL,00-0026190,DT,Calais Campbell,,,Did Not Participate In Practice
-2026,8,BAL,00-0030070,DT,John Jenkins,,,Limited Participation in Practice
-2026,8,BAL,00-0032965,T,Ronnie Stanley,,,Limited Participation in Practice
+2026,8,BAL,00-0030070,DT,John Jenkins,,,Full Participation in Practice
+2026,8,BAL,00-0032965,T,Ronnie Stanley,,,Did Not Participate In Practice
 2026,8,BAL,00-0033935,LB,Trey Hendrickson,,,Full Participation in Practice
 2026,8,BAL,00-0034753,TE,Mark Andrews,,,Full Participation in Practice
 2026,8,BAL,00-0034796,QB,Lamar Jackson,,,Full Participation in Practice
-2026,8,BAL,00-0034874,LB,Roquan Smith,,,Did Not Participate In Practice
-2026,8,BAL,00-0036081,DE,Broderick Washington,,,Limited Participation in Practice
-2026,8,BAL,00-0036302,S,Jaylinn Hawkins,,,Did Not Participate In Practice
-2026,8,BAL,00-0036369,G,John Simpson,,,Limited Participation in Practice
-2026,8,BAL,00-0038038,S,Kyle Hamilton,,,Did Not Participate In Practice
-2026,8,BAL,00-0039234,CB,T.J. Tampa,,,Limited Participation in Practice
-2026,8,BAL,00-0040866,G,Olaivavega Ioane,,,Did Not Participate In Practice
+2026,8,BAL,00-0034874,LB,Roquan Smith,,,Full Participation in Practice
+2026,8,BAL,00-0036081,DE,Broderick Washington,,,Full Participation in Practice
+2026,8,BAL,00-0036302,S,Jaylinn Hawkins,Out,Knee,Did Not Participate In Practice
+2026,8,BAL,00-0036369,G,John Simpson,,,Full Participation in Practice
+2026,8,BAL,00-0038038,S,Kyle Hamilton,,,Full Participation in Practice
+2026,8,BAL,00-0039234,CB,T.J. Tampa,Questionable,Knee,Full Participation in Practice
+2026,8,BAL,00-0040866,G,Olaivavega Ioane,Out,Knee,Limited Participation in Practice
 2026,8,BAL,00-0040879,TE,Matthew Hibner,,,Full Participation in Practice
-2026,8,BAL,00-0040888,RB,Adam Randall,,,Full Participation in Practice
-2026,8,BUF,00-0034827,WR,DJ Moore,,,Limited Participation in Practice
-2026,8,BUF,00-0034832,LB,Bradley Chubb,,,Limited Participation in Practice
-2026,8,BUF,00-0035230,DE,Ed Oliver,,,Limited Participation in Practice
-2026,8,BUF,00-0036976,T,Spencer Brown,,,Did Not Participate In Practice
-2026,8,BUF,00-0037034,CB,Dee Alford,,,Limited Participation in Practice
-2026,8,BUF,00-0038679,WR,Tyrell Shavers,,,Limited Participation in Practice
-2026,8,BUF,00-0038933,TE,Dalton Kincaid,,,Limited Participation in Practice
-2026,8,BUF,00-0040724,DE,T.J. Sanders,,,Limited Participation in Practice
-2026,8,BUF,00-0041036,LB,TJ Parker,,,Limited Participation in Practice
+2026,8,BAL,00-0040888,RB,Adam Randall,Questionable,Neck,Full Participation in Practice
+2026,8,BUF,00-0034827,WR,DJ Moore,Questionable,Shoulder,Limited Participation in Practice
+2026,8,BUF,00-0034832,LB,Bradley Chubb,,,Full Participation in Practice
+2026,8,BUF,00-0035230,DE,Ed Oliver,,,Full Participation in Practice
+2026,8,BUF,00-0035667,DT,Greg Gaines,Questionable,Calf,Limited Participation in Practice
+2026,8,BUF,00-0036976,T,Spencer Brown,Questionable,Back,Limited Participation in Practice
+2026,8,BUF,00-0037034,CB,Dee Alford,Questionable,Ankle,Did Not Participate In Practice
+2026,8,BUF,00-0038679,WR,Tyrell Shavers,Out,Knee,Limited Participation in Practice
+2026,8,BUF,00-0038933,TE,Dalton Kincaid,Questionable,Chest,Limited Participation in Practice
+2026,8,BUF,00-0039763,LB,Joe Andreessen,,,Full Participation in Practice
+2026,8,BUF,00-0039875,RB,Ray Davis,,,Full Participation in Practice
+2026,8,BUF,00-0040724,DE,T.J. Sanders,,,Full Participation in Practice
+2026,8,BUF,00-0041036,LB,TJ Parker,Questionable,Knee,Full Participation in Practice
 2026,8,BUF,00-0041128,G,Ar'maj Reed-Adams,,,Full Participation in Practice
 2026,8,CAR,00-0036417,G,Damien Lewis,Out,Knee,Did Not Participate In Practice
 2026,8,CAR,00-0036903,DT,Bobby Brown III,Questionable,Hand,Full Participation in Practice
@@ -2198,47 +2208,62 @@ season,week,team,gsis_id,position,full_name,report_status,report_primary_injury,
 2026,8,CAR,00-0039491,WR,Jalen Coker,,,Full Participation in Practice
 2026,8,CAR,00-0040279,K,Ryan Fitzgerald,,,Full Participation in Practice
 2026,8,CAR,00-0040541,G,Torricelli Simpkins III,Out,Ankle,Did Not Participate In Practice
+2026,8,CHI,00-0035386,LB,T.J. Edwards,,,Full Participation in Practice
+2026,8,CHI,00-0037109,LB,Jack Sanborn,,,Full Participation in Practice
+2026,8,CHI,00-0037271,LB,D'Marco Jackson,Questionable,Ankle,Full Participation in Practice
+2026,8,CHI,00-0040126,TE,Colston Loveland,,,Full Participation in Practice
+2026,8,CHI,00-0040236,RB,Kyle Monangai,Out,Thumb,Did Not Participate In Practice
+2026,8,CHI,00-0041060,CB,Malik Muhammad,Questionable,Toe,Limited Participation in Practice
 2026,8,CIN,00-0033523,DT,Jonathan Allen,,,Did Not Participate In Practice
-2026,8,CIN,00-0035363,LB,Joe Giles-Harris,,,Limited Participation in Practice
-2026,8,CIN,00-0036231,S,Kyle Dugger,,,Did Not Participate In Practice
-2026,8,CIN,00-0036900,WR,Ja'Marr Chase,,,Did Not Participate In Practice
+2026,8,CIN,00-0034800,DT,B.J. Hill,,,Did Not Participate In Practice
+2026,8,CIN,00-0035363,LB,Joe Giles-Harris,Questionable,Calf,Limited Participation in Practice
+2026,8,CIN,00-0035683,DT,Dexter Lawrence,,,Did Not Participate In Practice
+2026,8,CIN,00-0036231,S,Kyle Dugger,Out,Quadricep,Did Not Participate In Practice
+2026,8,CIN,00-0036900,WR,Ja'Marr Chase,,,Full Participation in Practice
 2026,8,CIN,00-0038560,S,Jordan Battle,,,Limited Participation in Practice
-2026,8,CLE,00-0035234,T,Tytus Howard,,,Did Not Participate In Practice
-2026,8,CLE,00-0035526,C,Elgton Jenkins,,,Did Not Participate In Practice
-2026,8,CLE,00-0036282,S,Grant Delpit,,,Limited Participation in Practice
-2026,8,CLE,00-0036306,S,Daniel Thomas,,,Limited Participation in Practice
-2026,8,CLE,00-0039417,CB,Myles Harden,,,Limited Participation in Practice
-2026,8,CLE,00-0039852,DE,Jared Verse,,,Did Not Participate In Practice
-2026,8,CLE,00-0039895,DT,Mike Hall Jr.,,,Limited Participation in Practice
-2026,8,CLE,00-0040162,RB,Dylan Sampson,,,Limited Participation in Practice
-2026,8,CLE,00-0040579,LB,Carson Schwesinger,,,Limited Participation in Practice
+2026,8,CLE,00-0035234,T,Tytus Howard,Questionable,Concussion,Did Not Participate In Practice
+2026,8,CLE,00-0035526,C,Elgton Jenkins,,,Full Participation in Practice
+2026,8,CLE,00-0036282,S,Grant Delpit,,,Full Participation in Practice
+2026,8,CLE,00-0036306,S,Daniel Thomas,Questionable,Ankle,Limited Participation in Practice
+2026,8,CLE,00-0039417,CB,Myles Harden,Questionable,Hamstring,Limited Participation in Practice
+2026,8,CLE,00-0039852,DE,Jared Verse,,,Full Participation in Practice
+2026,8,CLE,00-0039895,DT,Mike Hall Jr.,,,Full Participation in Practice
+2026,8,CLE,00-0040162,RB,Dylan Sampson,,,Full Participation in Practice
+2026,8,CLE,00-0040579,LB,Carson Schwesinger,,,Full Participation in Practice
 2026,8,CLE,00-0040685,DT,Mason Graham,,,Limited Participation in Practice
-2026,8,DAL,00-0035227,S,P.J. Locke,,,Full Participation in Practice
-2026,8,DAL,00-0035718,DT,Quinnen Williams,,,Limited Participation in Practice
-2026,8,DAL,00-0037247,WR,George Pickens,,,Limited Participation in Practice
-2026,8,DAL,00-0037801,WR,KaVontae Turpin,,,Did Not Participate In Practice
-2026,8,DAL,00-0038625,LB,Dee Winters,,,Did Not Participate In Practice
-2026,8,DAL,00-0039352,LB,Marist Liufau,,,Full Participation in Practice
-2026,8,DAL,00-0040865,S,Caleb Downs,,,Limited Participation in Practice
-2026,8,DAL,00-0040874,T,Drew Shelton,,,Limited Participation in Practice
-2026,8,DEN,00-0033538,T,Garett Bolles,,,Limited Participation in Practice
-2026,8,DEN,00-0035248,DE,Zach Allen,,,Did Not Participate In Practice
+2026,8,DAL,00-0033093,DT,Jonathan Bullard,Questionable,Calf,Full Participation in Practice
+2026,8,DAL,00-0033120,DT,Kenny Clark,Questionable,Back,Limited Participation in Practice
+2026,8,DAL,00-0035227,S,P.J. Locke,Questionable,Foot,Full Participation in Practice
+2026,8,DAL,00-0035718,DT,Quinnen Williams,,,Full Participation in Practice
+2026,8,DAL,00-0037243,G,Tyler Smith,,,Full Participation in Practice
+2026,8,DAL,00-0037247,WR,George Pickens,Questionable,Shoulder,Limited Participation in Practice
+2026,8,DAL,00-0037801,WR,KaVontae Turpin,Out,Ribs,Did Not Participate In Practice
+2026,8,DAL,00-0038547,TE,Luke Schoonmaker,Questionable,Groin,Did Not Participate In Practice
+2026,8,DAL,00-0038625,LB,Dee Winters,Out,Calf,Did Not Participate In Practice
+2026,8,DAL,00-0039352,LB,Marist Liufau,Questionable,Forearm,Full Participation in Practice
+2026,8,DAL,00-0040865,S,Caleb Downs,,,Full Participation in Practice
+2026,8,DAL,00-0040874,T,Drew Shelton,,,Full Participation in Practice
+2026,8,DEN,00-0033538,T,Garett Bolles,Questionable,Hip,Limited Participation in Practice
+2026,8,DEN,00-0035248,DE,Zach Allen,Questionable,Hamstring,Limited Participation in Practice
 2026,8,DEN,00-0035763,DT,Malcolm Roach,,,Full Participation in Practice
-2026,8,DEN,00-0036564,S,Talanoa Hufanga,,,Did Not Participate In Practice
-2026,8,DEN,00-0036613,WR,Jaylen Waddle,,,Did Not Participate In Practice
+2026,8,DEN,00-0036221,S,Brandon Jones,Questionable,Hamstring,Limited Participation in Practice
+2026,8,DEN,00-0036564,S,Talanoa Hufanga,Out,Ankle,Did Not Participate In Practice
+2026,8,DEN,00-0036613,WR,Jaylen Waddle,Questionable,Chest,Limited Participation in Practice
 2026,8,DEN,00-0036874,CB,Pat Surtain II,,,Full Participation in Practice
-2026,8,DEN,00-0038976,WR,Marvin Mims Jr.,,,Limited Participation in Practice
+2026,8,DEN,00-0038976,WR,Marvin Mims Jr.,,,Full Participation in Practice
 2026,8,DEN,00-0040449,LB,Karene Reid,,,Full Participation in Practice
-2026,8,DET,00-0036335,DE,DJ Wonnum,,,Did Not Participate In Practice
-2026,8,DET,00-0036624,DT,Alim McNeill,,,Did Not Participate In Practice
-2026,8,DET,00-0036880,T,Penei Sewell,,,Did Not Participate In Practice
-2026,8,DET,00-0036963,WR,Amon-Ra St. Brown,,,Did Not Participate In Practice
-2026,8,DET,00-0037236,DE,Aidan Hutchinson,,,Did Not Participate In Practice
-2026,8,DET,00-0037667,S,Kerby Joseph,,,Limited Participation in Practice
-2026,8,DET,00-0038896,RB,Jacob Saylors,,,Limited Participation in Practice
-2026,8,DET,00-0039139,RB,Jahmyr Gibbs,,,Did Not Participate In Practice
-2026,8,DET,00-0039862,CB,Ennis Rakestraw Jr.,,,Limited Participation in Practice
-2026,8,DET,00-0040672,DT,Tyleik Williams,,,Did Not Participate In Practice
+2026,8,DEN,00-0040730,RB,RJ Harvey,Out,Knee,Did Not Participate In Practice
+2026,8,DET,00-0036335,DE,DJ Wonnum,,,Full Participation in Practice
+2026,8,DET,00-0036624,DT,Alim McNeill,,,Full Participation in Practice
+2026,8,DET,00-0036880,T,Penei Sewell,,,Full Participation in Practice
+2026,8,DET,00-0036963,WR,Amon-Ra St. Brown,,,Full Participation in Practice
+2026,8,DET,00-0037236,DE,Aidan Hutchinson,,,Full Participation in Practice
+2026,8,DET,00-0037667,S,Kerby Joseph,Out,Knee,Limited Participation in Practice
+2026,8,DET,00-0038125,CB,Roger McCreary,Questionable,Foot,Limited Participation in Practice
+2026,8,DET,00-0038896,RB,Jacob Saylors,,,Full Participation in Practice
+2026,8,DET,00-0039139,RB,Jahmyr Gibbs,,,Full Participation in Practice
+2026,8,DET,00-0039862,CB,Ennis Rakestraw Jr.,,,Full Participation in Practice
+2026,8,DET,00-0040672,DT,Tyleik Williams,,,Full Participation in Practice
 2026,8,GB,00-0034431,LB,Zaire Franklin,Out,Shin,Did Not Participate In Practice
 2026,8,GB,00-0036551,G,Aaron Banks,,,Full Participation in Practice
 2026,8,GB,00-0036625,CB,Benjamin St-Juste,,,Full Participation in Practice
@@ -2250,140 +2275,186 @@ season,week,team,gsis_id,position,full_name,report_status,report_primary_injury,
 2026,8,GB,00-0040689,DT,Anthony Campbell,Questionable,Ankle,Limited Participation in Practice
 2026,8,IND,00-0033269,P,Rigoberto Sanchez,,,Full Participation in Practice
 2026,8,IND,00-0036298,LB,Akeem Davis-Gaither,,,Full Participation in Practice
-2026,8,IND,00-0037190,CB,Sauce Gardner,,,Limited Participation in Practice
-2026,8,IND,00-0037292,TE,Andrew Ogletree,,,Limited Participation in Practice
-2026,8,IND,00-0039736,G,Matt Goncalves,,,Limited Participation in Practice
-2026,8,IND,00-0039816,WR,Anthony Gould,,,Limited Participation in Practice
-2026,8,IND,00-0040128,TE,Tyler Warren,,,Limited Participation in Practice
-2026,8,IND,00-0040139,CB,Justin Walley,,,Did Not Participate In Practice
-2026,8,IND,00-0040207,DT,Tim Smith,,,Limited Participation in Practice
+2026,8,IND,00-0037190,CB,Sauce Gardner,,,Full Participation in Practice
+2026,8,IND,00-0037292,TE,Andrew Ogletree,Questionable,Knee,Did Not Participate In Practice
+2026,8,IND,00-0039736,G,Matt Goncalves,,,Full Participation in Practice
+2026,8,IND,00-0039816,WR,Anthony Gould,Out,Concussion,Full Participation in Practice
+2026,8,IND,00-0040128,TE,Tyler Warren,,,Full Participation in Practice
+2026,8,IND,00-0040139,CB,Justin Walley,Out,Knee,Did Not Participate In Practice
+2026,8,IND,00-0040207,DT,Tim Smith,,,Full Participation in Practice
 2026,8,IND,00-0041039,LB,CJ Allen,,,Full Participation in Practice
-2026,8,IND,00-0041518,LB,Bryce Boettcher,,,Did Not Participate In Practice
-2026,8,JAX,00-0034960,WR,Jakobi Meyers,,,Limited Participation in Practice
+2026,8,IND,00-0041518,LB,Bryce Boettcher,Questionable,Groin,Did Not Participate In Practice
+2026,8,JAX,00-0034960,WR,Jakobi Meyers,Questionable,Hamstring,Did Not Participate In Practice
 2026,8,JAX,00-0035240,LB,Jahlani Tavai,,,Limited Participation in Practice
+2026,8,JAX,00-0035642,DE,Josh Hines-Allen,,,Limited Participation in Practice
 2026,8,JAX,00-0035827,LS,Ross Matiscik,,,Limited Participation in Practice
 2026,8,JAX,00-0037313,CB,Montaric Brown,,,Full Participation in Practice
-2026,8,JAX,00-0038596,S,Antonio Johnson,,,Did Not Participate In Practice
+2026,8,JAX,00-0038596,S,Antonio Johnson,Out,Ankle,Did Not Participate In Practice
 2026,8,JAX,00-0038935,TE,Brenton Strange,,,Full Participation in Practice
-2026,8,JAX,00-0039733,DT,Ruke Orhorhoro,,,Limited Participation in Practice
+2026,8,JAX,00-0039733,DT,Ruke Orhorhoro,,,Full Participation in Practice
+2026,8,JAX,00-0040238,RB,LeQuint Allen Jr.,,,Limited Participation in Practice
 2026,8,KC,00-0030506,TE,Travis Kelce,,,Full Participation in Practice
 2026,8,KC,00-0033873,QB,Patrick Mahomes,,,Full Participation in Practice
 2026,8,KC,00-0035262,LB,Drue Tranquill,,,Full Participation in Practice
-2026,8,KC,00-0036374,CB,L'Jarius Sneed,,,Did Not Participate In Practice
+2026,8,KC,00-0036374,CB,L'Jarius Sneed,Questionable,Knee,Limited Participation in Practice
 2026,8,KC,00-0036557,T,Jaylon Moore,,,Full Participation in Practice
 2026,8,KC,00-0036621,LB,Nick Bolton,,,Full Participation in Practice
 2026,8,KC,00-0036623,C,Creed Humphrey,,,Full Participation in Practice
-2026,8,KC,00-0039067,WR,Rashee Rice,,,Limited Participation in Practice
-2026,8,KC,00-0040748,DT,Omarr Norman-Lott,,,Limited Participation in Practice
+2026,8,KC,00-0039067,WR,Rashee Rice,,,Full Participation in Practice
+2026,8,KC,00-0040748,DT,Omarr Norman-Lott,Out,Knee,Limited Participation in Practice
 2026,8,KC,00-0041019,T,Kahlil Benson,,,Full Participation in Practice
-2026,8,LA,00-0032228,LS,Joe Cardona,,,Did Not Participate In Practice
-2026,8,LA,00-0034114,C,Coleman Shelton,,,Did Not Participate In Practice
-2026,8,LA,00-0036244,TE,Colby Parkinson,,,Did Not Participate In Practice
-2026,8,LA,00-0037191,CB,Trent McDuffie,,,Limited Participation in Practice
+2026,8,KC,00-0041501,DE,R Mason Thomas,Questionable,Not injury related - personal matter,Did Not Participate In Practice
+2026,8,KC,00-0041543,CB,Mansoor Delane,Questionable,Shoulder,Did Not Participate In Practice
+2026,8,LA,00-0031388,DT,Aaron Donald,,,Did Not Participate In Practice
+2026,8,LA,00-0032228,LS,Joe Cardona,Doubtful,Ankle,Did Not Participate In Practice
+2026,8,LA,00-0034114,C,Coleman Shelton,Questionable,Hip,Limited Participation in Practice
+2026,8,LA,00-0036244,TE,Colby Parkinson,Questionable,Rib,Did Not Participate In Practice
+2026,8,LA,00-0036603,T,Alaric Jackson,,,Did Not Participate In Practice
+2026,8,LA,00-0037191,CB,Trent McDuffie,Questionable,Groin,Limited Participation in Practice
 2026,8,LA,00-0037587,LB,Nate Landman,,,Full Participation in Practice
 2026,8,LA,00-0039061,LB,Desjuan Johnson,,,Full Participation in Practice
-2026,8,LAC,00-0031040,DE,Khalil Mack,,,Did Not Participate In Practice
-2026,8,LAC,00-0034356,CB,Donte Jackson,,,Limited Participation in Practice
-2026,8,LAC,00-0034790,S,Derwin James,,,Did Not Participate In Practice
-2026,8,LAC,00-0036736,G,Kayode Awosika,,,Did Not Participate In Practice
-2026,8,LAC,00-0037320,CB,Deane Leonard,,,Did Not Participate In Practice
+2026,8,LA,00-0039075,WR,Puka Nacua,,,Did Not Participate In Practice
+2026,8,LA,00-0039137,LB,Byron Young,,,Did Not Participate In Practice
+2026,8,LA,00-0039751,WR,Jordan Whittington,Questionable,Back,Did Not Participate In Practice
+2026,8,LAC,00-0031040,DE,Khalil Mack,,,Full Participation in Practice
+2026,8,LAC,00-0034356,CB,Donte Jackson,Questionable,Hamstring,Limited Participation in Practice
+2026,8,LAC,00-0034790,S,Derwin James,Out,Hamstring,Did Not Participate In Practice
+2026,8,LAC,00-0036736,G,Kayode Awosika,Out,Fibula,Did Not Participate In Practice
+2026,8,LAC,00-0037320,CB,Deane Leonard,Out,Concussion,Did Not Participate In Practice
 2026,8,LAC,00-0039915,WR,Ladd McConkey,,,Full Participation in Practice
-2026,8,LAC,00-0040727,WR,Tre Harris,,,Limited Participation in Practice
-2026,8,LAC,00-0041381,CB,Rodney Shelley,,,Limited Participation in Practice
-2026,8,LAC,00-0041550,WR,Brenen Thompson,,,Did Not Participate In Practice
-2026,8,LV,00-0034275,DT,Foley Fatukasi,,,Limited Participation in Practice
-2026,8,LV,00-0034365,TE,Ian Thomas,,,Limited Participation in Practice
-2026,8,LV,00-0036479,DE,Kwity Paye,,,Limited Participation in Practice
-2026,8,LV,00-0036922,DE,Patrick Johnson,,,Did Not Participate In Practice
-2026,8,LV,00-0037074,LB,Quay Walker,,,Limited Participation in Practice
-2026,8,LV,00-0039338,TE,Brock Bowers,,,Limited Participation in Practice
-2026,8,LV,00-0039349,T,DJ Glaze,,,Limited Participation in Practice
-2026,8,LV,00-0040488,TE,Carter Runyon,,,Full Participation in Practice
-2026,8,LV,00-0040729,WR,Jack Bech,,,Full Participation in Practice
-2026,8,MIA,00-0037252,TE,Greg Dulcich,,,Limited Participation in Practice
+2026,8,LAC,00-0040727,WR,Tre Harris,,,Full Participation in Practice
+2026,8,LAC,00-0041381,CB,Rodney Shelley,Questionable,Hamstring,Limited Participation in Practice
+2026,8,LAC,00-0041550,WR,Brenen Thompson,Out,Quadricep,Did Not Participate In Practice
+2026,8,LV,00-0034275,DT,Foley Fatukasi,,,Full Participation in Practice
+2026,8,LV,00-0034365,TE,Ian Thomas,,,Full Participation in Practice
+2026,8,LV,00-0036479,DE,Kwity Paye,,,Full Participation in Practice
+2026,8,LV,00-0036901,CB,Eric Stokes,,,Limited Participation in Practice
+2026,8,LV,00-0036922,DE,Patrick Johnson,Out,Stinger,Did Not Participate In Practice
+2026,8,LV,00-0037074,LB,Quay Walker,,,Full Participation in Practice
+2026,8,LV,00-0039338,TE,Brock Bowers,,,Full Participation in Practice
+2026,8,LV,00-0039349,T,DJ Glaze,,,Full Participation in Practice
+2026,8,LV,00-0039735,G,Jackson Powers-Johnson,Questionable,Back,Limited Participation in Practice
+2026,8,LV,00-0040488,TE,Carter Runyon,Out,Foot,Full Participation in Practice
+2026,8,LV,00-0040729,WR,Jack Bech,Questionable,Forearm,Full Participation in Practice
+2026,8,MIA,00-0037252,TE,Greg Dulcich,,,Full Participation in Practice
 2026,8,MIA,00-0037686,LS,Tucker Addington,,,Limited Participation in Practice
 2026,8,MIA,00-0038128,QB,Malik Willis,,,Full Participation in Practice
-2026,8,MIA,00-0038521,CB,Reese Taylor,,,Limited Participation in Practice
+2026,8,MIA,00-0038521,CB,Reese Taylor,Questionable,Quadricep,Full Participation in Practice
 2026,8,MIA,00-0038603,DE,Rob Beal Jr.,,,Full Participation in Practice
-2026,8,MIA,00-0038728,WR,Jared Wayne,,,Limited Participation in Practice
-2026,8,MIA,00-0039156,CB,Julius Brents,,,Did Not Participate In Practice
+2026,8,MIA,00-0038728,WR,Jared Wayne,,,Full Participation in Practice
+2026,8,MIA,00-0039156,CB,Julius Brents,Questionable,Neck,Full Participation in Practice
 2026,8,MIA,00-0039874,RB,Jaylen Wright,,,Full Participation in Practice
-2026,8,MIA,00-0039880,WR,Malik Washington,,,Limited Participation in Practice
-2026,8,MIA,00-0040182,S,Dante Trader Jr.,,,Limited Participation in Practice
-2026,8,MIA,00-0041521,T,Kadyn Proctor,,,Did Not Participate In Practice
-2026,8,MIA,00-0041524,TE,Will Kacmarek,,,Limited Participation in Practice
-2026,8,MIA,00-0041528,S,Michael Taaffe,,,Limited Participation in Practice
-2026,8,MIN,00-0033293,RB,Aaron Jones,,,Did Not Participate In Practice
-2026,8,MIN,00-0034158,T,Brian O'Neill,,,Limited Participation in Practice
-2026,8,MIN,00-0040500,G,Joe Huber,,,Did Not Participate In Practice
-2026,8,NE,00-0031054,DT,DaQuan Jones,,,Limited Participation in Practice
-2026,8,NE,00-0031330,T,Morgan Moses,,,Limited Participation in Practice
+2026,8,MIA,00-0039880,WR,Malik Washington,,,Full Participation in Practice
+2026,8,MIA,00-0040182,S,Dante Trader Jr.,,,Full Participation in Practice
+2026,8,MIA,00-0041521,T,Kadyn Proctor,Out,Concussion,Did Not Participate In Practice
+2026,8,MIA,00-0041524,TE,Will Kacmarek,,,Full Participation in Practice
+2026,8,MIA,00-0041528,S,Michael Taaffe,,,Full Participation in Practice
+2026,8,MIN,00-0029606,S,Harrison Smith,,,Limited Participation in Practice
+2026,8,MIN,00-0033293,RB,Aaron Jones,,,Full Participation in Practice
+2026,8,MIN,00-0034158,T,Brian O'Neill,,,Full Participation in Practice
+2026,8,MIN,00-0036616,T,Christian Darrisaw,,,Did Not Participate In Practice
+2026,8,MIN,00-0038578,S,Jay Ward,Questionable,Knee,Limited Participation in Practice
+2026,8,MIN,00-0040215,TE,Gavin Bartholomew,,,Full Participation in Practice
+2026,8,MIN,00-0040500,G,Joe Huber,,,Full Participation in Practice
+2026,8,NE,00-0031054,DT,DaQuan Jones,,,Full Participation in Practice
+2026,8,NE,00-0031330,T,Morgan Moses,,,Full Participation in Practice
 2026,8,NE,00-0033132,S,Kevin Byard,,,Full Participation in Practice
-2026,8,NE,00-0034778,CB,Carlton Davis III,,,Full Participation in Practice
-2026,8,NE,00-0035676,WR,A.J. Brown,,,Limited Participation in Practice
+2026,8,NE,00-0034778,CB,Carlton Davis III,Questionable,Neck,Full Participation in Practice
+2026,8,NE,00-0035676,WR,A.J. Brown,Questionable,Ankle,Did Not Participate In Practice
 2026,8,NE,00-0035678,LB,Dre'Mont Jones,,,Full Participation in Practice
-2026,8,NE,00-0036813,LB,Christian Elliss,,,Full Participation in Practice
-2026,8,NE,00-0037413,C,Ben Brown,,,Limited Participation in Practice
+2026,8,NE,00-0036813,LB,Christian Elliss,Questionable,Chest,Full Participation in Practice
+2026,8,NE,00-0037413,C,Ben Brown,,,Full Participation in Practice
 2026,8,NE,00-0039851,QB,Drake Maye,,,Full Participation in Practice
 2026,8,NE,00-0040226,T,Marcus Bryant,,,Full Participation in Practice
+2026,8,NE,00-0040734,RB,TreVeyon Henderson,Questionable,Illness,Did Not Participate In Practice
 2026,8,NE,00-0041088,CB,Karon Prunty,,,Full Participation in Practice
 2026,8,NE,00-0041316,CB,Channing Canada,,,Full Participation in Practice
-2026,8,NYJ,00-0029607,LB,Demario Davis,,,Did Not Participate In Practice
-2026,8,NYJ,00-0034782,DT,Harrison Phillips,,,Did Not Participate In Practice
-2026,8,NYJ,00-0036902,DE,Joseph Ossai,,,Did Not Participate In Practice
-2026,8,NYJ,00-0037255,G,Dylan Parham,,,Limited Participation in Practice
-2026,8,NYJ,00-0038114,T,Max Mitchell,,,Did Not Participate In Practice
-2026,8,NYJ,00-0038120,RB,Breece Hall,,,Limited Participation in Practice
-2026,8,NYJ,00-0039794,RB,Braelon Allen,,,Limited Participation in Practice
-2026,8,NYJ,00-0039886,DT,T'Vondre Sweat,,,Did Not Participate In Practice
-2026,8,NYJ,00-0041026,DE,David Bailey,,,Did Not Participate In Practice
-2026,8,PHI,00-0032580,CB,Jonathan Jones,,,Did Not Participate In Practice
+2026,8,NYJ,00-0029607,LB,Demario Davis,,,Full Participation in Practice
+2026,8,NYJ,00-0034782,DT,Harrison Phillips,,,Full Participation in Practice
+2026,8,NYJ,00-0036902,DE,Joseph Ossai,Out,Ankle,Did Not Participate In Practice
+2026,8,NYJ,00-0037255,G,Dylan Parham,Questionable,Knee,Full Participation in Practice
+2026,8,NYJ,00-0038114,T,Max Mitchell,Out,Concussion,Did Not Participate In Practice
+2026,8,NYJ,00-0038120,RB,Breece Hall,Questionable,Quadricep,Limited Participation in Practice
+2026,8,NYJ,00-0039794,RB,Braelon Allen,,,Full Participation in Practice
+2026,8,NYJ,00-0039886,DT,T'Vondre Sweat,Out,Knee,Did Not Participate In Practice
+2026,8,NYJ,00-0041026,DE,David Bailey,Doubtful,Groin,Did Not Participate In Practice
+2026,8,PHI,00-0032580,CB,Jonathan Jones,Out,Hamstring,Did Not Participate In Practice
 2026,8,PHI,00-0034351,TE,Dallas Goedert,,,Full Participation in Practice
-2026,8,PHI,00-0034844,RB,Saquon Barkley,,,Did Not Participate In Practice
-2026,8,PHI,00-0036224,LB,Jonathan Greenard,,,Limited Participation in Practice
+2026,8,PHI,00-0034844,RB,Saquon Barkley,,,Limited Participation in Practice
+2026,8,PHI,00-0034993,S,Marcus Epps,,,Full Participation in Practice
+2026,8,PHI,00-0036224,LB,Jonathan Greenard,,,Full Participation in Practice
 2026,8,PHI,00-0036418,LB,Zack Baun,,,Full Participation in Practice
-2026,8,PHI,00-0036501,CB,Michael Carter II,,,Limited Participation in Practice
-2026,8,PHI,00-0036912,WR,DeVonta Smith,,,Did Not Participate In Practice
+2026,8,PHI,00-0036501,CB,Michael Carter II,,,Full Participation in Practice
+2026,8,PHI,00-0036912,WR,DeVonta Smith,Out,Hamstring,Did Not Participate In Practice
 2026,8,PHI,00-0037002,G,Landon Dickerson,,,Full Participation in Practice
-2026,8,PHI,00-0037132,WR,Britain Covey,,,Did Not Participate In Practice
+2026,8,PHI,00-0037132,WR,Britain Covey,Out,Knee,Did Not Participate In Practice
 2026,8,PHI,00-0038116,LB,Arnold Ebiketie,,,Full Participation in Practice
-2026,8,PHI,00-0038393,WR,Dontayvion Wicks,,,Did Not Participate In Practice
+2026,8,PHI,00-0038393,WR,Dontayvion Wicks,Out,Ankle,Did Not Participate In Practice
 2026,8,PHI,00-0038412,DT,Moro Ojomo,,,Limited Participation in Practice
 2026,8,PHI,00-0039001,G,Tyler Steen,,,Full Participation in Practice
-2026,8,PHI,00-0039013,LB,Nolan Smith,,,Limited Participation in Practice
-2026,8,PHI,00-0039072,CB,Jakorian Bennett,,,Full Participation in Practice
+2026,8,PHI,00-0039013,LB,Nolan Smith,,,Full Participation in Practice
+2026,8,PHI,00-0039072,CB,Jakorian Bennett,Questionable,Knee,Full Participation in Practice
 2026,8,PHI,00-0039740,LB,Jalyx Hunt,,,Limited Participation in Practice
-2026,8,PHI,00-0040013,LB,Smael Mondon Jr.,,,Limited Participation in Practice
+2026,8,PHI,00-0040013,LB,Smael Mondon Jr.,,,Full Participation in Practice
 2026,8,PHI,00-0040587,C,Drew Kendall,,,Full Participation in Practice
-2026,8,PHI,00-0040708,LB,Jihaad Campbell,,,Did Not Participate In Practice
-2026,8,PIT,00-0027969,DT,Cameron Heyward,,,Did Not Participate In Practice
-2026,8,PIT,00-0033055,CB,Jalen Ramsey,,,Did Not Participate In Practice
-2026,8,PIT,00-0033886,LB,T.J. Watt,,,Did Not Participate In Practice
-2026,8,PIT,00-0036333,LB,Alex Highsmith,,,Limited Participation in Practice
-2026,8,PIT,00-0036504,CB,Brandin Echols,,,Did Not Participate In Practice
-2026,8,PIT,00-0036862,WR,Ben Skowronek,,,Limited Participation in Practice
-2026,8,PIT,00-0038558,TE,Darnell Washington,,,Did Not Participate In Practice
-2026,8,PIT,00-0040341,CB,Doneiko Slaughter,,,Did Not Participate In Practice
+2026,8,PHI,00-0040708,LB,Jihaad Campbell,Out,Hamstring,Did Not Participate In Practice
+2026,8,PIT,00-0027969,DT,Cameron Heyward,,,Full Participation in Practice
+2026,8,PIT,00-0033055,CB,Jalen Ramsey,,,Full Participation in Practice
+2026,8,PIT,00-0033886,LB,T.J. Watt,,,Full Participation in Practice
+2026,8,PIT,00-0036333,LB,Alex Highsmith,,,Full Participation in Practice
+2026,8,PIT,00-0036504,CB,Brandin Echols,Out,Hamstring,Did Not Participate In Practice
+2026,8,PIT,00-0036862,WR,Ben Skowronek,Questionable,Calf,Limited Participation in Practice
+2026,8,PIT,00-0038558,TE,Darnell Washington,,,Full Participation in Practice
+2026,8,PIT,00-0040341,CB,Doneiko Slaughter,Out,Hamstring,Did Not Participate In Practice
+2026,8,SEA,00-0031411,LB,DeMarcus Lawrence,,,Full Participation in Practice
+2026,8,SEA,00-0031933,DT,Leonard Williams,,,Full Participation in Practice
+2026,8,SEA,00-0034342,G,Quenton Nelson,,,Full Participation in Practice
+2026,8,SEA,00-0034350,LB,Uchenna Nwosu,Doubtful,Ankle,Did Not Participate In Practice
+2026,8,SEA,00-0035704,QB,Drew Lock,Questionable,Elbow,Limited Participation in Practice
+2026,8,SEA,00-0037003,LB,Chazz Surratt,,,Full Participation in Practice
+2026,8,SEA,00-0037545,WR,Rashid Shaheed,Out,Knee,Did Not Participate In Practice
+2026,8,SEA,00-0037745,RB,Velus Jones Jr.,Out,Hamstring,Did Not Participate In Practice
+2026,8,SEA,00-0037821,T,Charles Cross,Out,Ankle,Did Not Participate In Practice
+2026,8,SEA,00-0038488,FB,Brady Russell,,,Full Participation in Practice
+2026,8,SEA,00-0038543,WR,Jaxon Smith-Njigba,,,Full Participation in Practice
+2026,8,SEA,00-0038694,DT,Brandon Pili,Questionable,Back,Did Not Participate In Practice
+2026,8,SEA,00-0038764,LB,Patrick O'Connell,Questionable,Toe,Did Not Participate In Practice
+2026,8,SEA,00-0038922,LB,Drake Thomas,,,Full Participation in Practice
+2026,8,SEA,00-0039020,G,Anthony Bradford,Questionable,Knee,Limited Participation in Practice
+2026,8,SEA,00-0039165,RB,Zach Charbonnet,,,Full Participation in Practice
+2026,8,SEA,00-0039309,DT,Byron Murphy II,,,Full Participation in Practice
+2026,8,SEA,00-0039815,LB,Tyrice Knight,,,Full Participation in Practice
+2026,8,SEA,00-0040061,LB,Connor O'Toole,,,Full Participation in Practice
+2026,8,SEA,00-0041512,RB,Jadarian Price,,,Full Participation in Practice
+2026,8,TB,00-0032889,DT,A'Shawn Robinson,,,Full Participation in Practice
+2026,8,TB,00-0033921,WR,Chris Godwin Jr.,,,Full Participation in Practice
 2026,8,TB,00-0034855,QB,Baker Mayfield,,,Full Participation in Practice
 2026,8,TB,00-0036411,S,Antoine Winfield Jr.,,,Full Participation in Practice
-2026,8,TB,00-0036919,RB,Kenny Gainwell,,,Did Not Participate In Practice
-2026,8,TB,00-0037835,T,Luke Goedeke,,,Did Not Participate In Practice
-2026,8,TB,00-0039068,LB,Yaya Diaby,,,Limited Participation in Practice
-2026,8,TB,00-0040129,WR,Emeka Egbuka,,,Limited Participation in Practice
-2026,8,TB,00-0041502,LB,Josiah Trotter,,,Did Not Participate In Practice
-2026,8,TEN,00-0034805,DE,John Franklin-Myers,,,Did Not Participate In Practice
-2026,8,TEN,00-0034837,WR,Calvin Ridley,,,Limited Participation in Practice
-2026,8,TEN,00-0035889,P,Tommy Townsend,,,Did Not Participate In Practice
-2026,8,TEN,00-0039032,RB,Tyjae Spears,,,Did Not Participate In Practice
-2026,8,TEN,00-0040503,LB,Dorian Mausi,,,Full Participation in Practice
-2026,8,TEN,00-0041438,WR,Carnell Tate,,,Did Not Participate In Practice
-2026,8,WAS,00-0031588,WR,Stefon Diggs,,,Did Not Participate In Practice
+2026,8,TB,00-0036919,RB,Kenny Gainwell,Questionable,Hip,Full Participation in Practice
+2026,8,TB,00-0037835,T,Luke Goedeke,Questionable,Calf,Limited Participation in Practice
+2026,8,TB,00-0039068,LB,Yaya Diaby,,,Full Participation in Practice
+2026,8,TB,00-0039361,RB,Bucky Irving,,,Full Participation in Practice
+2026,8,TB,00-0040129,WR,Emeka Egbuka,Out,Foot,Did Not Participate In Practice
+2026,8,TB,00-0041502,LB,Josiah Trotter,,,Full Participation in Practice
+2026,8,TEN,00-0034805,DE,John Franklin-Myers,Questionable,Groin,Limited Participation in Practice
+2026,8,TEN,00-0034837,WR,Calvin Ridley,Questionable,Hip,Full Participation in Practice
+2026,8,TEN,00-0035261,RB,Tony Pollard,,,Full Participation in Practice
+2026,8,TEN,00-0035889,P,Tommy Townsend,Out,Knee,Did Not Participate In Practice
+2026,8,TEN,00-0038407,CB,Jaylon Jones,Questionable,Knee,Limited Participation in Practice
+2026,8,TEN,00-0039032,RB,Tyjae Spears,Out,Knee,Did Not Participate In Practice
+2026,8,TEN,00-0040503,LB,Dorian Mausi,Questionable,Foot,Full Participation in Practice
+2026,8,TEN,00-0041438,WR,Carnell Tate,Out,Shoulder,Did Not Participate In Practice
+2026,8,WAS,00-0031588,WR,Stefon Diggs,,,Full Participation in Practice
 2026,8,WAS,00-0032268,QB,Marcus Mariota,,,Full Participation in Practice
 2026,8,WAS,00-0033918,CB,Fabian Moreau,,,Full Participation in Practice
+2026,8,WAS,00-0033947,DE,Deatrich Wise,,,Limited Participation in Practice
+2026,8,WAS,00-0034333,DT,Daron Payne,Out,Foot,Limited Participation in Practice
+2026,8,WAS,00-0035149,G,Nick Allegretti,,,Full Participation in Practice
 2026,8,WAS,00-0035279,DE,Charles Omenihu,,,Limited Participation in Practice
-2026,8,WAS,00-0036260,DT,Javon Kinlaw,,,Did Not Participate In Practice
-2026,8,WAS,00-0036628,TE,John Bates,,,Did Not Participate In Practice
-2026,8,WAS,00-0037742,WR,Treylon Burks,,,Limited Participation in Practice
+2026,8,WAS,00-0036260,DT,Javon Kinlaw,Out,Knee,Did Not Participate In Practice
+2026,8,WAS,00-0036628,TE,John Bates,Questionable,Shoulder,Limited Participation in Practice
+2026,8,WAS,00-0037742,WR,Treylon Burks,Questionable,Foot,Limited Participation in Practice
+2026,8,WAS,00-0039355,WR,Luke McCaffrey,,,Limited Participation in Practice
 2026,8,WAS,00-0039686,TE,Colson Yankoff,,,Full Participation in Practice
-2026,8,WAS,00-0039906,DT,Jer'Zhan Newton,,,Limited Participation in Practice
+2026,8,WAS,00-0039906,DT,Jer'Zhan Newton,Questionable,Pectoral,Limited Participation in Practice
 2026,8,WAS,00-0039910,QB,Jayden Daniels,,,Full Participation in Practice
