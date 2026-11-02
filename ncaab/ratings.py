@@ -12,6 +12,11 @@ Three ratings per team, all updated after every game:
 
 Ratings carry over between seasons with regression to the mean (rosters turn over hard in
 college, so the carry-over is deliberately aggressive).
+
+Teams are keyed by ESPN's team id, never by name. A team first seen after the warm-up season is
+almost always a Division II or NAIA school on a D1 schedule, so it starts ``NEW_TEAM_MARGIN``
+points below average instead of at average - otherwise every buy game would rate the visitor as
+a typical D1 side and drag the host's rating down when it won by 40, as it was always going to.
 """
 from __future__ import annotations
 
@@ -27,6 +32,7 @@ PACE_K = 0.10
 SEASON_CARRY = 0.60       # fraction of last season's rating retained
 LEAGUE_PPP = 1.02         # points per possession, D1 average
 LEAGUE_PACE = 68.0
+NEW_TEAM_MARGIN = -15.0   # prior for a team that was not in the previous season's ratings
 
 
 @dataclass
@@ -36,6 +42,7 @@ class RatingConfig:
     eff_k: float = EFF_K
     pace_k: float = PACE_K
     carry: float = SEASON_CARRY
+    new_team_margin: float = NEW_TEAM_MARGIN
 
 
 @dataclass
@@ -46,6 +53,7 @@ class Team:
     pace: float = LEAGUE_PACE
     games: int = 0
     last_date: object = None
+    new: bool = False                                   # first season in the ratings
     recent_margin: list = field(default_factory=list)   # actual - expected, last 5
     recent_total: list = field(default_factory=list)
 
@@ -80,7 +88,11 @@ class RatingBook:
     def get(self, season: int, team: str) -> Team:
         s = self.season(season)
         if team not in s:
-            s[team] = Team()
+            # a newcomer once there is a previous season to have been missing from
+            if self.teams.get(season - 1):
+                s[team] = Team(margin=self.cfg.new_team_margin, new=True)
+            else:
+                s[team] = Team()
         return s[team]
 
     # --- prediction ---------------------------------------------------------------

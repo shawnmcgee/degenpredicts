@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DegenPredicts — College Basketball</title>
+<style>
+  :root{--bg:#0d0e11;--card:#171a1f;--card2:#1e2229;--line:#2a2e36;--fg:#e9eaec;--dim:#98a0aa;
+        --good:#4ade80;--bad:#f87171;--accent:#60a5fa;--warn:#fbbf24;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding-bottom:88px}
+  header,main,footer{max-width:960px;margin:0 auto;padding:0 16px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 0 6px}
+  h1{font-size:21px;font-weight:600}
+  .sub{color:var(--dim);font-size:13px;margin-top:3px}
+  .coffee{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;
+          background:var(--warn);color:#2a1c00;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+  section{margin-top:22px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:10px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .stat{background:var(--card);border-radius:10px;padding:13px;text-align:center}
+  .stat .v{font-size:22px;font-weight:600;margin:3px 0;font-variant-numeric:tabular-nums}
+  .stat .l{font-size:11px;color:var(--dim);text-transform:uppercase}
+  .stat .s{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  input[type=search]{flex:1;min-width:190px;background:var(--card);border:1px solid var(--line);
+    border-radius:8px;color:var(--fg);padding:9px 12px;font-size:14px}
+  input[type=search]::placeholder{color:var(--dim)}
+  .chip{background:var(--card2);color:var(--dim);border:1px solid var(--line);border-radius:999px;
+        padding:7px 14px;font-size:13px;cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  .game{background:var(--card);border-radius:12px;margin-bottom:11px;overflow:hidden;border:1px solid var(--line)}
+  .ghead{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 14px;
+         background:var(--card2);font-size:12px;color:var(--dim)}
+  .matchup{padding:12px 14px 0;font-size:17px;font-weight:600}
+  .matchup .at{color:var(--dim);font-weight:400;font-size:14px;margin:0 6px}
+  .proj{padding:2px 14px 0;font-size:13px;color:var(--dim)}
+  .proj b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+  .ctx{padding:4px 14px 0;font-size:12px;color:var(--warn)}
+  .picks{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 14px 14px}
+  .pick{background:var(--card2);border-radius:9px;padding:11px}
+  .pick .l{font-size:11px;color:var(--dim);text-transform:uppercase;display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:4px}
+  .pick .pct{font-size:13px;font-weight:600;color:var(--fg);text-transform:none;font-variant-numeric:tabular-nums}
+  .pick .pct.toss{color:var(--dim);font-weight:500}
+  .pick .p{font-size:19px;font-weight:600;line-height:1.25}
+  .pick .d{font-size:12px;color:var(--dim);margin-top:4px}
+  .meter{height:4px;background:var(--line);border-radius:2px;margin-top:8px;overflow:hidden}
+  .meter i{display:block;height:100%;background:var(--accent);border-radius:2px}
+  .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  .tag.win{background:var(--good);color:#052e16}
+  .tag.loss{background:var(--bad);color:#3f0a0a}
+  .tag.push{background:var(--line);color:var(--dim)}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:10px;overflow:hidden}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-weight:500;font-size:11px;text-transform:uppercase}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  td .fin{white-space:nowrap}
+  td .pk{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px 5px}
+  td .pk b{font-weight:500;white-space:nowrap}
+  /* on a phone the tag always sits under its pick, so every row reads the same way */
+  @media(max-width:560px){th,td{padding:8px 7px}td .pk{flex-direction:column;align-items:flex-start}}
+  .note{background:var(--card);border-left:3px solid var(--accent);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
+  .note b{color:var(--fg)}
+  .note.warn{border-left-color:var(--warn)}
+  .empty{text-align:center;color:var(--dim);padding:26px 0;font-size:14px}
+  footer{margin-top:36px;color:var(--dim);font-size:12px;text-align:center}
+  a{color:var(--accent)}
+  nav.sports{display:flex;gap:8px;margin:0 0 4px;flex-wrap:wrap}
+  nav.sports .chip{text-decoration:none}
+  nav.sports .chip[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#06121f;font-weight:600}
+  #stats{scroll-margin-top:12px}
+  /* floating jump: down to the results, back up once there */
+  .jump{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:10;
+        display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 16px;border-radius:999px;
+        background:var(--accent);color:#06121f;font-size:14px;font-weight:600;text-decoration:none;
+        box-shadow:0 4px 14px rgba(0,0,0,.5);-webkit-tap-highlight-color:transparent}
+  .jump svg{transition:transform .2s}
+  .jump.up svg{transform:rotate(180deg)}
+  @media print{.jump{display:none}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr 1fr}.grid .stat.wide{grid-column:1 / -1}}
+  /* College basketball additions: AP ranks in the matchup, and the bake-off table */
+  .matchup .rk{color:var(--dim);font-weight:500;font-size:13px;margin-right:4px;font-variant-numeric:tabular-nums}
+  .matchup .cf{display:block;color:var(--dim);font-weight:400;font-size:12px;margin-top:1px}
+  .pick .p.none{color:var(--dim);font-weight:500;font-size:15px}
+  details.bake{background:var(--card);border-radius:10px;border:1px solid var(--line)}
+  details.bake summary{cursor:pointer;padding:12px 14px;font-size:14px;font-weight:600;list-style:none}
+  details.bake summary::-webkit-details-marker{display:none}
+  details.bake summary::after{content:"+";float:right;color:var(--dim);font-weight:400}
+  details.bake[open] summary::after{content:"\2212"}
+  details.bake .in{padding:0 14px 14px}
+  details.bake table{background:var(--card2)}
+  tr.chosen td{color:var(--fg)}
+  tr.ref td{color:var(--dim);font-style:italic}
+  .badge{display:inline-block;font-size:10px;padding:1px 6px;border-radius:5px;background:var(--accent);
+         color:#06121f;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-left:4px;vertical-align:1px}
+</style>
+</head>
+<body>
+<header id="top">
+  <nav class="sports" aria-label="Sport">
+    <a class="chip" href="../">&larr; All sports</a>
+    <a class="chip" href="../cfb/">College football</a>
+    <a class="chip" href="../nfl/">NFL</a>
+    <a class="chip" href="../epl/">Premier League</a>
+    <a class="chip" href="../nhl/">NHL</a>
+    <a class="chip" href="../nba/">NBA</a>
+    <a class="chip" aria-current="page" href="./">College basketball</a>
+  </nav>
+  <div class="topbar">
+    <div>
+      <h1>DegenPredicts — College Basketball</h1>
+      <div class="sub">A pick on every spread and total
+        &middot; updated 2026-11-02</div>
+    </div>
+    
+    <a class="coffee" href="https://buymeacoffee.com/smcgee" rel="noopener">&#9749; Buy me a coffee</a>
+    
+  </div>
+</header>
+
+<main>
+
+<section>
+  <h2>Today's picks</h2>
+  <div class="note" style="margin-bottom:12px">
+    The side the model thinks is likelier on every spread and total with a line. These are leans,
+    not locks.
+  </div>
+  
+  <div class="note">No games on the board yet. The pipeline posts the slate each morning once lines are up.</div>
+  
+
+  
+  
+
+  <div id="list">
+  
+  </div>
+  <div class="empty" id="noresults" style="display:none">No games match those filters.</div>
+  
+</section>
+
+<div id="stats">
+
+
+
+
+
+</div>
+
+
+
+<section>
+  <div class="note warn">
+    Model output, not advice. College basketball lines are softer than the NFL's on small-conference
+    games and just as sharp on the ones everyone watches, and a pick on every game means a lot of
+    near coin flips. At standard &minus;110 pricing a 52% hit rate still loses money. Bet only what
+    you can afford to lose.
+  </div>
+</section>
+</main>
+
+<footer>
+  Data and lines: ESPN.
+  <a href="picks.csv">picks.csv</a> &middot; <a href="results.csv">results.csv</a> &middot; <a href="metrics.json">metrics.json</a>
+  &middot; <a href="../cfb/">college football</a> &middot; <a href="../nfl/">NFL</a> &middot; <a href="../epl/">Premier League</a>
+  &middot; <a href="../nhl/">NHL</a> &middot; <a href="../nba/">NBA</a>
+  <br><a href="https://buymeacoffee.com/smcgee" rel="noopener">Buy me a coffee</a>
+  <p style="margin-top:10px;line-height:1.5">For information and entertainment only &mdash; not betting advice. Past results don't guarantee future ones and no pick is a sure thing; never bet more than you can afford to lose. You must be of legal betting age where you live (21+ in most US states). Gambling problem? Call <a href="tel:+18004262537">1-800-GAMBLER</a>.</p>
+</footer>
+
+
+
+<script>
+(function () {
+  var games = Array.prototype.slice.call(document.querySelectorAll('.game'));
+  if (!games.length) return;
+  var list = document.getElementById('list');
+  var q = document.getElementById('q');
+  var count = document.getElementById('count');
+  var none = document.getElementById('noresults');
+  var state = { day: 'all', lean: false, top: false, power: false, ctx: false, q: '' };
+
+  function kickAt(el) {
+    // Real time order, not alphabetical order on the printed label. Anything without an
+    // announced kickoff sorts to the end instead of at a placeholder time.
+    var t = Date.parse(el.dataset.kick || '');
+    return t === t ? t : Infinity;   // NaN is the only value that fails self-equality
+  }
+  function leanOf(el) { return parseFloat(el.dataset.lean || '0') || 0; }
+
+  function apply() {
+    var seq = games.slice();
+    seq.sort(function (a, b) {
+      if (state.lean) {
+        var d = leanOf(b) - leanOf(a);
+        if (d) return d;
+      }
+      var ka = kickAt(a), kb = kickAt(b);
+      return ka === kb ? 0 : (ka < kb ? -1 : 1);   // Infinity - Infinity is NaN
+    });
+    seq.forEach(function (el) { list.appendChild(el); });
+    var shown = 0;
+    games.forEach(function (el) {
+      var ok = true;
+      if (state.day !== 'all' && el.dataset.day !== state.day) ok = false;
+      if (state.top && el.dataset.top !== '1') ok = false;
+      if (state.power && el.dataset.power !== '1') ok = false;
+      if (state.ctx && el.dataset.ctx !== '1') ok = false;
+      if (state.q && (el.dataset.search || '').indexOf(state.q) === -1) ok = false;
+      el.style.display = ok ? '' : 'none';
+      if (ok) shown++;
+    });
+    count.textContent = shown + ' of ' + games.length + ' games';
+    none.style.display = shown ? 'none' : '';
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-day]'), function (c) {
+    c.addEventListener('click', function () {
+      state.day = c.dataset.day;
+      Array.prototype.forEach.call(document.querySelectorAll('button[data-day]'), function (o) {
+        o.setAttribute('aria-pressed', String(o === c));
+      });
+      apply();
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-f]'), function (c) {
+    c.addEventListener('click', function () {
+      var k = c.dataset.f;
+      state[k] = !state[k];
+      c.setAttribute('aria-pressed', String(state[k]));
+      apply();
+    });
+  });
+  if (q) q.addEventListener('input', function () { state.q = q.value.trim().toLowerCase(); apply(); });
+  apply();
+})();
+
+(function () {
+  // The jump button is a plain anchor, so it works with scripts off. This only flips it to
+  // "back to top" once the tables it points at are on screen.
+  var fab = document.getElementById('jump');
+  var stats = document.getElementById('stats');
+  if (!fab || !stats) return;
+  var label = fab.querySelector('.jl');
+  var downText = label.textContent, downAria = fab.getAttribute('aria-label');
+  var queued = false;
+  function sync() {
+    queued = false;
+    var down = stats.getBoundingClientRect().top > window.innerHeight / 2;
+    fab.classList.toggle('up', !down);
+    fab.setAttribute('href', down ? '#stats' : '#top');
+    fab.setAttribute('aria-label', down ? downAria : 'Back to top');
+    label.textContent = down ? downText : 'Top';
+  }
+  function queue() { if (!queued) { queued = true; requestAnimationFrame(sync); } }
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  // filtering the board moves the tables without firing a scroll event
+  if (window.ResizeObserver) new ResizeObserver(queue).observe(document.body);
+  sync();
+})();
+</script>
+</body>
+</html>

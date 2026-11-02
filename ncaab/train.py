@@ -1,217 +1,307 @@
-"""Train the totals and spread models.
+"""The model bake-off: try every candidate on seasons it never saw, keep the best per market.
 
-    python -m ncaab.train                # fetch data, train, evaluate, save
-    python -m ncaab.train --no-fetch     # use the local cache (offline / CI test)
-    python -m ncaab.train --search       # small randomised hyper-parameter search
+    python -m ncaab.train                 # refresh ESPN finals, run the bake-off, write meta.json
+    python -m ncaab.train --no-fetch      # use the committed games cache (offline / CI)
 
-Four models are fitted:
+**What is compared.** Every candidate in :mod:`ncaab.models` - ratings only, ridge, Huber,
+two flavours of gradient boosting, a random forest, a neural net, a blend and a stack - for
+each of four jobs:
 
-    total_nomarket / margin_nomarket   - features only (used when no line is available yet)
-    total_market   / margin_market     - features + the line (used when we have odds)
+    margin_market / total_market       the published number: the line plus the model's view of
+                                       how wrong the line is
+    margin_nomarket / total_nomarket   used only when a game has no line on one market yet
 
-Evaluation is a season holdout (train on seasons <= N-1, test on N) reported against three
-baselines. The output you care about is in data/models/meta.json:
+**How it is scored: walk-forward.** For each of the last ``DEGEN_NCAAB_WALK_SEASONS`` complete
+seasons S, every candidate is fitted on all seasons before S and predicts S. Nothing is ever
+scored on a season it was fitted on - including the stack, whose weights for season S come only
+from the seasons before S. The ratings feeding every model are leak-free by construction.
 
-    mae_model            model error
-    mae_rating_baseline  the raw Elo/efficiency expectation, no ML
-    mae_market_baseline  the closing line itself  <- if you don't beat this, you have no edge
-    ats_rate             how often the model's side covered, on the holdout season
+**How the winner is chosen.** By mean absolute error against the final score, pooled over every
+scored game. Not by against-the-spread hit rate: over ~4,000 lined games a season the hit rate
+has a standard error near 0.8 points of percentage, so most gaps between models on that measure
+are noise, while MAE differences are paired game-by-game and far more stable. Both are reported.
 
-Also calibrated here:
-    sigma   - residual std, used to turn a point prediction into a probability
-    shrink  - how far to move from the market toward the model (fitted, not guessed)
+The rule (``DEGEN_NCAAB_SELECT``, default ``1se``) is the standard one-standard-error rule: find
+the lowest MAE, then take the SIMPLEST candidate whose paired difference from it is under one
+standard error. A neural net that beats ridge by 0.01 points on 20,000 games has not beaten
+ridge; it has been lucky in a way ridge would be lucky next season. ``lowest`` takes the raw
+leader instead.
+
+**What is saved** - ``data/ncaab/models/meta.json``: the full leaderboard per job, the chosen
+model, its fitted shrink toward the line and its error spread, the stack's weights, and the
+hit rate by size of disagreement. No fitted model is committed: ``predict.py`` refits the chosen
+specification on every game through last night each run, which keeps multi-megabyte forests
+out of the repo and the models current on the season in progress.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import logging
-from datetime import datetime
+import time
+from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import mean_absolute_error
 
-from . import config
-from .features import BASE_FEATURES, MARKET_FEATURES, build
-from .sources import ncaa, odds, torvik
-from .team_names import report_unmapped
+from . import config, models
+from .features import BASE_FEATURES, MARKET_FEATURES, TARGETS, build, d1_rows, market_line
+from .sources import espn
 
 log = logging.getLogger("ncaab.train")
 
-DEFAULTS = dict(n_estimators=600, max_depth=4, learning_rate=0.02, subsample=0.8,
-                colsample_bytree=0.8, min_child_weight=10, reg_lambda=3.0, random_state=42)
-
-TARGETS = {"total": "total_points", "margin": "home_margin"}
-
-
-def make_model(params=None):
-    p = {**DEFAULTS, **(params or {})}
-    try:
-        from xgboost import XGBRegressor
-        return XGBRegressor(objective="reg:squarederror", n_jobs=-1, **p), "xgboost"
-    except ImportError:
-        from sklearn.ensemble import HistGradientBoostingRegressor
-        log.warning("xgboost missing - using HistGradientBoostingRegressor")
-        return HistGradientBoostingRegressor(
-            max_iter=p["n_estimators"], max_depth=p["max_depth"],
-            learning_rate=p["learning_rate"], random_state=42), "sklearn"
+JOBS = [("margin", True), ("total", True), ("margin", False), ("total", False)]
+MIN_TRAIN = 1500
+MIN_TEST = 300
+GAP_BUCKETS = {"margin": [(0, 1), (1, 2), (2, 3), (3, 5), (5, 99)],
+               "total": [(0, 1.5), (1.5, 3), (3, 4.5), (4.5, 7), (7, 99)]}
 
 
-def _fit(df, feats, target, params=None):
-    m, backend = make_model(params)
-    m.fit(df[feats], df[target])
-    return m, backend
+def job_name(kind: str, market: bool) -> str:
+    return f"{kind}_{'market' if market else 'nomarket'}"
 
 
-def _save(model, backend, name):
-    config.ensure_dirs()
-    if backend == "xgboost":
-        model.save_model(config.MODEL_DIR / f"{name}.json")
-    else:
-        import joblib
-        joblib.dump(model, config.MODEL_DIR / f"{name}.joblib")
+def features_for(market: bool) -> list[str]:
+    return BASE_FEATURES + (MARKET_FEATURES if market else [])
 
 
-def load_models() -> tuple[dict, dict]:
-    meta = json.loads((config.MODEL_DIR / "meta.json").read_text())
-    models = {}
-    for name in meta["models"]:
-        if meta["backend"] == "xgboost":
-            from xgboost import XGBRegressor
-            m = XGBRegressor()
-            m.load_model(config.MODEL_DIR / f"{name}.json")
-        else:
-            import joblib
-            m = joblib.load(config.MODEL_DIR / f"{name}.joblib")
-        models[name] = m
-    return models, meta
+def candidates(market: bool) -> list[str]:
+    names = ([] if market else ["ratings"]) + [b for b in models.BASES if models.available(b)]
+    names = [n for n in names if n not in config.SKIP_MODELS]
+    combo = [c for c in ("blend", "stack") if c not in config.SKIP_MODELS]
+    return names + combo
 
 
 def assemble(fetch: bool = True) -> pd.DataFrame:
-    if fetch:
-        games = ncaa.update()
-        torvik.update()
-    else:
-        games = ncaa.load()
+    games = espn.update() if fetch else espn.load()
     if games.empty:
-        raise SystemExit("no games in cache - run once with network access")
-    report_unmapped(log)
-    lines = odds.line_history()
-    train_rows, _, _ = build(games, torvik_cache=torvik.load(), lines=lines)
-    log.info("%d training rows, seasons %s, %d with market data",
-             len(train_rows), sorted(train_rows["season"].unique()),
-             int(train_rows["total_line"].notna().sum()))
-    return train_rows
+        raise SystemExit("no games in data/ncaab/games.csv - run once with network access")
+    train, _, _ = build(games)
+    D = d1_rows(train.dropna(subset=list(TARGETS.values())))
+    log.info("%d D1-vs-D1 training rows, seasons %s, %d with a closing spread, %d with a total",
+             len(D), sorted(int(s) for s in D["season"].unique()),
+             int(D["spread_home"].notna().sum()), int(D["total_line"].notna().sum()))
+    return D
 
 
-def evaluate(df: pd.DataFrame, kind: str, market: bool, params=None) -> dict:
-    target = TARGETS[kind]
-    feats = BASE_FEATURES + (MARKET_FEATURES if market else [])
-    d = df.dropna(subset=[target])
+def test_seasons(D: pd.DataFrame, n: int | None = None) -> list[int]:
+    """The last ``n`` complete seasons that have at least one season before them to train on."""
+    n = config.WALK_SEASONS if n is None else n
+    current = config.season_of(config.today_et())
+    seasons = sorted(int(s) for s in D["season"].unique() if int(s) < current)
+    return seasons[1:][-n:] if len(seasons) > 1 else []
+
+
+# ---------------------------------------------------------------------------------
+# walk-forward
+# ---------------------------------------------------------------------------------
+def walk_forward(D: pd.DataFrame, kind: str, market: bool, seasons: list[int]) -> tuple[pd.DataFrame, dict]:
+    """Out-of-sample predictions from every candidate, in the target's own units.
+
+    Returns the predictions (one row per scored game, a ``pred_<name>`` column per candidate)
+    and the stack weights used for each season."""
+    target, feats = TARGETS[kind], features_for(market)
+    pool = D[market_line(D, kind).notna()] if market else D
+    names = candidates(market)
+    bases = [n for n in names if n in models.BASES]
+    frames, used = [], {}
+    for S in seasons:
+        tr, te = pool[pool["season"] < S], pool[pool["season"] == S]
+        if len(tr) < MIN_TRAIN or len(te) < MIN_TEST:
+            log.info("%s %d: skipped (%d train, %d test rows)", job_name(kind, market), S,
+                     len(tr), len(te))
+            continue
+        line_tr, line_te = market_line(tr, kind), market_line(te, kind)
+        y_tr = tr[target].to_numpy(float) - (line_tr.to_numpy(float) if market else 0.0)
+        offset = line_te.to_numpy(float) if market else 0.0
+        out = pd.DataFrame({"game_id": te["game_id"].values, "season": S,
+                            "actual": te[target].to_numpy(float),
+                            "line": line_te.to_numpy(float)})
+        for b in bases:
+            t0 = time.time()
+            out[f"pred_{b}"] = models.fit_predict(b, tr[feats], y_tr, te[feats], market) + offset
+            log.info("%s %d %-6s MAE %.3f  (%.0fs)", job_name(kind, market), S, b,
+                     np.mean(np.abs(out[f"pred_{b}"] - out["actual"])), time.time() - t0)
+        if "ratings" in names:
+            out["pred_ratings"] = te[f"exp_{kind}"].to_numpy(float)
+        members = [m for m in models.blend_members() if f"pred_{m}" in out]
+        if "blend" in names and members:
+            out["pred_blend"] = out[[f"pred_{m}" for m in members]].mean(axis=1)
+        if "stack" in names and bases:
+            w = _stack_weights(frames, bases, market) if frames else None
+            if w is None:   # no earlier out-of-sample season yet: the stack starts as the blend
+                out["pred_stack"] = out["pred_blend"] if "pred_blend" in out else \
+                    out[[f"pred_{b}" for b in bases]].mean(axis=1)
+                used[S] = "blend"
+            else:
+                P = out[[f"pred_{b}" for b in bases]].to_numpy(float)
+                if market:          # the weights were fitted on line errors, so apply them there
+                    P = P - offset[:, None]
+                out["pred_stack"] = P @ w + offset
+                used[S] = {b: round(float(x), 3) for b, x in zip(bases, w)}
+        frames.append(out)
+    return (pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()), used
+
+
+def _stack_weights(frames: list[pd.DataFrame], bases: list[str], market: bool) -> np.ndarray | None:
+    prev = pd.concat(frames, ignore_index=True)
+    cols = [f"pred_{b}" for b in bases]
+    if not all(c in prev for c in cols):
+        return None
+    P = prev[cols].to_numpy(float)
+    y = prev["actual"].to_numpy(float)
     if market:
-        col = "total_line" if kind == "total" else "spread_home"
-        d = d[d[col].notna()]
-    seasons = sorted(d["season"].unique())
-    if len(seasons) < 2 or len(d) < 200:
-        return {"skipped": True, "n": int(len(d))}
-    test = seasons[-1]
-    tr, te = d[d.season < test], d[d.season == test]
-    if len(tr) < 100 or len(te) < 50:
-        return {"skipped": True, "n": int(len(d))}
+        line = prev["line"].to_numpy(float)
+        P, y = P - line[:, None], y - line
+    return models.nnls_weights(P, y)
 
-    model, _ = _fit(tr, feats, target, params)
-    pred = model.predict(te[feats])
-    resid = te[target].values - pred
-    rating_col = "exp_total" if kind == "total" else "exp_margin"
-    out = {
-        "test_season": int(test), "n_train": int(len(tr)), "n_test": int(len(te)),
-        "mae_model": round(float(mean_absolute_error(te[target], pred)), 2),
-        "mae_rating_baseline": round(float(mean_absolute_error(te[target], te[rating_col])), 2),
-        "sigma": round(float(np.std(resid)), 2),
-        "bias": round(float(np.mean(resid)), 2),
-    }
-    if market:
-        line = te["total_line"] if kind == "total" else -te["spread_home"]
-        out["mae_market_baseline"] = round(float(mean_absolute_error(te[target], line)), 2)
-        # how often would we have been right picking the model's side?
-        edge = pred - line.values
-        side_right = np.where(edge > 0, te[target].values > line.values, te[target].values < line.values)
-        decided = te[target].values != line.values
-        out["ats_rate"] = round(float(100 * side_right[decided].mean()), 1) if decided.any() else None
-        out["ats_n"] = int(decided.sum())
-        out["shrink"] = round(float(_best_shrink(pred, line.values, te[target].values)), 2)
+
+# ---------------------------------------------------------------------------------
+# the leaderboard
+# ---------------------------------------------------------------------------------
+def _side(pred, line, actual) -> tuple[float | None, int, float | None]:
+    """How often the model's side of the line won, pushes and no-opinion games left out."""
+    ok = np.isfinite(line) & np.isfinite(pred) & (actual != line) & (pred != line)
+    if ok.sum() == 0:
+        return None, 0, None
+    right = np.sign(pred[ok] - line[ok]) == np.sign(actual[ok] - line[ok])
+    p, n = float(right.mean()), int(ok.sum())
+    return round(100 * p, 2), n, round(100 * np.sqrt(p * (1 - p) / n), 2)
+
+
+def leaderboard(oos: pd.DataFrame, market: bool) -> list[dict]:
+    names = [c[5:] for c in oos.columns if c.startswith("pred_")]
+    y = oos["actual"].to_numpy(float)
+    line = oos["line"].to_numpy(float)
+    err = {n: np.abs(oos[f"pred_{n}"].to_numpy(float) - y) for n in names}
+    best = min(names, key=lambda n: err[n].mean())
+    rows = []
+    for n in names:
+        p = oos[f"pred_{n}"].to_numpy(float)
+        d = err[n] - err[best]
+        se = float(d.std(ddof=1) / np.sqrt(len(d))) if len(d) > 1 else 0.0
+        hit, hit_n, hit_se = _side(p, line, y)
+        rows.append({
+            "model": n, "label": models.LABELS.get(n, n), "n": int(len(y)),
+            "mae": round(float(err[n].mean()), 3),
+            "rmse": round(float(np.sqrt(np.mean((p - y) ** 2))), 3),
+            "bias": round(float(np.mean(p - y)), 3),
+            "hit_rate": hit, "hit_n": hit_n, "hit_se": hit_se,
+            "vs_best": round(float(d.mean()), 3), "vs_best_se": round(se, 4),
+            "z": round(float(d.mean() / se), 2) if se > 0 else 0.0,
+            "per_season": {str(int(s)): round(float(np.mean(err[n][oos["season"].values == s])), 3)
+                           for s in sorted(oos["season"].unique())},
+        })
+    rows.sort(key=lambda r: r["mae"])
+    if market and np.isfinite(line).all():
+        rows.append({"model": "line", "label": models.LABELS["line"], "n": int(len(y)),
+                     "mae": round(float(np.mean(np.abs(line - y))), 3),
+                     "rmse": round(float(np.sqrt(np.mean((line - y) ** 2))), 3),
+                     "bias": round(float(np.mean(line - y)), 3), "reference": True})
+    return rows
+
+
+def select(board: list[dict], rule: str | None = None) -> tuple[str, str]:
+    """(chosen, best). ``1se``: the simplest model within one standard error of the best."""
+    rule = (rule or config.SELECT).lower()
+    cands = [r for r in board if not r.get("reference")]
+    best = min(cands, key=lambda r: r["mae"])["model"]
+    if rule == "lowest":
+        return best, best
+    by = {r["model"]: r for r in cands}
+    for name in models.SIMPLICITY:
+        if name in by and by[name]["z"] < 1.0:
+            return name, best
+    return best, best
+
+
+def best_shrink(pred, line, actual) -> float:
+    """How far from the line toward the model the published number should sit, by MAE."""
+    best, best_mae = 1.0, np.inf
+    for w in np.arange(0.0, 1.0001, 0.05):
+        mae = float(np.mean(np.abs(line + w * (pred - line) - actual)))
+        if mae < best_mae - 1e-9:
+            best, best_mae = float(round(w, 2)), mae
+    return best
+
+
+def by_gap(pred, line, actual, edges) -> list[dict]:
+    """The model's side record by how far it disagreed with the line - the evidence for the
+    board's 'biggest gaps first' sort, or against it."""
+    out = []
+    gap = np.abs(pred - line)
+    for lo, hi in edges:
+        m = (gap >= lo) & (gap < hi)
+        hit, n, se = _side(pred[m], line[m], actual[m])
+        if n:
+            out.append({"gap": f"{lo:g}-{hi:g}" if hi < 99 else f"{lo:g}+", "n": n,
+                        "hit_rate": hit, "se": se})
     return out
 
 
-def _best_shrink(pred, line, actual) -> float:
-    """How far toward the model should we move from the line? Minimises MAE on the holdout."""
-    best, best_mae = 0.0, np.inf
-    for w in np.arange(0, 1.01, 0.05):
-        blend = line + w * (pred - line)
-        mae = mean_absolute_error(actual, blend)
-        if mae < best_mae:
-            best, best_mae = w, mae
-    return best
-
-
-def search(df, kind, market, n_iter=15):
-    rng = np.random.default_rng(0)
-    space = {"n_estimators": [300, 600, 1000], "max_depth": [3, 4, 5, 6],
-             "learning_rate": [0.01, 0.02, 0.05], "subsample": [0.7, 0.8, 1.0],
-             "colsample_bytree": [0.6, 0.8, 1.0], "min_child_weight": [5, 10, 20]}
-    best, best_mae = None, np.inf
-    for _ in range(n_iter):
-        p = {k: v[int(rng.integers(len(v)))] for k, v in space.items()}
-        r = evaluate(df, kind, market, p)
-        mae = r.get("mae_model", np.inf)
-        if mae < best_mae:
-            best, best_mae = p, mae
-    log.info("%s/%s best params %s (MAE %.2f)", kind, "mkt" if market else "base", best, best_mae)
-    return best
+def run_job(D: pd.DataFrame, kind: str, market: bool, seasons: list[int]) -> dict:
+    name = job_name(kind, market)
+    oos, used = walk_forward(D, kind, market, seasons)
+    if oos.empty:
+        log.warning("%s: not enough history for a walk-forward - skipped", name)
+        return {"skipped": True, "reason": "not enough seasons with data"}
+    board = leaderboard(oos, market)
+    chosen, best = select(board)
+    y = oos["actual"].to_numpy(float)
+    line = oos["line"].to_numpy(float)
+    pred = oos[f"pred_{chosen}"].to_numpy(float)
+    res = {"chosen": chosen, "best": best, "rule": config.SELECT,
+           "test_seasons": sorted(int(s) for s in oos["season"].unique()), "n": int(len(oos)),
+           "leaderboard": board, "stack_by_season": {str(k): v for k, v in used.items()}}
+    bases = [b for b in models.BASES if f"pred_{b}" in oos]
+    if bases and "stack" in candidates(market):
+        w = _stack_weights([oos], bases, market)
+        res["stack_weights"] = {b: round(float(x), 4) for b, x in zip(bases, w)}
+    if market:
+        w = best_shrink(pred, line, y)
+        pub = line + w * (pred - line)
+        hit, hit_n, hit_se = _side(pred, line, y)
+        res.update({"shrink": w, "sigma": round(float(np.std(y - pub)), 3),
+                    "line_mae": round(float(np.mean(np.abs(line - y))), 3),
+                    "hit_rate": hit, "hit_n": hit_n, "hit_se": hit_se,
+                    "beats_line": bool(np.mean(np.abs(pub - y)) < np.mean(np.abs(line - y))),
+                    "by_gap": by_gap(pred, line, y, GAP_BUCKETS[kind])})
+    else:
+        hit, hit_n, hit_se = _side(pred, line, y)
+        res.update({"sigma": round(float(np.std(y - pred)), 3), "hit_rate": hit,
+                    "hit_n": hit_n, "hit_se": hit_se})
+    top = board[0]
+    log.info("%s: chose %s (best %s, MAE %.3f; %s MAE %.3f)", name, chosen, best, top["mae"],
+             chosen, next(r["mae"] for r in board if r["model"] == chosen))
+    return res
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-fetch", action="store_true")
-    ap.add_argument("--search", action="store_true")
     args = ap.parse_args(argv)
 
-    df = assemble(fetch=not args.no_fetch)
-    meta = {"trained_at": datetime.utcnow().isoformat(timespec="seconds"),
-            "base_features": BASE_FEATURES, "market_features": MARKET_FEATURES,
-            "n_rows": int(len(df)), "seasons": [int(s) for s in sorted(df.season.unique())],
-            "eval": {}, "models": [], "sigma": {}, "shrink": {}}
-    backend = "xgboost"
-
-    for kind in ("total", "margin"):
-        for market in (False, True):
-            name = f"{kind}_{'market' if market else 'nomarket'}"
-            params = search(df, kind, market) if args.search else None
-            res = evaluate(df, kind, market, params)
-            meta["eval"][name] = res
-            if res.get("skipped"):
-                log.warning("%s: not enough data yet (%s rows) - skipping", name, res.get("n"))
-                continue
-            log.info("%s: %s", name, res)
-            feats = BASE_FEATURES + (MARKET_FEATURES if market else [])
-            d = df.dropna(subset=[TARGETS[kind]])
-            if market:
-                d = d[d["total_line" if kind == "total" else "spread_home"].notna()]
-            model, backend = _fit(d, feats, TARGETS[kind], params)
-            _save(model, backend, name)
-            meta["models"].append(name)
-            meta["sigma"][name] = res["sigma"]
-            meta["shrink"][name] = res.get("shrink", config.DEFAULT_SHRINK)
-            if hasattr(model, "feature_importances_"):
-                meta.setdefault("top_features", {})[name] = dict(
-                    sorted(zip(feats, map(float, model.feature_importances_)),
-                           key=lambda kv: -kv[1])[:10])
-
-    meta["backend"] = backend
+    D = assemble(fetch=not args.no_fetch)
+    seasons = test_seasons(D)
+    log.info("walk-forward over %s; candidates: %s", seasons, ", ".join(candidates(True)))
+    meta = {"sport": "ncaab", "trained_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "seasons": sorted(int(s) for s in D["season"].unique()), "n_rows": int(len(D)),
+            "features": {"base": BASE_FEATURES, "market": MARKET_FEATURES},
+            "select_rule": config.SELECT, "jobs": {}}
+    for kind, market in JOBS:
+        meta["jobs"][job_name(kind, market)] = run_job(D, kind, market, seasons)
     config.ensure_dirs()
-    (config.MODEL_DIR / "meta.json").write_text(json.dumps(meta, indent=2))
-    log.info("saved %d models to %s", len(meta["models"]), config.MODEL_DIR)
+    (config.MODEL_DIR / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")
+    log.info("wrote %s", config.MODEL_DIR / "meta.json")
+    return meta
+
+
+def load_meta() -> dict:
+    path = config.MODEL_DIR / "meta.json"
+    try:
+        return json.loads(path.read_text())
+    except (OSError, ValueError):
+        return {}
 
 
 if __name__ == "__main__":

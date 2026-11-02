@@ -7,10 +7,10 @@ fails outright - the board takes ESPN's partner book (DraftKings) instead until 
 reset on the 1st. One book is not a consensus, but it is a real price you can bet, and it costs
 nothing.
 
-**One file, four identical copies** - ``cfb``, ``nfl``, ``nhl`` and ``epl`` each carry this
-module, because a sport package never imports another (see "Isolation over shared code" in the
-README). ``tests/test_odds_fallback.py`` asserts the copies are byte-for-byte the same, so a fix
-to one is a fix to all.
+**One file, five identical copies** - ``cfb``, ``nfl``, ``nhl``, ``epl`` and ``ncaab`` each carry
+this module, because a sport package never imports another (see "Isolation over shared code" in
+the README). ``tests/test_odds_fallback.py`` asserts the copies are byte-for-byte the same, so a
+fix to one is a fix to all.
 
 ESPN publishes odds in two shapes and both are read, preferring the nested current price:
 

@@ -1,0 +1,57 @@
+name: College basketball model bake-off
+on:
+  schedule:
+    # Tuesdays 17:00 UTC, after the NBA retrain. Re-runs the whole bake-off on the latest seasons.
+    - cron: '0 17 * 11,12,1,2,3,4 2'
+  # RUN THIS ONCE BY HAND FIRST. The first run back-fills every Division I final since 2018-19
+  # from ESPN (about 1,400 scoreboard days, 10-15 minutes) and then runs the bake-off.
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: {group: ncaab-data, cancel-in-progress: false}
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    # Back-fill plus nine candidates x four jobs x five walk-forward seasons on ~38,000 games.
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12', cache: pip}
+      - run: pip install -r requirements.txt
+      - env:
+          DEGEN_NCAAB_SELECT: ${{ vars.DEGEN_NCAAB_SELECT }}
+          DEGEN_NCAAB_SKIP_MODELS: ${{ vars.DEGEN_NCAAB_SKIP_MODELS }}
+          DEGEN_NCAAB_WALK_SEASONS: ${{ vars.DEGEN_NCAAB_WALK_SEASONS }}
+          DEGEN_NCAAB_FIRST_SEASON: ${{ vars.DEGEN_NCAAB_FIRST_SEASON }}
+        run: |
+          python -m ncaab.train
+          # the leaderboard is on the board, so rebuild it with the new one
+          python -m ncaab.site
+          python -m core.landing
+      - name: Leaderboard in the run summary
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          m = json.load(open("data/ncaab/models/meta.json"))
+          print(f"## College basketball bake-off ({m['trained_at'][:10]}, rule: {m['select_rule']})\n")
+          for job, r in m["jobs"].items():
+              if r.get("skipped"):
+                  print(f"**{job}**: skipped - {r.get('reason')}\n"); continue
+              print(f"**{job}** - running **{r['chosen']}** (lowest error: {r['best']}), seasons {r['test_seasons']}\n")
+              print("| model | MAE | side hit % | vs best (z) |\n|---|---:|---:|---:|")
+              for row in r["leaderboard"]:
+                  print(f"| {row['model']} | {row['mae']:.3f} | {row.get('hit_rate') or '-'} | {row.get('z', '-')} |")
+              print()
+          PY
+      - run: |
+          git config user.name  "degenbot"
+          git config user.email "actions@github.com"
+          git add data docs
+          if git diff --staged --quiet; then
+            echo "nothing to commit"
+            exit 0
+          fi
+          git commit -m "ncaab bake-off $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push origin HEAD:main

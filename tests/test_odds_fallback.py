@@ -13,7 +13,7 @@ Pinned here, for every board that spends credits:
 * a failed paid call falls back to ESPN; no key at all changes nothing;
 * ESPN's two odds shapes both parse, and a hockey moneyline in the ``details`` slot is not read
   as a 150-goal handicap;
-* the four sport-local copies of the parser stay identical.
+* the five sport-local copies of the parser stay identical.
 """
 from __future__ import annotations
 
@@ -92,8 +92,9 @@ def nested(spread=-3.5, sp=(-110, -110), total=44.5, ou=(-105, -115), ml=(-175, 
 # ---------------------------------------------------------------------------------------
 # The parser
 # ---------------------------------------------------------------------------------------
-def test_the_four_copies_of_the_parser_are_identical():
-    texts = {s: (ROOT / s / "sources" / "espn_odds.py").read_text() for s in ("cfb", "nfl", "nhl", "epl")}
+def test_the_five_copies_of_the_parser_are_identical():
+    texts = {s: (ROOT / s / "sources" / "espn_odds.py").read_text()
+             for s in ("cfb", "nfl", "nhl", "epl", "ncaab")}
     assert len(set(texts.values())) == 1, "sport-local copies of espn_odds.py have drifted"
 
 
