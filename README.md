@@ -1913,9 +1913,11 @@ and without the line) and keeps the best per job:
 * **Chosen by error, not hit rate.** Over ~4,000 lined games a season the side hit rate has a
   standard error near 0.8 points; most gaps between models on it are noise. Mean absolute error,
   compared game by game, is far more stable. Both are on the page.
-* **The one-standard-error rule** (`DEGEN_NCAAB_SELECT=1se`): the board runs the simplest
-  candidate whose paired error is within one standard error of the leader. A neural net that
-  beats ridge by 0.01 points has not beaten ridge. `lowest` runs the raw leader instead.
+* **The one-standard-error rule** (`DEGEN_NCAAB_SELECT=1se`): every candidate whose paired error
+  is within one standard error of the leader is tied with it - a neural net that beats ridge by
+  0.01 points has not beaten ridge. Among the tied, the two market jobs run the one whose side
+  of the line won most often, since a side is what the board publishes; the projection-only
+  jobs run the simplest. `lowest` runs the raw leader instead.
 * **Nothing fitted is committed.** `predict.py` refits the chosen specification on every game
   through last night each run - about a minute - which keeps forests out of the repo and the
   models current on the season in progress. If a chosen model cannot be built (xgboost missing),
@@ -1944,8 +1946,35 @@ Machine learning on top of the ratings is worth about 0.3 points on margins and 
 The combinations win both, and the rule took the stack on spreads (the blend sat exactly one
 standard error behind) and the blend on totals. The stack leans on Huber and XGBoost for margins
 and on ridge and XGBoost for totals. On their own the tree models and the neural net trail the
-linear ones, as the NBA board found. What none of this says yet is whether any of it beats the
-line - that needs the line back-fill and the market-aware jobs.
+linear ones, as the NBA board found.
+
+**With the line** (same day, after the back-fill found ESPN's line on 37,562 of 37,800 D1
+games; ~28,300 scored, against ESPN's close):
+
+| | spread error | side | total error | side |
+|---|---:|---:|---:|---:|
+| blend | **8.825** | 51.1% | **12.998** | 50.7% |
+| Huber | 8.826 | **51.4%** | 13.003 | **51.1%** |
+| ridge | 8.833 | 51.3% | 12.999 | 50.6% |
+| stack | 8.830 | 51.0% | 13.004 | 50.7% |
+| XGBoost | 8.841 | 50.8% | 13.010 | 51.4% |
+| the line itself | 8.832 | | 12.999 | |
+
+* **Every model ties the closing line on accuracy.** The best margin model is 0.007 points
+  better than the close; on totals, a wash. That is the NFL and NBA result again: the line
+  already knows nearly everything a public box-score model does.
+* **Spreads: the side gets better as the gap grows, every season.** Huber's side is 50.8% within
+  a point of the line, 52.8% at 1-2 points (6,483 games, above 50% in all five seasons, above
+  the 52.4% break-even in three) and ~54% beyond 2 - where the seasons swing from 44% to 63%,
+  so that bucket is noise. It leans to underdogs, which covered 50.7% on their own; its
+  underdog picks hit 51.8%. Suggestive, not proven, and measured against the close - a number
+  nobody bets at.
+* **Totals: nothing past a coin flip,** and the first rule picked the wrong model for it. Ridge
+  led the error tie, but a squared-error fit predicts the AVERAGE total, overtime pulls the
+  average above the typical game, and ridge took the Over on 94% of lines (hitting 50.6%).
+  Huber's loss shrugs off overtime; it split its picks 63/37 and hit 51.1%, climbing to 53% on
+  845 games where it sat 2+ points off. That is why the rule now breaks a tie on the side
+  record for the two market jobs.
 
 ### 3. The guardrails
 
@@ -2051,7 +2080,7 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_PROPS_SHRINK` | 0.25 | how far the published prop probability moves from Kalshi's mid toward the model |
 | `DEGEN_PROPS_MIN_EDGE` / `DEGEN_PROPS_MAX_GAP` | 0.07 / 0.15 | props value flag: minimum edge after fees, and the most the model may disagree with Kalshi's mid |
 | `DEGEN_PROPS_FIRST_SEASON` | 2013 | first season of player history (snap counts start in 2013) |
-| `DEGEN_NCAAB_SELECT` | `1se` | how the bake-off picks: `1se` (simplest model within one standard error of the best) or `lowest` |
+| `DEGEN_NCAAB_SELECT` | `1se` | how the bake-off picks: `1se` (of the models within one standard error of the best, the best side record - the simplest for projection-only jobs) or `lowest` |
 | `DEGEN_NCAAB_SKIP_MODELS` | (none) | candidates to leave out of the bake-off, e.g. `mlp,rf` for a faster weekly run |
 | `DEGEN_NCAAB_WALK_SEASONS` | 5 | complete seasons the bake-off scores, walk-forward |
 | `DEGEN_NCAAB_FIRST_SEASON` | 2018 | first season fetched from ESPN; it is the ratings' warm-up and is never scored |

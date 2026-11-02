@@ -24,6 +24,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import config
 from .models import LABELS, SIMPLICITY
+from .features import STAGES, stage
 from .train import load_meta
 
 log = logging.getLogger("ncaab.site")
@@ -97,6 +98,71 @@ def _context(r: dict) -> str:
     return " · ".join(bits)
 
 
+MIN_GAP_GAMES = 100     # a bucket with fewer past games than this is not shown on a card
+
+
+def _parse_gap(label: str) -> tuple[float, float]:
+    """'1-2' -> (1, 2), '3+' -> (3, inf): for a meta.json written before buckets carried edges."""
+    s = str(label).strip()
+    if s.endswith("+"):
+        return float(s[:-1]), float("inf")
+    lo, hi = s.split("-")
+    return float(lo), float(hi)
+
+
+def gap_records(meta: dict) -> dict:
+    """{"spread"|"total": {"model": chosen, "rows": [(lo, hi, bucket)]}} from the market jobs."""
+    out = {}
+    jobs = meta.get("jobs") or {}
+    for key, job in (("spread", jobs.get("margin_market")), ("total", jobs.get("total_market"))):
+        if not job or job.get("skipped") or not job.get("by_gap"):
+            continue
+        rows = []
+        for b in job["by_gap"]:
+            try:
+                lo, hi = (b["lo"], b.get("hi")) if "lo" in b else _parse_gap(b["gap"])
+            except (KeyError, ValueError):
+                continue
+            rows.append((float(lo), float("inf") if hi is None else float(hi), b))
+        stages = {}
+        for s, rec in (job.get("by_stage") or {}).items():
+            stages[s] = {"all": rec, "rows": [
+                (float(b["lo"]), float("inf") if b.get("hi") is None else float(b["hi"]), b)
+                for b in rec.get("by_gap") or [] if "lo" in b]}
+        out[key] = {"model": job.get("chosen"), "rows": rows, "stages": stages}
+    return out
+
+
+def _enough(b) -> bool:
+    return (b.get("n") or 0) >= MIN_GAP_GAMES and b.get("hit_rate") is not None
+
+
+def at_gap(rec: dict | None, gap, model_used, game_stage: str | None = None) -> dict | None:
+    """How the model's side did in past seasons in games like this one - only when the card's
+    pick came from the very model that record describes, and only on enough games to mean
+    something. The most specific record wins: this stage of the season at this gap, then this
+    stage at any gap, then every game at this gap."""
+    if not rec or gap is None or str(model_used or "") != f"{rec['model']}/market":
+        return None
+    st = (rec.get("stages") or {}).get(game_stage) if game_stage else None
+    if st:
+        where = STAGES.get(game_stage, game_stage)
+        for lo, hi, b in st["rows"]:
+            if lo <= gap < hi and _enough(b):
+                return {"rate": float(b["hit_rate"]), "n": int(b["n"]), "label": b.get("gap"),
+                        "text": f"at this gap in past {where}"}
+        if _enough(st["all"]):
+            return {"rate": float(st["all"]["hit_rate"]), "n": int(st["all"]["n"]), "label": "all",
+                    "text": f"in past {where}, any gap"}
+    for lo, hi, b in rec["rows"]:
+        if lo <= gap < hi:
+            if not _enough(b):
+                return None
+            return {"rate": float(b["hit_rate"]), "n": int(b["n"]), "label": b.get("gap"),
+                    "text": "at this gap in past seasons"}
+    return None
+
+
 def _spread_label(team, number) -> str:
     n = _num(number)
     if not team or n is None:
@@ -104,7 +170,7 @@ def _spread_label(team, number) -> str:
     return f"{team} PK" if n == 0 else f"{team} {n:+g}"
 
 
-def _board() -> list[dict]:
+def _board(meta: dict | None = None) -> list[dict]:
     """Games still to tip, freshest prediction per game, in tip-off order."""
     if not config.PICKS.exists():
         return []
@@ -123,6 +189,7 @@ def _board() -> list[dict]:
     # NaN is truthy in Jinja and prints as "nan"; object dtype is what lets None replace it
     df = df.astype(object).where(pd.notna(df), None)
     rows = df.to_dict("records")
+    recs = gap_records(meta or {})
     for r in rows:
         r["home_rank"], r["away_rank"] = _rank(r.get("home_rank")), _rank(r.get("away_rank"))
         r["home_conf_name"], r["away_conf_name"] = _conf(r.get("home_conf")), _conf(r.get("away_conf"))
@@ -139,6 +206,10 @@ def _board() -> list[dict]:
         r["spread_gap"] = _gap(r.get("margin_disagree")) if r["spread_label"] else None
         r["total_gap"] = _gap(r.get("total_disagree")) if r["total_label"] else None
         r["lean"] = max(r["spread_gap"] or 0.0, r["total_gap"] or 0.0)
+        days = (pd.Timestamp(r["date"]).date() - config.season_start(config.season_of(r["date"]))).days
+        r["stage"] = stage(_num(r.get("h_games")) or 0, _num(r.get("a_games")) or 0, days)
+        r["spread_hist"] = at_gap(recs.get("spread"), r["spread_gap"], r.get("margin_model"), r["stage"])
+        r["total_hist"] = at_gap(recs.get("total"), r["total_gap"], r.get("total_model"), r["stage"])
         r["search"] = " ".join(str(x or "") for x in (
             r.get("home_team"), r.get("away_team"), r["home_conf_name"], r["away_conf_name"],
             r.get("home_abbr"), r.get("away_abbr"), r.get("note"))).lower()
@@ -247,13 +318,14 @@ def _bakeoff(meta: dict) -> dict:
 def build() -> None:
     config.ensure_dirs()
     env = Environment(loader=FileSystemLoader(TEMPLATES), autoescape=select_autoescape(["html"]))
-    picks = _board()
+    meta = load_meta()
+    picks = _board(meta)
     graded = _graded()
     results_day, results = _last_day(graded)
     published = str(config.today_et())
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, updated=published, days=_days(picks),
-        m=_metrics(), bake=_bakeoff(load_meta()), results=results, results_day=results_day,
+        m=_metrics(), bake=_bakeoff(meta), results=results, results_day=results_day,
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL)
     (config.DOCS / "index.html").write_text(html)
     # the chooser's card reads this; metrics.json's `updated` only moves when grading runs

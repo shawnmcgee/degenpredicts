@@ -21,11 +21,12 @@ scored game. Not by against-the-spread hit rate: over ~4,000 lined games a seaso
 has a standard error near 0.8 points of percentage, so most gaps between models on that measure
 are noise, while MAE differences are paired game-by-game and far more stable. Both are reported.
 
-The rule (``DEGEN_NCAAB_SELECT``, default ``1se``) is the standard one-standard-error rule: find
-the lowest MAE, then take the SIMPLEST candidate whose paired difference from it is under one
-standard error. A neural net that beats ridge by 0.01 points on 20,000 games has not beaten
-ridge; it has been lucky in a way ridge would be lucky next season. ``lowest`` takes the raw
-leader instead.
+The rule (``DEGEN_NCAAB_SELECT``, default ``1se``) starts from the one-standard-error rule: find
+the lowest MAE, and treat every candidate whose paired difference from it is under one standard
+error as tied with it - a neural net that beats ridge by 0.01 points on 20,000 games has not
+beaten ridge. Among the tied, the market jobs run the one whose side of the line won most often
+(their number is published as a side); the projection-only jobs run the simplest. See
+``select`` for the run that made the difference. ``lowest`` takes the raw leader instead.
 
 **What is saved** - ``data/ncaab/models/meta.json``: the full leaderboard per job, the chosen
 model, its fitted shrink toward the line and its error spread, the stack's weights, and the
@@ -45,7 +46,8 @@ import numpy as np
 import pandas as pd
 
 from . import config, models
-from .features import BASE_FEATURES, MARKET_FEATURES, TARGETS, build, d1_rows, market_line
+from .features import (BASE_FEATURES, MARKET_FEATURES, TARGETS, build, d1_rows, market_line,
+                       stage)
 from .sources import espn, lines
 
 log = logging.getLogger("ncaab.train")
@@ -53,8 +55,9 @@ log = logging.getLogger("ncaab.train")
 JOBS = [("margin", True), ("total", True), ("margin", False), ("total", False)]
 MIN_TRAIN = 1500
 MIN_TEST = 300
-GAP_BUCKETS = {"margin": [(0, 1), (1, 2), (2, 3), (3, 5), (5, 99)],
-               "total": [(0, 1.5), (1.5, 3), (3, 4.5), (4.5, 7), (7, 99)]}
+STAGE_GAPS = {"margin": [(0, 1), (1, 2), (2, 99)], "total": [(0, 1), (1, 2), (2, 99)]}
+GAP_BUCKETS = {"margin": [(0, 1), (1, 2), (2, 3), (3, 99)],
+               "total": [(0, 0.5), (0.5, 1), (1, 2), (2, 99)]}
 
 
 def job_name(kind: str, market: bool) -> str:
@@ -202,18 +205,36 @@ def leaderboard(oos: pd.DataFrame, market: bool) -> list[dict]:
     return rows
 
 
-def select(board: list[dict], rule: str | None = None) -> tuple[str, str]:
-    """(chosen, best). ``1se``: the simplest model within one standard error of the best."""
+def select(board: list[dict], rule: str | None = None, by_side: bool = False) -> tuple[str, str]:
+    """(chosen, best) under the ``1se`` rule.
+
+    Accuracy decides who is in contention: every model whose error is within one standard error
+    of the lowest (``z < 1``) is tied with it - over ~28,000 games, gaps that small are luck.
+    Among the tied:
+
+    * ``by_side`` (the market jobs, whose number is published as a side of the line): the one
+      whose side of the line won most often, the simpler on a tie. The first run with lines is
+      why: ridge led the totals tie on error, but a squared-error fit predicts the AVERAGE total,
+      overtime drags the average about 0.3 points above the typical game, and ridge sat on the
+      Over side of 94% of lines - hitting 50.6%. Huber's loss shrugs off the overtime games; it
+      was 0.004 points behind, split its picks 63/37 and hit 51.1%.
+    * otherwise (the projection-only jobs, used only for games with no line to take a side of):
+      the simplest.
+
+    ``lowest`` ignores all of that and runs the raw leader.
+    """
     rule = (rule or config.SELECT).lower()
     cands = [r for r in board if not r.get("reference")]
     best = min(cands, key=lambda r: r["mae"])["model"]
     if rule == "lowest":
         return best, best
-    by = {r["model"]: r for r in cands}
-    for name in models.SIMPLICITY:
-        if name in by and by[name]["z"] < 1.0:
-            return name, best
-    return best, best
+    rank = {n: i for i, n in enumerate(models.SIMPLICITY)}
+    tied = [r for r in cands if r["model"] == best or r.get("z", 99) < 1.0]
+    tied.sort(key=lambda r: rank.get(r["model"], 99))
+    if by_side and any(r.get("hit_rate") is not None for r in tied):
+        return max(tied, key=lambda r: (r.get("hit_rate") or 0.0,
+                                        -rank.get(r["model"], 99)))["model"], best
+    return tied[0]["model"], best
 
 
 def best_shrink(pred, line, actual) -> float:
@@ -235,8 +256,26 @@ def by_gap(pred, line, actual, edges) -> list[dict]:
         m = (gap >= lo) & (gap < hi)
         hit, n, se = _side(pred[m], line[m], actual[m])
         if n:
-            out.append({"gap": f"{lo:g}-{hi:g}" if hi < 99 else f"{lo:g}+", "n": n,
-                        "hit_rate": hit, "se": se})
+            out.append({"gap": f"{lo:g}-{hi:g}" if hi < 99 else f"{lo:g}+", "lo": lo,
+                        "hi": hi if hi < 99 else None, "n": n, "hit_rate": hit, "se": se})
+    return out
+
+
+def by_stage(oos: pd.DataFrame, D: pd.DataFrame, pred, kind: str) -> dict:
+    """The side record per stage of the season, overall and by gap, for the cards: a pooled
+    52.8% says nothing about opening night, where the same model went 46.9%."""
+    keyed = D.drop_duplicates("game_id").set_index("game_id")
+    ids = oos["game_id"]
+    st = stage(ids.map(keyed["h_games"]), ids.map(keyed["a_games"]),
+               ids.map(keyed["days_into_season"]))
+    line, y = oos["line"].to_numpy(float), oos["actual"].to_numpy(float)
+    out = {}
+    for s in ("opener", "early", "fall", "later"):
+        m = st == s
+        hit, n, se = _side(pred[m], line[m], y[m])
+        if n:
+            out[s] = {"n": n, "hit_rate": hit, "se": se,
+                      "by_gap": by_gap(pred[m], line[m], y[m], STAGE_GAPS[kind])}
     return out
 
 
@@ -247,7 +286,7 @@ def run_job(D: pd.DataFrame, kind: str, market: bool, seasons: list[int]) -> dic
         log.warning("%s: not enough history for a walk-forward - skipped", name)
         return {"skipped": True, "reason": "not enough seasons with data"}
     board = leaderboard(oos, market)
-    chosen, best = select(board)
+    chosen, best = select(board, by_side=market)
     y = oos["actual"].to_numpy(float)
     line = oos["line"].to_numpy(float)
     pred = oos[f"pred_{chosen}"].to_numpy(float)
@@ -266,7 +305,8 @@ def run_job(D: pd.DataFrame, kind: str, market: bool, seasons: list[int]) -> dic
                     "line_mae": round(float(np.mean(np.abs(line - y))), 3),
                     "hit_rate": hit, "hit_n": hit_n, "hit_se": hit_se,
                     "beats_line": bool(np.mean(np.abs(pub - y)) < np.mean(np.abs(line - y))),
-                    "by_gap": by_gap(pred, line, y, GAP_BUCKETS[kind])})
+                    "by_gap": by_gap(pred, line, y, GAP_BUCKETS[kind]),
+                    "by_stage": by_stage(oos, D, pred, kind)})
     else:
         hit, hit_n, hit_se = _side(pred, line, y)
         res.update({"sigma": round(float(np.std(y - pred)), 3), "hit_rate": hit,

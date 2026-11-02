@@ -141,8 +141,9 @@ MIN_GAMES = _env_int("DEGEN_NCAAB_MIN_GAMES", 4)         # below this a side is 
 D1_MIN_GAMES = _env_int("DEGEN_NCAAB_D1_MIN_GAMES", 10)
 
 # --- the bake-off ---------------------------------------------------------------------
-# "1se": the simplest model whose error is within one standard error of the best one - the
-# leader on a few thousand games is usually ahead by noise. "lowest": whatever scored best.
+# "1se": of the models whose error is within one standard error of the best one (the leader on
+# thousands of games is usually ahead by noise), the one whose side of the line won most often -
+# the simplest, for the projection-only jobs. "lowest": whatever scored best.
 SELECT = _env("DEGEN_NCAAB_SELECT", "1se").lower()
 # Comma-separated candidate names to skip, e.g. "mlp,rf" to make the weekly job faster.
 SKIP_MODELS = {m.strip() for m in _env("DEGEN_NCAAB_SKIP_MODELS", "").split(",") if m.strip()}

@@ -425,6 +425,7 @@ def test_market_models_are_compared_with_the_line_itself(meta):
 
 
 def test_one_standard_error_rule_takes_the_simplest_model_not_beaten():
+    """The projection-only jobs: among the models tied on error, the simplest."""
     board = [{"model": "rf", "mae": 8.50, "z": 0.0}, {"model": "stack", "mae": 8.51, "z": 0.4},
              {"model": "ridge", "mae": 8.52, "z": 0.9}, {"model": "ratings", "mae": 9.1, "z": 6.0},
              {"model": "line", "mae": 8.53, "reference": True}]
@@ -432,6 +433,24 @@ def test_one_standard_error_rule_takes_the_simplest_model_not_beaten():
     assert train.select(board, "lowest") == ("rf", "rf")
     board[2]["z"] = 1.3                         # ridge is now clearly worse: rf is next in line
     assert train.select(board, "1se") == ("rf", "rf")
+
+
+def test_market_jobs_run_the_tied_model_whose_side_won_most():
+    """The first run with lines, as it came out: ridge led the totals tie on error but sat on the
+    Over side of 94% of lines; Huber, 0.004 points behind, picked better sides."""
+    board = [{"model": "blend", "mae": 12.998, "z": 0.0, "hit_rate": 50.74},
+             {"model": "ridge", "mae": 12.999, "z": 0.27, "hit_rate": 50.59},
+             {"model": "rf", "mae": 13.001, "z": 0.72, "hit_rate": 51.03},
+             {"model": "huber", "mae": 13.003, "z": 0.77, "hit_rate": 51.10},
+             {"model": "xgb", "mae": 13.010, "z": 3.16, "hit_rate": 51.39},   # not tied: out
+             {"model": "line", "mae": 12.999, "reference": True}]
+    assert train.select(board, "1se", by_side=True) == ("huber", "blend")
+    assert train.select(board, "1se", by_side=False) == ("ridge", "blend")
+    board[1]["hit_rate"] = 51.10                # a tie on the side record goes to the simpler
+    assert train.select(board, "1se", by_side=True)[0] == "ridge"
+    for r in board:                             # no line to take a side of: simplest again
+        r["hit_rate"] = None
+    assert train.select(board, "1se", by_side=True)[0] == "ridge"
 
 
 def test_nnls_never_bets_against_a_model():
@@ -589,7 +608,8 @@ def test_page_renders_the_nfl_card(sandbox, history, meta):
     for needle in ("Projected score", "pts off", "Model: ", "Model total", 'class="meter"',
                    "#5</span>", "#12</span>", "Maui Invitational", "No line yet",
                    'data-f="top"', 'data-f="power"', "How the model was picked",
-                   "The line itself", 'class="badge"', site._bakeoff(meta)["span"]):
+                   "The line itself", 'class="badge"', site._bakeoff(meta)["span"],
+                   "at this gap in past seasons"):
         assert needle in html, needle
     text = re.sub(r"<script.*?</script>", "", html, flags=re.S)
     assert not re.search(r"\bnan\b|\bNone\b", text), "a missing value leaked onto the page"
@@ -748,4 +768,83 @@ def test_page_shows_the_projection_bakeoff_until_lines_arrive(sandbox, history, 
                    "Ratings only (no ML)", "projects from team ratings and form alone"):
         assert needle in html, needle
     assert "The line itself" not in html
+
+
+# ---------------------------------------------------------------------------------------
+# what a gap has been worth, on the card
+# ---------------------------------------------------------------------------------------
+REAL_SPREAD = {"chosen": "huber", "by_gap": [   # the 2 Nov run, as committed - no bucket edges
+    {"gap": "0-1", "n": 20151, "hit_rate": 50.81, "se": 0.35},
+    {"gap": "1-2", "n": 6473, "hit_rate": 52.73, "se": 0.62},
+    {"gap": "2-3", "n": 1304, "hit_rate": 52.91, "se": 1.38},
+    {"gap": "3-5", "n": 246, "hit_rate": 56.1, "se": 3.16},
+    {"gap": "5+", "n": 32, "hit_rate": 75.0, "se": 7.65}]}
+
+
+def test_a_cards_gap_is_looked_up_in_the_bakeoffs_record():
+    recs = site.gap_records({"jobs": {"margin_market": REAL_SPREAD}})
+    rec = recs["spread"]
+    assert site.at_gap(rec, 1.4, "huber/market") == {
+        "rate": 52.73, "n": 6473, "label": "1-2", "text": "at this gap in past seasons"}
+    assert site.at_gap(rec, 1.0, "huber/market")["label"] == "1-2"     # lower edge inclusive
+    assert site.at_gap(rec, 0.3, "huber/market")["rate"] == 50.81
+    assert site.at_gap(rec, 4.0, "huber/market")["n"] == 246
+    assert site.at_gap(rec, 7.5, "huber/market") is None, "32 games is too few to print"
+    assert site.at_gap(rec, 1.4, "ridge/market") is None, "another model's record says nothing"
+    assert site.at_gap(rec, 1.4, "stack/nomarket") is None
+    assert site.at_gap(rec, None, "huber/market") is None
+    assert "total" not in recs
+
+
+def test_new_buckets_carry_their_edges():
+    rows = train.by_gap(np.array([0.5, 1.5, 9.0]), np.zeros(3), np.array([1.0, -1.0, 5.0]),
+                        [(0, 1), (1, 2), (2, 99)])
+    assert [(r["lo"], r["hi"]) for r in rows] == [(0, 1), (1, 2), (2, None)]
+    rec = site.gap_records({"jobs": {"total_market": {"chosen": "huber", "by_gap": [
+        {**r, "n": 500} for r in rows]}}})["total"]
+    assert site.at_gap(rec, 30.0, "huber/market")["label"] == "2+"
+
+
+def test_stage_of_the_season():
+    assert features.stage(0, 0, 9) == "opener"
+    assert features.stage(1, 0, 9) == "early" and features.stage(3, 12, 30) == "early"
+    assert features.stage(4, 6, 44) == "fall" and features.stage(4, 6, 45) == "later"
+    assert list(features.stage([0, 5], [0, 5], [10, 80])) == ["opener", "later"]
+
+
+OPENERS = {"n": 651, "hit_rate": 46.85, "se": 1.96, "by_gap": [
+    {"gap": "0-1", "lo": 0, "hi": 1, "n": 367, "hit_rate": 47.7},
+    {"gap": "1-2", "lo": 1, "hi": 2, "n": 185, "hit_rate": 43.8},
+    {"gap": "2+", "lo": 2, "hi": None, "n": 99, "hit_rate": 49.5}]}
+
+
+def test_an_opening_night_card_quotes_opening_nights_not_the_season():
+    """The 2 Nov run: 52.8% at a 1-2 point gap over every game, 43.8% on season openers."""
+    rec = site.gap_records({"jobs": {"margin_market": {**REAL_SPREAD, "by_stage": {
+        "opener": OPENERS}}}})["spread"]
+    hit = site.at_gap(rec, 1.4, "huber/market", "opener")
+    assert (hit["rate"], hit["n"]) == (43.8, 185) and "season openers" in hit["text"]
+    # 99 games at 2+ is too few: the openers' record at any gap stands in
+    hit = site.at_gap(rec, 2.6, "huber/market", "opener")
+    assert (hit["rate"], hit["n"], hit["label"]) == (46.85, 651, "all") and "any gap" in hit["text"]
+    # a stage with no record of its own falls back to every game at this gap
+    assert site.at_gap(rec, 1.4, "huber/market", "later")["rate"] == 52.73
+
+
+def test_the_board_puts_tonights_openers_on_their_own_record(sandbox, history, meta):
+    m = json.loads(json.dumps(meta))
+    m["jobs"]["margin_market"]["by_stage"] = {"opener": {**OPENERS, "by_gap": [
+        {**b, "n": 400} for b in OPENERS["by_gap"]]}}
+    ids, names = _seed(history, m)
+    out = predict.run(fetch=FakeESPN({TODAY: slate(TODAY, ids, names)}), update_games=False,
+                      days=0, now=pd.Timestamp(f"{TODAY}T15:00:00Z"))
+    assert (out[["h_games", "a_games"]].max(axis=1) == 0).all()     # nobody has played in 2026
+    site.build()
+    html = (config.DOCS / "index.html").read_text()
+    assert "at this gap in past season openers" in html
+    assert "at this gap in past seasons" in html    # totals have no opener record here: pooled
+    assert train.by_stage   # the trainer writes the record the board reads
+    job = meta["jobs"]["margin_market"]
+    assert set(job["by_stage"]) <= set(features.STAGES)
+    assert sum(v["n"] for v in job["by_stage"].values()) == job["hit_n"]
 

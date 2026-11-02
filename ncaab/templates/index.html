@@ -46,6 +46,8 @@
   .pick .pct.toss{color:var(--dim);font-weight:500}
   .pick .p{font-size:19px;font-weight:600;line-height:1.25}
   .pick .d{font-size:12px;color:var(--dim);margin-top:4px}
+  .pick .h{font-size:12px;color:var(--dim);margin-top:3px;line-height:1.35}
+  .pick .h b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
   .meter{height:4px;background:var(--line);border-radius:2px;margin-top:8px;overflow:hidden}
   .meter i{display:block;height:100%;background:var(--accent);border-radius:2px}
   .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
@@ -183,12 +185,14 @@
         <div class="l"><span>Spread</span>{{ gap(g.spread_gap) }}</div>
         {% if g.spread_label %}<div class="p">{{ g.spread_label }}</div>{% else %}<div class="p none">No line yet</div>{% endif %}
         {% if g.model_margin %}<div class="d">{{ g.model_margin }}</div>{% endif %}
+        {% if g.spread_hist %}<div class="h"><b>{{ '%.1f'|format(g.spread_hist.rate) }}%</b> {{ g.spread_hist.text }} &middot; {{ "{:,}".format(g.spread_hist.n) }} games</div>{% endif %}
         {{ meter(g.spread_gap) }}
       </div>
       <div class="pick">
         <div class="l"><span>Total</span>{{ gap(g.total_gap) }}</div>
         {% if g.total_label %}<div class="p">{{ g.total_label }}</div>{% else %}<div class="p none">No line yet</div>{% endif %}
         {% if g.total_raw is not none %}<div class="d">Model total {{ '%.1f'|format(g.total_raw) }}</div>{% endif %}
+        {% if g.total_hist %}<div class="h"><b>{{ '%.1f'|format(g.total_hist.rate) }}%</b> {{ g.total_hist.text }} &middot; {{ "{:,}".format(g.total_hist.n) }} games</div>{% endif %}
         {{ meter(g.total_gap) }}
       </div>
     </div>
@@ -199,7 +203,12 @@
   {% if picks %}
   <p class="sub" style="margin-top:10px"><b>Projected score</b> is the model's own number before it
     is compared with the line. <b>Pts off</b> is how far the model sits from the line toward the
-    pick: under a point is close to a coin flip. The amber line flags what the line has to price
+    pick: under a point is close to a coin flip. The <b>percentage under each pick</b> is how often the
+    model's side won in past games like this one - the same stage of the season, as far from the line -
+    on seasons it never trained on, against the closing line; a &minus;110 bet needs 52.4%. Season
+    openers are the model's weakest games: its ratings are last season's, and the line already knows
+    who transferred.
+    The amber line flags what the line has to price
     and a rating cannot see: tournaments and neutral courts, ranked matchups, back-to-backs.
     Lines are ESPN's partner book.</p>
   {% endif %}
@@ -269,8 +278,8 @@
       <p class="sub" style="margin-bottom:10px">Each model was trained on every season before the one it
         predicted, then scored on {{ bake.span }} games it never saw. <b>Error</b> is
         how many points the projected final missed by, on average; lower is better. <b>Side</b> is how
-        often its side of the line won. The board runs the simplest model whose error is within
-        one standard error of the lowest{% if bake.rule == 'lowest' %} &mdash; switched off: it runs the lowest{% endif %}.</p>
+        often its side of the line won. {% if bake.rule == 'lowest' %}The board runs the model with the lowest error.{% elif bake.market %}Of the models whose error is within one standard
+        error of the lowest &mdash; a tie, over this many games &mdash; the board runs the one whose side won most often.{% else %}The board runs the simplest model whose error is within one standard error of the lowest.{% endif %}</p>
       {% if not bake.market %}<p class="note" style="margin-bottom:10px">Scored without the betting line:
         ESPN's past lines are still being loaded, so this table says how close each model got to the final
         score, not whether its side beat the line. That column fills in after the next weekly run.</p>{% endif %}
