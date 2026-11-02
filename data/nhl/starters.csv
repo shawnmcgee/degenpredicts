@@ -1535,3 +1535,13 @@ pulled_at,date,game_id,side,team,goalie,goalie_id,status,matched_by
 2026-11-01T18:56:54+00:00,2026-11-02,2026020234,a,COL,Mackenzie Blackwood,8478406,projected,name
 2026-11-01T18:56:54+00:00,2026-11-02,2026020235,h,SJS,Yaroslav Askarov,8482137,projected,name
 2026-11-01T18:56:54+00:00,2026-11-02,2026020235,a,CGY,Arsenii Sergeev,8482949,projected,name
+2026-11-02T01:01:55+00:00,2026-11-01,2026020231,h,ANA,Laurent Brossoit,8476316,confirmed,"name, other team"
+2026-11-02T01:01:55+00:00,2026-11-01,2026020231,a,OTT,Jonas Johansson,8477992,confirmed,name
+2026-11-02T01:01:55+00:00,2026-11-02,2026020232,h,BOS,Jeremy Swayman,8480280,projected,name
+2026-11-02T01:01:55+00:00,2026-11-02,2026020232,a,VGK,Adin Hill,8478499,projected,name
+2026-11-02T01:01:55+00:00,2026-11-02,2026020233,h,FLA,Akira Schmid,8481033,projected,name
+2026-11-02T01:01:55+00:00,2026-11-02,2026020233,a,DET,John Gibson,8476434,projected,name
+2026-11-02T01:01:55+00:00,2026-11-02,2026020234,h,CHI,Arvid Soderblom,8482821,projected,name
+2026-11-02T01:01:55+00:00,2026-11-02,2026020234,a,COL,Mackenzie Blackwood,8478406,projected,name
+2026-11-02T01:01:55+00:00,2026-11-02,2026020235,h,SJS,Yaroslav Askarov,8482137,projected,name
+2026-11-02T01:01:55+00:00,2026-11-02,2026020235,a,CGY,Arsenii Sergeev,8482949,projected,name
