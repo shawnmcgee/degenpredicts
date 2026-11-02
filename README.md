@@ -26,6 +26,9 @@ No server, no manual uploads, no hosting bill.
   nba-grade.yml     daily 8:15am ET → finals → grade → results.csv, metrics.json
   nba-train.yml     Tuesdays        → refit models
   nba-props.yml     daily, 3x       → box scores + injury report + Kalshi prop ladders → props models → docs/nba/props/
+  ncaab-predict.yml twice daily, Nov-Apr → ESPN finals + slate + lines → bake-off's chosen models → docs/ncaab/
+  ncaab-grade.yml   daily 7:45am ET → finals → grade → results.csv, metrics.json
+  ncaab-train.yml   Tuesdays        → the model bake-off: nine candidates, walk-forward, pick per market
   odds-quota.yml    daily 7pm ET    → Odds API credits left → an issue that @-mentions you before they run out
   test.yml          on push         → offline tests, one job per sport plus the landing page and quota alert
 cfb/     college football pipeline (live now)
@@ -33,7 +36,7 @@ nfl/     NFL pipeline (live now)
 epl/     Premier League pipeline (live now)
 nhl/     NHL pipeline (live from the 2026-27 season)
 nba/     NBA pipeline (live from the 2026-27 season)
-ncaab/   college basketball pipeline (built, dormant until November)
+ncaab/   college basketball pipeline (live from the 2026-27 season)
 core/    sport-neutral bits only: the landing page, shared settings
 ```
 
@@ -50,11 +53,12 @@ docs/
   nhl/index.html  ← NHL board
   nba/index.html  ← NBA board
   nba/props/      ← NBA player props tab
+  ncaab/index.html ← college basketball board
 ```
 
 `core/landing.py` imports nothing from `cfb`, `nfl` or `ncaab` — it reads the files those
 pipelines have already published and renders a card for each. A sport that has published
-nothing simply has no card, so `ncaab/` will appear on its own the first time it runs. Every
+nothing simply has no card, so a new sport appears on its own the first time it runs. Every
 publishing workflow rebuilds the chooser after its own board, so the front page refreshes
 whenever any sport does and self-heals if a run is skipped.
 
@@ -1840,10 +1844,86 @@ played. And one night's grades are noise — read the Brier comparison and the C
 
 ## College basketball
 
-`ncaab/` is a complete parallel pipeline, already written and tested, using ncaa-api for
-scores, The Odds API for lines, and Barttorvik daily snapshots for tempo/efficiency. It has no
-scheduled workflows yet. In early November, add workflows mirroring the `cfb-*.yml` files with
-`python -m ncaab.train` / `.predict` / `.grade`, and run the training job once to back-fill.
+`docs/ncaab/` - a pick on every Division I spread and total with a line, on the same card as the
+NFL board: the model's projected score, then a spread tile and a total tile, each showing the side
+of the book's line the model thinks is likelier, the model's own number under it, and how many
+points it sits from the line. The amber strip carries what a college line has to price and a
+rating cannot see - holiday tournaments and neutral courts, ranked matchups, back-to-backs - and
+the filters are the ones a 100-game night needs: Top 25, power conferences, biggest gaps first.
+
+### 1. Data: one ESPN endpoint, no key, no quota
+
+`scoreboard?dates=YYYYMMDD&groups=50` returns every D1 game that day with the final score, the
+line from ESPN's partner book (DraftKings) - **which stays on finished games, so it is the
+closing line the market-aware models train against** - the AP rank at the time, neutral site,
+conference and tournament name. Teams are keyed by ESPN's team id, so there is no name matching
+anywhere: grading joins on the event id. Prices come from ESPN rather than The Odds API because
+the shared key was down to 56 credits by October 22nd; this board never spends one.
+
+This replaced the first, never-run version of `ncaab/`, which read ncaa-api, Barttorvik and The
+Odds API, matched teams through a 539-line name table, and **wrote to `data/` and `docs/` at the
+root - its first run would have replaced the sport chooser**. A test now pins it to
+`data/ncaab/` and `docs/ncaab/`.
+
+```
+data/ncaab/games.csv     every D1 final since 2018-19, with ESPN's closing line and context
+data/ncaab/days.csv      which scoreboard days are fetched for good (an empty Christmas Eve is
+                         not asked for again; a day ESPN failed to serve is)
+data/ncaab/picks.csv     one row per game, the latest pre-tip prediction, first_seen_* kept
+data/ncaab/models/meta.json   the bake-off: every leaderboard, the chosen models, their shrink
+```
+
+**Run `ncaab-train` by hand once first.** It back-fills ~1,400 scoreboard days (10-15 minutes)
+and then runs the bake-off. Until it has, the board prices off the rating engine alone and says
+so in `picks.csv`'s `*_model` columns. Look for `cache: N finals ... X% with a closing spread` in
+its log - if ESPN's finished games turn out not to carry a line, the market-aware models are
+skipped and the board falls back to the no-market ones until its own pulls build the history.
+
+### 2. The model bake-off
+
+`python -m ncaab.train` tries nine candidates for each of four jobs (spread and total, each with
+and without the line) and keeps the best per job:
+
+| candidate | |
+|---|---|
+| `ratings` | the rating engine's own number - margin Elo plus opponent-adjusted offence, defence and pace, replayed game by game - with no machine learning on top |
+| `ridge`, `huber` | linear; Huber's loss stops a 40-point blowout dragging every coefficient |
+| `hgb`, `xgb` | gradient-boosted trees, scikit-learn's and XGBoost |
+| `rf` | random forest |
+| `mlp` | a small neural net with early stopping |
+| `blend` | the average of ridge and the two boosters |
+| `stack` | a non-negative weighted mix of every base model, weights fitted only on earlier seasons |
+
+* **Walk-forward, by season.** For each of the last five complete seasons, every candidate is
+  fitted on all seasons before it and scores that season. Nothing is scored on a season it was
+  fitted on - the stack's weights included. The ratings are leak-free by construction.
+* **Market models predict the line's error**, not the final. Asked for the total, a tree has to
+  rebuild the line out of a staircase of splits and loses a point doing it; asked how wrong the
+  line is, it starts from the line.
+* **Chosen by error, not hit rate.** Over ~4,000 lined games a season the side hit rate has a
+  standard error near 0.8 points; most gaps between models on it are noise. Mean absolute error,
+  compared game by game, is far more stable. Both are on the page.
+* **The one-standard-error rule** (`DEGEN_NCAAB_SELECT=1se`): the board runs the simplest
+  candidate whose paired error is within one standard error of the leader. A neural net that
+  beats ridge by 0.01 points has not beaten ridge. `lowest` runs the raw leader instead.
+* **Nothing fitted is committed.** `predict.py` refits the chosen specification on every game
+  through last night each run - about a minute - which keeps forests out of the repo and the
+  models current on the season in progress. If a chosen model cannot be built (xgboost missing),
+  the next one down its leaderboard is used, and the log says so.
+
+The leaderboard is published on the board under "How the model was picked" and in the training
+run's summary on GitHub, with the side record by size of disagreement so "biggest gaps first"
+can be checked rather than assumed.
+
+### 3. The guardrails
+
+- **A game that has tipped is never re-priced** - the slate drops anything under way or past its
+  tip time, and a game's row in `picks.csv` is only replaced while it is still to tip.
+- **The spread's sign is flipped exactly once**, in `features.market_line`.
+- **D2 and NAIA visitors** start 15 points below average in the ratings, and games against them
+  never become training rows.
+- **Postponed games** are closed out as `void` a week after their date and count in no record.
+- **Every knob is `DEGEN_NCAAB_*`**, so a variable set for another sport cannot retune this one.
 
 ---
 
@@ -1878,6 +1958,11 @@ python -m nba.predict --dry-run
 python -m nba.site && open docs/nba/index.html
 python -m nba.sources.hoopr                     # refresh games and player minutes from hoopR
 python -m nba.sources.history                   # rebuild lines.csv from the archives (needs pyarrow)
+
+python -m ncaab.train --no-fetch                # the bake-off, off the committed ESPN cache
+python -m ncaab.predict --dry-run
+python -m ncaab.site && open docs/ncaab/index.html
+python -m ncaab.sources.espn --day 2026-11-03   # one day's parsed ESPN scoreboard
 
 python -m core.landing && open docs/index.html  # the chooser, built from what is published
 ```
@@ -1933,6 +2018,13 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_PROPS_SHRINK` | 0.25 | how far the published prop probability moves from Kalshi's mid toward the model |
 | `DEGEN_PROPS_MIN_EDGE` / `DEGEN_PROPS_MAX_GAP` | 0.07 / 0.15 | props value flag: minimum edge after fees, and the most the model may disagree with Kalshi's mid |
 | `DEGEN_PROPS_FIRST_SEASON` | 2013 | first season of player history (snap counts start in 2013) |
+| `DEGEN_NCAAB_SELECT` | `1se` | how the bake-off picks: `1se` (simplest model within one standard error of the best) or `lowest` |
+| `DEGEN_NCAAB_SKIP_MODELS` | (none) | candidates to leave out of the bake-off, e.g. `mlp,rf` for a faster weekly run |
+| `DEGEN_NCAAB_WALK_SEASONS` | 5 | complete seasons the bake-off scores, walk-forward |
+| `DEGEN_NCAAB_FIRST_SEASON` | 2018 | first season fetched from ESPN; it is the ratings' warm-up and is never scored |
+| `DEGEN_NCAAB_BOARD_DAYS` | 1 | days ahead of today to post |
+| `DEGEN_NCAAB_MIN_GAMES` | 4 | below this many games a side is flagged "early season" |
+| `DEGEN_NCAAB_DOCS` | `docs/ncaab` | where the college basketball board is written |
 | `DEGEN_SUPPORT_URL` | (unset) | Buy Me a Coffee link shown at the top; omit and the button hides |
 | `DEGEN_SUPPORT_LABEL` | Buy me a coffee | button text |
 | `DEGEN_THEME` | `ticker` | site look: `ticker`, `scoreboard`, `field` |

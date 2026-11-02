@@ -49,7 +49,7 @@ SPORTS = [
     {"slug": "nba", "name": "NBA",
      "blurb": "Spreads, totals and moneylines, with every rotation's injuries priced in - and player props."},
     {"slug": "ncaab", "name": "College Basketball",
-     "blurb": "Built and dormant until November."},
+     "blurb": "Spreads and totals on every Division I game with a line, from the model that won a nine-way bake-off."},
 ]
 
 

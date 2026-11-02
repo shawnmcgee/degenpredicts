@@ -16,14 +16,14 @@ import pytest
 from core import landing
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-# Every sport with a live board. ncaab is deliberately absent: it has no workflows yet, so it
-# publishes nothing and correctly has no card and no tab.
+# Every sport with a live board.
 LIVE_SPORTS = {
     "cfb": ("cfb/templates/index.html", "College football"),
     "nfl": ("nfl/templates/index.html", "NFL"),
     "epl": ("epl/templates/index.html", "Premier League"),
     "nhl": ("nhl/templates/index.html", "NHL"),
     "nba": ("nba/templates/index.html", "NBA"),
+    "ncaab": ("ncaab/templates/index.html", "College basketball"),
 }
 
 
@@ -118,7 +118,7 @@ def test_card_date_is_the_last_rebuild_not_the_last_grade(tmp_path):
 
 def test_every_board_stamps_its_rebuild():
     """The card's date only moves if the sport's own site build writes the stamp."""
-    for slug in [*LIVE_SPORTS, "ncaab"]:
+    for slug in LIVE_SPORTS:
         src = (ROOT / slug / "site.py").read_text()
         assert '"published.json"' in src, f"{slug}/site.py never stamps its board"
 
@@ -194,7 +194,7 @@ def test_every_publishing_workflow_rebuilds_the_front_page():
     from pathlib import Path
     wf = Path(__file__).resolve().parent.parent / ".github" / "workflows"
     for name in ("cfb-predict", "cfb-grade", "nfl-predict", "nfl-grade", "nhl-predict",
-                 "nhl-grade", "nba-predict", "nba-grade"):
+                 "nhl-grade", "nba-predict", "nba-grade", "ncaab-predict", "ncaab-grade"):
         text = (wf / f"{name}.yml").read_text()
         assert "python -m core.landing" in text, f"{name}.yml does not rebuild the chooser"
 
