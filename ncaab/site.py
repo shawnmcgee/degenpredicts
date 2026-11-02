@@ -209,9 +209,18 @@ def _metrics() -> dict:
 def _bakeoff(meta: dict) -> dict:
     """The leaderboard for the two numbers the board publishes, side by side."""
     jobs = meta.get("jobs") or {}
+
+    def usable(j):
+        return bool(j) and not j.get("skipped") and bool(j.get("leaderboard"))
+
     sp, tot = jobs.get("margin_market") or {}, jobs.get("total_market") or {}
-    if (not sp or sp.get("skipped")) and (not tot or tot.get("skipped")):
-        return {}
+    market = usable(sp) or usable(tot)
+    if not market:
+        # no past lines yet: show the projection bake-off, which says how close each model got
+        # to the final score but nothing about beating the line
+        sp, tot = jobs.get("margin_nomarket") or {}, jobs.get("total_nomarket") or {}
+        if not (usable(sp) or usable(tot)):
+            return {}
     by = {}
     for key, job in (("spread", sp), ("total", tot)):
         for r in job.get("leaderboard") or []:
@@ -231,7 +240,8 @@ def _bakeoff(meta: dict) -> dict:
             "spread_hit": sp.get("hit_rate"), "total_hit": tot.get("hit_rate"),
             "spread_hit_n": sp.get("hit_n"), "total_hit_n": tot.get("hit_n"),
             "spread_by_gap": sp.get("by_gap") or [], "total_by_gap": tot.get("by_gap") or [],
-            "rule": meta.get("select_rule", "1se"), "trained_at": (meta.get("trained_at") or "")[:10]}
+            "rule": meta.get("select_rule", "1se"), "trained_at": (meta.get("trained_at") or "")[:10],
+            "market": market}
 
 
 def build() -> None:

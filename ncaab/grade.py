@@ -24,7 +24,7 @@ import numpy as np
 import pandas as pd
 
 from . import config
-from .sources import espn
+from .sources import espn, lines
 
 log = logging.getLogger("ncaab.grade")
 
@@ -70,7 +70,7 @@ def results_for(m: pd.DataFrame) -> pd.DataFrame:
     return m
 
 
-def grade(fetch: bool = True, fetch_day=espn.fetch_day) -> pd.DataFrame:
+def grade(fetch: bool = True, fetch_day=espn.fetch_day, get_odds=None) -> pd.DataFrame:
     picks, done = _read(config.PICKS), _read(config.RESULTS)
     if picks.empty:
         log.warning("no picks yet")
@@ -85,6 +85,14 @@ def grade(fetch: bool = True, fetch_day=espn.fetch_day) -> pd.DataFrame:
 
     games = espn.update(start=min(pending["date"]) - timedelta(days=1), recheck_days=3,
                         fetch=fetch_day) if fetch else espn.load()
+    if fetch:
+        # the closing line for CLV: ESPN's own, asked for the handful of games just finished
+        ask = games[games["game_id"].isin(pending["game_id"])]
+        if len(ask):
+            lines.backfill(budget_min=5, only=ask,
+                           **({"get": get_odds} if get_odds is not None else {}))
+    # closes come from lines.csv only - attach's fallback to our own pick would make CLV zero
+    games = lines.attach(games, picks=pd.DataFrame())
     fin = games[["game_id", "home_points", "away_points", "total_points", "home_margin",
                  "spread_home", "total_line"]].rename(columns={"spread_home": "close_spread",
                                                                "total_line": "close_total"})

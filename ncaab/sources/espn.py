@@ -236,9 +236,9 @@ def update(start: date | None = None, end: date | None = None, recheck_days: int
     save(games, days)
     g = load()
     if len(g):
-        lined = g["spread_home"].notna().mean() * 100
-        log.info("cache: %d finals over seasons %s, %.0f%% with a closing spread",
-                 len(g), sorted(int(s) for s in g["season"].unique()), lined)
+        log.info("cache: %d finals over seasons %s (the scoreboard drops odds on finished "
+                 "games; past lines come from ncaab.sources.lines)",
+                 len(g), sorted(int(s) for s in g["season"].unique()))
     return g
 
 
