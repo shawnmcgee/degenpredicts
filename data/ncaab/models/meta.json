@@ -1,0 +1,568 @@
+{
+  "sport": "ncaab",
+  "trained_at": "2026-11-02T21:13:53+00:00",
+  "seasons": [
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "n_rows": 37800,
+  "features": {
+    "base": [
+      "neutral_site",
+      "conf_game",
+      "postseason",
+      "days_into_season",
+      "exp_margin",
+      "exp_total",
+      "exp_pace",
+      "h_margin",
+      "a_margin",
+      "h_off",
+      "a_off",
+      "h_def",
+      "a_def",
+      "h_pace",
+      "a_pace",
+      "h_games",
+      "a_games",
+      "h_rest",
+      "a_rest",
+      "h_b2b",
+      "a_b2b",
+      "h_form_margin",
+      "a_form_margin",
+      "h_form_total",
+      "a_form_total",
+      "h_rank_pts",
+      "a_rank_pts",
+      "h_new",
+      "a_new",
+      "h_power",
+      "a_power"
+    ],
+    "market": [
+      "total_line",
+      "spread_home",
+      "total_vs_ratings",
+      "margin_vs_ratings"
+    ]
+  },
+  "select_rule": "1se",
+  "jobs": {
+    "margin_market": {
+      "skipped": true,
+      "reason": "not enough seasons with data"
+    },
+    "total_market": {
+      "skipped": true,
+      "reason": "not enough seasons with data"
+    },
+    "margin_nomarket": {
+      "chosen": "stack",
+      "best": "stack",
+      "rule": "1se",
+      "test_seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n": 28499,
+      "leaderboard": [
+        {
+          "model": "stack",
+          "label": "Stack: weighted mix of all",
+          "n": 28499,
+          "mae": 9.143,
+          "rmse": 11.612,
+          "bias": 0.108,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.0,
+          "vs_best_se": 0.0,
+          "z": 0.0,
+          "per_season": {
+            "2021": 9.028,
+            "2022": 9.115,
+            "2023": 9.152,
+            "2024": 9.121,
+            "2025": 9.294
+          }
+        },
+        {
+          "model": "blend",
+          "label": "Blend: ridge + boosting",
+          "n": 28499,
+          "mae": 9.146,
+          "rmse": 11.615,
+          "bias": 0.144,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.003,
+          "vs_best_se": 0.0029,
+          "z": 1.0,
+          "per_season": {
+            "2021": 9.028,
+            "2022": 9.124,
+            "2023": 9.153,
+            "2024": 9.133,
+            "2025": 9.287
+          }
+        },
+        {
+          "model": "huber",
+          "label": "Huber regression",
+          "n": 28499,
+          "mae": 9.158,
+          "rmse": 11.645,
+          "bias": 0.031,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.015,
+          "vs_best_se": 0.0065,
+          "z": 2.26,
+          "per_season": {
+            "2021": 9.01,
+            "2022": 9.128,
+            "2023": 9.162,
+            "2024": 9.15,
+            "2025": 9.334
+          }
+        },
+        {
+          "model": "ridge",
+          "label": "Ridge regression",
+          "n": 28499,
+          "mae": 9.165,
+          "rmse": 11.646,
+          "bias": 0.157,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.022,
+          "vs_best_se": 0.0065,
+          "z": 3.39,
+          "per_season": {
+            "2021": 9.025,
+            "2022": 9.132,
+            "2023": 9.173,
+            "2024": 9.152,
+            "2025": 9.336
+          }
+        },
+        {
+          "model": "xgb",
+          "label": "XGBoost",
+          "n": 28499,
+          "mae": 9.191,
+          "rmse": 11.67,
+          "bias": 0.16,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.048,
+          "vs_best_se": 0.0069,
+          "z": 6.93,
+          "per_season": {
+            "2021": 9.077,
+            "2022": 9.189,
+            "2023": 9.221,
+            "2024": 9.165,
+            "2025": 9.297
+          }
+        },
+        {
+          "model": "hgb",
+          "label": "Gradient boosting (sklearn)",
+          "n": 28499,
+          "mae": 9.2,
+          "rmse": 11.684,
+          "bias": 0.116,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.057,
+          "vs_best_se": 0.0073,
+          "z": 7.79,
+          "per_season": {
+            "2021": 9.167,
+            "2022": 9.168,
+            "2023": 9.18,
+            "2024": 9.174,
+            "2025": 9.31
+          }
+        },
+        {
+          "model": "rf",
+          "label": "Random forest",
+          "n": 28499,
+          "mae": 9.227,
+          "rmse": 11.739,
+          "bias": 0.062,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.084,
+          "vs_best_se": 0.0093,
+          "z": 9.02,
+          "per_season": {
+            "2021": 9.098,
+            "2022": 9.171,
+            "2023": 9.256,
+            "2024": 9.241,
+            "2025": 9.365
+          }
+        },
+        {
+          "model": "mlp",
+          "label": "Neural net (MLP)",
+          "n": 28499,
+          "mae": 9.255,
+          "rmse": 11.757,
+          "bias": 0.228,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.112,
+          "vs_best_se": 0.0112,
+          "z": 10.02,
+          "per_season": {
+            "2021": 9.16,
+            "2022": 9.238,
+            "2023": 9.287,
+            "2024": 9.213,
+            "2025": 9.372
+          }
+        },
+        {
+          "model": "ratings",
+          "label": "Ratings only (no ML)",
+          "n": 28499,
+          "mae": 9.448,
+          "rmse": 12.057,
+          "bias": -1.12,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.305,
+          "vs_best_se": 0.0168,
+          "z": 18.16,
+          "per_season": {
+            "2021": 9.243,
+            "2022": 9.326,
+            "2023": 9.483,
+            "2024": 9.512,
+            "2025": 9.666
+          }
+        }
+      ],
+      "stack_by_season": {
+        "2021": "blend",
+        "2022": {
+          "ridge": 0.311,
+          "huber": 0.194,
+          "hgb": 0.0,
+          "xgb": 0.377,
+          "rf": 0.0,
+          "mlp": 0.096
+        },
+        "2023": {
+          "ridge": 0.244,
+          "huber": 0.31,
+          "hgb": 0.0,
+          "xgb": 0.305,
+          "rf": 0.017,
+          "mlp": 0.115
+        },
+        "2024": {
+          "ridge": 0.0,
+          "huber": 0.569,
+          "hgb": 0.097,
+          "xgb": 0.23,
+          "rf": 0.0,
+          "mlp": 0.106
+        },
+        "2025": {
+          "ridge": 0.0,
+          "huber": 0.549,
+          "hgb": 0.116,
+          "xgb": 0.24,
+          "rf": 0.0,
+          "mlp": 0.113
+        }
+      },
+      "stack_weights": {
+        "ridge": 0.0,
+        "huber": 0.5191,
+        "hgb": 0.1025,
+        "xgb": 0.2905,
+        "rf": 0.0,
+        "mlp": 0.1071
+      },
+      "sigma": 11.612,
+      "hit_rate": null,
+      "hit_n": 0,
+      "hit_se": null
+    },
+    "total_nomarket": {
+      "chosen": "blend",
+      "best": "stack",
+      "rule": "1se",
+      "test_seasons": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "n": 28499,
+      "leaderboard": [
+        {
+          "model": "stack",
+          "label": "Stack: weighted mix of all",
+          "n": 28499,
+          "mae": 13.345,
+          "rmse": 17.164,
+          "bias": -0.452,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.0,
+          "vs_best_se": 0.0,
+          "z": 0.0,
+          "per_season": {
+            "2021": 13.489,
+            "2022": 13.212,
+            "2023": 13.252,
+            "2024": 12.97,
+            "2025": 13.808
+          }
+        },
+        {
+          "model": "blend",
+          "label": "Blend: ridge + boosting",
+          "n": 28499,
+          "mae": 13.348,
+          "rmse": 17.18,
+          "bias": -0.726,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.002,
+          "vs_best_se": 0.0039,
+          "z": 0.63,
+          "per_season": {
+            "2021": 13.489,
+            "2022": 13.212,
+            "2023": 13.274,
+            "2024": 12.969,
+            "2025": 13.8
+          }
+        },
+        {
+          "model": "ridge",
+          "label": "Ridge regression",
+          "n": 28499,
+          "mae": 13.353,
+          "rmse": 17.19,
+          "bias": -0.739,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.008,
+          "vs_best_se": 0.0065,
+          "z": 1.18,
+          "per_season": {
+            "2021": 13.455,
+            "2022": 13.229,
+            "2023": 13.259,
+            "2024": 12.982,
+            "2025": 13.844
+          }
+        },
+        {
+          "model": "huber",
+          "label": "Huber regression",
+          "n": 28499,
+          "mae": 13.366,
+          "rmse": 17.226,
+          "bias": -1.21,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.021,
+          "vs_best_se": 0.0079,
+          "z": 2.68,
+          "per_season": {
+            "2021": 13.457,
+            "2022": 13.256,
+            "2023": 13.276,
+            "2024": 12.99,
+            "2025": 13.856
+          }
+        },
+        {
+          "model": "rf",
+          "label": "Random forest",
+          "n": 28499,
+          "mae": 13.382,
+          "rmse": 17.229,
+          "bias": -0.655,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.036,
+          "vs_best_se": 0.0088,
+          "z": 4.14,
+          "per_season": {
+            "2021": 13.476,
+            "2022": 13.261,
+            "2023": 13.338,
+            "2024": 12.997,
+            "2025": 13.839
+          }
+        },
+        {
+          "model": "xgb",
+          "label": "XGBoost",
+          "n": 28499,
+          "mae": 13.386,
+          "rmse": 17.227,
+          "bias": -0.647,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.041,
+          "vs_best_se": 0.0086,
+          "z": 4.78,
+          "per_season": {
+            "2021": 13.561,
+            "2022": 13.258,
+            "2023": 13.323,
+            "2024": 12.992,
+            "2025": 13.806
+          }
+        },
+        {
+          "model": "hgb",
+          "label": "Gradient boosting (sklearn)",
+          "n": 28499,
+          "mae": 13.401,
+          "rmse": 17.242,
+          "bias": -0.791,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.055,
+          "vs_best_se": 0.008,
+          "z": 6.96,
+          "per_season": {
+            "2021": 13.627,
+            "2022": 13.241,
+            "2023": 13.32,
+            "2024": 12.995,
+            "2025": 13.829
+          }
+        },
+        {
+          "model": "ratings",
+          "label": "Ratings only (no ML)",
+          "n": 28499,
+          "mae": 13.434,
+          "rmse": 17.263,
+          "bias": -0.107,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.089,
+          "vs_best_se": 0.0123,
+          "z": 7.22,
+          "per_season": {
+            "2021": 13.541,
+            "2022": 13.314,
+            "2023": 13.34,
+            "2024": 13.047,
+            "2025": 13.931
+          }
+        },
+        {
+          "model": "mlp",
+          "label": "Neural net (MLP)",
+          "n": 28499,
+          "mae": 13.483,
+          "rmse": 17.357,
+          "bias": -0.67,
+          "hit_rate": null,
+          "hit_n": 0,
+          "hit_se": null,
+          "vs_best": 0.138,
+          "vs_best_se": 0.0153,
+          "z": 9.0,
+          "per_season": {
+            "2021": 13.688,
+            "2022": 13.395,
+            "2023": 13.33,
+            "2024": 13.116,
+            "2025": 13.893
+          }
+        }
+      ],
+      "stack_by_season": {
+        "2021": "blend",
+        "2022": {
+          "ridge": 0.515,
+          "huber": 0.0,
+          "hgb": 0.037,
+          "xgb": 0.238,
+          "rf": 0.21,
+          "mlp": 0.0
+        },
+        "2023": {
+          "ridge": 0.68,
+          "huber": 0.0,
+          "hgb": 0.036,
+          "xgb": 0.232,
+          "rf": 0.054,
+          "mlp": 0.0
+        },
+        "2024": {
+          "ridge": 0.72,
+          "huber": 0.0,
+          "hgb": 0.036,
+          "xgb": 0.248,
+          "rf": 0.0,
+          "mlp": 0.0
+        },
+        "2025": {
+          "ridge": 0.69,
+          "huber": 0.0,
+          "hgb": 0.034,
+          "xgb": 0.267,
+          "rf": 0.0,
+          "mlp": 0.013
+        }
+      },
+      "stack_weights": {
+        "ridge": 0.6137,
+        "huber": 0.0,
+        "hgb": 0.0,
+        "xgb": 0.352,
+        "rf": 0.0094,
+        "mlp": 0.0299
+      },
+      "sigma": 17.165,
+      "hit_rate": null,
+      "hit_n": 0,
+      "hit_se": null
+    }
+  }
+}
