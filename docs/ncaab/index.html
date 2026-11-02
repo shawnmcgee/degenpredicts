@@ -46,6 +46,8 @@
   .pick .pct.toss{color:var(--dim);font-weight:500}
   .pick .p{font-size:19px;font-weight:600;line-height:1.25}
   .pick .d{font-size:12px;color:var(--dim);margin-top:4px}
+  .pick .h{font-size:12px;color:var(--dim);margin-top:3px;line-height:1.35}
+  .pick .h b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
   .meter{height:4px;background:var(--line);border-radius:2px;margin-top:8px;overflow:hidden}
   .meter i{display:block;height:100%;background:var(--accent);border-radius:2px}
   .tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
@@ -128,7 +130,7 @@
     The side the model thinks is likelier on every spread and total with a line. These are leans,
     not locks: across the 2021-22 to 2025-26 seasons, on games
     it never trained on, the model's side hit <b>51.4%</b> on spreads and
-    <b>50.6%</b> on totals, against the 52.4% a &minus;110 bet needs.
+    <b>51.0%</b> on totals, against the 52.4% a &minus;110 bet needs.
   </div>
   
   <div class="note">No games on the board yet. The pipeline posts the slate each morning once lines are up.</div>
@@ -158,19 +160,19 @@
   <details class="bake">
     <summary>8 models tried &middot; running
       Huber regression on spreads,
-      Ridge regression on totals</summary>
+      Huber regression on totals</summary>
     <div class="in">
       <p class="sub" style="margin-bottom:10px">Each model was trained on every season before the one it
         predicted, then scored on 2021-22 to 2025-26 games it never saw. <b>Error</b> is
         how many points the projected final missed by, on average; lower is better. <b>Side</b> is how
-        often its side of the line won. The board runs the simplest model whose error is within
-        one standard error of the lowest.</p>
+        often its side of the line won. Of the models whose error is within one standard
+        error of the lowest &mdash; a tie, over this many games &mdash; the board runs the one whose side won most often.</p>
       
       <table>
         <tr><th>Model</th><th class="num">Spread error</th><th class="num">Side</th><th class="num">Total error</th><th class="num">Side</th></tr>
         
-        <tr class="chosen">
-          <td>Ridge regression<span class="badge">total</span></td>
+        <tr class="">
+          <td>Ridge regression</td>
           <td class="num">8.83</td>
           <td class="num">51.3%</td>
           <td class="num">13.00</td>
@@ -178,11 +180,11 @@
         </tr>
         
         <tr class="chosen">
-          <td>Huber regression<span class="badge">spread</span></td>
+          <td>Huber regression<span class="badge">spread</span><span class="badge">total</span></td>
           <td class="num">8.83</td>
           <td class="num">51.4%</td>
           <td class="num">13.00</td>
-          <td class="num">51.1%</td>
+          <td class="num">51.0%</td>
         </tr>
         
         <tr class="">
@@ -250,36 +252,29 @@
         
         
         <tr>
-          <td>0-1 pts</td><td class="num">50.8%</td><td class="num">20,151</td>
-          <td>0-1.5 pts</td><td class="num">50.6%</td><td class="num">27,425</td>
+          <td>0-1 pts</td><td class="num">50.8%</td><td class="num">20,150</td>
+          <td>0-0.5 pts</td><td class="num">50.4%</td><td class="num">12,345</td>
         </tr>
         
         
         
         <tr>
-          <td>1-2 pts</td><td class="num">52.7%</td><td class="num">6,473</td>
-          <td>1.5-3 pts</td><td class="num">50.2%</td><td class="num">902</td>
+          <td>1-2 pts</td><td class="num">52.7%</td><td class="num">6,478</td>
+          <td>0.5-1 pts</td><td class="num">51.3%</td><td class="num">8,921</td>
         </tr>
         
         
         
         <tr>
-          <td>2-3 pts</td><td class="num">52.9%</td><td class="num">1,304</td>
-          <td>3-4.5 pts</td><td class="num">100.0%</td><td class="num">1</td>
+          <td>2-3 pts</td><td class="num">52.9%</td><td class="num">1,300</td>
+          <td>1-2 pts</td><td class="num">51.6%</td><td class="num">6,219</td>
         </tr>
         
         
         
         <tr>
-          <td>3-5 pts</td><td class="num">56.1%</td><td class="num">246</td>
-          <td></td><td class="num"></td><td class="num"></td>
-        </tr>
-        
-        
-        
-        <tr>
-          <td>5+ pts</td><td class="num">75.0%</td><td class="num">32</td>
-          <td></td><td class="num"></td><td class="num"></td>
+          <td>3+ pts</td><td class="num">58.3%</td><td class="num">278</td>
+          <td>2+ pts</td><td class="num">53.0%</td><td class="num">843</td>
         </tr>
         
       </table>
