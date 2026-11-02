@@ -24,6 +24,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import config
 from .models import LABELS, SIMPLICITY
+from .features import STAGES, stage
 from .train import load_meta
 
 log = logging.getLogger("ncaab.site")
@@ -123,20 +124,42 @@ def gap_records(meta: dict) -> dict:
             except (KeyError, ValueError):
                 continue
             rows.append((float(lo), float("inf") if hi is None else float(hi), b))
-        out[key] = {"model": job.get("chosen"), "rows": rows}
+        stages = {}
+        for s, rec in (job.get("by_stage") or {}).items():
+            stages[s] = {"all": rec, "rows": [
+                (float(b["lo"]), float("inf") if b.get("hi") is None else float(b["hi"]), b)
+                for b in rec.get("by_gap") or [] if "lo" in b]}
+        out[key] = {"model": job.get("chosen"), "rows": rows, "stages": stages}
     return out
 
 
-def at_gap(rec: dict | None, gap, model_used) -> dict | None:
-    """How the model's side did in past seasons at this size of gap - only when the card's pick
-    came from the very model that record describes, and only on enough games to mean something."""
+def _enough(b) -> bool:
+    return (b.get("n") or 0) >= MIN_GAP_GAMES and b.get("hit_rate") is not None
+
+
+def at_gap(rec: dict | None, gap, model_used, game_stage: str | None = None) -> dict | None:
+    """How the model's side did in past seasons in games like this one - only when the card's
+    pick came from the very model that record describes, and only on enough games to mean
+    something. The most specific record wins: this stage of the season at this gap, then this
+    stage at any gap, then every game at this gap."""
     if not rec or gap is None or str(model_used or "") != f"{rec['model']}/market":
         return None
+    st = (rec.get("stages") or {}).get(game_stage) if game_stage else None
+    if st:
+        where = STAGES.get(game_stage, game_stage)
+        for lo, hi, b in st["rows"]:
+            if lo <= gap < hi and _enough(b):
+                return {"rate": float(b["hit_rate"]), "n": int(b["n"]), "label": b.get("gap"),
+                        "text": f"at this gap in past {where}"}
+        if _enough(st["all"]):
+            return {"rate": float(st["all"]["hit_rate"]), "n": int(st["all"]["n"]), "label": "all",
+                    "text": f"in past {where}, any gap"}
     for lo, hi, b in rec["rows"]:
         if lo <= gap < hi:
-            if (b.get("n") or 0) < MIN_GAP_GAMES or b.get("hit_rate") is None:
+            if not _enough(b):
                 return None
-            return {"rate": float(b["hit_rate"]), "n": int(b["n"]), "label": b.get("gap")}
+            return {"rate": float(b["hit_rate"]), "n": int(b["n"]), "label": b.get("gap"),
+                    "text": "at this gap in past seasons"}
     return None
 
 
@@ -183,8 +206,10 @@ def _board(meta: dict | None = None) -> list[dict]:
         r["spread_gap"] = _gap(r.get("margin_disagree")) if r["spread_label"] else None
         r["total_gap"] = _gap(r.get("total_disagree")) if r["total_label"] else None
         r["lean"] = max(r["spread_gap"] or 0.0, r["total_gap"] or 0.0)
-        r["spread_hist"] = at_gap(recs.get("spread"), r["spread_gap"], r.get("margin_model"))
-        r["total_hist"] = at_gap(recs.get("total"), r["total_gap"], r.get("total_model"))
+        days = (pd.Timestamp(r["date"]).date() - config.season_start(config.season_of(r["date"]))).days
+        r["stage"] = stage(_num(r.get("h_games")) or 0, _num(r.get("a_games")) or 0, days)
+        r["spread_hist"] = at_gap(recs.get("spread"), r["spread_gap"], r.get("margin_model"), r["stage"])
+        r["total_hist"] = at_gap(recs.get("total"), r["total_gap"], r.get("total_model"), r["stage"])
         r["search"] = " ".join(str(x or "") for x in (
             r.get("home_team"), r.get("away_team"), r["home_conf_name"], r["away_conf_name"],
             r.get("home_abbr"), r.get("away_abbr"), r.get("note"))).lower()

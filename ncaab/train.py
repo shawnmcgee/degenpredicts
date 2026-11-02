@@ -46,7 +46,8 @@ import numpy as np
 import pandas as pd
 
 from . import config, models
-from .features import BASE_FEATURES, MARKET_FEATURES, TARGETS, build, d1_rows, market_line
+from .features import (BASE_FEATURES, MARKET_FEATURES, TARGETS, build, d1_rows, market_line,
+                       stage)
 from .sources import espn, lines
 
 log = logging.getLogger("ncaab.train")
@@ -54,6 +55,7 @@ log = logging.getLogger("ncaab.train")
 JOBS = [("margin", True), ("total", True), ("margin", False), ("total", False)]
 MIN_TRAIN = 1500
 MIN_TEST = 300
+STAGE_GAPS = {"margin": [(0, 1), (1, 2), (2, 99)], "total": [(0, 1), (1, 2), (2, 99)]}
 GAP_BUCKETS = {"margin": [(0, 1), (1, 2), (2, 3), (3, 99)],
                "total": [(0, 0.5), (0.5, 1), (1, 2), (2, 99)]}
 
@@ -259,6 +261,24 @@ def by_gap(pred, line, actual, edges) -> list[dict]:
     return out
 
 
+def by_stage(oos: pd.DataFrame, D: pd.DataFrame, pred, kind: str) -> dict:
+    """The side record per stage of the season, overall and by gap, for the cards: a pooled
+    52.8% says nothing about opening night, where the same model went 46.9%."""
+    keyed = D.drop_duplicates("game_id").set_index("game_id")
+    ids = oos["game_id"]
+    st = stage(ids.map(keyed["h_games"]), ids.map(keyed["a_games"]),
+               ids.map(keyed["days_into_season"]))
+    line, y = oos["line"].to_numpy(float), oos["actual"].to_numpy(float)
+    out = {}
+    for s in ("opener", "early", "fall", "later"):
+        m = st == s
+        hit, n, se = _side(pred[m], line[m], y[m])
+        if n:
+            out[s] = {"n": n, "hit_rate": hit, "se": se,
+                      "by_gap": by_gap(pred[m], line[m], y[m], STAGE_GAPS[kind])}
+    return out
+
+
 def run_job(D: pd.DataFrame, kind: str, market: bool, seasons: list[int]) -> dict:
     name = job_name(kind, market)
     oos, used = walk_forward(D, kind, market, seasons)
@@ -285,7 +305,8 @@ def run_job(D: pd.DataFrame, kind: str, market: bool, seasons: list[int]) -> dic
                     "line_mae": round(float(np.mean(np.abs(line - y))), 3),
                     "hit_rate": hit, "hit_n": hit_n, "hit_se": hit_se,
                     "beats_line": bool(np.mean(np.abs(pub - y)) < np.mean(np.abs(line - y))),
-                    "by_gap": by_gap(pred, line, y, GAP_BUCKETS[kind])})
+                    "by_gap": by_gap(pred, line, y, GAP_BUCKETS[kind]),
+                    "by_stage": by_stage(oos, D, pred, kind)})
     else:
         hit, hit_n, hit_se = _side(pred, line, y)
         res.update({"sigma": round(float(np.std(y - pred)), 3), "hit_rate": hit,

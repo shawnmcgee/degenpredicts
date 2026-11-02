@@ -39,6 +39,23 @@ LINE_COLS = {"margin": "spread_home", "total": "total_line"}
 REST_CAP = 14
 
 
+# Where a game sits in its season, by what the ratings know at tip-off. The model's record differs
+# sharply between them: on season openers its spread side hit 46.9% over five seasons (the ratings
+# are last season's, and the line knows about the transfers), from a team's second game to early
+# December it was its best stretch (~53%), and from mid-December on 51%.
+STAGES = {"opener": "season openers", "early": "games where a team had played under four",
+          "fall": "November and early December games", "later": "games from mid-December on"}
+FALL_DAYS = 45      # season_start is Oct 25, so this is Dec 9
+
+
+def stage(h_games, a_games, days_into_season):
+    """'opener' | 'early' | 'fall' | 'later' - scalars or arrays."""
+    h, a, d = (np.asarray(x, float) for x in (h_games, a_games, days_into_season))
+    out = np.select([np.maximum(h, a) == 0, np.minimum(h, a) < 4, d < FALL_DAYS],
+                    ["opener", "early", "fall"], "later")
+    return out if out.ndim else str(out)
+
+
 def market_line(df: pd.DataFrame, kind: str) -> pd.Series:
     """The line in the target's own units: a home spread of -6.5 expects a home margin of +6.5.
     This is the only place the spread's sign is flipped."""

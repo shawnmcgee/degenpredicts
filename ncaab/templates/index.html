@@ -185,14 +185,14 @@
         <div class="l"><span>Spread</span>{{ gap(g.spread_gap) }}</div>
         {% if g.spread_label %}<div class="p">{{ g.spread_label }}</div>{% else %}<div class="p none">No line yet</div>{% endif %}
         {% if g.model_margin %}<div class="d">{{ g.model_margin }}</div>{% endif %}
-        {% if g.spread_hist %}<div class="h"><b>{{ '%.1f'|format(g.spread_hist.rate) }}%</b> at this gap in past seasons &middot; {{ "{:,}".format(g.spread_hist.n) }} games</div>{% endif %}
+        {% if g.spread_hist %}<div class="h"><b>{{ '%.1f'|format(g.spread_hist.rate) }}%</b> {{ g.spread_hist.text }} &middot; {{ "{:,}".format(g.spread_hist.n) }} games</div>{% endif %}
         {{ meter(g.spread_gap) }}
       </div>
       <div class="pick">
         <div class="l"><span>Total</span>{{ gap(g.total_gap) }}</div>
         {% if g.total_label %}<div class="p">{{ g.total_label }}</div>{% else %}<div class="p none">No line yet</div>{% endif %}
         {% if g.total_raw is not none %}<div class="d">Model total {{ '%.1f'|format(g.total_raw) }}</div>{% endif %}
-        {% if g.total_hist %}<div class="h"><b>{{ '%.1f'|format(g.total_hist.rate) }}%</b> at this gap in past seasons &middot; {{ "{:,}".format(g.total_hist.n) }} games</div>{% endif %}
+        {% if g.total_hist %}<div class="h"><b>{{ '%.1f'|format(g.total_hist.rate) }}%</b> {{ g.total_hist.text }} &middot; {{ "{:,}".format(g.total_hist.n) }} games</div>{% endif %}
         {{ meter(g.total_gap) }}
       </div>
     </div>
@@ -203,9 +203,11 @@
   {% if picks %}
   <p class="sub" style="margin-top:10px"><b>Projected score</b> is the model's own number before it
     is compared with the line. <b>Pts off</b> is how far the model sits from the line toward the
-    pick: under a point is close to a coin flip. <b>At this gap in past seasons</b> is how often the
-    model's side won when it sat that far from the line - on seasons it never trained on, against the
-    closing line - so a reader can see what a gap has actually been worth; a &minus;110 bet needs 52.4%.
+    pick: under a point is close to a coin flip. The <b>percentage under each pick</b> is how often the
+    model's side won in past games like this one - the same stage of the season, as far from the line -
+    on seasons it never trained on, against the closing line; a &minus;110 bet needs 52.4%. Season
+    openers are the model's weakest games: its ratings are last season's, and the line already knows
+    who transferred.
     The amber line flags what the line has to price
     and a rating cannot see: tournaments and neutral courts, ranked matchups, back-to-backs.
     Lines are ESPN's partner book.</p>

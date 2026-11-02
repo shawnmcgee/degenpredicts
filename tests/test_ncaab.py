@@ -784,7 +784,8 @@ REAL_SPREAD = {"chosen": "huber", "by_gap": [   # the 2 Nov run, as committed - 
 def test_a_cards_gap_is_looked_up_in_the_bakeoffs_record():
     recs = site.gap_records({"jobs": {"margin_market": REAL_SPREAD}})
     rec = recs["spread"]
-    assert site.at_gap(rec, 1.4, "huber/market") == {"rate": 52.73, "n": 6473, "label": "1-2"}
+    assert site.at_gap(rec, 1.4, "huber/market") == {
+        "rate": 52.73, "n": 6473, "label": "1-2", "text": "at this gap in past seasons"}
     assert site.at_gap(rec, 1.0, "huber/market")["label"] == "1-2"     # lower edge inclusive
     assert site.at_gap(rec, 0.3, "huber/market")["rate"] == 50.81
     assert site.at_gap(rec, 4.0, "huber/market")["n"] == 246
@@ -802,4 +803,48 @@ def test_new_buckets_carry_their_edges():
     rec = site.gap_records({"jobs": {"total_market": {"chosen": "huber", "by_gap": [
         {**r, "n": 500} for r in rows]}}})["total"]
     assert site.at_gap(rec, 30.0, "huber/market")["label"] == "2+"
+
+
+def test_stage_of_the_season():
+    assert features.stage(0, 0, 9) == "opener"
+    assert features.stage(1, 0, 9) == "early" and features.stage(3, 12, 30) == "early"
+    assert features.stage(4, 6, 44) == "fall" and features.stage(4, 6, 45) == "later"
+    assert list(features.stage([0, 5], [0, 5], [10, 80])) == ["opener", "later"]
+
+
+OPENERS = {"n": 651, "hit_rate": 46.85, "se": 1.96, "by_gap": [
+    {"gap": "0-1", "lo": 0, "hi": 1, "n": 367, "hit_rate": 47.7},
+    {"gap": "1-2", "lo": 1, "hi": 2, "n": 185, "hit_rate": 43.8},
+    {"gap": "2+", "lo": 2, "hi": None, "n": 99, "hit_rate": 49.5}]}
+
+
+def test_an_opening_night_card_quotes_opening_nights_not_the_season():
+    """The 2 Nov run: 52.8% at a 1-2 point gap over every game, 43.8% on season openers."""
+    rec = site.gap_records({"jobs": {"margin_market": {**REAL_SPREAD, "by_stage": {
+        "opener": OPENERS}}}})["spread"]
+    hit = site.at_gap(rec, 1.4, "huber/market", "opener")
+    assert (hit["rate"], hit["n"]) == (43.8, 185) and "season openers" in hit["text"]
+    # 99 games at 2+ is too few: the openers' record at any gap stands in
+    hit = site.at_gap(rec, 2.6, "huber/market", "opener")
+    assert (hit["rate"], hit["n"], hit["label"]) == (46.85, 651, "all") and "any gap" in hit["text"]
+    # a stage with no record of its own falls back to every game at this gap
+    assert site.at_gap(rec, 1.4, "huber/market", "later")["rate"] == 52.73
+
+
+def test_the_board_puts_tonights_openers_on_their_own_record(sandbox, history, meta):
+    m = json.loads(json.dumps(meta))
+    m["jobs"]["margin_market"]["by_stage"] = {"opener": {**OPENERS, "by_gap": [
+        {**b, "n": 400} for b in OPENERS["by_gap"]]}}
+    ids, names = _seed(history, m)
+    out = predict.run(fetch=FakeESPN({TODAY: slate(TODAY, ids, names)}), update_games=False,
+                      days=0, now=pd.Timestamp(f"{TODAY}T15:00:00Z"))
+    assert (out[["h_games", "a_games"]].max(axis=1) == 0).all()     # nobody has played in 2026
+    site.build()
+    html = (config.DOCS / "index.html").read_text()
+    assert "at this gap in past season openers" in html
+    assert "at this gap in past seasons" in html    # totals have no opener record here: pooled
+    assert train.by_stage   # the trainer writes the record the board reads
+    job = meta["jobs"]["margin_market"]
+    assert set(job["by_stage"]) <= set(features.STAGES)
+    assert sum(v["n"] for v in job["by_stage"].values()) == job["hit_n"]
 
