@@ -1854,9 +1854,18 @@ the filters are the ones a 100-game night needs: Top 25, power conferences, bigg
 ### 1. Data: one ESPN endpoint, no key, no quota
 
 `scoreboard?dates=YYYYMMDD&groups=50` returns every D1 game that day with the final score, the
-line from ESPN's partner book (DraftKings) - **which stays on finished games, so it is the
-closing line the market-aware models train against** - the AP rank at the time, neutral site,
-conference and tournament name. Teams are keyed by ESPN's team id, so there is no name matching
+line from ESPN's partner book (DraftKings) while the game is still to play, the AP rank at the
+time, neutral site, conference and tournament name.
+
+**The scoreboard drops the odds once a game is final** - the first training run read 47,142
+finals and found a line on none of them. Past lines come from ESPN's per-game endpoints instead
+(`ncaab/sources/lines.py`): the core API's odds listing for each game, a few KB, and the game's
+summary page (`pickcenter`) for any game the core API cannot answer. Both parse through the same
+`espn_odds.py` every board shares; live in-game providers are skipped. It is resumable - one row
+per game in `lines.csv`, `ok` or `none` - goes newest first, asks only about D1-vs-D1 games,
+and runs inside the weekly training job with a time budget, so a back-fill that does not finish
+carries on next run. Grading asks for each finished game's line the next morning, so CLV is
+measured against ESPN's close. Teams are keyed by ESPN's team id, so there is no name matching
 anywhere: grading joins on the event id. Prices come from ESPN rather than The Odds API because
 the shared key was down to 56 credits by October 22nd; this board never spends one.
 
@@ -1869,15 +1878,16 @@ root - its first run would have replaced the sport chooser**. A test now pins it
 data/ncaab/games.csv     every D1 final since 2018-19, with ESPN's closing line and context
 data/ncaab/days.csv      which scoreboard days are fetched for good (an empty Christmas Eve is
                          not asked for again; a day ESPN failed to serve is)
+data/ncaab/lines.csv     ESPN's line on each past D1 game, or a record that it had none
 data/ncaab/picks.csv     one row per game, the latest pre-tip prediction, first_seen_* kept
 data/ncaab/models/meta.json   the bake-off: every leaderboard, the chosen models, their shrink
 ```
 
-**Run `ncaab-train` by hand once first.** It back-fills ~1,400 scoreboard days (10-15 minutes)
-and then runs the bake-off. Until it has, the board prices off the rating engine alone and says
-so in `picks.csv`'s `*_model` columns. Look for `cache: N finals ... X% with a closing spread` in
-its log - if ESPN's finished games turn out not to carry a line, the market-aware models are
-skipped and the board falls back to the no-market ones until its own pulls build the history.
+**Run `ncaab-train` by hand to start the season.** The finals back-fill (~1,400 scoreboard days)
+is done; the line back-fill is next - look for `lines: N asked, X ok (Y%)` and `lines by season`
+in its log. Until the market-aware models have lines to train on they are skipped, the board runs
+the projection-only models, and the page says so. If a whole season comes back `none`, set
+`DEGEN_NCAAB_LINES_SOURCE=summary` and run it again.
 
 ### 2. The model bake-off
 
@@ -1914,6 +1924,28 @@ and without the line) and keeps the best per job:
 The leaderboard is published on the board under "How the model was picked" and in the training
 run's summary on GitHub, with the side record by size of disagreement so "biggest gaps first"
 can be checked rather than assumed.
+
+**What the first run found** (2 Nov 2026, projection-only jobs - no past lines yet; 28,499 D1
+games over 2021-22 to 2025-26, each scored by models that never saw its season):
+
+| | spread (margin) error | total error |
+|---|---:|---:|
+| stack | **9.143** | **13.345** |
+| blend | 9.146 | 13.348 |
+| Huber | 9.158 | 13.366 |
+| ridge | 9.165 | 13.353 |
+| XGBoost | 9.191 | 13.386 |
+| sklearn boosting | 9.200 | 13.401 |
+| random forest | 9.227 | 13.382 |
+| neural net | 9.255 | 13.483 |
+| ratings only | 9.448 | 13.434 |
+
+Machine learning on top of the ratings is worth about 0.3 points on margins and 0.1 on totals.
+The combinations win both, and the rule took the stack on spreads (the blend sat exactly one
+standard error behind) and the blend on totals. The stack leans on Huber and XGBoost for margins
+and on ridge and XGBoost for totals. On their own the tree models and the neural net trail the
+linear ones, as the NBA board found. What none of this says yet is whether any of it beats the
+line - that needs the line back-fill and the market-aware jobs.
 
 ### 3. The guardrails
 
@@ -1963,6 +1995,7 @@ python -m ncaab.train --no-fetch                # the bake-off, off the committe
 python -m ncaab.predict --dry-run
 python -m ncaab.site && open docs/ncaab/index.html
 python -m ncaab.sources.espn --day 2026-11-03   # one day's parsed ESPN scoreboard
+python -m ncaab.sources.lines --check 401638580 # one past game's parsed line from ESPN
 
 python -m core.landing && open docs/index.html  # the chooser, built from what is published
 ```
@@ -2024,6 +2057,9 @@ python -m core.landing && open docs/index.html  # the chooser, built from what i
 | `DEGEN_NCAAB_FIRST_SEASON` | 2018 | first season fetched from ESPN; it is the ratings' warm-up and is never scored |
 | `DEGEN_NCAAB_BOARD_DAYS` | 1 | days ahead of today to post |
 | `DEGEN_NCAAB_MIN_GAMES` | 4 | below this many games a side is flagged "early season" |
+| `DEGEN_NCAAB_LINES_BUDGET` | 80 | minutes the weekly job spends back-filling past lines; the next run carries on |
+| `DEGEN_NCAAB_LINES_WORKERS` | 6 | line requests to ESPN in flight at once |
+| `DEGEN_NCAAB_LINES_SOURCE` | `auto` | `auto` (core API, summary page when it cannot answer), `core` or `summary` |
 | `DEGEN_NCAAB_DOCS` | `docs/ncaab` | where the college basketball board is written |
 | `DEGEN_SUPPORT_URL` | (unset) | Buy Me a Coffee link shown at the top; omit and the button hides |
 | `DEGEN_SUPPORT_LABEL` | Buy me a coffee | button text |

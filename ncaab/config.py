@@ -62,6 +62,23 @@ ESPN_SCOREBOARD = _env(
     "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard")
 ESPN_PARAMS = {"groups": "50", "limit": "1000"}
 ESPN_SLEEP = _env_float("DEGEN_NCAAB_SLEEP", 0.2)
+
+# The scoreboard drops a game's odds once it is final - the first training run found a line on
+# 0 of 47,142 finished games - so past lines come from ESPN's per-game endpoints instead:
+#   core API  .../events/{id}/competitions/{id}/odds   a few KB, the providers' lines
+#   summary   .../summary?event={id}                    the full game page; its `pickcenter`
+LINES = DATA / "lines.csv"          # one row per game: ESPN's line, or a record that it had none
+ESPN_CORE_ODDS = _env(
+    "DEGEN_NCAAB_CORE_ODDS",
+    "https://sports.core.api.espn.com/v2/sports/basketball/leagues/mens-college-basketball"
+    "/events/{id}/competitions/{id}/odds")
+ESPN_SUMMARY = _env(
+    "DEGEN_NCAAB_SUMMARY",
+    "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/summary")
+# auto: the core API, and the summary for any game the core API cannot answer; or one of them
+LINES_SOURCE = _env("DEGEN_NCAAB_LINES_SOURCE", "auto").lower()
+LINES_BUDGET = _env_float("DEGEN_NCAAB_LINES_BUDGET", 80.0)     # minutes per back-fill run
+LINES_WORKERS = _env_int("DEGEN_NCAAB_LINES_WORKERS", 6)        # requests in flight at once
 MAX_SPREAD = 55.0                   # anything bigger in a spread slot is a moneyline, not a line
 
 HTTP_TIMEOUT = _env_float("DEGEN_HTTP_TIMEOUT", 30.0)

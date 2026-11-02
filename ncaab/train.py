@@ -46,7 +46,7 @@ import pandas as pd
 
 from . import config, models
 from .features import BASE_FEATURES, MARKET_FEATURES, TARGETS, build, d1_rows, market_line
-from .sources import espn
+from .sources import espn, lines
 
 log = logging.getLogger("ncaab.train")
 
@@ -76,6 +76,7 @@ def assemble(fetch: bool = True) -> pd.DataFrame:
     games = espn.update() if fetch else espn.load()
     if games.empty:
         raise SystemExit("no games in data/ncaab/games.csv - run once with network access")
+    games = lines.attach(games)
     train, _, _ = build(games)
     D = d1_rows(train.dropna(subset=list(TARGETS.values())))
     log.info("%d D1-vs-D1 training rows, seasons %s, %d with a closing spread, %d with a total",

@@ -29,7 +29,7 @@ import pandas as pd
 import pytest
 
 from ncaab import config, features, grade, models, predict, site, train
-from ncaab.sources import espn
+from ncaab.sources import espn, lines
 
 ROOT = Path(__file__).resolve().parent.parent
 TODAY = date(2026, 11, 4)
@@ -44,7 +44,7 @@ def sandbox(tmp_path, monkeypatch):
     for name, path in {"DATA": data, "DOCS": docs, "GAMES": data / "games.csv",
                        "DAYS": data / "days.csv", "PICKS": data / "picks.csv",
                        "RESULTS": data / "results.csv", "METRICS": data / "metrics.json",
-                       "MODEL_DIR": data / "models"}.items():
+                       "MODEL_DIR": data / "models", "LINES": data / "lines.csv"}.items():
         monkeypatch.setattr(config, name, path)
     monkeypatch.setattr(config, "ESPN_SLEEP", 0.0)
     monkeypatch.setattr(config, "today_et", lambda: TODAY)
@@ -162,6 +162,31 @@ class FakeESPN:
         return None if payload is None else espn.parse_scoreboard(payload)
 
 
+class FakeOdds:
+    """ESPN's two per-game odds endpoints, keyed by event id. A game it does not know gets an
+    empty core listing - ESPN answered, and had no line."""
+
+    def __init__(self, core=None, summary=None):
+        self.core_map, self.summary_map = dict(core or {}), dict(summary or {})
+        self.core, self.summary = [], []
+
+    def __call__(self, url, params=None, **kw):
+        if params and "event" in params:
+            self.summary.append(params["event"])
+            return self.summary_map.get(params["event"])
+        gid = url.rstrip("/").split("/")[-2]           # .../competitions/{id}/odds
+        self.core.append(gid)
+        return self.core_map.get(gid, {"count": 0, "items": []})
+
+
+def core_item(details, spread, total, home_fav, provider="ESPN BET"):
+    """One entry of the core API's odds listing, in its flat shape."""
+    return {"provider": {"id": "58", "name": provider, "priority": 1}, "details": details,
+            "overUnder": total, "spread": spread, "overOdds": -110, "underOdds": -105,
+            "homeTeamOdds": {"favorite": home_fav, "spreadOdds": -112, "moneyLine": -300},
+            "awayTeamOdds": {"favorite": not home_fav, "spreadOdds": -108, "moneyLine": 240}}
+
+
 @pytest.fixture(scope="module")
 def history():
     return league()
@@ -184,6 +209,8 @@ def slate(day, ids, names, state="pre", scores=None):
         h, a = ids[2 * i], ids[2 * i + 1]
         sp, tot = [-4.5, 2.5, -11.0, 0.0, -1.5, 6.5][i], [151.5, 140.0, 133.5, 145.0, 128.0, 149.5][i]
         odds = nested(sp, tot) if i % 2 == 0 else flat(sp, None if i == 3 else tot, f"T{h}", f"T{a}")
+        if state == "post":
+            odds = None                 # like ESPN: a finished game's scoreboard has no odds
         evs.append(event(f"{day:%m%d}{i}", f"{day.isoformat()}T23:{i:02d}:00Z",
                          team(h, names[h], f"T{h}", "2", 5 if i == 0 else 99),
                          team(a, names[a], f"T{a}", "23", 12 if i == 0 else 99), odds,
@@ -200,7 +227,7 @@ def test_board_lives_in_its_own_folders_not_the_root():
     """The first version wrote data/games.csv and docs/index.html - the chooser's page."""
     assert config.DATA.parts[-2:] == ("data", "ncaab")
     assert config.DOCS.parts[-2:] == ("docs", "ncaab")
-    for name in ("GAMES", "PICKS", "RESULTS", "METRICS", "MODEL_DIR", "DAYS"):
+    for name in ("GAMES", "PICKS", "RESULTS", "METRICS", "MODEL_DIR", "DAYS", "LINES"):
         assert getattr(config, name).is_relative_to(config.DATA), name
 
 
@@ -527,11 +554,13 @@ def test_grade_matches_by_event_id_and_voids_what_never_finishes(sandbox, histor
     finals = slate(TODAY, ids, names, state="post", scores=scores)
     finals["events"].pop(5)                     # never finalised: postponed
     fake = FakeESPN({TODAY: finals})
+    odds = FakeOdds()                           # ESPN has no closing line on any of them
     monkeypatch.setattr(config, "today_et", lambda: TODAY + timedelta(days=1))
-    done = grade.grade(fetch=True, fetch_day=fake)
+    done = grade.grade(fetch=True, fetch_day=fake, get_odds=odds)
     assert len(done) == 5 and set(done["spread_result"]) <= {"win", "loss", "push"}
+    assert len(odds.core) == 5, "last night's finals are asked for their closing line"
     monkeypatch.setattr(config, "today_et", lambda: TODAY + timedelta(days=9))
-    done = grade.grade(fetch=True, fetch_day=fake)
+    done = grade.grade(fetch=True, fetch_day=fake, get_odds=odds)
     assert len(done) == 6 and (done["spread_result"] == "void").sum() == 1
     m = grade.metrics(done, today=TODAY + timedelta(days=9))
     assert m["spreads"]["all_games"]["n"] == 5 and m["spreads"]["season"]["n"] == 0
@@ -596,3 +625,127 @@ def test_workflows_publish_and_rebuild_the_chooser():
         assert cmd in text and "python -m core.landing" in text, name
         assert "concurrency: {group: ncaab-data" in text, name
     assert "ncaab" in (wf / "test.yml").read_text()
+    text = (wf / "ncaab-train.yml").read_text()
+    assert "python -m ncaab.sources.lines" in text and "if: always()" in text
+
+
+# ---------------------------------------------------------------------------------------
+# past lines: the scoreboard drops them once a game is final
+# ---------------------------------------------------------------------------------------
+GAME = {"game_id": "401", "season": 2025, "home_abbr": "DUKE", "away_abbr": "UNC"}
+
+
+def test_core_listing_parses_and_skips_live_in_game_odds():
+    live = core_item("UNC -21.5", 21.5, 171.5, False, provider="ESPN Bet - Live Odds")
+    row = lines.fetch_one(GAME, FakeOdds(core={"401": {"count": 2, "items": [
+        live, core_item("DUKE -7.5", -7.5, 145.5, True)]}}))
+    assert row["status"] == "ok" and row["source"] == "core"
+    assert (row["spread_home"], row["total_line"], row["provider"]) == (-7.5, 145.5, "ESPN BET")
+    assert (row["over_price"], row["under_price"], row["spread_home_price"]) == (-110, -105, -112)
+    away_fav = lines.fetch_one(GAME, FakeOdds(core={"401": {"items": [
+        core_item("UNC -3", 3.0, 150.0, False)]}}))
+    assert away_fav["spread_home"] == 3.0, "the away side favoured means a positive home line"
+
+
+def test_a_total_no_college_game_could_have_is_refused():
+    row = lines.fetch_one(GAME, FakeOdds(core={"401": {"items": [
+        core_item("DUKE -7.5", -7.5, 14.5, True)]}}))
+    assert row["spread_home"] == -7.5 and np.isnan(row["total_line"])
+
+
+def test_a_listing_of_links_falls_back_to_the_summary_page():
+    summary = {"header": {}, "pickcenter": [nested(-2.5, 138.5)]}
+    fake = FakeOdds(core={"401": {"count": 1, "items": [{"$ref": "http://x/odds/58"}]}},
+                    summary={"401": summary})
+    row = lines.fetch_one(GAME, fake)
+    assert fake.summary == ["401"] and row["source"] == "summary"
+    assert (row["spread_home"], row["total_line"]) == (-2.5, 138.5)
+    # and the source knob can skip the core API altogether
+    fake = FakeOdds(summary={"401": summary})
+    assert lines.fetch_one(GAME, fake, source="summary")["spread_home"] == -2.5 and not fake.core
+
+
+def test_no_line_is_remembered_and_a_failed_game_is_retried(sandbox):
+    games = pd.DataFrame([{**GAME, "game_id": gid, "date": TODAY, "kickoff_utc": ""}
+                          for gid in ("1", "2", "3")])
+    fake = FakeOdds(core={"1": {"items": [core_item("DUKE -4", -4.0, 140.0, True)]},
+                          "3": "<html>not json</html>"})        # 2: empty listing
+    lines.backfill(budget_min=5, only=games, get=fake)
+    have = lines.load().set_index("game_id")
+    assert have.loc["1", "status"] == "ok" and have.loc["2", "status"] == "none"
+    assert "3" not in have.index, "a game neither endpoint answered is not recorded"
+    fake.core.clear()
+    lines.backfill(budget_min=5, only=games, get=fake)
+    assert fake.core == ["3"], "only the failed game is asked for again"
+
+
+def test_backfill_goes_newest_first_d1_only_and_respects_its_budget(sandbox, history):
+    want = lines.todo(history, lines.load())
+    assert want["season"].min() == history["season"].min() + config.WARMUP_SEASONS
+    assert not want["away_id"].str.startswith("90").any(), "D2 visitors are never asked about"
+    assert list(want["date"]) == sorted(want["date"], reverse=True)
+    fake = FakeOdds()
+    lines.backfill(history, budget_min=0, get=fake)
+    assert fake.core == [], "no budget, no requests"
+    recent = history[history["season"] >= 2021]
+    lines.backfill(recent, budget_min=5, get=fake)
+    assert set(lines.load()["season"]) == {2022}        # 2021 is that frame's warm-up season
+
+
+def test_attach_prefers_the_scoreboard_then_espn_then_our_own_pick():
+    g = pd.DataFrame({"game_id": ["a", "b", "c", "d"], "spread_home": [-1.0, np.nan, np.nan, np.nan],
+                      "total_line": [140.0, np.nan, np.nan, np.nan]})
+    L = pd.DataFrame({"game_id": ["a", "b", "c"], "status": ["ok", "ok", "none"],
+                      "spread_home": [-9.0, -2.5, np.nan], "total_line": [150.0, 133.0, np.nan]})
+    P = pd.DataFrame({"game_id": ["b", "c", "c"], "spread_home": [-8.0, 4.0, 5.5],
+                      "total_line": [131.0, 120.0, 121.5]})
+    out = lines.attach(g, L, P).set_index("game_id")
+    assert list(out["spread_home"].fillna(99)) == [-1.0, -2.5, 5.5, 99]
+    assert list(out["total_line"].fillna(99)) == [140.0, 133.0, 121.5, 99]
+
+
+def test_training_rows_carry_the_back_filled_lines(sandbox, history):
+    bare = history.assign(spread_home=np.nan, total_line=np.nan)
+    espn.save(bare.reindex(columns=espn.GAME_COLS))
+    lined = history[history["spread_home"].notna() & (history["season"] == 2021)]
+    lines.save(lined.assign(status="ok")[["game_id", "season", "status", "spread_home", "total_line"]])
+    D = train.assemble(fetch=False)
+    got = D[D["spread_home"].notna()]
+    assert len(got) and set(got["season"]) == {2021}
+    assert set(got["game_id"]) <= set(lined["game_id"])
+
+
+def test_grade_measures_clv_against_espns_close(sandbox, history, meta, monkeypatch):
+    ids, names = _seed(history, meta)
+    morning = slate(TODAY, ids, names)
+    predict.run(fetch=FakeESPN({TODAY: morning}), update_games=False, days=0,
+                now=pd.Timestamp(f"{TODAY}T15:00:00Z"))
+    pick = pd.read_csv(config.PICKS, dtype={"game_id": str}).iloc[0]
+    assert pick["first_seen_spread"] == -4.5
+    scores = [(80, 70), (60, 66), (70, 59), (75, 74), (64, 63), (90, 81)]
+    home = f"T{ids[0]}"
+    odds = FakeOdds(core={pick["game_id"]: {"items": [core_item(f"{home} -6.5", -6.5, 155.0, True)]}})
+    monkeypatch.setattr(config, "today_et", lambda: TODAY + timedelta(days=1))
+    done = grade.grade(fetch=True, fetch_day=FakeESPN({TODAY: slate(TODAY, ids, names, "post", scores)}),
+                       get_odds=odds)
+    r = done.set_index("game_id").loc[pick["game_id"]]
+    assert (r["close_spread"], r["close_total"]) == (-6.5, 155.0)
+    took_home = pick["spread_side"] == pick["home_team"]
+    assert r["spread_clv"] == (2.0 if took_home else -2.0)
+    assert r["total_clv"] == (155.0 - 151.5 if pick["total_pick"] == "Over" else 151.5 - 155.0)
+
+
+def test_page_shows_the_projection_bakeoff_until_lines_arrive(sandbox, history, meta):
+    m = json.loads(json.dumps(meta))
+    for k in ("margin_market", "total_market"):
+        m["jobs"][k] = {"skipped": True, "reason": "not enough seasons with data"}
+    ids, names = _seed(history, m)
+    predict.run(fetch=FakeESPN({TODAY: slate(TODAY, ids, names)}), update_games=False, days=0,
+                now=pd.Timestamp(f"{TODAY}T15:00:00Z"))
+    site.build()
+    html = (config.DOCS / "index.html").read_text()
+    for needle in ("How the model was picked", "projections only", "Scored without the betting line",
+                   "Ratings only (no ML)", "projects from team ratings and form alone"):
+        assert needle in html, needle
+    assert "The line itself" not in html
+

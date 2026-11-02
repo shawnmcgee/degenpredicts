@@ -28,7 +28,7 @@ from scipy.stats import norm
 
 from . import config, models
 from .features import TARGETS, build, d1_rows, market_line
-from .sources import espn
+from .sources import espn, lines
 from .train import features_for, job_name, load_meta
 
 log = logging.getLogger("ncaab.predict")
@@ -190,6 +190,7 @@ def run(dry_run: bool = False, days: int | None = None, fetch=espn.fetch_day, no
         log.warning("no data/ncaab/models/meta.json yet - pricing off the ratings alone. "
                     "Run `python -m ncaab.train` (the ncaab-train workflow) to pick the models.")
     games = espn.update(recheck_days=3, fetch=fetch) if update_games else espn.load()
+    games = lines.attach(games)         # the market models refit on games with a line
     slate = espn.slate(days, fetch=fetch, now=now)
     if slate.empty:
         log.info("no games to come on the board")

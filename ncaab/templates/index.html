@@ -126,7 +126,9 @@
   <h2>Today's picks</h2>
   <div class="note" style="margin-bottom:12px">
     The side the model thinks is likelier on every spread and total with a line. These are leans,
-    not locks{% if bake and bake.spread_hit %}: across the {{ bake.span }} seasons, on games
+    not locks{% if bake and not bake.market %}.
+    For now the model projects from team ratings and form alone - it has not yet learned from
+    past betting lines - so its gaps from the line run large and should be read as rough{% elif bake and bake.spread_hit %}: across the {{ bake.span }} seasons, on games
     it never trained on, the model's side hit <b>{{ '%.1f'|format(bake.spread_hit) }}%</b> on spreads{% if bake.total_hit %} and
     <b>{{ '%.1f'|format(bake.total_hit) }}%</b> on totals{% endif %}, against the 52.4% a &minus;110 bet needs{% endif %}.
   </div>
@@ -260,7 +262,7 @@
 <section>
   <h2>How the model was picked</h2>
   <details class="bake">
-    <summary>{{ bake.rows|rejectattr('reference')|list|length }} models tried &middot; running
+    <summary>{{ bake.rows|rejectattr('reference')|list|length }} models tried &middot;{% if not bake.market %} projections only &middot;{% endif %} running
       {{ (bake.rows|selectattr('model','equalto',bake.spread_chosen)|first).label if bake.spread_chosen else '—' }} on spreads,
       {{ (bake.rows|selectattr('model','equalto',bake.total_chosen)|first).label if bake.total_chosen else '—' }} on totals</summary>
     <div class="in">
@@ -269,6 +271,9 @@
         how many points the projected final missed by, on average; lower is better. <b>Side</b> is how
         often its side of the line won. The board runs the simplest model whose error is within
         one standard error of the lowest{% if bake.rule == 'lowest' %} &mdash; switched off: it runs the lowest{% endif %}.</p>
+      {% if not bake.market %}<p class="note" style="margin-bottom:10px">Scored without the betting line:
+        ESPN's past lines are still being loaded, so this table says how close each model got to the final
+        score, not whether its side beat the line. That column fills in after the next weekly run.</p>{% endif %}
       <table>
         <tr><th>Model</th><th class="num">Spread error</th><th class="num">Side</th><th class="num">Total error</th><th class="num">Side</th></tr>
         {% for r in bake.rows %}
