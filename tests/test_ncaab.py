@@ -608,7 +608,8 @@ def test_page_renders_the_nfl_card(sandbox, history, meta):
     for needle in ("Projected score", "pts off", "Model: ", "Model total", 'class="meter"',
                    "#5</span>", "#12</span>", "Maui Invitational", "No line yet",
                    'data-f="top"', 'data-f="power"', "How the model was picked",
-                   "The line itself", 'class="badge"', site._bakeoff(meta)["span"]):
+                   "The line itself", 'class="badge"', site._bakeoff(meta)["span"],
+                   "at this gap in past seasons"):
         assert needle in html, needle
     text = re.sub(r"<script.*?</script>", "", html, flags=re.S)
     assert not re.search(r"\bnan\b|\bNone\b", text), "a missing value leaked onto the page"
@@ -767,4 +768,38 @@ def test_page_shows_the_projection_bakeoff_until_lines_arrive(sandbox, history, 
                    "Ratings only (no ML)", "projects from team ratings and form alone"):
         assert needle in html, needle
     assert "The line itself" not in html
+
+
+# ---------------------------------------------------------------------------------------
+# what a gap has been worth, on the card
+# ---------------------------------------------------------------------------------------
+REAL_SPREAD = {"chosen": "huber", "by_gap": [   # the 2 Nov run, as committed - no bucket edges
+    {"gap": "0-1", "n": 20151, "hit_rate": 50.81, "se": 0.35},
+    {"gap": "1-2", "n": 6473, "hit_rate": 52.73, "se": 0.62},
+    {"gap": "2-3", "n": 1304, "hit_rate": 52.91, "se": 1.38},
+    {"gap": "3-5", "n": 246, "hit_rate": 56.1, "se": 3.16},
+    {"gap": "5+", "n": 32, "hit_rate": 75.0, "se": 7.65}]}
+
+
+def test_a_cards_gap_is_looked_up_in_the_bakeoffs_record():
+    recs = site.gap_records({"jobs": {"margin_market": REAL_SPREAD}})
+    rec = recs["spread"]
+    assert site.at_gap(rec, 1.4, "huber/market") == {"rate": 52.73, "n": 6473, "label": "1-2"}
+    assert site.at_gap(rec, 1.0, "huber/market")["label"] == "1-2"     # lower edge inclusive
+    assert site.at_gap(rec, 0.3, "huber/market")["rate"] == 50.81
+    assert site.at_gap(rec, 4.0, "huber/market")["n"] == 246
+    assert site.at_gap(rec, 7.5, "huber/market") is None, "32 games is too few to print"
+    assert site.at_gap(rec, 1.4, "ridge/market") is None, "another model's record says nothing"
+    assert site.at_gap(rec, 1.4, "stack/nomarket") is None
+    assert site.at_gap(rec, None, "huber/market") is None
+    assert "total" not in recs
+
+
+def test_new_buckets_carry_their_edges():
+    rows = train.by_gap(np.array([0.5, 1.5, 9.0]), np.zeros(3), np.array([1.0, -1.0, 5.0]),
+                        [(0, 1), (1, 2), (2, 99)])
+    assert [(r["lo"], r["hi"]) for r in rows] == [(0, 1), (1, 2), (2, None)]
+    rec = site.gap_records({"jobs": {"total_market": {"chosen": "huber", "by_gap": [
+        {**r, "n": 500} for r in rows]}}})["total"]
+    assert site.at_gap(rec, 30.0, "huber/market")["label"] == "2+"
 

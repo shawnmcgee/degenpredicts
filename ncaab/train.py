@@ -254,8 +254,8 @@ def by_gap(pred, line, actual, edges) -> list[dict]:
         m = (gap >= lo) & (gap < hi)
         hit, n, se = _side(pred[m], line[m], actual[m])
         if n:
-            out.append({"gap": f"{lo:g}-{hi:g}" if hi < 99 else f"{lo:g}+", "n": n,
-                        "hit_rate": hit, "se": se})
+            out.append({"gap": f"{lo:g}-{hi:g}" if hi < 99 else f"{lo:g}+", "lo": lo,
+                        "hi": hi if hi < 99 else None, "n": n, "hit_rate": hit, "se": se})
     return out
 
 

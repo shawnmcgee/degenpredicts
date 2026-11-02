@@ -97,6 +97,49 @@ def _context(r: dict) -> str:
     return " · ".join(bits)
 
 
+MIN_GAP_GAMES = 100     # a bucket with fewer past games than this is not shown on a card
+
+
+def _parse_gap(label: str) -> tuple[float, float]:
+    """'1-2' -> (1, 2), '3+' -> (3, inf): for a meta.json written before buckets carried edges."""
+    s = str(label).strip()
+    if s.endswith("+"):
+        return float(s[:-1]), float("inf")
+    lo, hi = s.split("-")
+    return float(lo), float(hi)
+
+
+def gap_records(meta: dict) -> dict:
+    """{"spread"|"total": {"model": chosen, "rows": [(lo, hi, bucket)]}} from the market jobs."""
+    out = {}
+    jobs = meta.get("jobs") or {}
+    for key, job in (("spread", jobs.get("margin_market")), ("total", jobs.get("total_market"))):
+        if not job or job.get("skipped") or not job.get("by_gap"):
+            continue
+        rows = []
+        for b in job["by_gap"]:
+            try:
+                lo, hi = (b["lo"], b.get("hi")) if "lo" in b else _parse_gap(b["gap"])
+            except (KeyError, ValueError):
+                continue
+            rows.append((float(lo), float("inf") if hi is None else float(hi), b))
+        out[key] = {"model": job.get("chosen"), "rows": rows}
+    return out
+
+
+def at_gap(rec: dict | None, gap, model_used) -> dict | None:
+    """How the model's side did in past seasons at this size of gap - only when the card's pick
+    came from the very model that record describes, and only on enough games to mean something."""
+    if not rec or gap is None or str(model_used or "") != f"{rec['model']}/market":
+        return None
+    for lo, hi, b in rec["rows"]:
+        if lo <= gap < hi:
+            if (b.get("n") or 0) < MIN_GAP_GAMES or b.get("hit_rate") is None:
+                return None
+            return {"rate": float(b["hit_rate"]), "n": int(b["n"]), "label": b.get("gap")}
+    return None
+
+
 def _spread_label(team, number) -> str:
     n = _num(number)
     if not team or n is None:
@@ -104,7 +147,7 @@ def _spread_label(team, number) -> str:
     return f"{team} PK" if n == 0 else f"{team} {n:+g}"
 
 
-def _board() -> list[dict]:
+def _board(meta: dict | None = None) -> list[dict]:
     """Games still to tip, freshest prediction per game, in tip-off order."""
     if not config.PICKS.exists():
         return []
@@ -123,6 +166,7 @@ def _board() -> list[dict]:
     # NaN is truthy in Jinja and prints as "nan"; object dtype is what lets None replace it
     df = df.astype(object).where(pd.notna(df), None)
     rows = df.to_dict("records")
+    recs = gap_records(meta or {})
     for r in rows:
         r["home_rank"], r["away_rank"] = _rank(r.get("home_rank")), _rank(r.get("away_rank"))
         r["home_conf_name"], r["away_conf_name"] = _conf(r.get("home_conf")), _conf(r.get("away_conf"))
@@ -139,6 +183,8 @@ def _board() -> list[dict]:
         r["spread_gap"] = _gap(r.get("margin_disagree")) if r["spread_label"] else None
         r["total_gap"] = _gap(r.get("total_disagree")) if r["total_label"] else None
         r["lean"] = max(r["spread_gap"] or 0.0, r["total_gap"] or 0.0)
+        r["spread_hist"] = at_gap(recs.get("spread"), r["spread_gap"], r.get("margin_model"))
+        r["total_hist"] = at_gap(recs.get("total"), r["total_gap"], r.get("total_model"))
         r["search"] = " ".join(str(x or "") for x in (
             r.get("home_team"), r.get("away_team"), r["home_conf_name"], r["away_conf_name"],
             r.get("home_abbr"), r.get("away_abbr"), r.get("note"))).lower()
@@ -247,13 +293,14 @@ def _bakeoff(meta: dict) -> dict:
 def build() -> None:
     config.ensure_dirs()
     env = Environment(loader=FileSystemLoader(TEMPLATES), autoescape=select_autoescape(["html"]))
-    picks = _board()
+    meta = load_meta()
+    picks = _board(meta)
     graded = _graded()
     results_day, results = _last_day(graded)
     published = str(config.today_et())
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, updated=published, days=_days(picks),
-        m=_metrics(), bake=_bakeoff(load_meta()), results=results, results_day=results_day,
+        m=_metrics(), bake=_bakeoff(meta), results=results, results_day=results_day,
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL)
     (config.DOCS / "index.html").write_text(html)
     # the chooser's card reads this; metrics.json's `updated` only moves when grading runs
