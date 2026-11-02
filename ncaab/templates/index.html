@@ -269,8 +269,8 @@
       <p class="sub" style="margin-bottom:10px">Each model was trained on every season before the one it
         predicted, then scored on {{ bake.span }} games it never saw. <b>Error</b> is
         how many points the projected final missed by, on average; lower is better. <b>Side</b> is how
-        often its side of the line won. The board runs the simplest model whose error is within
-        one standard error of the lowest{% if bake.rule == 'lowest' %} &mdash; switched off: it runs the lowest{% endif %}.</p>
+        often its side of the line won. {% if bake.rule == 'lowest' %}The board runs the model with the lowest error.{% elif bake.market %}Of the models whose error is within one standard
+        error of the lowest &mdash; a tie, over this many games &mdash; the board runs the one whose side won most often.{% else %}The board runs the simplest model whose error is within one standard error of the lowest.{% endif %}</p>
       {% if not bake.market %}<p class="note" style="margin-bottom:10px">Scored without the betting line:
         ESPN's past lines are still being loaded, so this table says how close each model got to the final
         score, not whether its side beat the line. That column fills in after the next weekly run.</p>{% endif %}

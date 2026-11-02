@@ -29,8 +29,8 @@ from .sources import espn, lines
 log = logging.getLogger("ncaab.grade")
 
 VOID_AFTER_DAYS = 7
-GAP_BUCKETS = {"spread": [(0, 1), (1, 2), (2, 3), (3, 5), (5, 99)],
-               "total": [(0, 1.5), (1.5, 3), (3, 4.5), (4.5, 7), (7, 99)]}
+GAP_BUCKETS = {"spread": [(0, 1), (1, 2), (2, 3), (3, 99)],
+               "total": [(0, 0.5), (0.5, 1), (1, 2), (2, 99)]}
 
 
 def _read(path) -> pd.DataFrame:

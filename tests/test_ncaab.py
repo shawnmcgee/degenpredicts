@@ -425,6 +425,7 @@ def test_market_models_are_compared_with_the_line_itself(meta):
 
 
 def test_one_standard_error_rule_takes_the_simplest_model_not_beaten():
+    """The projection-only jobs: among the models tied on error, the simplest."""
     board = [{"model": "rf", "mae": 8.50, "z": 0.0}, {"model": "stack", "mae": 8.51, "z": 0.4},
              {"model": "ridge", "mae": 8.52, "z": 0.9}, {"model": "ratings", "mae": 9.1, "z": 6.0},
              {"model": "line", "mae": 8.53, "reference": True}]
@@ -432,6 +433,24 @@ def test_one_standard_error_rule_takes_the_simplest_model_not_beaten():
     assert train.select(board, "lowest") == ("rf", "rf")
     board[2]["z"] = 1.3                         # ridge is now clearly worse: rf is next in line
     assert train.select(board, "1se") == ("rf", "rf")
+
+
+def test_market_jobs_run_the_tied_model_whose_side_won_most():
+    """The first run with lines, as it came out: ridge led the totals tie on error but sat on the
+    Over side of 94% of lines; Huber, 0.004 points behind, picked better sides."""
+    board = [{"model": "blend", "mae": 12.998, "z": 0.0, "hit_rate": 50.74},
+             {"model": "ridge", "mae": 12.999, "z": 0.27, "hit_rate": 50.59},
+             {"model": "rf", "mae": 13.001, "z": 0.72, "hit_rate": 51.03},
+             {"model": "huber", "mae": 13.003, "z": 0.77, "hit_rate": 51.10},
+             {"model": "xgb", "mae": 13.010, "z": 3.16, "hit_rate": 51.39},   # not tied: out
+             {"model": "line", "mae": 12.999, "reference": True}]
+    assert train.select(board, "1se", by_side=True) == ("huber", "blend")
+    assert train.select(board, "1se", by_side=False) == ("ridge", "blend")
+    board[1]["hit_rate"] = 51.10                # a tie on the side record goes to the simpler
+    assert train.select(board, "1se", by_side=True)[0] == "ridge"
+    for r in board:                             # no line to take a side of: simplest again
+        r["hit_rate"] = None
+    assert train.select(board, "1se", by_side=True)[0] == "ridge"
 
 
 def test_nnls_never_bets_against_a_model():
