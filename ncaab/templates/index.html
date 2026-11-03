@@ -63,6 +63,26 @@
   td .pk b{font-weight:500;white-space:nowrap}
   /* on a phone the tag always sits under its pick, so every row reads the same way */
   @media(max-width:560px){th,td{padding:8px 7px}td .pk{flex-direction:column;align-items:flex-start}}
+  /* results: stacked rows that wrap instead of a table that overflows */
+  .rlist{background:var(--card);border-radius:10px;overflow:hidden}
+  .rrow{padding:10px 12px;border-bottom:1px solid var(--line)}
+  .rrow:last-child{border-bottom:0}
+  .rm{font-size:14px;font-weight:600;line-height:1.35}
+  .rm .at{color:var(--dim);font-weight:400;font-size:12px;margin:0 5px}
+  .rm .rk{color:var(--dim);font-weight:500;font-size:12px;margin-right:3px}
+  .rf{font-size:12px;color:var(--dim);margin-top:1px;font-variant-numeric:tabular-nums}
+  .rp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:7px}
+  .rc{background:var(--card2);border-radius:7px;padding:6px 8px;min-width:0}
+  .rl{display:flex;justify-content:space-between;align-items:center;gap:6px;min-height:19px;
+      font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+  .rv{font-size:14px;font-weight:600;margin-top:2px;line-height:1.3;overflow-wrap:anywhere}
+  .rv.none{color:var(--dim);font-weight:400;font-size:13px}
+  .dayrec{color:var(--fg);font-variant-numeric:tabular-nums}
+  details.more{margin-top:8px}
+  details.more summary{cursor:pointer;list-style:none;text-align:center;padding:11px;border-radius:10px;
+    background:var(--card2);border:1px solid var(--line);color:var(--accent);font-size:14px;font-weight:600}
+  details.more summary::-webkit-details-marker{display:none}
+  details.more[open] summary{margin-bottom:8px}
   .note{background:var(--card);border-left:3px solid var(--accent);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
   .note b{color:var(--fg)}
   .note.warn{border-left-color:var(--warn)}
@@ -237,18 +257,39 @@
 {% endif %}
 
 {% if results %}
+{# Stacked rows, not a table: full college names in three columns pushed the page to 622px
+   wide on a 390px phone and cut the picks off. Each row is the matchup and final, then the
+   spread and total side by side; ranked games first; past RESULTS_SHOWN the rest fold away. #}
+{% macro result_row(r) %}
+  <div class="rrow">
+    <div class="rm">{% if r.away_rank %}<span class="rk">#{{ r.away_rank }}</span>{% endif %}{{ r.away }}<span class="at">{% if r.neutral %}vs{% else %}at{% endif %}</span>{% if r.home_rank %}<span class="rk">#{{ r.home_rank }}</span>{% endif %}{{ r.home }}</div>
+    {% if r.final %}<div class="rf">{{ r.final }}</div>{% endif %}
+    <div class="rp">
+      {% for mk, label, res in (('Spread', r.spread_label, r.spread_result), ('Total', r.total_label, r.total_result)) %}
+      <div class="rc">
+        <div class="rl"><span>{{ mk }}</span>{% if label %}<span class="tag {{ res }}">{{ res }}</span>{% endif %}</div>
+        {% if label %}<div class="rv">{{ label }}</div>{% else %}<div class="rv none">no line</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endmacro %}
+{% macro rec(x) %}{{ x.wins }}-{{ x.losses }}{% if x.pushes %}-{{ x.pushes }}{% endif %}{% endmacro %}
 <section>
   <h2>{{ results_day }} results</h2>
-  <table>
-    <tr><th>Game</th><th>Spread</th><th>Total</th></tr>
-    {% for r in results %}
-    <tr>
-      <td>{{ r.matchup }}{% if r.final %}<br><span class="sub fin">{{ r.final }}</span>{% endif %}</td>
-      <td>{% if r.spread_label %}<span class="pk"><b>{{ r.spread_label }}</b><span class="tag {{ r.spread_result }}">{{ r.spread_result }}</span></span>{% else %}<span class="sub">no line</span>{% endif %}</td>
-      <td>{% if r.total_label %}<span class="pk"><b>{{ r.total_label }}</b><span class="tag {{ r.total_result }}">{{ r.total_result }}</span></span>{% else %}<span class="sub">no line</span>{% endif %}</td>
-    </tr>
-    {% endfor %}
-  </table>
+  {% if day_record %}<p class="sub" style="margin:-4px 0 10px">Spreads <b class="dayrec">{{ rec(day_record.spread) }}</b>
+    &middot; Totals <b class="dayrec">{{ rec(day_record.total) }}</b> &middot; {{ results|length }} game{{ '' if results|length == 1 else 's' }}{% if results|selectattr('ranked')|list %}, Top 25 first{% endif %}</p>{% endif %}
+  <div class="rlist">
+    {% for r in results[:results_shown] %}{{ result_row(r) }}{% endfor %}
+  </div>
+  {% if results|length > results_shown %}
+  <details class="more">
+    <summary>Show all {{ results|length }} games</summary>
+    <div class="rlist">
+      {% for r in results[results_shown:] %}{{ result_row(r) }}{% endfor %}
+    </div>
+  </details>
+  {% endif %}
 </section>
 {% endif %}
 
