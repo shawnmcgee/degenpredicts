@@ -1,0 +1,134 @@
+{
+  "updated": "2026-11-03",
+  "sport": "ncaab",
+  "break_even": 52.38,
+  "spreads": {
+    "season": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "pushes": 0,
+      "win_pct": null,
+      "units": 0.0,
+      "roi": null,
+      "clv": null
+    },
+    "all_games": {
+      "n": 111,
+      "wins": 58,
+      "losses": 53,
+      "pushes": 0,
+      "win_pct": 52.3,
+      "clv": 0.59
+    },
+    "last7": {
+      "n": 111,
+      "wins": 58,
+      "losses": 53,
+      "pushes": 0,
+      "win_pct": 52.3
+    },
+    "mae": 10.31,
+    "by_gap": [
+      {
+        "gap": "0-1",
+        "n": 63,
+        "wins": 34,
+        "losses": 29,
+        "pushes": 0,
+        "win_pct": 54.0
+      },
+      {
+        "gap": "1-2",
+        "n": 39,
+        "wins": 17,
+        "losses": 22,
+        "pushes": 0,
+        "win_pct": 43.6
+      },
+      {
+        "gap": "2-3",
+        "n": 9,
+        "wins": 7,
+        "losses": 2,
+        "pushes": 0,
+        "win_pct": 77.8
+      }
+    ]
+  },
+  "totals": {
+    "season": {
+      "n": 0,
+      "wins": 0,
+      "losses": 0,
+      "pushes": 0,
+      "win_pct": null,
+      "units": 0.0,
+      "roi": null,
+      "clv": null
+    },
+    "all_games": {
+      "n": 111,
+      "wins": 53,
+      "losses": 58,
+      "pushes": 0,
+      "win_pct": 47.7,
+      "clv": -0.05
+    },
+    "last7": {
+      "n": 111,
+      "wins": 53,
+      "losses": 58,
+      "pushes": 0,
+      "win_pct": 47.7
+    },
+    "mae": 13.36,
+    "by_gap": [
+      {
+        "gap": "0-0.5",
+        "n": 29,
+        "wins": 13,
+        "losses": 16,
+        "pushes": 0,
+        "win_pct": 44.8
+      },
+      {
+        "gap": "0.5-1",
+        "n": 47,
+        "wins": 24,
+        "losses": 23,
+        "pushes": 0,
+        "win_pct": 51.1
+      },
+      {
+        "gap": "1-2",
+        "n": 35,
+        "wins": 16,
+        "losses": 19,
+        "pushes": 0,
+        "win_pct": 45.7
+      }
+    ]
+  },
+  "by_week": [
+    {
+      "week": "2026-11-02",
+      "label": "Nov 2 \u2013 Nov 8",
+      "spread": {
+        "n": 111,
+        "wins": 58,
+        "losses": 53,
+        "pushes": 0,
+        "win_pct": 52.3
+      },
+      "total": {
+        "n": 111,
+        "wins": 53,
+        "losses": 58,
+        "pushes": 0,
+        "win_pct": 47.7
+      }
+    }
+  ],
+  "season": 2026
+}
