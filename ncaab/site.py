@@ -245,29 +245,46 @@ def _final(r: dict) -> str:
     return f"{first[0]} {first[1]} – {second[0]} {second[1]}"
 
 
-def _last_day(df: pd.DataFrame) -> tuple[str | None, list[dict]]:
-    """Every graded game from the most recent graded day."""
+RESULTS_SHOWN = 12      # rows shown before "Show all": a 111-game opening night is 8 phone screens
+
+
+def _wlp(results) -> dict:
+    s = pd.Series(list(results))
+    w, l, p = (int((s == k).sum()) for k in ("win", "loss", "push"))
+    return {"wins": w, "losses": l, "pushes": p}
+
+
+def _last_day(df: pd.DataFrame) -> tuple[str | None, list[dict], dict]:
+    """Every graded game from the most recent graded day - Top 25 games first, then the rest,
+    each in tip-off order - and that day's record on both markets."""
     if df.empty:
-        return None, []
+        return None, [], {}
     df = df[df["spread_result"].isin(["win", "loss", "push"]) |
             df["total_result"].isin(["win", "loss", "push"])]
     if df.empty:
-        return None, []
+        return None, [], {}
     day = max(df["date"])
     g = df[df["date"] == day].copy()
     g["_at"] = pd.to_datetime(g["kickoff_utc"], utc=True, errors="coerce")
-    g = g.sort_values("_at", na_position="last").drop(columns="_at")
+    g["_ranked"] = [bool(_rank(h) or _rank(a)) for h, a in
+                    zip(g.get("home_rank", [None] * len(g)), g.get("away_rank", [None] * len(g)))]
+    g = g.sort_values(["_ranked", "_at"], ascending=[False, True], na_position="last")
     g = g.astype(object).where(pd.notna(g), None)
     rows = []
     for r in g.to_dict("records"):
         tl = _num(r.get("total_line"))
-        rows.append({"matchup": f"{r.get('away_team')} at {r.get('home_team')}",
+        hr, ar = _rank(r.get("home_rank")), _rank(r.get("away_rank"))
+        rows.append({"away": r.get("away_team"), "home": r.get("home_team"),
+                     "away_rank": ar, "home_rank": hr, "ranked": bool(hr or ar),
+                     "neutral": r.get("neutral_site") in (True, "True", 1, "1"),
+                     "matchup": f"{r.get('away_team')} at {r.get('home_team')}",
                      "final": _final(r),
                      "spread_label": _spread_label(r.get("spread_side"), r.get("spread_number")),
                      "spread_result": r.get("spread_result"),
                      "total_label": f"{r.get('total_pick')} {tl:g}" if tl is not None else "",
                      "total_result": r.get("total_result")})
-    return pd.Timestamp(day).strftime("%a %b %-d"), rows
+    record = {"spread": _wlp(g["spread_result"]), "total": _wlp(g["total_result"])}
+    return pd.Timestamp(day).strftime("%a %b %-d"), rows, record
 
 
 def _metrics() -> dict:
@@ -321,11 +338,12 @@ def build() -> None:
     meta = load_meta()
     picks = _board(meta)
     graded = _graded()
-    results_day, results = _last_day(graded)
+    results_day, results, day_record = _last_day(graded)
     published = str(config.today_et())
     html = env.get_template("index.html").render(
         title=config.SITE_TITLE, picks=picks, updated=published, days=_days(picks),
-        m=_metrics(), bake=_bakeoff(meta), results=results, results_day=results_day,
+        m=_metrics(), bake=_bakeoff(meta), results=results, results_day=results_day, day_record=day_record,
+        results_shown=RESULTS_SHOWN,
         support_url=config.SUPPORT_URL, support_label=config.SUPPORT_LABEL)
     (config.DOCS / "index.html").write_text(html)
     # the chooser's card reads this; metrics.json's `updated` only moves when grading runs

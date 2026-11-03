@@ -848,3 +848,36 @@ def test_the_board_puts_tonights_openers_on_their_own_record(sandbox, history, m
     assert set(job["by_stage"]) <= set(features.STAGES)
     assert sum(v["n"] for v in job["by_stage"].values()) == job["hit_n"]
 
+
+# ---------------------------------------------------------------------------------------
+# the results section on a phone
+# ---------------------------------------------------------------------------------------
+def test_results_are_stacked_rows_ranked_first_with_the_rest_folded(sandbox):
+    """Full college names in a three-column table pushed the page to 622px on a 390px phone and
+    cut the picks off; 111 rows were eight screens long. Rows now stack, Top 25 games lead, the
+    day's record sits on top and everything past the first twelve folds behind "Show all"."""
+    rows = []
+    for i in range(20):
+        ranked = i in (7, 15)
+        rows.append({"game_id": str(i), "date": TODAY, "kickoff_utc": f"{TODAY}T23:{i:02d}:00Z",
+                     "home_team": "Fairleigh Dickinson" if i == 3 else f"Home {i}",
+                     "away_team": f"Away {i}", "home_rank": 4 if ranked else 99, "away_rank": 99,
+                     "neutral_site": False, "home_points": 70 + i, "away_points": 60,
+                     "spread_side": f"Away {i}", "spread_number": 39.5,
+                     "spread_result": "win" if i % 3 else "loss",
+                     "total_pick": "Over", "total_line": 140.5 if i != 5 else None,
+                     "total_result": "loss" if i % 2 else ("win" if i != 5 else "none")})
+    pd.DataFrame(rows).to_csv(config.RESULTS, index=False)
+    site.build()
+    html = (config.DOCS / "index.html").read_text()
+    sec = html[html.index(" results</h2>"):]
+    sec = sec[:sec.index("</section>")]
+    assert "<table" not in sec, "the results must not be a table again"
+    assert sec.count('class="rrow"') == 20 and sec.count('class="rc"') == 40
+    shown, folded = sec.split('<details class="more">')
+    assert shown.count('class="rrow"') == site.RESULTS_SHOWN and "Show all 20 games" in folded
+    order = re.findall(r'class="rm">(?:<span class="rk">#\d+</span>)?Away (\d+)<', sec)
+    assert order[:2] == ["7", "15"] and order[2:] == [str(i) for i in range(20) if i not in (7, 15)]
+    assert "Spreads <b class=\"dayrec\">13-7</b>" in sec and "Top 25 first" in sec
+    assert "no line" in sec and "#4</span>Home 7" in sec
+
