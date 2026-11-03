@@ -63,6 +63,26 @@
   td .pk b{font-weight:500;white-space:nowrap}
   /* on a phone the tag always sits under its pick, so every row reads the same way */
   @media(max-width:560px){th,td{padding:8px 7px}td .pk{flex-direction:column;align-items:flex-start}}
+  /* results: stacked rows that wrap instead of a table that overflows */
+  .rlist{background:var(--card);border-radius:10px;overflow:hidden}
+  .rrow{padding:10px 12px;border-bottom:1px solid var(--line)}
+  .rrow:last-child{border-bottom:0}
+  .rm{font-size:14px;font-weight:600;line-height:1.35}
+  .rm .at{color:var(--dim);font-weight:400;font-size:12px;margin:0 5px}
+  .rm .rk{color:var(--dim);font-weight:500;font-size:12px;margin-right:3px}
+  .rf{font-size:12px;color:var(--dim);margin-top:1px;font-variant-numeric:tabular-nums}
+  .rp{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:7px}
+  .rc{background:var(--card2);border-radius:7px;padding:6px 8px;min-width:0}
+  .rl{display:flex;justify-content:space-between;align-items:center;gap:6px;min-height:19px;
+      font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+  .rv{font-size:14px;font-weight:600;margin-top:2px;line-height:1.3;overflow-wrap:anywhere}
+  .rv.none{color:var(--dim);font-weight:400;font-size:13px}
+  .dayrec{color:var(--fg);font-variant-numeric:tabular-nums}
+  details.more{margin-top:8px}
+  details.more summary{cursor:pointer;list-style:none;text-align:center;padding:11px;border-radius:10px;
+    background:var(--card2);border:1px solid var(--line);color:var(--accent);font-size:14px;font-weight:600}
+  details.more summary::-webkit-details-marker{display:none}
+  details.more[open] summary{margin-bottom:8px}
   .note{background:var(--card);border-left:3px solid var(--accent);padding:12px 14px;border-radius:6px;font-size:13px;color:var(--dim)}
   .note b{color:var(--fg)}
   .note.warn{border-left-color:var(--warn)}
@@ -113,7 +133,7 @@
   <div class="topbar">
     <div>
       <h1>DegenPredicts — College Basketball</h1>
-      <div class="sub">A pick on every spread and total &middot; 10 games
+      <div class="sub">A pick on every spread and total &middot; 23 games
         &middot; updated 2026-11-03</div>
     </div>
     
@@ -135,6 +155,11 @@
   
   <div class="controls">
     <input type="search" id="q" placeholder="Search a team or conference" aria-label="Search">
+  </div>
+  
+  <div class="controls" role="group" aria-label="Day">
+    <button class="chip" aria-pressed="true" data-day="all">All days</button>
+    <button class="chip" aria-pressed="false" data-day="2026-11-03">Tue Nov 3</button><button class="chip" aria-pressed="false" data-day="2026-11-04">Wed Nov 4</button>
   </div>
   
   <div class="controls" role="group" aria-label="Filters">
@@ -163,19 +188,19 @@
     <div class="matchup">Wofford<span class="at">at</span><span class="rk">#8</span>Tennessee
       <span class="cf">SoCon &middot; SEC</span>
     </div>
-    <div class="proj">Projected score <b>Tennessee 91 – Wofford 64</b></div>
+    <div class="proj">Projected score <b>Tennessee 91 – Wofford 65</b></div>
     
     <div class="picks">
       <div class="pick">
         <div class="l"><span>Spread</span>
-    <span class="pct toss">0.2 pts off</span>
+    <span class="pct toss">0.6 pts off</span>
   </div>
-        <div class="p">Tennessee -27.5</div>
-        <div class="d">Model: Tennessee by 27.7</div>
+        <div class="p">Tennessee -25.5</div>
+        <div class="d">Model: Tennessee by 26.1</div>
         <div class="h"><b>47.7%</b> at this gap in past season openers &middot; 367 games</div>
         
     
-    <div class="meter" aria-hidden="true"><i style="width:4.0%"></i></div>
+    <div class="meter" aria-hidden="true"><i style="width:12.0%"></i></div>
     
   
       </div>
@@ -183,12 +208,100 @@
         <div class="l"><span>Total</span>
     <span class="pct toss">0.6 pts off</span>
   </div>
-        <div class="p">Over 154.5</div>
-        <div class="d">Model total 155.1</div>
+        <div class="p">Over 155.5</div>
+        <div class="d">Model total 156.1</div>
         <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
         
     
     <div class="meter" aria-hidden="true"><i style="width:12.0%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
+       data-day="2026-11-03" data-lean="0.8"
+       data-top="0" data-power="1"
+       data-ctx="0"
+       data-search="boston college wagner acc nec bc wag " data-kick="2026-11-04T00:00:00+00:00">
+    <div class="ghead">
+      <span>Tue Nov 03, 7:00 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">Wagner<span class="at">at</span>Boston College
+      <span class="cf">NEC &middot; ACC</span>
+    </div>
+    <div class="proj">Projected score <b>Boston College 81 – Wagner 62</b></div>
+    
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct toss">0.6 pts off</span>
+  </div>
+        <div class="p">Wagner +19.5</div>
+        <div class="d">Model: Boston College by 18.9</div>
+        <div class="h"><b>47.7%</b> at this gap in past season openers &middot; 367 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:12.0%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct toss">0.8 pts off</span>
+  </div>
+        <div class="p">Over 142.5</div>
+        <div class="d">Model total 143.3</div>
+        <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:16.0%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
+       data-day="2026-11-03" data-lean="0.9"
+       data-top="0" data-power="0"
+       data-ctx="0"
+       data-search="rhode island holy cross atlantic 10 patriot uri hc " data-kick="2026-11-04T00:00:00+00:00">
+    <div class="ghead">
+      <span>Tue Nov 03, 7:00 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">Holy Cross<span class="at">at</span>Rhode Island
+      <span class="cf">Patriot &middot; Atlantic 10</span>
+    </div>
+    <div class="proj">Projected score <b>Rhode Island 83 – Holy Cross 64</b></div>
+    
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct toss">0.8 pts off</span>
+  </div>
+        <div class="p">Holy Cross +19.5</div>
+        <div class="d">Model: Rhode Island by 18.7</div>
+        <div class="h"><b>47.7%</b> at this gap in past season openers &middot; 367 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:16.0%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct toss">0.9 pts off</span>
+  </div>
+        <div class="p">Over 146.5</div>
+        <div class="d">Model total 147.4</div>
+        <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:18.0%"></i></div>
     
   
       </div>
@@ -207,19 +320,19 @@
     <div class="matchup">Hampton<span class="at">at</span>Georgia Tech
       <span class="cf">CAA &middot; ACC</span>
     </div>
-    <div class="proj">Projected score <b>Georgia Tech 82 – Hampton 67</b></div>
+    <div class="proj">Projected score <b>Georgia Tech 82 – Hampton 68</b></div>
     
     <div class="picks">
       <div class="pick">
         <div class="l"><span>Spread</span>
-    <span class="pct toss">0.1 pts off</span>
+    <span class="pct toss">0.2 pts off</span>
   </div>
-        <div class="p">Hampton +15.5</div>
-        <div class="d">Model: Georgia Tech by 15.4</div>
+        <div class="p">Georgia Tech -13.5</div>
+        <div class="d">Model: Georgia Tech by 13.7</div>
         <div class="h"><b>47.7%</b> at this gap in past season openers &middot; 367 games</div>
         
     
-    <div class="meter" aria-hidden="true"><i style="width:4%"></i></div>
+    <div class="meter" aria-hidden="true"><i style="width:4.0%"></i></div>
     
   
       </div>
@@ -227,8 +340,8 @@
         <div class="l"><span>Total</span>
     <span class="pct toss">0.7 pts off</span>
   </div>
-        <div class="p">Over 148.5</div>
-        <div class="d">Model total 149.2</div>
+        <div class="p">Over 149.5</div>
+        <div class="d">Model total 150.2</div>
         <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
         
     
@@ -240,7 +353,51 @@
   </div>
   
   <div class="game"
-       data-day="2026-11-03" data-lean="0.9"
+       data-day="2026-11-03" data-lean="1.1"
+       data-top="0" data-power="1"
+       data-ctx="0"
+       data-search="virginia tech coppin state acc meac vt copp " data-kick="2026-11-04T00:00:00+00:00">
+    <div class="ghead">
+      <span>Tue Nov 03, 7:00 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">Coppin State<span class="at">at</span>Virginia Tech
+      <span class="cf">MEAC &middot; ACC</span>
+    </div>
+    <div class="proj">Projected score <b>Virginia Tech 91 – Coppin State 60</b></div>
+    
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct">1.1 pts off</span>
+  </div>
+        <div class="p">Coppin State +31.5</div>
+        <div class="d">Model: Virginia Tech by 30.4</div>
+        <div class="h"><b>44.1%</b> at this gap in past season openers &middot; 186 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:22.0%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct toss">0.7 pts off</span>
+  </div>
+        <div class="p">Over 150.5</div>
+        <div class="d">Model total 151.2</div>
+        <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:14.0%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
+       data-day="2026-11-03" data-lean="1.1"
        data-top="1" data-power="1"
        data-ctx="0"
        data-search="kentucky manhattan sec maac uk man " data-kick="2026-11-04T00:00:00+00:00">
@@ -251,19 +408,19 @@
     <div class="matchup">Manhattan<span class="at">at</span><span class="rk">#23</span>Kentucky
       <span class="cf">MAAC &middot; SEC</span>
     </div>
-    <div class="proj">Projected score <b>Kentucky 95 – Manhattan 64</b></div>
+    <div class="proj">Projected score <b>Kentucky 96 – Manhattan 63</b></div>
     
     <div class="picks">
       <div class="pick">
         <div class="l"><span>Spread</span>
-    <span class="pct toss">0.9 pts off</span>
+    <span class="pct">1.1 pts off</span>
   </div>
-        <div class="p">Manhattan +32.5</div>
-        <div class="d">Model: Kentucky by 31.6</div>
-        <div class="h"><b>47.7%</b> at this gap in past season openers &middot; 367 games</div>
+        <div class="p">Manhattan +33.5</div>
+        <div class="d">Model: Kentucky by 32.4</div>
+        <div class="h"><b>44.1%</b> at this gap in past season openers &middot; 186 games</div>
         
     
-    <div class="meter" aria-hidden="true"><i style="width:18.0%"></i></div>
+    <div class="meter" aria-hidden="true"><i style="width:22.0%"></i></div>
     
   
       </div>
@@ -284,6 +441,50 @@
   </div>
   
   <div class="game"
+       data-day="2026-11-03" data-lean="0.7"
+       data-top="0" data-power="1"
+       data-ctx="1"
+       data-search="south carolina stetson sec asun sc stet " data-kick="2026-11-04T00:00:00+00:00">
+    <div class="ghead">
+      <span>Tue Nov 03, 7:00 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">Stetson<span class="at">at</span>South Carolina
+      <span class="cf">ASUN &middot; SEC</span>
+    </div>
+    <div class="proj">Projected score <b>South Carolina 84 – Stetson 64</b></div>
+    <div class="ctx">Stetson on a back-to-back</div>
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct toss">0.4 pts off</span>
+  </div>
+        <div class="p">South Carolina -19.5</div>
+        <div class="d">Model: South Carolina by 19.9</div>
+        <div class="h"><b>50.8%</b> at this gap in past games where a team had played under four &middot; 1,406 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:8.0%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct toss">0.7 pts off</span>
+  </div>
+        <div class="p">Under 149.5</div>
+        <div class="d">Model total 148.8</div>
+        <div class="h"><b>51.6%</b> at this gap in past games where a team had played under four &middot; 1,905 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:14.0%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
        data-day="2026-11-03" data-lean="0.8"
        data-top="0" data-power="0"
        data-ctx="0"
@@ -295,19 +496,19 @@
     <div class="matchup">Purdue Fort Wayne<span class="at">at</span>Duquesne
       <span class="cf">Horizon &middot; Atlantic 10</span>
     </div>
-    <div class="proj">Projected score <b>Duquesne 82 – Purdue Fort Wayne 71</b></div>
+    <div class="proj">Projected score <b>Duquesne 82 – Purdue Fort Wayne 72</b></div>
     
     <div class="picks">
       <div class="pick">
         <div class="l"><span>Spread</span>
-    <span class="pct toss">0.2 pts off</span>
+    <span class="pct toss">0.4 pts off</span>
   </div>
-        <div class="p">Duquesne -10.5</div>
-        <div class="d">Model: Duquesne by 10.7</div>
+        <div class="p">Duquesne -9.5</div>
+        <div class="d">Model: Duquesne by 9.9</div>
         <div class="h"><b>47.7%</b> at this gap in past season openers &middot; 367 games</div>
         
     
-    <div class="meter" aria-hidden="true"><i style="width:4.0%"></i></div>
+    <div class="meter" aria-hidden="true"><i style="width:8.0%"></i></div>
     
   
       </div>
@@ -315,8 +516,8 @@
         <div class="l"><span>Total</span>
     <span class="pct toss">0.8 pts off</span>
   </div>
-        <div class="p">Over 152.5</div>
-        <div class="d">Model total 153.3</div>
+        <div class="p">Over 153.5</div>
+        <div class="d">Model total 154.3</div>
         <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
         
     
@@ -339,7 +540,7 @@
     <div class="matchup">Sam Houston<span class="at">at</span><span class="rk">#20</span>Alabama
       <span class="cf">Conference USA &middot; SEC</span>
     </div>
-    <div class="proj">Projected score <b>Alabama 98 – Sam Houston 72</b></div>
+    <div class="proj">Projected score <b>Alabama 99 – Sam Houston 72</b></div>
     
     <div class="picks">
       <div class="pick">
@@ -359,8 +560,8 @@
         <div class="l"><span>Total</span>
     <span class="pct toss">0.2 pts off</span>
   </div>
-        <div class="p">Under 170.5</div>
-        <div class="d">Model total 170.3</div>
+        <div class="p">Under 171.5</div>
+        <div class="d">Model total 171.3</div>
         <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
         
     
@@ -372,7 +573,7 @@
   </div>
   
   <div class="game"
-       data-day="2026-11-03" data-lean="1.0"
+       data-day="2026-11-03" data-lean="0.9"
        data-top="1" data-power="1"
        data-ctx="0"
        data-search="virginia drexel acc caa uva drex " data-kick="2026-11-04T00:30:00+00:00">
@@ -383,32 +584,32 @@
     <div class="matchup">Drexel<span class="at">at</span><span class="rk">#9</span>Virginia
       <span class="cf">CAA &middot; ACC</span>
     </div>
-    <div class="proj">Projected score <b>Virginia 86 – Drexel 58</b></div>
+    <div class="proj">Projected score <b>Virginia 86 – Drexel 56</b></div>
     
     <div class="picks">
       <div class="pick">
         <div class="l"><span>Spread</span>
-    <span class="pct toss">0.4 pts off</span>
+    <span class="pct toss">0.9 pts off</span>
   </div>
-        <div class="p">Drexel +28.5</div>
-        <div class="d">Model: Virginia by 28.1</div>
+        <div class="p">Drexel +31.5</div>
+        <div class="d">Model: Virginia by 30.6</div>
         <div class="h"><b>47.7%</b> at this gap in past season openers &middot; 367 games</div>
         
     
-    <div class="meter" aria-hidden="true"><i style="width:8.0%"></i></div>
+    <div class="meter" aria-hidden="true"><i style="width:18.0%"></i></div>
     
   
       </div>
       <div class="pick">
         <div class="l"><span>Total</span>
-    <span class="pct">1.0 pts off</span>
+    <span class="pct toss">0.9 pts off</span>
   </div>
-        <div class="p">Over 142.5</div>
-        <div class="d">Model total 143.5</div>
-        <div class="h"><b>52.5%</b> at this gap in past season openers &middot; 160 games</div>
+        <div class="p">Over 141.5</div>
+        <div class="d">Model total 142.4</div>
+        <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
         
     
-    <div class="meter" aria-hidden="true"><i style="width:20.0%"></i></div>
+    <div class="meter" aria-hidden="true"><i style="width:18.0%"></i></div>
     
   
       </div>
@@ -460,30 +661,30 @@
   </div>
   
   <div class="game"
-       data-day="2026-11-03" data-lean="0.4"
+       data-day="2026-11-03" data-lean="0.8"
        data-top="0" data-power="1"
-       data-ctx="0"
-       data-search="missouri cleveland state sec horizon miz cle " data-kick="2026-11-04T01:00:00+00:00">
+       data-ctx="1"
+       data-search="iowa lipscomb big ten asun iowa lip " data-kick="2026-11-04T01:00:00+00:00">
     <div class="ghead">
       <span>Tue Nov 03, 8:00 PM</span>
       <span>early season</span>
     </div>
-    <div class="matchup">Cleveland State<span class="at">at</span>Missouri
-      <span class="cf">Horizon &middot; SEC</span>
+    <div class="matchup">Lipscomb<span class="at">at</span>Iowa
+      <span class="cf">ASUN &middot; Big Ten</span>
     </div>
-    <div class="proj">Projected score <b>Missouri 92 – Cleveland State 67</b></div>
-    
+    <div class="proj">Projected score <b>Iowa 87 – Lipscomb 62</b></div>
+    <div class="ctx">Lipscomb on a back-to-back</div>
     <div class="picks">
       <div class="pick">
         <div class="l"><span>Spread</span>
-    <span class="pct toss">0.3 pts off</span>
+    <span class="pct toss">0.8 pts off</span>
   </div>
-        <div class="p">Cleveland State +25.5</div>
-        <div class="d">Model: Missouri by 25.2</div>
-        <div class="h"><b>47.7%</b> at this gap in past season openers &middot; 367 games</div>
+        <div class="p">Iowa -23.5</div>
+        <div class="d">Model: Iowa by 24.3</div>
+        <div class="h"><b>50.8%</b> at this gap in past games where a team had played under four &middot; 1,406 games</div>
         
     
-    <div class="meter" aria-hidden="true"><i style="width:6.0%"></i></div>
+    <div class="meter" aria-hidden="true"><i style="width:16.0%"></i></div>
     
   
       </div>
@@ -491,9 +692,9 @@
         <div class="l"><span>Total</span>
     <span class="pct toss">0.4 pts off</span>
   </div>
-        <div class="p">Over 158.5</div>
-        <div class="d">Model total 158.9</div>
-        <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
+        <div class="p">Under 149.5</div>
+        <div class="d">Model total 149.1</div>
+        <div class="h"><b>51.6%</b> at this gap in past games where a team had played under four &middot; 1,905 games</div>
         
     
     <div class="meter" aria-hidden="true"><i style="width:8.0%"></i></div>
@@ -505,6 +706,182 @@
   
   <div class="game"
        data-day="2026-11-03" data-lean="0.9"
+       data-top="0" data-power="1"
+       data-ctx="0"
+       data-search="texas a&amp;m alabama state sec swac ta&amp;m alst " data-kick="2026-11-04T01:00:00+00:00">
+    <div class="ghead">
+      <span>Tue Nov 03, 8:00 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">Alabama State<span class="at">at</span>Texas A&amp;M
+      <span class="cf">SWAC &middot; SEC</span>
+    </div>
+    <div class="proj">Projected score <b>Texas A&amp;M 98 – Alabama State 66</b></div>
+    
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct toss">0.9 pts off</span>
+  </div>
+        <div class="p">Alabama State +32.5</div>
+        <div class="d">Model: Texas A&amp;M by 31.6</div>
+        <div class="h"><b>47.7%</b> at this gap in past season openers &middot; 367 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:18.0%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct toss">0.1 pts off</span>
+  </div>
+        <div class="p">Over 163.5</div>
+        <div class="d">Model total 163.6</div>
+        <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:4%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
+       data-day="2026-11-03" data-lean="0.4"
+       data-top="0" data-power="1"
+       data-ctx="0"
+       data-search="missouri cleveland state sec horizon miz cle " data-kick="2026-11-04T01:00:00+00:00">
+    <div class="ghead">
+      <span>Tue Nov 03, 8:00 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">Cleveland State<span class="at">at</span>Missouri
+      <span class="cf">Horizon &middot; SEC</span>
+    </div>
+    <div class="proj">Projected score <b>Missouri 93 – Cleveland State 67</b></div>
+    
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct toss">0.4 pts off</span>
+  </div>
+        <div class="p">Cleveland State +26.5</div>
+        <div class="d">Model: Missouri by 26.1</div>
+        <div class="h"><b>47.7%</b> at this gap in past season openers &middot; 367 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:8.0%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct toss">0.3 pts off</span>
+  </div>
+        <div class="p">Over 160.5</div>
+        <div class="d">Model total 160.8</div>
+        <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:6.0%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
+       data-day="2026-11-03" data-lean="1.5"
+       data-top="0" data-power="1"
+       data-ctx="0"
+       data-search="lsu lsu new orleans sec southland lsu nola " data-kick="2026-11-04T01:00:00+00:00">
+    <div class="ghead">
+      <span>Tue Nov 03, 8:00 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">LSU New Orleans<span class="at">at</span>LSU
+      <span class="cf">Southland &middot; SEC</span>
+    </div>
+    <div class="proj">Projected score <b>LSU 93 – LSU New Orleans 67</b></div>
+    
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct">1.5 pts off</span>
+  </div>
+        <div class="p">LSU New Orleans +27.5</div>
+        <div class="d">Model: LSU by 26.0</div>
+        <div class="h"><b>44.1%</b> at this gap in past season openers &middot; 186 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:30.0%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct toss">on the line</span>
+  </div>
+        <div class="p">Under 159.5</div>
+        <div class="d">Model total 159.5</div>
+        <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:4%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
+       data-day="2026-11-03" data-lean="1.5"
+       data-top="1" data-power="1"
+       data-ctx="0"
+       data-search="arkansas arkansas-pine bluff sec swac ark uapb " data-kick="2026-11-04T01:00:00+00:00">
+    <div class="ghead">
+      <span>Tue Nov 03, 8:00 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">Arkansas-Pine Bluff<span class="at">at</span><span class="rk">#12</span>Arkansas
+      <span class="cf">SWAC &middot; SEC</span>
+    </div>
+    <div class="proj">Projected score <b>Arkansas 104 – Arkansas-Pine Bluff 64</b></div>
+    
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct">1.5 pts off</span>
+  </div>
+        <div class="p">Arkansas-Pine Bluff +41.5</div>
+        <div class="d">Model: Arkansas by 40.0</div>
+        <div class="h"><b>44.1%</b> at this gap in past season openers &middot; 186 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:30.0%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct toss">0.1 pts off</span>
+  </div>
+        <div class="p">Under 167.5</div>
+        <div class="d">Model total 167.4</div>
+        <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:4%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
+       data-day="2026-11-03" data-lean="1.0"
        data-top="0" data-power="0"
        data-ctx="0"
        data-search="san diego state cal state fullerton pac-12 big west sdsu csuf " data-kick="2026-11-04T03:00:00+00:00">
@@ -515,32 +892,76 @@
     <div class="matchup">Cal State Fullerton<span class="at">at</span>San Diego State
       <span class="cf">Big West &middot; Pac-12</span>
     </div>
-    <div class="proj">Projected score <b>San Diego State 86 – Cal State Fullerton 70</b></div>
+    <div class="proj">Projected score <b>San Diego State 85 – Cal State Fullerton 70</b></div>
     
     <div class="picks">
       <div class="pick">
         <div class="l"><span>Spread</span>
-    <span class="pct toss">0.2 pts off</span>
+    <span class="pct toss">0.1 pts off</span>
   </div>
-        <div class="p">Cal State Fullerton +16.5</div>
-        <div class="d">Model: San Diego State by 16.3</div>
+        <div class="p">San Diego State -14.5</div>
+        <div class="d">Model: San Diego State by 14.6</div>
         <div class="h"><b>47.7%</b> at this gap in past season openers &middot; 367 games</div>
         
     
-    <div class="meter" aria-hidden="true"><i style="width:4.0%"></i></div>
+    <div class="meter" aria-hidden="true"><i style="width:4%"></i></div>
     
   
       </div>
       <div class="pick">
         <div class="l"><span>Total</span>
-    <span class="pct toss">0.9 pts off</span>
+    <span class="pct">1.0 pts off</span>
   </div>
-        <div class="p">Over 155.5</div>
-        <div class="d">Model total 156.4</div>
-        <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
+        <div class="p">Over 154.5</div>
+        <div class="d">Model total 155.5</div>
+        <div class="h"><b>52.5%</b> at this gap in past season openers &middot; 160 games</div>
         
     
-    <div class="meter" aria-hidden="true"><i style="width:18.0%"></i></div>
+    <div class="meter" aria-hidden="true"><i style="width:20.0%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
+       data-day="2026-11-03" data-lean="1.2"
+       data-top="0" data-power="0"
+       data-ctx="0"
+       data-search="california baptist north florida big west asun cbu unf " data-kick="2026-11-04T03:00:00+00:00">
+    <div class="ghead">
+      <span>Tue Nov 03, 10:00 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">North Florida<span class="at">at</span>California Baptist
+      <span class="cf">ASUN &middot; Big West</span>
+    </div>
+    <div class="proj">Projected score <b>California Baptist 85 – North Florida 72</b></div>
+    
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct">1.2 pts off</span>
+  </div>
+        <div class="p">California Baptist -11.5</div>
+        <div class="d">Model: California Baptist by 12.7</div>
+        <div class="h"><b>44.1%</b> at this gap in past season openers &middot; 186 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:24.0%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct">1.1 pts off</span>
+  </div>
+        <div class="p">Over 155.5</div>
+        <div class="d">Model total 156.6</div>
+        <div class="h"><b>52.5%</b> at this gap in past season openers &middot; 160 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:22.0%"></i></div>
     
   
       </div>
@@ -559,7 +980,7 @@
     <div class="matchup">Northern Arizona<span class="at">at</span>UNLV
       <span class="cf">Big Sky &middot; Mountain West</span>
     </div>
-    <div class="proj">Projected score <b>UNLV 85 – Northern Arizona 65</b></div>
+    <div class="proj">Projected score <b>UNLV 87 – Northern Arizona 67</b></div>
     
     <div class="picks">
       <div class="pick">
@@ -577,14 +998,190 @@
       </div>
       <div class="pick">
         <div class="l"><span>Total</span>
-    <span class="pct toss">0.9 pts off</span>
+    <span class="pct toss">0.6 pts off</span>
   </div>
-        <div class="p">Over 148.5</div>
-        <div class="d">Model total 149.4</div>
+        <div class="p">Over 153.5</div>
+        <div class="d">Model total 154.1</div>
         <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
         
     
-    <div class="meter" aria-hidden="true"><i style="width:18.0%"></i></div>
+    <div class="meter" aria-hidden="true"><i style="width:12.0%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
+       data-day="2026-11-04" data-lean="0.7"
+       data-top="0" data-power="0"
+       data-ctx="0"
+       data-search="wichita state cal state northridge american big west wich csun " data-kick="2026-11-05T00:30:00+00:00">
+    <div class="ghead">
+      <span>Wed Nov 04, 7:30 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">Cal State Northridge<span class="at">at</span>Wichita State
+      <span class="cf">Big West &middot; American</span>
+    </div>
+    <div class="proj">Projected score <b>Wichita State 88 – Cal State Northridge 74</b></div>
+    
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct toss">0.1 pts off</span>
+  </div>
+        <div class="p">Wichita State -14.5</div>
+        <div class="d">Model: Wichita State by 14.6</div>
+        <div class="h"><b>47.7%</b> at this gap in past season openers &middot; 367 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:4%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct toss">0.7 pts off</span>
+  </div>
+        <div class="p">Over 161.5</div>
+        <div class="d">Model total 162.2</div>
+        <div class="h"><b>53.7%</b> at this gap in past season openers &middot; 482 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:14.0%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
+       data-day="2026-11-04" data-lean="1.7"
+       data-top="0" data-power="0"
+       data-ctx="0"
+       data-search="south dakota northern kentucky summit league horizon sdak nku " data-kick="2026-11-05T01:00:00+00:00">
+    <div class="ghead">
+      <span>Wed Nov 04, 8:00 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">Northern Kentucky<span class="at">at</span>South Dakota
+      <span class="cf">Horizon &middot; Summit League</span>
+    </div>
+    <div class="proj">Projected score <b>South Dakota 80 – Northern Kentucky 80</b></div>
+    
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct">1.7 pts off</span>
+  </div>
+        <div class="p">South Dakota +1.5</div>
+        <div class="d">Model: South Dakota by 0.2</div>
+        <div class="h"><b>56.2%</b> at this gap in past games where a team had played under four &middot; 875 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:34.0%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct toss">0.3 pts off</span>
+  </div>
+        <div class="p">Under 159.5</div>
+        <div class="d">Model total 159.2</div>
+        <div class="h"><b>51.6%</b> at this gap in past games where a team had played under four &middot; 1,905 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:6.0%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
+       data-day="2026-11-04" data-lean="0.8"
+       data-top="0" data-power="0"
+       data-ctx="0"
+       data-search="saint mary&#39;s north dakota state wcc summit league smc ndsu " data-kick="2026-11-05T03:00:00+00:00">
+    <div class="ghead">
+      <span>Wed Nov 04, 10:00 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">North Dakota State<span class="at">at</span>Saint Mary&#39;s
+      <span class="cf">Summit League &middot; WCC</span>
+    </div>
+    <div class="proj">Projected score <b>Saint Mary&#39;s 81 – North Dakota State 69</b></div>
+    
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct toss">0.8 pts off</span>
+  </div>
+        <div class="p">North Dakota State +12.5</div>
+        <div class="d">Model: Saint Mary&#39;s by 11.7</div>
+        <div class="h"><b>50.8%</b> at this gap in past games where a team had played under four &middot; 1,406 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:16.0%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct toss">0.3 pts off</span>
+  </div>
+        <div class="p">Over 149.5</div>
+        <div class="d">Model total 149.8</div>
+        <div class="h"><b>51.6%</b> at this gap in past games where a team had played under four &middot; 1,905 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:6.0%"></i></div>
+    
+  
+      </div>
+    </div>
+  </div>
+  
+  <div class="game"
+       data-day="2026-11-04" data-lean="0.6"
+       data-top="0" data-power="0"
+       data-ctx="0"
+       data-search="santa clara milwaukee wcc horizon scu milw " data-kick="2026-11-05T03:00:00+00:00">
+    <div class="ghead">
+      <span>Wed Nov 04, 10:00 PM</span>
+      <span>early season</span>
+    </div>
+    <div class="matchup">Milwaukee<span class="at">at</span>Santa Clara
+      <span class="cf">Horizon &middot; WCC</span>
+    </div>
+    <div class="proj">Projected score <b>Santa Clara 89 – Milwaukee 70</b></div>
+    
+    <div class="picks">
+      <div class="pick">
+        <div class="l"><span>Spread</span>
+    <span class="pct toss">0.5 pts off</span>
+  </div>
+        <div class="p">Santa Clara -18.5</div>
+        <div class="d">Model: Santa Clara by 19.0</div>
+        <div class="h"><b>50.8%</b> at this gap in past games where a team had played under four &middot; 1,406 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:10.0%"></i></div>
+    
+  
+      </div>
+      <div class="pick">
+        <div class="l"><span>Total</span>
+    <span class="pct toss">0.6 pts off</span>
+  </div>
+        <div class="p">Under 159.5</div>
+        <div class="d">Model total 158.9</div>
+        <div class="h"><b>51.6%</b> at this gap in past games where a team had played under four &middot; 1,905 games</div>
+        
+    
+    <div class="meter" aria-hidden="true"><i style="width:12.0%"></i></div>
     
   
       </div>
@@ -630,678 +1227,2022 @@
 
 
 
+
+
+
 <section>
   <h2>Mon Nov 2 results</h2>
-  <table>
-    <tr><th>Game</th><th>Spread</th><th>Total</th></tr>
-    
-    <tr>
-      <td>Miami at Florida<br><span class="sub fin">Florida 77 – Miami 67</span></td>
-      <td><span class="pk"><b>Florida -5.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Under 159.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Bowling Green at Georgia State<br><span class="sub fin">Bowling Green 76 – Georgia State 73</span></td>
-      <td><span class="pk"><b>Bowling Green +3.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Under 161.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Pepperdine at Cornell<br><span class="sub fin">Cornell 86 – Pepperdine 85</span></td>
-      <td><span class="pk"><b>Cornell +3.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 164.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Oakland at Michigan<br><span class="sub fin">Michigan 84 – Oakland 68</span></td>
-      <td><span class="pk"><b>Michigan -27.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 157.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Army at Duke<br><span class="sub fin">Duke 84 – Army 50</span></td>
-      <td><span class="pk"><b>Army +44.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 157.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Monmouth at St. John&#39;s<br><span class="sub fin">St. John&#39;s 78 – Monmouth 63</span></td>
-      <td><span class="pk"><b>Monmouth +28.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 155.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Loyola Maryland at Georgetown<br><span class="sub fin">Georgetown 80 – Loyola Maryland 58</span></td>
-      <td><span class="pk"><b>Loyola Maryland +27.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 153.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Central Connecticut at Temple<br><span class="sub fin">Temple 68 – Central Connecticut 56</span></td>
-      <td><span class="pk"><b>Central Connecticut +14.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 145.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Bucknell at Maryland<br><span class="sub fin">Maryland 96 – Bucknell 67</span></td>
-      <td><span class="pk"><b>Bucknell +31.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 148.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Stetson at Clemson<br><span class="sub fin">Clemson 85 – Stetson 72</span></td>
-      <td><span class="pk"><b>Clemson -22.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 144.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>South Carolina Upstate at East Carolina<br><span class="sub fin">East Carolina 83 – South Carolina Upstate 70</span></td>
-      <td><span class="pk"><b>South Carolina Upstate +14.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 152.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Long Island University at Florida Atlantic<br><span class="sub fin">Florida Atlantic 74 – Long Island University 60</span></td>
-      <td><span class="pk"><b>Long Island University +11.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 153.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Little Rock at VCU<br><span class="sub fin">VCU 82 – Little Rock 72</span></td>
-      <td><span class="pk"><b>Little Rock +19.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 155.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Dartmouth at Marist<br><span class="sub fin">Dartmouth 69 – Marist 62</span></td>
-      <td><span class="pk"><b>Marist -7.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 136.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Vermont at Iona<br><span class="sub fin">Iona 56 – Vermont 55</span></td>
-      <td><span class="pk"><b>Iona +1.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 145.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Northeastern at Boston University<br><span class="sub fin">Boston University 93 – Northeastern 85</span></td>
-      <td><span class="pk"><b>Boston University -2.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 148.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Elon at Columbia<br><span class="sub fin">Elon 84 – Columbia 71</span></td>
-      <td><span class="pk"><b>Columbia -4.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 153.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Jackson State at Texas Tech<br><span class="sub fin">Texas Tech 76 – Jackson State 42</span></td>
-      <td><span class="pk"><b>Jackson State +38.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 158.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Bellarmine at Vanderbilt<br><span class="sub fin">Vanderbilt 93 – Bellarmine 47</span></td>
-      <td><span class="pk"><b>Bellarmine +35.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 158.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Eastern Illinois at Indiana<br><span class="sub fin">Indiana 91 – Eastern Illinois 57</span></td>
-      <td><span class="pk"><b>Eastern Illinois +34.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 145.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Florida Gulf Coast at UCF<br><span class="sub fin">UCF 96 – Florida Gulf Coast 95</span></td>
-      <td><span class="pk"><b>Florida Gulf Coast +22.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 153.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Niagara at West Virginia<br><span class="sub fin">West Virginia 91 – Niagara 46</span></td>
-      <td><span class="pk"><b>Niagara +28.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 142.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Howard at Yale<br><span class="sub fin">Yale 72 – Howard 62</span></td>
-      <td><span class="pk"><b>Yale -7.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 153.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Quinnipiac at Michigan State<br><span class="sub fin">Michigan State 96 – Quinnipiac 59</span></td>
-      <td><span class="pk"><b>Michigan State -30.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 152.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Charlotte at Indiana State<br><span class="sub fin">Charlotte 78 – Indiana State 70</span></td>
-      <td><span class="pk"><b>Indiana State +5.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 152.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>St. Thomas at Presbyterian<br><span class="sub fin">St. Thomas 87 – Presbyterian 78</span></td>
-      <td><span class="pk"><b>Presbyterian +3.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 144.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Western Carolina at North Carolina<br><span class="sub fin">North Carolina 80 – Western Carolina 72</span></td>
-      <td><span class="pk"><b>Western Carolina +22.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 157.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>American University at Cincinnati<br><span class="sub fin">Cincinnati 79 – American University 53</span></td>
-      <td><span class="pk"><b>American University +25.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 153.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Charleston Southern at South Florida<br><span class="sub fin">South Florida 98 – Charleston Southern 71</span></td>
-      <td><span class="pk"><b>Charleston Southern +21.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 158.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Lafayette at Butler<br><span class="sub fin">Butler 96 – Lafayette 60</span></td>
-      <td><span class="pk"><b>Lafayette +19.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 149.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Maine at Providence<br><span class="sub fin">Providence 83 – Maine 56</span></td>
-      <td><span class="pk"><b>Maine +31.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 151.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Mount St. Mary&#39;s at Xavier<br><span class="sub fin">Xavier 97 – Mount St. Mary&#39;s 52</span></td>
-      <td><span class="pk"><b>Mount St. Mary&#39;s +26.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Under 156.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Rider at Pittsburgh<br><span class="sub fin">Pittsburgh 95 – Rider 57</span></td>
-      <td><span class="pk"><b>Rider +27.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 139.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>New Haven at Syracuse<br><span class="sub fin">Syracuse 74 – New Haven 58</span></td>
-      <td><span class="pk"><b>New Haven +26.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 131.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Buffalo at Marshall<br><span class="sub fin">Marshall 92 – Buffalo 65</span></td>
-      <td><span class="pk"><b>Marshall -2.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 157.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Western Michigan at Old Dominion<br><span class="sub fin">Old Dominion 61 – Western Michigan 49</span></td>
-      <td><span class="pk"><b>Old Dominion +1.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 155.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Eastern Michigan at Coastal Carolina<br><span class="sub fin">Eastern Michigan 71 – Coastal Carolina 70</span></td>
-      <td><span class="pk"><b>Coastal Carolina -1.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 143.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Memphis at Iowa State<br><span class="sub fin">Memphis 80 – Iowa State 76</span></td>
-      <td><span class="pk"><b>Iowa State -15.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Under 157.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Miami (OH) at James Madison<br><span class="sub fin">Miami (OH) 86 – James Madison 77</span></td>
-      <td><span class="pk"><b>James Madison -1.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 158.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Ball State at Georgia Southern<br><span class="sub fin">Georgia Southern 67 – Ball State 55</span></td>
-      <td><span class="pk"><b>Georgia Southern +1.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 159.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>NJIT at Dayton<br><span class="sub fin">Dayton 89 – NJIT 58</span></td>
-      <td><span class="pk"><b>NJIT +23.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 144.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>UNC Asheville at Richmond<br><span class="sub fin">Richmond 100 – UNC Asheville 77</span></td>
-      <td><span class="pk"><b>UNC Asheville +15.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 152.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Youngstown State at St. Bonaventure<br><span class="sub fin">Youngstown State 79 – St. Bonaventure 71</span></td>
-      <td><span class="pk"><b>Youngstown State +10.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 153.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>New Hampshire at Brown<br><span class="sub fin">New Hampshire 59 – Brown 55</span></td>
-      <td><span class="pk"><b>Brown -8.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 144.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Air Force at Wright State<br><span class="sub fin">Wright State 102 – Air Force 71</span></td>
-      <td><span class="pk"><b>Wright State -12.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 163.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Massachusetts at Troy<br><span class="sub fin">Massachusetts 71 – Troy 60</span></td>
-      <td><span class="pk"><b>Troy -2.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 154.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Le Moyne at Nebraska<br><span class="sub fin">Nebraska 106 – Le Moyne 64</span></td>
-      <td><span class="pk"><b>Le Moyne +35.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 151.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Gonzaga at Purdue<br><span class="sub fin">Purdue 78 – Gonzaga 72</span></td>
-      <td><span class="pk"><b>Purdue +5.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Under 153.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Morehead State at Western Kentucky<br><span class="sub fin">Western Kentucky 83 – Morehead State 58</span></td>
-      <td><span class="pk"><b>Morehead State +17.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 153.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Denver at Wisconsin<br><span class="sub fin">Wisconsin 75 – Denver 68</span></td>
-      <td><span class="pk"><b>Denver +25.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 161.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Saint Peter&#39;s at Seton Hall<br><span class="sub fin">Seton Hall 66 – Saint Peter&#39;s 42</span></td>
-      <td><span class="pk"><b>Seton Hall -19.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 133.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Southern Indiana at Belmont<br><span class="sub fin">Belmont 72 – Southern Indiana 54</span></td>
-      <td><span class="pk"><b>Southern Indiana +17.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 155.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Campbell at NC State<br><span class="sub fin">NC State 83 – Campbell 64</span></td>
-      <td><span class="pk"><b>Campbell +22.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 158.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Lipscomb at Southeast Missouri State<br><span class="sub fin">Southeast Missouri State 86 – Lipscomb 79</span></td>
-      <td><span class="pk"><b>Southeast Missouri State +1.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 156.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Navy at George Washington<br><span class="sub fin">George Washington 91 – Navy 39</span></td>
-      <td><span class="pk"><b>Navy +18.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 149.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Canisius at Penn State<br><span class="sub fin">Penn State 97 – Canisius 57</span></td>
-      <td><span class="pk"><b>Canisius +23.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 154.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Kent State at Louisiana Tech<br><span class="sub fin">Louisiana Tech 85 – Kent State 75</span></td>
-      <td><span class="pk"><b>Louisiana Tech +5.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 144.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Central Michigan at UL Monroe<br><span class="sub fin">Central Michigan 83 – UL Monroe 78</span></td>
-      <td><span class="pk"><b>UL Monroe +2.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 151.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Mercyhurst at Marquette<br><span class="sub fin">Marquette 78 – Mercyhurst 43</span></td>
-      <td><span class="pk"><b>Mercyhurst +31.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 146.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Tennessee Tech at Mississippi State<br><span class="sub fin">Mississippi State 106 – Tennessee Tech 88</span></td>
-      <td><span class="pk"><b>Mississippi State -17.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 156.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>North Carolina Central at Georgia<br><span class="sub fin">Georgia 78 – North Carolina Central 62</span></td>
-      <td><span class="pk"><b>North Carolina Central +40.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Under 163.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Texas A&amp;M-Corpus Christi at Texas State<br><span class="sub fin">Texas State 67 – Texas A&amp;M-Corpus Christi 55</span></td>
-      <td><span class="pk"><b>Texas A&amp;M-Corpus Christi +10.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 142.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Siena at Bryant<br><span class="sub fin">Bryant 80 – Siena 75</span></td>
-      <td><span class="pk"><b>Bryant +5.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 158.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Furman at Bethune-Cookman<br><span class="sub fin">Furman 79 – Bethune-Cookman 70</span></td>
-      <td><span class="pk"><b>Furman -4.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Under 153.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Binghamton at Northwestern<br><span class="sub fin">Northwestern 86 – Binghamton 60</span></td>
-      <td><span class="pk"><b>Northwestern -20.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 146.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Lindenwood at TCU<br><span class="sub fin">TCU 98 – Lindenwood 59</span></td>
-      <td><span class="pk"><b>Lindenwood +29.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 154.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>UT Martin at Tulane<br><span class="sub fin">Tulane 100 – UT Martin 98</span></td>
-      <td><span class="pk"><b>UT Martin +6.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 146.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Southern at SMU<br><span class="sub fin">SMU 85 – Southern 72</span></td>
-      <td><span class="pk"><b>Southern +25.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 159.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Fairleigh Dickinson at Illinois<br><span class="sub fin">Illinois 120 – Fairleigh Dickinson 45</span></td>
-      <td><span class="pk"><b>Fairleigh Dickinson +39.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 156.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Lehigh at Saint Louis<br><span class="sub fin">Saint Louis 92 – Lehigh 67</span></td>
-      <td><span class="pk"><b>Lehigh +24.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 156.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Toledo at Arkansas State<br><span class="sub fin">Arkansas State 71 – Toledo 70</span></td>
-      <td><span class="pk"><b>Arkansas State -3.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 165.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Ohio at South Alabama<br><span class="sub fin">Ohio 86 – South Alabama 77</span></td>
-      <td><span class="pk"><b>South Alabama -1.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 154.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Western Illinois at Valparaiso<br><span class="sub fin">Valparaiso 80 – Western Illinois 58</span></td>
-      <td><span class="pk"><b>Western Illinois +18.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 139.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Akron at Louisiana<br><span class="sub fin">Akron 75 – Louisiana 61</span></td>
-      <td><span class="pk"><b>Louisiana +5.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 148.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Fordham at Kansas<br><span class="sub fin">Kansas 95 – Fordham 65</span></td>
-      <td><span class="pk"><b>Kansas -21.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 145.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Maryland Eastern Shore at Wake Forest<br><span class="sub fin">Wake Forest 83 – Maryland Eastern Shore 62</span></td>
-      <td><span class="pk"><b>Maryland Eastern Shore +32.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 144.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>West Georgia at DePaul<br><span class="sub fin">DePaul 75 – West Georgia 58</span></td>
-      <td><span class="pk"><b>West Georgia +24.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 142.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Kansas City at Creighton<br><span class="sub fin">Creighton 76 – Kansas City 61</span></td>
-      <td><span class="pk"><b>Kansas City +26.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 155.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>East Texas A&amp;M at Oklahoma<br><span class="sub fin">East Texas A&amp;M 68 – Oklahoma 64</span></td>
-      <td><span class="pk"><b>East Texas A&amp;M +30.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 149.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>The Citadel at Loyola Chicago<br><span class="sub fin">Loyola Chicago 77 – The Citadel 52</span></td>
-      <td><span class="pk"><b>The Citadel +14.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 143.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Oral Roberts at Central Arkansas<br><span class="sub fin">Central Arkansas 85 – Oral Roberts 55</span></td>
-      <td><span class="pk"><b>Central Arkansas -8.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 155.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Alcorn State at Ole Miss<br><span class="sub fin">Ole Miss 99 – Alcorn State 58</span></td>
-      <td><span class="pk"><b>Alcorn State +30.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 148.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Florida A&amp;M at Florida State<br><span class="sub fin">Florida A&amp;M 112 – Florida State 69</span></td>
-      <td><span class="pk"><b>Florida A&amp;M +28.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Under 158.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Chicago State at Texas<br><span class="sub fin">Texas 109 – Chicago State 59</span></td>
-      <td><span class="pk"><b>Chicago State +40.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 149.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Abilene Christian at Colorado<br><span class="sub fin">Colorado 94 – Abilene Christian 59</span></td>
-      <td><span class="pk"><b>Colorado -18.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 154.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Texas Southern at Grand Canyon<br><span class="sub fin">Grand Canyon 103 – Texas Southern 79</span></td>
-      <td><span class="pk"><b>Texas Southern +28.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 143.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Gardner-Webb at UConn<br><span class="sub fin">UConn 86 – Gardner-Webb 46</span></td>
-      <td><span class="pk"><b>Gardner-Webb +41.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 147.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>North Dakota at Minnesota<br><span class="sub fin">Minnesota 85 – North Dakota 50</span></td>
-      <td><span class="pk"><b>North Dakota +26.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 149.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Ohio State at BYU<br><span class="sub fin">BYU 94 – Ohio State 83</span></td>
-      <td><span class="pk"><b>Ohio State +3.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Under 160.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Chattanooga at Louisville<br><span class="sub fin">Louisville 84 – Chattanooga 70</span></td>
-      <td><span class="pk"><b>Chattanooga +30.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 159.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Incarnate Word at Oklahoma State<br><span class="sub fin">Oklahoma State 91 – Incarnate Word 60</span></td>
-      <td><span class="pk"><b>Incarnate Word +27.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Under 160.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Long Beach State at Utah<br><span class="sub fin">Utah 66 – Long Beach State 63</span></td>
-      <td><span class="pk"><b>Long Beach State +19.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 147.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Utah Tech at New Mexico<br><span class="sub fin">New Mexico 100 – Utah Tech 60</span></td>
-      <td><span class="pk"><b>Utah Tech +23.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 159.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Davidson at Washington State<br><span class="sub fin">Davidson 76 – Washington State 61</span></td>
-      <td><span class="pk"><b>Washington State -2.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 149.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>La Salle at Houston<br><span class="sub fin">Houston 94 – La Salle 55</span></td>
-      <td><span class="pk"><b>Houston -29.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 134.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Idaho State at Utah State<br><span class="sub fin">Utah State 94 – Idaho State 58</span></td>
-      <td><span class="pk"><b>Idaho State +26.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 152.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Weber State at Oregon State<br><span class="sub fin">Oregon State 102 – Weber State 61</span></td>
-      <td><span class="pk"><b>Weber State +17.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 160.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Northwestern State at Baylor<br><span class="sub fin">Baylor 87 – Northwestern State 65</span></td>
-      <td><span class="pk"><b>Northwestern State +32.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 151.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Arizona at UCLA<br><span class="sub fin">UCLA 84 – Arizona 75</span></td>
-      <td><span class="pk"><b>UCLA +5.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Under 149.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Robert Morris at Nevada<br><span class="sub fin">Nevada 86 – Robert Morris 49</span></td>
-      <td><span class="pk"><b>Robert Morris +12.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 144.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>North Alabama at UC Davis<br><span class="sub fin">North Alabama 79 – UC Davis 75</span></td>
-      <td><span class="pk"><b>UC Davis -9.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 150.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Illinois State at Saint Mary&#39;s<br><span class="sub fin">Saint Mary&#39;s 90 – Illinois State 85</span></td>
-      <td><span class="pk"><b>Saint Mary&#39;s -7.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 148.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Towson at Santa Clara<br><span class="sub fin">Santa Clara 89 – Towson 70</span></td>
-      <td><span class="pk"><b>Santa Clara -13.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 146.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Eastern Washington at Stanford<br><span class="sub fin">Stanford 74 – Eastern Washington 65</span></td>
-      <td><span class="pk"><b>Stanford -13.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 153.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Colgate at Washington<br><span class="sub fin">Washington 90 – Colgate 76</span></td>
-      <td><span class="pk"><b>Washington -14.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 154.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Radford at San Francisco<br><span class="sub fin">San Francisco 76 – Radford 62</span></td>
-      <td><span class="pk"><b>Radford +15.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 154.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>East Tennessee State at Arizona State<br><span class="sub fin">Arizona State 75 – East Tennessee State 65</span></td>
-      <td><span class="pk"><b>East Tennessee State +19.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 145.5</b><span class="tag loss">loss</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Montana at Oregon<br><span class="sub fin">Oregon 87 – Montana 69</span></td>
-      <td><span class="pk"><b>Montana +19.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 151.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Montana State at Colorado State<br><span class="sub fin">Colorado State 84 – Montana State 74</span></td>
-      <td><span class="pk"><b>Montana State +10.5</b><span class="tag win">win</span></span></td>
-      <td><span class="pk"><b>Over 147.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Milwaukee at USC<br><span class="sub fin">USC 95 – Milwaukee 63</span></td>
-      <td><span class="pk"><b>Milwaukee +26.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Under 160.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-    <tr>
-      <td>Seattle U at Hawai&#39;i<br><span class="sub fin">Hawai&#39;i 74 – Seattle U 73</span></td>
-      <td><span class="pk"><b>Hawai&#39;i -1.5</b><span class="tag loss">loss</span></span></td>
-      <td><span class="pk"><b>Over 141.5</b><span class="tag win">win</span></span></td>
-    </tr>
-    
-  </table>
+  <p class="sub" style="margin:-4px 0 10px">Spreads <b class="dayrec">58-53</b>
+    &middot; Totals <b class="dayrec">53-58</b> &middot; 111 games, Top 25 first</p>
+  <div class="rlist">
+    
+  <div class="rrow">
+    <div class="rm"><span class="rk">#14</span>Miami<span class="at">vs</span><span class="rk">#1</span>Florida</div>
+    <div class="rf">Florida 77 – Miami 67</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Florida -5.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Under 159.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Oakland<span class="at">at</span><span class="rk">#16</span>Michigan</div>
+    <div class="rf">Michigan 84 – Oakland 68</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Michigan -27.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 157.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Army<span class="at">at</span><span class="rk">#2</span>Duke</div>
+    <div class="rf">Duke 84 – Army 50</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Army +44.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 157.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Monmouth<span class="at">at</span><span class="rk">#13</span>St. John&#39;s</div>
+    <div class="rf">St. John&#39;s 78 – Monmouth 63</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Monmouth +28.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 155.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Memphis<span class="at">vs</span><span class="rk">#18</span>Iowa State</div>
+    <div class="rf">Memphis 80 – Iowa State 76</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Iowa State -15.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Under 157.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Jackson State<span class="at">at</span><span class="rk">#19</span>Texas Tech</div>
+    <div class="rf">Texas Tech 76 – Jackson State 42</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Jackson State +38.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 158.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Bellarmine<span class="at">at</span><span class="rk">#24</span>Vanderbilt</div>
+    <div class="rf">Vanderbilt 93 – Bellarmine 47</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Bellarmine +35.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 158.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Quinnipiac<span class="at">at</span><span class="rk">#6</span>Michigan State</div>
+    <div class="rf">Michigan State 96 – Quinnipiac 59</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Michigan State -30.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 152.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm"><span class="rk">#15</span>Gonzaga<span class="at">vs</span>Purdue</div>
+    <div class="rf">Purdue 78 – Gonzaga 72</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Purdue +5.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Under 153.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Fordham<span class="at">at</span><span class="rk">#17</span>Kansas</div>
+    <div class="rf">Kansas 95 – Fordham 65</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Kansas -21.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 145.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Fairleigh Dickinson<span class="at">at</span><span class="rk">#3</span>Illinois</div>
+    <div class="rf">Illinois 120 – Fairleigh Dickinson 45</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Fairleigh Dickinson +39.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 156.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Chicago State<span class="at">at</span><span class="rk">#7</span>Texas</div>
+    <div class="rf">Texas 109 – Chicago State 59</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Chicago State +40.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 149.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  </div>
+  
+  <details class="more">
+    <summary>Show all 111 games</summary>
+    <div class="rlist">
+      
+  <div class="rrow">
+    <div class="rm">Gardner-Webb<span class="at">at</span><span class="rk">#4</span>UConn</div>
+    <div class="rf">UConn 86 – Gardner-Webb 46</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Gardner-Webb +41.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 147.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Ohio State<span class="at">vs</span><span class="rk">#25</span>BYU</div>
+    <div class="rf">BYU 94 – Ohio State 83</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Ohio State +3.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Under 160.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Chattanooga<span class="at">at</span><span class="rk">#11</span>Louisville</div>
+    <div class="rf">Louisville 84 – Chattanooga 70</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Chattanooga +30.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 159.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">La Salle<span class="at">at</span><span class="rk">#10</span>Houston</div>
+    <div class="rf">Houston 94 – La Salle 55</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Houston -29.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 134.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm"><span class="rk">#5</span>Arizona<span class="at">vs</span><span class="rk">#22</span>UCLA</div>
+    <div class="rf">UCLA 84 – Arizona 75</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">UCLA +5.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Under 149.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Milwaukee<span class="at">at</span><span class="rk">#21</span>USC</div>
+    <div class="rf">USC 95 – Milwaukee 63</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Milwaukee +26.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Under 160.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Bowling Green<span class="at">at</span>Georgia State</div>
+    <div class="rf">Bowling Green 76 – Georgia State 73</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Bowling Green +3.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Under 161.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Pepperdine<span class="at">at</span>Cornell</div>
+    <div class="rf">Cornell 86 – Pepperdine 85</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Cornell +3.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 164.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Loyola Maryland<span class="at">at</span>Georgetown</div>
+    <div class="rf">Georgetown 80 – Loyola Maryland 58</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Loyola Maryland +27.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 153.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Central Connecticut<span class="at">at</span>Temple</div>
+    <div class="rf">Temple 68 – Central Connecticut 56</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Central Connecticut +14.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 145.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Lafayette<span class="at">at</span>Butler</div>
+    <div class="rf">Butler 96 – Lafayette 60</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Lafayette +19.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 149.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Maine<span class="at">at</span>Providence</div>
+    <div class="rf">Providence 83 – Maine 56</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Maine +31.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 151.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Mount St. Mary&#39;s<span class="at">at</span>Xavier</div>
+    <div class="rf">Xavier 97 – Mount St. Mary&#39;s 52</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Mount St. Mary&#39;s +26.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Under 156.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Rider<span class="at">at</span>Pittsburgh</div>
+    <div class="rf">Pittsburgh 95 – Rider 57</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Rider +27.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 139.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">New Haven<span class="at">at</span>Syracuse</div>
+    <div class="rf">Syracuse 74 – New Haven 58</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">New Haven +26.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 131.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Buffalo<span class="at">at</span>Marshall</div>
+    <div class="rf">Marshall 92 – Buffalo 65</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Marshall -2.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 157.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Western Michigan<span class="at">at</span>Old Dominion</div>
+    <div class="rf">Old Dominion 61 – Western Michigan 49</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Old Dominion +1.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 155.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Eastern Michigan<span class="at">at</span>Coastal Carolina</div>
+    <div class="rf">Eastern Michigan 71 – Coastal Carolina 70</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Coastal Carolina -1.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 143.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Massachusetts<span class="at">at</span>Troy</div>
+    <div class="rf">Massachusetts 71 – Troy 60</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Troy -2.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 154.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Miami (OH)<span class="at">at</span>James Madison</div>
+    <div class="rf">Miami (OH) 86 – James Madison 77</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">James Madison -1.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 158.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Ball State<span class="at">at</span>Georgia Southern</div>
+    <div class="rf">Georgia Southern 67 – Ball State 55</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Georgia Southern +1.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 159.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">NJIT<span class="at">at</span>Dayton</div>
+    <div class="rf">Dayton 89 – NJIT 58</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">NJIT +23.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 144.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">UNC Asheville<span class="at">at</span>Richmond</div>
+    <div class="rf">Richmond 100 – UNC Asheville 77</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">UNC Asheville +15.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 152.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Youngstown State<span class="at">at</span>St. Bonaventure</div>
+    <div class="rf">Youngstown State 79 – St. Bonaventure 71</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Youngstown State +10.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 153.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">New Hampshire<span class="at">at</span>Brown</div>
+    <div class="rf">New Hampshire 59 – Brown 55</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Brown -8.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 144.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Air Force<span class="at">at</span>Wright State</div>
+    <div class="rf">Wright State 102 – Air Force 71</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Wright State -12.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 163.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Charleston Southern<span class="at">at</span>South Florida</div>
+    <div class="rf">South Florida 98 – Charleston Southern 71</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Charleston Southern +21.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 158.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">American University<span class="at">at</span>Cincinnati</div>
+    <div class="rf">Cincinnati 79 – American University 53</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">American University +25.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 153.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Western Carolina<span class="at">at</span>North Carolina</div>
+    <div class="rf">North Carolina 80 – Western Carolina 72</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Western Carolina +22.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 157.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Eastern Illinois<span class="at">at</span>Indiana</div>
+    <div class="rf">Indiana 91 – Eastern Illinois 57</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Eastern Illinois +34.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 145.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Bucknell<span class="at">at</span>Maryland</div>
+    <div class="rf">Maryland 96 – Bucknell 67</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Bucknell +31.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 148.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Stetson<span class="at">at</span>Clemson</div>
+    <div class="rf">Clemson 85 – Stetson 72</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Clemson -22.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 144.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">South Carolina Upstate<span class="at">at</span>East Carolina</div>
+    <div class="rf">East Carolina 83 – South Carolina Upstate 70</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">South Carolina Upstate +14.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 152.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Long Island University<span class="at">at</span>Florida Atlantic</div>
+    <div class="rf">Florida Atlantic 74 – Long Island University 60</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Long Island University +11.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 153.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Little Rock<span class="at">at</span>VCU</div>
+    <div class="rf">VCU 82 – Little Rock 72</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Little Rock +19.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 155.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Dartmouth<span class="at">at</span>Marist</div>
+    <div class="rf">Dartmouth 69 – Marist 62</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Marist -7.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 136.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Vermont<span class="at">at</span>Iona</div>
+    <div class="rf">Iona 56 – Vermont 55</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Iona +1.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 145.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Northeastern<span class="at">at</span>Boston University</div>
+    <div class="rf">Boston University 93 – Northeastern 85</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Boston University -2.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 148.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">St. Thomas<span class="at">at</span>Presbyterian</div>
+    <div class="rf">St. Thomas 87 – Presbyterian 78</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Presbyterian +3.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 144.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Elon<span class="at">at</span>Columbia</div>
+    <div class="rf">Elon 84 – Columbia 71</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Columbia -4.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 153.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Florida Gulf Coast<span class="at">at</span>UCF</div>
+    <div class="rf">UCF 96 – Florida Gulf Coast 95</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Florida Gulf Coast +22.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 153.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Niagara<span class="at">at</span>West Virginia</div>
+    <div class="rf">West Virginia 91 – Niagara 46</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Niagara +28.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 142.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Howard<span class="at">at</span>Yale</div>
+    <div class="rf">Yale 72 – Howard 62</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Yale -7.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 153.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Charlotte<span class="at">at</span>Indiana State</div>
+    <div class="rf">Charlotte 78 – Indiana State 70</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Indiana State +5.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 152.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">North Carolina Central<span class="at">at</span>Georgia</div>
+    <div class="rf">Georgia 78 – North Carolina Central 62</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">North Carolina Central +40.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Under 163.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Tennessee Tech<span class="at">at</span>Mississippi State</div>
+    <div class="rf">Mississippi State 106 – Tennessee Tech 88</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Mississippi State -17.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 156.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Mercyhurst<span class="at">at</span>Marquette</div>
+    <div class="rf">Marquette 78 – Mercyhurst 43</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Mercyhurst +31.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 146.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Central Michigan<span class="at">at</span>UL Monroe</div>
+    <div class="rf">Central Michigan 83 – UL Monroe 78</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">UL Monroe +2.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 151.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Kent State<span class="at">at</span>Louisiana Tech</div>
+    <div class="rf">Louisiana Tech 85 – Kent State 75</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Louisiana Tech +5.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 144.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Navy<span class="at">at</span>George Washington</div>
+    <div class="rf">George Washington 91 – Navy 39</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Navy +18.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 149.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Canisius<span class="at">at</span>Penn State</div>
+    <div class="rf">Penn State 97 – Canisius 57</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Canisius +23.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 154.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Campbell<span class="at">at</span>NC State</div>
+    <div class="rf">NC State 83 – Campbell 64</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Campbell +22.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 158.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Le Moyne<span class="at">at</span>Nebraska</div>
+    <div class="rf">Nebraska 106 – Le Moyne 64</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Le Moyne +35.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 151.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Lipscomb<span class="at">at</span>Southeast Missouri State</div>
+    <div class="rf">Southeast Missouri State 86 – Lipscomb 79</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Southeast Missouri State +1.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 156.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Southern Indiana<span class="at">at</span>Belmont</div>
+    <div class="rf">Belmont 72 – Southern Indiana 54</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Southern Indiana +17.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 155.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Saint Peter&#39;s<span class="at">at</span>Seton Hall</div>
+    <div class="rf">Seton Hall 66 – Saint Peter&#39;s 42</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Seton Hall -19.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 133.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Denver<span class="at">at</span>Wisconsin</div>
+    <div class="rf">Wisconsin 75 – Denver 68</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Denver +25.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 161.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Morehead State<span class="at">at</span>Western Kentucky</div>
+    <div class="rf">Western Kentucky 83 – Morehead State 58</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Morehead State +17.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 153.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">East Texas A&amp;M<span class="at">at</span>Oklahoma</div>
+    <div class="rf">East Texas A&amp;M 68 – Oklahoma 64</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">East Texas A&amp;M +30.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 149.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Kansas City<span class="at">at</span>Creighton</div>
+    <div class="rf">Creighton 76 – Kansas City 61</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Kansas City +26.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 155.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">West Georgia<span class="at">at</span>DePaul</div>
+    <div class="rf">DePaul 75 – West Georgia 58</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">West Georgia +24.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 142.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Maryland Eastern Shore<span class="at">at</span>Wake Forest</div>
+    <div class="rf">Wake Forest 83 – Maryland Eastern Shore 62</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Maryland Eastern Shore +32.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 144.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Akron<span class="at">at</span>Louisiana</div>
+    <div class="rf">Akron 75 – Louisiana 61</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Louisiana +5.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 148.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Toledo<span class="at">at</span>Arkansas State</div>
+    <div class="rf">Arkansas State 71 – Toledo 70</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Arkansas State -3.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 165.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Ohio<span class="at">at</span>South Alabama</div>
+    <div class="rf">Ohio 86 – South Alabama 77</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">South Alabama -1.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 154.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">The Citadel<span class="at">at</span>Loyola Chicago</div>
+    <div class="rf">Loyola Chicago 77 – The Citadel 52</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">The Citadel +14.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 143.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Lehigh<span class="at">at</span>Saint Louis</div>
+    <div class="rf">Saint Louis 92 – Lehigh 67</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Lehigh +24.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 156.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Southern<span class="at">at</span>SMU</div>
+    <div class="rf">SMU 85 – Southern 72</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Southern +25.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 159.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">UT Martin<span class="at">at</span>Tulane</div>
+    <div class="rf">Tulane 100 – UT Martin 98</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">UT Martin +6.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 146.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Lindenwood<span class="at">at</span>TCU</div>
+    <div class="rf">TCU 98 – Lindenwood 59</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Lindenwood +29.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 154.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Binghamton<span class="at">at</span>Northwestern</div>
+    <div class="rf">Northwestern 86 – Binghamton 60</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Northwestern -20.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 146.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Furman<span class="at">vs</span>Bethune-Cookman</div>
+    <div class="rf">Furman 79 – Bethune-Cookman 70</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Furman -4.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Under 153.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Siena<span class="at">at</span>Bryant</div>
+    <div class="rf">Bryant 80 – Siena 75</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Bryant +5.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 158.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Texas A&amp;M-Corpus Christi<span class="at">at</span>Texas State</div>
+    <div class="rf">Texas State 67 – Texas A&amp;M-Corpus Christi 55</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Texas A&amp;M-Corpus Christi +10.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 142.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Western Illinois<span class="at">at</span>Valparaiso</div>
+    <div class="rf">Valparaiso 80 – Western Illinois 58</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Western Illinois +18.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 139.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Florida A&amp;M<span class="at">vs</span>Florida State</div>
+    <div class="rf">Florida A&amp;M 112 – Florida State 69</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Florida A&amp;M +28.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Under 158.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Oral Roberts<span class="at">at</span>Central Arkansas</div>
+    <div class="rf">Central Arkansas 85 – Oral Roberts 55</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Central Arkansas -8.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 155.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Alcorn State<span class="at">at</span>Ole Miss</div>
+    <div class="rf">Ole Miss 99 – Alcorn State 58</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Alcorn State +30.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 148.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Abilene Christian<span class="at">at</span>Colorado</div>
+    <div class="rf">Colorado 94 – Abilene Christian 59</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Colorado -18.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 154.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Texas Southern<span class="at">at</span>Grand Canyon</div>
+    <div class="rf">Grand Canyon 103 – Texas Southern 79</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Texas Southern +28.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 143.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">North Dakota<span class="at">at</span>Minnesota</div>
+    <div class="rf">Minnesota 85 – North Dakota 50</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">North Dakota +26.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 149.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Incarnate Word<span class="at">at</span>Oklahoma State</div>
+    <div class="rf">Oklahoma State 91 – Incarnate Word 60</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Incarnate Word +27.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Under 160.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Long Beach State<span class="at">at</span>Utah</div>
+    <div class="rf">Utah 66 – Long Beach State 63</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Long Beach State +19.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 147.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Utah Tech<span class="at">at</span>New Mexico</div>
+    <div class="rf">New Mexico 100 – Utah Tech 60</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Utah Tech +23.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 159.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Davidson<span class="at">at</span>Washington State</div>
+    <div class="rf">Davidson 76 – Washington State 61</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Washington State -2.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 149.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Northwestern State<span class="at">at</span>Baylor</div>
+    <div class="rf">Baylor 87 – Northwestern State 65</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Northwestern State +32.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 151.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Idaho State<span class="at">at</span>Utah State</div>
+    <div class="rf">Utah State 94 – Idaho State 58</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Idaho State +26.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 152.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Weber State<span class="at">at</span>Oregon State</div>
+    <div class="rf">Oregon State 102 – Weber State 61</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Weber State +17.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 160.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Robert Morris<span class="at">at</span>Nevada</div>
+    <div class="rf">Nevada 86 – Robert Morris 49</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Robert Morris +12.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 144.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">North Alabama<span class="at">at</span>UC Davis</div>
+    <div class="rf">North Alabama 79 – UC Davis 75</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">UC Davis -9.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 150.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Illinois State<span class="at">at</span>Saint Mary&#39;s</div>
+    <div class="rf">Saint Mary&#39;s 90 – Illinois State 85</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Saint Mary&#39;s -7.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 148.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Towson<span class="at">at</span>Santa Clara</div>
+    <div class="rf">Santa Clara 89 – Towson 70</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Santa Clara -13.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 146.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Eastern Washington<span class="at">at</span>Stanford</div>
+    <div class="rf">Stanford 74 – Eastern Washington 65</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Stanford -13.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 153.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Colgate<span class="at">at</span>Washington</div>
+    <div class="rf">Washington 90 – Colgate 76</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Washington -14.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 154.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Radford<span class="at">at</span>San Francisco</div>
+    <div class="rf">San Francisco 76 – Radford 62</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Radford +15.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 154.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">East Tennessee State<span class="at">at</span>Arizona State</div>
+    <div class="rf">Arizona State 75 – East Tennessee State 65</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">East Tennessee State +19.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag loss">loss</span></div>
+        <div class="rv">Over 145.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Montana<span class="at">at</span>Oregon</div>
+    <div class="rf">Oregon 87 – Montana 69</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Montana +19.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 151.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Montana State<span class="at">at</span>Colorado State</div>
+    <div class="rf">Colorado State 84 – Montana State 74</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag win">win</span></div>
+        <div class="rv">Montana State +10.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 147.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="rrow">
+    <div class="rm">Seattle U<span class="at">at</span>Hawai&#39;i</div>
+    <div class="rf">Hawai&#39;i 74 – Seattle U 73</div>
+    <div class="rp">
+      
+      <div class="rc">
+        <div class="rl"><span>Spread</span><span class="tag loss">loss</span></div>
+        <div class="rv">Hawai&#39;i -1.5</div>
+      </div>
+      
+      <div class="rc">
+        <div class="rl"><span>Total</span><span class="tag win">win</span></div>
+        <div class="rv">Over 141.5</div>
+      </div>
+      
+    </div>
+  </div>
+
+    </div>
+  </details>
+  
 </section>
 
 
