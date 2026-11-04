@@ -28785,8 +28785,8 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401909138,2026,9,regular,2026-10-31,False,"Sat Oct 31, 1:00 PM",Kenyon,Oberlin,,,,,False,True,North Coast,North Coast,False,2026-10-31T13:00:00-04:00,Sat,,
 401909145,2026,9,regular,2026-10-31,False,"Sat Oct 31, 1:00 PM",Ohio Wesleyan,Wabash,,,,,False,True,North Coast,North Coast,False,2026-10-31T13:00:00-04:00,Sat,,
 401915933,2026,9,regular,2026-10-31,False,"Sat Oct 31, 3:00 PM",Langston,Northeastern State,,,,,False,False,,Independent DII,False,2026-10-31T15:00:00-04:00,Sat,,
-401866453,2026,10,regular,2026-11-03,False,"Tue Nov 03, 7:00 PM",Akron,Ohio,,,,,False,True,Mid-American,Mid-American,False,2026-11-03T19:00:00-05:00,Tue,fbs,fbs
-401866454,2026,10,regular,2026-11-03,False,"Tue Nov 03, 8:00 PM",Miami (OH),Buffalo,,,,,False,True,Mid-American,Mid-American,False,2026-11-03T20:00:00-05:00,Tue,fbs,fbs
+401866453,2026,10,regular,2026-11-03,False,"Tue Nov 03, 7:00 PM",Akron,Ohio,20.0,28.0,48.0,-8.0,False,True,Mid-American,Mid-American,True,2026-11-03T19:00:00-05:00,Tue,fbs,fbs
+401866454,2026,10,regular,2026-11-03,False,"Tue Nov 03, 8:00 PM",Miami (OH),Buffalo,31.0,34.0,65.0,-3.0,False,True,Mid-American,Mid-American,True,2026-11-03T20:00:00-05:00,Tue,fbs,fbs
 401866455,2026,10,regular,2026-11-04,False,"Wed Nov 04, 7:00 PM",Massachusetts,Ball State,,,,,False,True,Mid-American,Mid-American,False,2026-11-04T19:00:00-05:00,Wed,fbs,fbs
 401866456,2026,10,regular,2026-11-04,False,"Wed Nov 04, 7:30 PM",Eastern Michigan,Central Michigan,,,,,True,True,Mid-American,Mid-American,False,2026-11-04T19:30:00-05:00,Wed,fbs,fbs
 401866457,2026,10,regular,2026-11-04,False,"Wed Nov 04, 7:00 PM",Sacramento State,Toledo,,,,,False,True,Mid-American,Mid-American,False,2026-11-04T19:00:00-05:00,Wed,fbs,fbs
