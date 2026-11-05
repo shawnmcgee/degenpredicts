@@ -4758,7 +4758,7 @@ game_id,season,week,date,home_team,away_team,provider,spread_home,spread_open,to
 2026_09_DEN_CAR,2026,9,2026-11-08,CAR,DEN,nflverse_close,2.5,,44.5,,130.0,-155.0,1
 2026_09_DET_MIA,2026,9,2026-11-08,MIA,DET,nflverse_close,7.0,,50.5,,280.0,-355.0,1
 2026_09_GB_NE,2026,9,2026-11-08,NE,GB,nflverse_close,-3.0,,45.5,,-166.0,140.0,1
-2026_09_HOU_LAC,2026,9,2026-11-08,LAC,HOU,nflverse_close,4.5,,40.5,,180.0,-218.0,1
+2026_09_HOU_LAC,2026,9,2026-11-08,LAC,HOU,nflverse_close,5.5,,40.5,,185.0,-225.0,1
 2026_09_LA_WAS,2026,9,2026-11-08,WAS,LA,nflverse_close,4.5,,48.5,,185.0,-225.0,1
 2026_09_LV_SF,2026,9,2026-11-08,SF,LV,nflverse_close,-10.0,,51.5,,-520.0,390.0,1
 2026_09_NYG_PHI,2026,9,2026-11-08,PHI,NYG,nflverse_close,3.5,,38.5,,140.0,-166.0,1
