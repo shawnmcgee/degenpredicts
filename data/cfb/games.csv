@@ -28787,9 +28787,9 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401915933,2026,9,regular,2026-10-31,False,"Sat Oct 31, 3:00 PM",Langston,Northeastern State,,,,,False,False,,Independent DII,False,2026-10-31T15:00:00-04:00,Sat,,
 401866453,2026,10,regular,2026-11-03,False,"Tue Nov 03, 7:00 PM",Akron,Ohio,20.0,28.0,48.0,-8.0,False,True,Mid-American,Mid-American,True,2026-11-03T19:00:00-05:00,Tue,fbs,fbs
 401866454,2026,10,regular,2026-11-03,False,"Tue Nov 03, 8:00 PM",Miami (OH),Buffalo,31.0,34.0,65.0,-3.0,False,True,Mid-American,Mid-American,True,2026-11-03T20:00:00-05:00,Tue,fbs,fbs
-401866455,2026,10,regular,2026-11-04,False,"Wed Nov 04, 7:00 PM",Massachusetts,Ball State,,,,,False,True,Mid-American,Mid-American,False,2026-11-04T19:00:00-05:00,Wed,fbs,fbs
-401866456,2026,10,regular,2026-11-04,False,"Wed Nov 04, 7:30 PM",Eastern Michigan,Central Michigan,,,,,True,True,Mid-American,Mid-American,False,2026-11-04T19:30:00-05:00,Wed,fbs,fbs
-401866457,2026,10,regular,2026-11-04,False,"Wed Nov 04, 7:00 PM",Sacramento State,Toledo,,,,,False,True,Mid-American,Mid-American,False,2026-11-04T19:00:00-05:00,Wed,fbs,fbs
+401866455,2026,10,regular,2026-11-04,False,"Wed Nov 04, 7:00 PM",Massachusetts,Ball State,31.0,30.0,61.0,1.0,False,True,Mid-American,Mid-American,True,2026-11-04T19:00:00-05:00,Wed,fbs,fbs
+401866456,2026,10,regular,2026-11-04,False,"Wed Nov 04, 7:30 PM",Eastern Michigan,Central Michigan,7.0,35.0,42.0,-28.0,True,True,Mid-American,Mid-American,True,2026-11-04T19:30:00-05:00,Wed,fbs,fbs
+401866457,2026,10,regular,2026-11-04,False,"Wed Nov 04, 7:00 PM",Sacramento State,Toledo,17.0,20.0,37.0,-3.0,False,True,Mid-American,Mid-American,True,2026-11-04T19:00:00-05:00,Wed,fbs,fbs
 401862817,2026,10,regular,2026-11-05,False,"Thu Nov 05, 7:30 PM",Florida Atlantic,UTSA,,,,,False,True,American Athletic,American Athletic,False,2026-11-05T19:30:00-05:00,Thu,fbs,fbs
 401867964,2026,10,regular,2026-11-05,False,"Thu Nov 05, 5:00 PM",Howard,South Carolina State,,,,,False,True,MEAC,MEAC,False,2026-11-05T17:00:00-05:00,Thu,,
 401869964,2026,10,regular,2026-11-05,False,"Thu Nov 05, 8:00 PM",Southern Miss,James Madison,,,,,False,True,Sun Belt,Sun Belt,False,2026-11-05T20:00:00-05:00,Thu,fbs,fbs
@@ -29109,7 +29109,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401866458,2026,11,regular,2026-11-10,False,"Tue Nov 10, 7:00 PM",Akron,Western Michigan,,,,,False,True,Mid-American,Mid-American,False,2026-11-10T19:00:00-05:00,Tue,fbs,fbs
 401866459,2026,11,regular,2026-11-10,False,"Tue Nov 10, 7:00 PM",Bowling Green,Kent State,,,,,False,True,Mid-American,Mid-American,False,2026-11-10T19:00:00-05:00,Tue,fbs,fbs
 401866460,2026,11,regular,2026-11-10,False,"Tue Nov 10, 8:00 PM",Miami (OH),Ohio,,,,,False,True,Mid-American,Mid-American,False,2026-11-10T20:00:00-05:00,Tue,fbs,fbs
-401866461,2026,11,regular,2026-11-11,True,,Ball State,Buffalo,,,,,False,True,Mid-American,Mid-American,False,2026-11-11T00:00:00-05:00,Wed,fbs,fbs
+401866461,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Ball State,Buffalo,,,,,False,True,Mid-American,Mid-American,False,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
 401866462,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Central Michigan,Sacramento State,,,,,False,True,Mid-American,Mid-American,False,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
 401866463,2026,11,regular,2026-11-11,True,,Toledo,Massachusetts,,,,,False,True,Mid-American,Mid-American,False,2026-11-11T00:00:00-05:00,Wed,fbs,fbs
 401862824,2026,11,regular,2026-11-12,False,"Thu Nov 12, 8:00 PM",South Florida,Memphis,,,,,False,True,American Athletic,American Athletic,False,2026-11-12T20:00:00-05:00,Thu,fbs,fbs
