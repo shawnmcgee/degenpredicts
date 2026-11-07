@@ -28793,11 +28793,11 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401862817,2026,10,regular,2026-11-05,False,"Thu Nov 05, 7:30 PM",Florida Atlantic,UTSA,60.0,29.0,89.0,31.0,False,True,American Athletic,American Athletic,True,2026-11-05T19:30:00-05:00,Thu,fbs,fbs
 401867964,2026,10,regular,2026-11-05,False,"Thu Nov 05, 5:00 PM",Howard,South Carolina State,,,,,False,True,MEAC,MEAC,False,2026-11-05T17:00:00-05:00,Thu,,
 401869964,2026,10,regular,2026-11-05,False,"Thu Nov 05, 8:00 PM",Southern Miss,James Madison,23.0,54.0,77.0,-31.0,False,True,Sun Belt,Sun Belt,True,2026-11-05T20:00:00-05:00,Thu,fbs,fbs
-401856855,2026,10,regular,2026-11-06,False,"Fri Nov 06, 10:15 PM",Arizona,TCU,,,,,False,True,Big 12,Big 12,False,2026-11-06T22:15:00-05:00,Fri,fbs,fbs
-401858288,2026,10,regular,2026-11-06,False,"Fri Nov 06, 7:00 PM",SMU,Virginia Tech,,,,,False,True,ACC,ACC,False,2026-11-06T19:00:00-05:00,Fri,fbs,fbs
-401858510,2026,10,regular,2026-11-06,False,"Fri Nov 06, 8:00 PM",Illinois,Nebraska,,,,,False,True,Big Ten,Big Ten,False,2026-11-06T20:00:00-05:00,Fri,fbs,fbs
-401862818,2026,10,regular,2026-11-06,False,"Fri Nov 06, 7:30 PM",East Carolina,South Florida,,,,,False,True,American Athletic,American Athletic,False,2026-11-06T19:30:00-05:00,Fri,fbs,fbs
-401864533,2026,10,regular,2026-11-06,False,"Fri Nov 06, 9:00 PM",Nevada,New Mexico,,,,,False,True,Mountain West,Mountain West,False,2026-11-06T21:00:00-05:00,Fri,fbs,fbs
+401856855,2026,10,regular,2026-11-06,False,"Fri Nov 06, 10:15 PM",Arizona,TCU,29.0,28.0,57.0,1.0,False,True,Big 12,Big 12,True,2026-11-06T22:15:00-05:00,Fri,fbs,fbs
+401858288,2026,10,regular,2026-11-06,False,"Fri Nov 06, 7:00 PM",SMU,Virginia Tech,51.0,28.0,79.0,23.0,False,True,ACC,ACC,True,2026-11-06T19:00:00-05:00,Fri,fbs,fbs
+401858510,2026,10,regular,2026-11-06,False,"Fri Nov 06, 8:00 PM",Illinois,Nebraska,24.0,13.0,37.0,11.0,False,True,Big Ten,Big Ten,True,2026-11-06T20:00:00-05:00,Fri,fbs,fbs
+401862818,2026,10,regular,2026-11-06,False,"Fri Nov 06, 7:30 PM",East Carolina,South Florida,20.0,17.0,37.0,3.0,False,True,American Athletic,American Athletic,True,2026-11-06T19:30:00-05:00,Fri,fbs,fbs
+401864533,2026,10,regular,2026-11-06,False,"Fri Nov 06, 9:00 PM",Nevada,New Mexico,3.0,31.0,34.0,-28.0,False,True,Mountain West,Mountain West,True,2026-11-06T21:00:00-05:00,Fri,fbs,fbs
 401856738,2026,10,regular,2026-11-07,False,"Sat Nov 07, 12:45 PM",Auburn,Arkansas,,,,,False,True,SEC,SEC,False,2026-11-07T12:45:00-05:00,Sat,fbs,fbs
 401856739,2026,10,regular,2026-11-07,False,"Sat Nov 07, 7:45 PM",Florida,Oklahoma,,,,,False,True,SEC,SEC,False,2026-11-07T19:45:00-05:00,Sat,fbs,fbs
 401856740,2026,10,regular,2026-11-07,False,"Sat Nov 07, 3:30 PM",LSU,Alabama,,,,,False,True,SEC,SEC,False,2026-11-07T15:30:00-05:00,Sat,fbs,fbs
