@@ -1831,3 +1831,9 @@ pulled_at,date,game_id,side,team,goalie,goalie_id,status,matched_by
 2026-11-08T18:50:17+00:00,2026-11-09,2026020284,a,PHI,Dan Vladar,8478435,projected,name
 2026-11-08T18:50:17+00:00,2026-11-09,2026020285,h,SJS,Yaroslav Askarov,8482137,projected,name
 2026-11-08T18:50:17+00:00,2026-11-09,2026020285,a,NYI,Ilya Sorokin,8478009,projected,name
+2026-11-09T01:13:11+00:00,2026-11-09,2026020283,h,EDM,Devon Levi,8482221,projected,name
+2026-11-09T01:13:11+00:00,2026-11-09,2026020283,a,NYR,Dylan Garand,8482193,projected,name
+2026-11-09T01:13:11+00:00,2026-11-09,2026020284,h,VAN,Kevin Lankinen,8480947,projected,name
+2026-11-09T01:13:11+00:00,2026-11-09,2026020284,a,PHI,Dan Vladar,8478435,projected,name
+2026-11-09T01:13:11+00:00,2026-11-09,2026020285,h,SJS,Yaroslav Askarov,8482137,projected,name
+2026-11-09T01:13:11+00:00,2026-11-09,2026020285,a,NYI,Ilya Sorokin,8478009,projected,name
