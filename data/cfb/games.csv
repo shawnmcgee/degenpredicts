@@ -29106,9 +29106,9 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401909118,2026,10,regular,2026-11-07,False,"Sat Nov 07, 1:00 PM",Concordia (WI),Wisconsin Lutheran,,,,,False,True,NACC,NACC,False,2026-11-07T13:00:00-05:00,Sat,,
 401909135,2026,10,regular,2026-11-07,False,"Sat Nov 07, 1:00 PM",Wooster,DePauw,,,,,False,True,North Coast,North Coast,False,2026-11-07T13:00:00-05:00,Sat,,
 401909139,2026,10,regular,2026-11-07,False,"Sat Nov 07, 1:00 PM",Wabash,Kenyon,,,,,False,True,North Coast,North Coast,False,2026-11-07T13:00:00-05:00,Sat,,
-401866458,2026,11,regular,2026-11-10,False,"Tue Nov 10, 7:00 PM",Akron,Western Michigan,,,,,False,True,Mid-American,Mid-American,False,2026-11-10T19:00:00-05:00,Tue,fbs,fbs
-401866459,2026,11,regular,2026-11-10,False,"Tue Nov 10, 7:00 PM",Bowling Green,Kent State,,,,,False,True,Mid-American,Mid-American,False,2026-11-10T19:00:00-05:00,Tue,fbs,fbs
-401866460,2026,11,regular,2026-11-10,False,"Tue Nov 10, 8:00 PM",Miami (OH),Ohio,,,,,False,True,Mid-American,Mid-American,False,2026-11-10T20:00:00-05:00,Tue,fbs,fbs
+401866458,2026,11,regular,2026-11-10,False,"Tue Nov 10, 7:00 PM",Akron,Western Michigan,14.0,42.0,56.0,-28.0,False,True,Mid-American,Mid-American,True,2026-11-10T19:00:00-05:00,Tue,fbs,fbs
+401866459,2026,11,regular,2026-11-10,False,"Tue Nov 10, 7:00 PM",Bowling Green,Kent State,33.0,28.0,61.0,5.0,False,True,Mid-American,Mid-American,True,2026-11-10T19:00:00-05:00,Tue,fbs,fbs
+401866460,2026,11,regular,2026-11-10,False,"Tue Nov 10, 8:00 PM",Miami (OH),Ohio,34.0,17.0,51.0,17.0,False,True,Mid-American,Mid-American,True,2026-11-10T20:00:00-05:00,Tue,fbs,fbs
 401866461,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Ball State,Buffalo,,,,,False,True,Mid-American,Mid-American,False,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
 401866462,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Central Michigan,Sacramento State,,,,,False,True,Mid-American,Mid-American,False,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
 401866463,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Toledo,Massachusetts,,,,,False,True,Mid-American,Mid-American,False,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
@@ -29457,7 +29457,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401858528,2026,12,regular,2026-11-21,True,,Michigan,UCLA,,,,,False,True,Big Ten,Big Ten,False,2026-11-21T00:00:00-05:00,Sat,fbs,fbs
 401858530,2026,12,regular,2026-11-21,False,"Sat Nov 21, 12:00 PM",Minnesota,Northwestern,,,,,False,True,Big Ten,Big Ten,False,2026-11-21T12:00:00-05:00,Sat,fbs,fbs
 401858531,2026,12,regular,2026-11-21,True,,Nebraska,Ohio State,,,,,False,True,Big Ten,Big Ten,False,2026-11-21T00:00:00-05:00,Sat,fbs,fbs
-401858532,2026,12,regular,2026-11-21,True,,Penn State,Rutgers,,,,,False,True,Big Ten,Big Ten,False,2026-11-21T00:00:00-05:00,Sat,fbs,fbs
+401858532,2026,12,regular,2026-11-21,False,"Sat Nov 21, 3:30 PM",Penn State,Rutgers,,,,,False,True,Big Ten,Big Ten,False,2026-11-21T15:30:00-05:00,Sat,fbs,fbs
 401858533,2026,12,regular,2026-11-21,False,"Sat Nov 21, 12:00 PM",Purdue,Wisconsin,,,,,False,True,Big Ten,Big Ten,False,2026-11-21T12:00:00-05:00,Sat,fbs,fbs
 401858534,2026,12,regular,2026-11-21,False,"Sat Nov 21, 6:15 PM",USC,Maryland,,,,,False,True,Big Ten,Big Ten,False,2026-11-21T18:15:00-05:00,Sat,fbs,fbs
 401858535,2026,12,regular,2026-11-21,True,,Washington,Indiana,,,,,False,True,Big Ten,Big Ten,False,2026-11-21T00:00:00-05:00,Sat,fbs,fbs
