@@ -71,6 +71,7 @@ LAC,4065778,Max Strus,31,G
 LAC,5254165,Keaton Wagler,1,G
 LAC,4683935,Blake Wesley,20,G
 LAL,5113969,Cameron Carr,43,G
+LAL,5105817,Carson Cooper,,C
 LAL,3945274,Luka Doncic,77,G
 LAL,4397014,Quentin Grimes,5,G
 LAL,4868423,Jaden Hardy,7,G
@@ -79,7 +80,6 @@ LAL,4433599,Arthur Kaluma,47,F
 LAL,4433136,Walker Kessler,14,C
 LAL,4592691,Jake LaRavia,12,F
 LAL,3155535,Kevon Looney,55,F
-LAL,4596528,Lawson Lovering,,C
 LAL,4278580,Sandro Mamukelashvili,54,F
 LAL,4702972,Chris Manon,30,G
 LAL,5114350,AK Okereke,31,F
@@ -130,7 +130,6 @@ MIN,4432247,Jaylen Clark,7,G
 MIN,3934673,Donte DiVincenzo,0,G
 MIN,4397002,Ayo Dosunmu,13,G
 MIN,4594268,Anthony Edwards,5,G
-MIN,5061585,Isaiah Evans,33,F
 MIN,3032976,Rudy Gobert,27,C
 MIN,4592492,Bones Hyland,8,G
 MIN,4433247,Jonathan Kuminga,24,F
@@ -193,6 +192,7 @@ ORL,4432165,Jalen Suggs,4,G
 ORL,6478,Nikola Vucevic,9,C
 ORL,4566434,Franz Wagner,22,F
 BOS,4433188,Devin Carter,99,G
+BOS,5142621,Chris Cenac Jr.,12,F
 BOS,3195,Mike Conley,45,G
 BOS,4277951,Luka Garza,52,C
 BOS,4251,Paul George,13,F
@@ -364,7 +364,6 @@ TOR,4432241,Jamal Shead,23,G
 TOR,4397784,Malachi Smith,18,G
 TOR,4684272,Ja'Kobe Walter,14,G
 MEM,5041935,Cameron Boozer,27,F
-MEM,5105817,Carson Cooper,20,C
 MEM,4903027,Cedric Coward,23,F
 MEM,4600663,Zach Edey,14,C
 MEM,2991070,Jerami Grant,3,F
@@ -495,7 +494,6 @@ DET,4066372,Kevin Huerter,27,G
 DET,5107199,Daniss Jenkins,24,G
 DET,4395702,Isaiah Joe,17,G
 DET,5107818,Isaac Jones,13,C
-DET,4700852,Chaz Lanier,8,G
 DET,5258459,Ebuka Okorie,23,G
 DET,5037878,Ugonna Onyenso,34,C
 DET,2990962,Taurean Prince,12,F
