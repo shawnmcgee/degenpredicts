@@ -125,7 +125,7 @@ season,week,team,gsis_id,position,full_name,report_status,report_primary_injury,
 2026,1,NO,00-0027962,LB,Cameron Jordan,Out,Hamstring,Limited Participation in Practice
 2026,1,NO,00-0033860,DT,Davon Godchaux,,,Full Participation in Practice
 2026,1,NO,00-0033906,RB,Alvin Kamara,Questionable,Knee,Full Participation in Practice
-2026,1,NO,00-0039373,RB,Audric Estimé,Out,Thigh,Did Not Participate In Practice
+2026,1,NO,00-0039373,RB,Audric Estime,Out,Thigh,Did Not Participate In Practice
 2026,1,NO,00-0041041,TE,Oscar Delp,Out,Hamstring,Did Not Participate In Practice
 2026,1,NYG,00-0031270,DT,Shelby Harris,,,Full Participation in Practice
 2026,1,NYG,00-0033376,FB,Patrick Ricard,,,Full Participation in Practice
@@ -2820,3 +2820,279 @@ season,week,team,gsis_id,position,full_name,report_status,report_primary_injury,
 2026,9,WAS,00-0039906,DT,Jer'Zhan Newton,Questionable,Pectoral,Full Participation in Practice
 2026,9,WAS,00-0039910,QB,Jayden Daniels,,,Full Participation in Practice
 2026,9,WAS,00-0040686,T,Josh Conerly Jr.,,,Full Participation in Practice
+2026,10,ARI,00-0032954,G,Isaac Seumalo,,,Did Not Participate In Practice
+2026,10,ARI,00-0033890,S,Budda Baker,,,Did Not Participate In Practice
+2026,10,ARI,00-0034381,LB,Josh Sweat,,,Did Not Participate In Practice
+2026,10,ARI,00-0035144,LB,Mack Wilson,,,Did Not Participate In Practice
+2026,10,ARI,00-0035258,C,Hjalte Froholdt,,,Did Not Participate In Practice
+2026,10,ARI,00-0035378,S,Andrew Wingard,,,Limited Participation in Practice
+2026,10,ARI,00-0036568,DT,Roy Lopez,,,Did Not Participate In Practice
+2026,10,ARI,00-0037004,TE,Hunter Long,,,Limited Participation in Practice
+2026,10,ARI,00-0037157,RB,Bam Knight,,,Limited Participation in Practice
+2026,10,ARI,00-0037804,DT,Zachary Carter,,,Limited Participation in Practice
+2026,10,ARI,00-0038571,G,Jon Gaines II,,,Did Not Participate In Practice
+2026,10,ARI,00-0038623,DT,Dante Stills,,,Limited Participation in Practice
+2026,10,ARI,00-0039807,CB,Max Melton,,,Limited Participation in Practice
+2026,10,ARI,00-0041113,T,Jayden Williams,,,Limited Participation in Practice
+2026,10,ATL,00-0031576,DE,Za'Darius Smith,,,Did Not Participate In Practice
+2026,10,ATL,00-0034801,LB,Josh Woods,,,Did Not Participate In Practice
+2026,10,ATL,00-0036990,LB,Divine Deablo,,,Limited Participation in Practice
+2026,10,ATL,00-0039070,DT,Gervon Dexter Sr.,,,Did Not Participate In Practice
+2026,10,ATL,00-0040578,DE,James Pearce Jr.,,,Did Not Participate In Practice
+2026,10,ATL,00-0041044,WR,Zachariah Branch,,,Did Not Participate In Practice
+2026,10,BUF,00-0033904,T,Dion Dawkins,,,Limited Participation in Practice
+2026,10,BUF,00-0035667,DT,Greg Gaines,,,Full Participation in Practice
+2026,10,BUF,00-0035679,C,Connor McGovern,,,Limited Participation in Practice
+2026,10,BUF,00-0036976,T,Spencer Brown,,,Limited Participation in Practice
+2026,10,BUF,00-0037288,CB,Christian Benford,,,Limited Participation in Practice
+2026,10,BUF,00-0037428,G,Alec Anderson,,,Limited Participation in Practice
+2026,10,BUF,00-0038679,WR,Tyrell Shavers,,,Full Participation in Practice
+2026,10,BUF,00-0038933,TE,Dalton Kincaid,,,Limited Participation in Practice
+2026,10,BUF,00-0040192,CB,Jordan Hancock,,,Full Participation in Practice
+2026,10,BUF,00-0040724,DE,T.J. Sanders,,,Full Participation in Practice
+2026,10,BUF,00-0041128,G,Ar'maj Reed-Adams,,,Full Participation in Practice
+2026,10,CAR,00-0035277,CB,Mike Jackson,,,Full Participation in Practice
+2026,10,CAR,00-0035687,LB,Bobby Okereke,,,Did Not Participate In Practice
+2026,10,CAR,00-0036417,G,Damien Lewis,,,Full Participation in Practice
+2026,10,CAR,00-0036555,RB,Chuba Hubbard,,,Did Not Participate In Practice
+2026,10,CAR,00-0036934,LB,Jaelan Phillips,,,Full Participation in Practice
+2026,10,CAR,00-0036968,G,Brady Christensen,,,Full Participation in Practice
+2026,10,CAR,00-0039342,WR,Xavier Legette,,,Full Participation in Practice
+2026,10,CAR,00-0039344,RB,Jonathon Brooks,,,Full Participation in Practice
+2026,10,CAR,00-0040541,G,Torricelli Simpkins III,,,Full Participation in Practice
+2026,10,CAR,00-0040644,RB,Trevor Etienne,,,Full Participation in Practice
+2026,10,CAR,00-0041063,CB,Will Lee III,,,Full Participation in Practice
+2026,10,CAR,00-0041478,DT,Lee Hunter,,,Full Participation in Practice
+2026,10,CIN,00-0033523,DT,Jonathan Allen,,,Did Not Participate In Practice
+2026,10,CIN,00-0036231,S,Kyle Dugger,,,Did Not Participate In Practice
+2026,10,CIN,00-0038549,CB,DJ Turner II,,,Limited Participation in Practice
+2026,10,CIN,00-0040140,G,Dylan Fairchild,,,Limited Participation in Practice
+2026,10,CLE,00-0031595,FB,Michael Burton,,,Did Not Participate In Practice
+2026,10,CLE,00-0033131,DT,Maliek Collins,,,Limited Participation in Practice
+2026,10,CLE,00-0034856,CB,Denzel Ward,,,Limited Participation in Practice
+2026,10,CLE,00-0035234,T,Tytus Howard,,,Limited Participation in Practice
+2026,10,CLE,00-0035526,C,Elgton Jenkins,,,Did Not Participate In Practice
+2026,10,CLE,00-0035680,LB,Quincy Williams,,,Limited Participation in Practice
+2026,10,CLE,00-0038715,S,Ronnie Hickman Jr.,,,Did Not Participate In Practice
+2026,10,CLE,00-0040579,LB,Carson Schwesinger,,,Limited Participation in Practice
+2026,10,CLE,00-0040663,TE,Harold Fannin Jr.,,,Limited Participation in Practice
+2026,10,CLE,00-0041037,WR,Denzel Boston,,,Did Not Participate In Practice
+2026,10,CLE,00-0041049,T,Austin Barber,,,Limited Participation in Practice
+2026,10,DAL,00-0027940,LB,Von Miller,,,Did Not Participate In Practice
+2026,10,DAL,00-0033093,DT,Jonathan Bullard,,,Full Participation in Practice
+2026,10,DAL,00-0033877,S,Malik Hooker,,,Did Not Participate In Practice
+2026,10,DAL,00-0035227,S,P.J. Locke,,,Did Not Participate In Practice
+2026,10,DAL,00-0037120,RB,Tyler Goodson,,,Did Not Participate In Practice
+2026,10,DAL,00-0037247,WR,George Pickens,,,Limited Participation in Practice
+2026,10,DAL,00-0037801,WR,KaVontae Turpin,,,Limited Participation in Practice
+2026,10,DAL,00-0038041,TE,Jake Ferguson,,,Did Not Participate In Practice
+2026,10,DAL,00-0038547,TE,Luke Schoonmaker,,,Full Participation in Practice
+2026,10,DAL,00-0038556,LB,DeMarvion Overshown,,,Limited Participation in Practice
+2026,10,DAL,00-0039062,WR,Jonathan Mingo,,,Did Not Participate In Practice
+2026,10,DAL,00-0039167,CB,Joey Porter Jr.,,,Did Not Participate In Practice
+2026,10,DAL,00-0039352,LB,Marist Liufau,,,Full Participation in Practice
+2026,10,DAL,00-0039530,TE,Brevyn Spann-Ford,,,Full Participation in Practice
+2026,10,DAL,00-0040725,LB,Donovan Ezeiruaku,,,Did Not Participate In Practice
+2026,10,DAL,00-0040875,CB,Devin Moore,,,Full Participation in Practice
+2026,10,DET,00-0033106,QB,Jared Goff,,,Limited Participation in Practice
+2026,10,DET,00-0034384,CB,D.J. Reed,,,Did Not Participate In Practice
+2026,10,DET,00-0036335,DE,DJ Wonnum,,,Full Participation in Practice
+2026,10,DET,00-0036963,WR,Amon-Ra St. Brown,,,Limited Participation in Practice
+2026,10,DET,00-0037297,C,Cade Mays,,,Did Not Participate In Practice
+2026,10,DET,00-0037667,S,Kerby Joseph,,,Limited Participation in Practice
+2026,10,DET,00-0038896,RB,Jacob Saylors,,,Full Participation in Practice
+2026,10,DET,00-0039141,S,Brian Branch,,,Limited Participation in Practice
+2026,10,DET,00-0039364,RB,Sione Vaki,,,Did Not Participate In Practice
+2026,10,GB,00-0029592,G,Kevin Zeitler,,,Limited Participation in Practice
+2026,10,GB,00-0034431,LB,Zaire Franklin,,,Did Not Participate In Practice
+2026,10,GB,00-0035700,RB,Josh Jacobs,,,Did Not Participate In Practice
+2026,10,GB,00-0036551,G,Aaron Banks,,,Limited Participation in Practice
+2026,10,GB,00-0036932,LB,Micah Parsons,,,Limited Participation in Practice
+2026,10,GB,00-0037076,C,Sean Rhyan,,,Did Not Participate In Practice
+2026,10,GB,00-0037091,WR,Bo Melton,,,Full Participation in Practice
+2026,10,GB,00-0038090,WR,Skyy Moore,,,Limited Participation in Practice
+2026,10,GB,00-0038589,TE,Josh Whyle,,,Did Not Participate In Practice
+2026,10,GB,00-0038685,RB,Chris Brooks,,,Limited Participation in Practice
+2026,10,GB,00-0039112,LB,Lukas Van Ness,,,Did Not Participate In Practice
+2026,10,GB,00-0039812,LB,Ty'Ron Hopper,,,Limited Participation in Practice
+2026,10,GB,00-0039819,G,Travis Glover,,,Limited Participation in Practice
+2026,10,GB,00-0039867,S,Javon Bullard,,,Did Not Participate In Practice
+2026,10,GB,00-0040009,WR,Savion Williams,,,Limited Participation in Practice
+2026,10,GB,00-0040899,K,Trey Smack,,,Limited Participation in Practice
+2026,10,HOU,00-0034399,G,Wyatt Teller,,,Limited Participation in Practice
+2026,10,HOU,00-0035166,LB,Azeez Al-Shaair,,,Did Not Participate In Practice
+2026,10,HOU,00-0035685,RB,David Montgomery,,,Did Not Participate In Practice
+2026,10,HOU,00-0036556,TE,Brevin Jordan,,,Did Not Participate In Practice
+2026,10,HOU,00-0036883,DT,Tommy Togiai,,,Full Participation in Practice
+2026,10,HOU,00-0037130,S,Reed Blankenship,,,Limited Participation in Practice
+2026,10,HOU,00-0037633,LB,Jacob Hummel,,,Limited Participation in Practice
+2026,10,HOU,00-0038977,WR,Tank Dell,,,Limited Participation in Practice
+2026,10,HOU,00-0039849,WR,Marvin Harrison Jr.,,,Limited Participation in Practice
+2026,10,HOU,00-0039857,T,Blake Fisher,,,Full Participation in Practice
+2026,10,HOU,00-0040149,CB,Jaylin Smith,,,Limited Participation in Practice
+2026,10,HOU,00-0040583,RB,Woody Marks,,,Limited Participation in Practice
+2026,10,HOU,00-0041532,G,Keylan Rutledge,,,Did Not Participate In Practice
+2026,10,IND,00-0032753,LS,Luke Rhodes,,,Did Not Participate In Practice
+2026,10,IND,00-0033217,TE,Mo Alie-Cox,,,Did Not Participate In Practice
+2026,10,IND,00-0034573,CB,Charvarius Ward,,,Did Not Participate In Practice
+2026,10,IND,00-0034825,DE,Arden Key,,,Full Participation in Practice
+2026,10,IND,00-0035674,DT,Jerry Tillery,,,Limited Participation in Practice
+2026,10,IND,00-0036223,RB,Jonathan Taylor,,,Limited Participation in Practice
+2026,10,IND,00-0036298,LB,Akeem Davis-Gaither,,,Did Not Participate In Practice
+2026,10,IND,00-0039377,LB,Jaylon Carlies,,,Did Not Participate In Practice
+2026,10,IND,00-0040139,CB,Justin Walley,,,Full Participation in Practice
+2026,10,IND,00-0040163,T,Jalen Travis,,,Did Not Participate In Practice
+2026,10,IND,00-0041043,S,A.J. Haulcy,,,Did Not Participate In Practice
+2026,10,JAX,00-0034675,S,Jessie Bates,,,Did Not Participate In Practice
+2026,10,JAX,00-0034960,WR,Jakobi Meyers,,,Did Not Participate In Practice
+2026,10,JAX,00-0036327,G,Ezra Cleveland,,,Limited Participation in Practice
+2026,10,JAX,00-0036985,C,Robert Hainsey,,,Limited Participation in Practice
+2026,10,JAX,00-0037073,DT,Jordan Davis,,,Did Not Participate In Practice
+2026,10,JAX,00-0037235,DE,Travon Walker,,,Did Not Participate In Practice
+2026,10,JAX,00-0038596,S,Antonio Johnson,,,Limited Participation in Practice
+2026,10,JAX,00-0038611,RB,Chris Rodriguez Jr.,,,Limited Participation in Practice
+2026,10,JAX,00-0040326,LB,Branson Combs,,,Limited Participation in Practice
+2026,10,JAX,00-0040719,RB,Bhayshul Tuten,,,Did Not Participate In Practice
+2026,10,KC,00-0030506,TE,Travis Kelce,,,Full Participation in Practice
+2026,10,KC,00-0033873,QB,Patrick Mahomes,,,Full Participation in Practice
+2026,10,KC,00-0036557,T,Jaylon Moore,,,Did Not Participate In Practice
+2026,10,KC,00-0036945,QB,Justin Fields,,,Full Participation in Practice
+2026,10,KC,00-0039067,WR,Rashee Rice,,,Full Participation in Practice
+2026,10,KC,00-0039825,S,Jaden Hicks,,,Full Participation in Practice
+2026,10,KC,00-0039894,WR,Xavier Worthy,,,Full Participation in Practice
+2026,10,KC,00-0040072,LB,Jeffrey Bassa,,,Full Participation in Practice
+2026,10,KC,00-0040748,DT,Omarr Norman-Lott,,,Limited Participation in Practice
+2026,10,KC,00-0041543,CB,Mansoor Delane,,,Full Participation in Practice
+2026,10,KC,00-0041545,DT,Peter Woods,,,Did Not Participate In Practice
+2026,10,LA,00-0026498,QB,Matthew Stafford,,,Full Participation in Practice
+2026,10,LA,00-0032228,LS,Joe Cardona,,,Limited Participation in Practice
+2026,10,LA,00-0033868,LB,Myles Garrett,,,Limited Participation in Practice
+2026,10,LA,00-0036244,TE,Colby Parkinson,,,Limited Participation in Practice
+2026,10,LA,00-0036349,S,Kam Curl,,,Did Not Participate In Practice
+2026,10,LA,00-0037191,CB,Trent McDuffie,,,Did Not Participate In Practice
+2026,10,LA,00-0039058,G,Steve Avila,,,Did Not Participate In Practice
+2026,10,LA,00-0039074,TE,Davis Allen,,,Limited Participation in Practice
+2026,10,LA,00-0039075,WR,Puka Nacua,,,Did Not Participate In Practice
+2026,10,LA,00-0040737,TE,Terrance Ferguson,,,Did Not Participate In Practice
+2026,10,LV,00-0034275,DT,Foley Fatukasi,,,Limited Participation in Practice
+2026,10,LV,00-0034365,TE,Ian Thomas,,,Full Participation in Practice
+2026,10,LV,00-0037262,DT,Thomas Booker,,,Limited Participation in Practice
+2026,10,LV,00-0040871,C,Trey Zuhn III,,,Limited Participation in Practice
+2026,10,MIA,00-0036171,C,Aaron Brewer,,,Did Not Participate In Practice
+2026,10,MIA,00-0036682,DE,Malik Herring,,,Limited Participation in Practice
+2026,10,MIA,00-0037549,CB,Darrell Baker Jr.,,,Limited Participation in Practice
+2026,10,MIA,00-0037686,LS,Tucker Addington,,,Limited Participation in Practice
+2026,10,MIA,00-0039874,RB,Jaylen Wright,,,Full Participation in Practice
+2026,10,MIA,00-0040182,S,Dante Trader Jr.,,,Full Participation in Practice
+2026,10,MIA,00-0041096,RB,Kaytron Allen,,,Full Participation in Practice
+2026,10,MIA,00-0041524,TE,Will Kacmarek,,,Did Not Participate In Practice
+2026,10,MIA,00-0041525,WR,Chris Bell,,,Limited Participation in Practice
+2026,10,MIA,00-0041528,S,Michael Taaffe,,,Full Participation in Practice
+2026,10,MIN,00-0031360,LB,Kyle Van Noy,,,Did Not Participate In Practice
+2026,10,MIN,00-0032950,QB,Carson Wentz,,,Limited Participation in Practice
+2026,10,MIN,00-0035228,QB,Kyler Murray,,,Did Not Participate In Practice
+2026,10,MIN,00-0035229,TE,T.J. Hockenson,,,Did Not Participate In Practice
+2026,10,MIN,00-0035276,LB,Blake Cashman,,,Did Not Participate In Practice
+2026,10,MIN,00-0036259,WR,Jauan Jennings,,,Did Not Participate In Practice
+2026,10,MIN,00-0037301,S,Theo Jackson,,,Full Participation in Practice
+2026,10,MIN,00-0038578,S,Jay Ward,,,Limited Participation in Practice
+2026,10,MIN,00-0040173,DT,Tyrion Ingram-Dawkins,,,Did Not Participate In Practice
+2026,10,NE,00-0029685,G,Greg Van Roten,,,Limited Participation in Practice
+2026,10,NE,00-0031330,T,Morgan Moses,,,Limited Participation in Practice
+2026,10,NE,00-0033090,TE,Hunter Henry,,,Limited Participation in Practice
+2026,10,NE,00-0033132,S,Kevin Byard,,,Limited Participation in Practice
+2026,10,NE,00-0034778,CB,Carlton Davis III,Out,Knee,Did Not Participate In Practice
+2026,10,NE,00-0035676,WR,A.J. Brown,,,Limited Participation in Practice
+2026,10,NE,00-0036187,FB,Reggie Gilliam,,,Limited Participation in Practice
+2026,10,NE,00-0036875,RB,Rhamondre Stevenson,,,Did Not Participate In Practice
+2026,10,NE,00-0037205,S,Brenden Schooler,,,Did Not Participate In Practice
+2026,10,NE,00-0037413,C,Ben Brown,Out,Knee,Did Not Participate In Practice
+2026,10,NE,00-0038564,TE,Cameron Latu,,,Did Not Participate In Practice
+2026,10,NE,00-0039770,CB,Charles Woods,,,Limited Participation in Practice
+2026,10,NE,00-0039828,T,Walter Rouse,,,Did Not Participate In Practice
+2026,10,NE,00-0039851,QB,Drake Maye,,,Full Participation in Practice
+2026,10,NE,00-0040734,RB,TreVeyon Henderson,Out,Illness,Did Not Participate In Practice
+2026,10,NO,00-0033906,RB,Alvin Kamara,,,Did Not Participate In Practice
+2026,10,NO,00-0035242,C,Erik McCoy,,,Did Not Participate In Practice
+2026,10,NO,00-0035644,TE,Noah Fant,,,Limited Participation in Practice
+2026,10,NO,00-0035668,G,David Edwards,,,Limited Participation in Practice
+2026,10,NO,00-0036973,RB,Travis Etienne,,,Limited Participation in Practice
+2026,10,NO,00-0037250,CB,Martin Emerson,,,Limited Participation in Practice
+2026,10,NO,00-0038601,T,Asim Richards,,,Full Participation in Practice
+2026,10,NO,00-0040125,T,Kelvin Banks Jr.,,,Limited Participation in Practice
+2026,10,NO,00-0041326,RB,CJ Donaldson,,,Did Not Participate In Practice
+2026,10,NO,00-0041390,DT,Christen Miller,,,Limited Participation in Practice
+2026,10,NYG,00-0033290,T,Jermaine Eluemunor,,,Full Participation in Practice
+2026,10,NYG,00-0036280,LB,Malik Harrison,Questionable,Groin,Limited Participation in Practice
+2026,10,NYG,00-0036309,WR,Darnell Mooney,,,Full Participation in Practice
+2026,10,NYG,00-0036386,T,Andrew Thomas,,,Full Participation in Practice
+2026,10,NYG,00-0038576,WR,Charlie Jones,,,Full Participation in Practice
+2026,10,NYG,00-0039337,WR,Malik Nabers,,,Full Participation in Practice
+2026,10,NYG,00-0039847,TE,Theo Johnson,,,Full Participation in Practice
+2026,10,NYG,00-0039923,QB,J.J. McCarthy,,,Full Participation in Practice
+2026,10,NYG,00-0040677,LB,Abdul Carter,,,Full Participation in Practice
+2026,10,NYG,00-0040715,RB,Cam Skattebo,,,Full Participation in Practice
+2026,10,NYG,00-0041462,CB,Colton Hood,,,Full Participation in Practice
+2026,10,NYJ,00-0034782,DT,Harrison Phillips,,,Did Not Participate In Practice
+2026,10,NYJ,00-0036902,DE,Joseph Ossai,,,Limited Participation in Practice
+2026,10,NYJ,00-0036986,CB,Nahshon Wright,,,Limited Participation in Practice
+2026,10,NYJ,00-0037740,WR,Garrett Wilson,,,Limited Participation in Practice
+2026,10,NYJ,00-0039347,LB,Trevin Wallace,,,Did Not Participate In Practice
+2026,10,NYJ,00-0041120,S,VJ Payne,,,Full Participation in Practice
+2026,10,NYJ,00-0041511,WR,Omar Cooper Jr.,,,Limited Participation in Practice
+2026,10,PIT,00-0027969,DT,Cameron Heyward,,,Did Not Participate In Practice
+2026,10,PIT,00-0033886,LB,T.J. Watt,,,Did Not Participate In Practice
+2026,10,PIT,00-0034277,S,DeShon Elliott,,,Limited Participation in Practice
+2026,10,PIT,00-0036504,CB,Brandin Echols,,,Full Participation in Practice
+2026,10,PIT,00-0036862,WR,Ben Skowronek,,,Full Participation in Practice
+2026,10,PIT,00-0038558,TE,Darnell Washington,,,Did Not Participate In Practice
+2026,10,PIT,00-0040341,CB,Doneiko Slaughter,,,Full Participation in Practice
+2026,10,PIT,00-0040678,DT,Derrick Harmon,,,Limited Participation in Practice
+2026,10,SEA,00-0031933,DT,Leonard Williams,,,Did Not Participate In Practice
+2026,10,SEA,00-0032387,DT,Jarran Reed,,,Did Not Participate In Practice
+2026,10,SEA,00-0034342,G,Quenton Nelson,,,Did Not Participate In Practice
+2026,10,SEA,00-0034350,LB,Uchenna Nwosu,,,Limited Participation in Practice
+2026,10,SEA,00-0034869,QB,Sam Darnold,,,Did Not Participate In Practice
+2026,10,SEA,00-0035704,QB,Drew Lock,,,Limited Participation in Practice
+2026,10,SEA,00-0037545,WR,Rashid Shaheed,,,Full Participation in Practice
+2026,10,SEA,00-0037821,T,Charles Cross,,,Did Not Participate In Practice
+2026,10,SEA,00-0038543,WR,Jaxon Smith-Njigba,,,Did Not Participate In Practice
+2026,10,SEA,00-0038694,DT,Brandon Pili,,,Did Not Participate In Practice
+2026,10,SEA,00-0038764,LB,Patrick O'Connell,,,Limited Participation in Practice
+2026,10,SEA,00-0039020,G,Anthony Bradford,,,Limited Participation in Practice
+2026,10,SEA,00-0039047,LB,Derick Hall,,,Limited Participation in Practice
+2026,10,SEA,00-0039793,TE,AJ Barner,,,Full Participation in Practice
+2026,10,SEA,00-0040061,LB,Connor O'Toole,,,Limited Participation in Practice
+2026,10,SF,00-0027857,T,Trent Williams,,,Did Not Participate In Practice
+2026,10,SF,00-0031408,WR,Mike Evans,,,Did Not Participate In Practice
+2026,10,SF,00-0032775,WR,Demarcus Robinson,,,Full Participation in Practice
+2026,10,SF,00-0033280,RB,Christian McCaffrey,,,Did Not Participate In Practice
+2026,10,SF,00-0034391,S,Siran Neal,,,Limited Participation in Practice
+2026,10,SF,00-0034982,LB,Dre Greenlaw,,,Did Not Participate In Practice
+2026,10,SF,00-0035719,WR,Deebo Samuel Sr.,,,Limited Participation in Practice
+2026,10,SF,00-0036563,CB,Deommodore Lenoir,,,Did Not Participate In Practice
+2026,10,SF,00-0036871,CB,Nate Hobbs,,,Full Participation in Practice
+2026,10,SF,00-0039345,CB,Renardo Green,,,Did Not Participate In Practice
+2026,10,SF,00-0040152,CB,Upton Stout,,,Limited Participation in Practice
+2026,10,SF,00-0040711,DT,C.J. West,,,Limited Participation in Practice
+2026,10,TEN,00-0034805,DE,John Franklin-Myers,,,Full Participation in Practice
+2026,10,TEN,00-0035261,RB,Tony Pollard,,,Full Participation in Practice
+2026,10,TEN,00-0035672,LB,Cody Barton,,,Did Not Participate In Practice
+2026,10,TEN,00-0035889,P,Tommy Townsend,,,Full Participation in Practice
+2026,10,TEN,00-0038407,CB,Jaylon Jones,,,Full Participation in Practice
+2026,10,TEN,00-0039032,RB,Tyjae Spears,,,Did Not Participate In Practice
+2026,10,TEN,00-0039034,G,Peter Skoronski,,,Did Not Participate In Practice
+2026,10,TEN,00-0039731,T,JC Latham,,,Full Participation in Practice
+2026,10,TEN,00-0040141,S,Kevin Winston Jr.,,,Full Participation in Practice
+2026,10,TEN,00-0040201,CB,Marcus Harris,,,Full Participation in Practice
+2026,10,TEN,00-0041438,WR,Carnell Tate,,,Did Not Participate In Practice
+2026,10,TEN,00-0041479,LB,Anthony Hill Jr.,,,Did Not Participate In Practice
+2026,10,WAS,00-0033082,C,Lucas Patrick,Out,Concussion,Did Not Participate In Practice
+2026,10,WAS,00-0035409,DT,Shy Tuttle,,,Full Participation in Practice
+2026,10,WAS,00-0036375,CB,Amik Robertson,,,Limited Participation in Practice
+2026,10,WAS,00-0036628,TE,John Bates,,,Full Participation in Practice
+2026,10,WAS,00-0037742,WR,Treylon Burks,,,Did Not Participate In Practice
+2026,10,WAS,00-0037809,TE,Chig Okonkwo,,,Full Participation in Practice
+2026,10,WAS,00-0039686,TE,Colson Yankoff,Out,Knee,Did Not Participate In Practice
+2026,10,WAS,00-0039910,QB,Jayden Daniels,,,Full Participation in Practice
+2026,10,WAS,00-0041108,C,Matt Gulbin,,,Full Participation in Practice
