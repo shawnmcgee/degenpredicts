@@ -9674,3 +9674,102 @@ pulled_at,team,athlete_id,name,status,p_out,detail
 2026-11-12T21:38:33+00:00,WAS,4432187,Reece Beekman,out,1.0,Shoulder
 2026-11-12T21:38:33+00:00,WAS,4432907,Justin Champagnie,out,1.0,Right Foot
 2026-11-12T21:38:33+00:00,WAS,4606840,Jamir Watkins,out,1.0,Left Knee
+2026-11-12T22:21:03+00:00,ATL,4873201,Asa Newell,out,1.0,Left Toe
+2026-11-12T22:21:03+00:00,ATL,4585618,Keshon Gilbert,out,1.0,Left Knee
+2026-11-12T22:21:03+00:00,ATL,4712863,Mouhamed Gueye,out,1.0,Left Foot
+2026-11-12T22:21:03+00:00,ATL,5105571,Henri Veesaar,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,BOS,4251,Paul George,day-to-day,0.4,Illness
+2026-11-12T22:21:03+00:00,BKN,5279130,Nolan Traore,day-to-day,0.4,Right Calf
+2026-11-12T22:21:03+00:00,BKN,5101761,Mikel Brown Jr.,day-to-day,0.4,Not Specified Illness
+2026-11-12T22:21:03+00:00,CHA,4433287,Brandon Miller,out,1.0,Right Groin
+2026-11-12T22:21:03+00:00,CHA,5061575,Kon Knueppel,out,1.0,Left Hamstring
+2026-11-12T22:21:03+00:00,CHA,3032979,Dennis Schroder,out,1.0,Left Hamstring
+2026-11-12T22:21:03+00:00,CHI,5105555,Tobe Awaka,out,1.0,Back
+2026-11-12T22:21:03+00:00,CHI,4848625,Dailyn Swain,day-to-day,0.4,Right Back
+2026-11-12T22:21:03+00:00,CHI,2595516,Norman Powell,day-to-day,0.4,Right Shoulder
+2026-11-12T22:21:03+00:00,CHI,5095151,Caleb Wilson,out,1.0,Right Hand
+2026-11-12T22:21:03+00:00,CLE,4432158,Evan Mobley,out,1.0,Toe
+2026-11-12T22:21:03+00:00,CLE,4066757,Sam Merrill,out,1.0,Right Elbow
+2026-11-12T22:21:03+00:00,DAL,4683688,Dereck Lively II,out,1.0,Right Foot
+2026-11-12T22:21:03+00:00,DAL,5148538,Tarik Biberovic,out,1.0,Right Heel
+2026-11-12T22:21:03+00:00,DAL,5279129,Sergio de Larrea,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,DAL,4873153,Morez Johnson Jr.,day-to-day,0.4,Left Lower Leg
+2026-11-12T22:21:03+00:00,DEN,4432181,Julian Strawther,out,1.0,Left Knee
+2026-11-12T22:21:03+00:00,DET,5037878,Ugonna Onyenso,day-to-day,0.4,Left Foot
+2026-11-12T22:21:03+00:00,DET,4395702,Isaiah Joe,out,1.0,Right Hip
+2026-11-12T22:21:03+00:00,DET,4433621,Jalen Duren,out,1.0,Right Hamstring
+2026-11-12T22:21:03+00:00,GSW,3975,Stephen Curry,out,1.0,Right Abdomen
+2026-11-12T22:21:03+00:00,GSW,3134903,Gary Payton II,day-to-day,0.4,Left Knee
+2026-11-12T22:21:03+00:00,GSW,4397040,Brandon Williams,out,1.0,Left Hamstring
+2026-11-12T22:21:03+00:00,GSW,3102531,Kristaps Porzingis,out,1.0,Illness
+2026-11-12T22:21:03+00:00,GSW,4432171,Moses Moody,out,1.0,Left Knee
+2026-11-12T22:21:03+00:00,GSW,6430,Jimmy Butler III,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,HOU,3102529,Clint Capela,out,1.0,Right Ankle
+2026-11-12T22:21:03+00:00,HOU,2991235,Steven Adams,out,1.0,Right Calf
+2026-11-12T22:21:03+00:00,IND,4396909,Aaron Nesmith,day-to-day,0.4,Right Knee
+2026-11-12T22:21:03+00:00,IND,4396993,Tyrese Haliburton,out,1.0,Left Hamstring
+2026-11-12T22:21:03+00:00,IND,5157066,Johnny Furphy,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,IND,4433076,Ben Sheppard,out,1.0,Left Knee
+2026-11-12T22:21:03+00:00,LAC,3913176,Brandon Ingram,out,1.0,Right Achilles
+2026-11-12T22:21:03+00:00,LAC,4845363,Cam Christie,day-to-day,0.4,Ankle
+2026-11-12T22:21:03+00:00,LAC,5108024,Yanic Konan Niederhauser,out,1.0,Right Foot
+2026-11-12T22:21:03+00:00,LAC,6580,Bradley Beal,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,LAC,4396818,Jordan Miller,out,1.0,Left Shoulder
+2026-11-12T22:21:03+00:00,LAL,4397014,Quentin Grimes,day-to-day,0.4,Finger
+2026-11-12T22:21:03+00:00,LAL,4277811,Collin Sexton,day-to-day,0.4,Head
+2026-11-12T22:21:03+00:00,LAL,4066457,Austin Reaves,day-to-day,0.4,Left Heel
+2026-11-12T22:21:03+00:00,LAL,3945274,Luka Doncic,day-to-day,0.4,Right Ankle
+2026-11-12T22:21:03+00:00,MEM,4593016,Quinten Post,day-to-day,0.4,Head
+2026-11-12T22:21:03+00:00,MEM,4431785,Scotty Pippen Jr.,out,1.0,Back
+2026-11-12T22:21:03+00:00,MEM,5105462,Richie Saunders,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,MIA,6475,Klay Thompson,day-to-day,0.4,Left Ankle
+2026-11-12T22:21:03+00:00,MIA,3032977,Giannis Antetokounmpo,day-to-day,0.4,Wrist
+2026-11-12T22:21:03+00:00,MIA,4601025,Pelle Larsson,day-to-day,0.4,Illness
+2026-11-12T22:21:03+00:00,MIN,4594268,Anthony Edwards,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,MIN,3934673,Donte DiVincenzo,out,1.0,Right Achilles
+2026-11-12T22:21:03+00:00,NOP,4576086,Bryce McGowens,day-to-day,0.4,Left Elbow
+2026-11-12T22:21:03+00:00,NOP,4431675,Trendon Watford,out,1.0,Right Ankle
+2026-11-12T22:21:03+00:00,NOP,4683634,Bennedict Mathurin,day-to-day,0.4,Right Thumb
+2026-11-12T22:21:03+00:00,NOP,5061589,Yves Missi,out,1.0,Left Knee
+2026-11-12T22:21:03+00:00,NOP,4397688,Trey Murphy III,day-to-day,0.4,Not Specified Knee
+2026-11-12T22:21:03+00:00,OKC,4900671,Ajay Mitchell,day-to-day,0.4,Left Ankle
+2026-11-12T22:21:03+00:00,OKC,4432823,Jaylin Williams,out,1.0,Back
+2026-11-12T22:21:03+00:00,OKC,5061603,Thomas Sorber,out,1.0,Knee
+2026-11-12T22:21:03+00:00,OKC,4683692,Cason Wallace,out,1.0,Left Shoulder
+2026-11-12T22:21:03+00:00,OKC,4433255,Chet Holmgren,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,OKC,4593803,Jalen Williams,out,1.0,Left Leg
+2026-11-12T22:21:03+00:00,ORL,4702382,Tristan da Silva,day-to-day,0.4,Left Calf
+2026-11-12T22:21:03+00:00,ORL,4278572,Jamal Cain,day-to-day,0.4,Left Shoulder
+2026-11-12T22:21:03+00:00,ORL,4432165,Jalen Suggs,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,ORL,4065654,Jonathan Isaac,out,1.0,Left Knee
+2026-11-12T22:21:03+00:00,ORL,4432573,Paolo Banchero,out,1.0,Right Ankle
+2026-11-12T22:21:03+00:00,ORL,5214637,Noah Penda,out,1.0,Right Hamstring
+2026-11-12T22:21:03+00:00,ORL,5107251,Izaiyah Nelson,out,1.0,Left Ankle
+2026-11-12T22:21:03+00:00,PHI,1966,LeBron James,out,1.0,Back
+2026-11-12T22:21:03+00:00,PHI,4870562,Dominick Barlow,out,1.0,Not Specified Back
+2026-11-12T22:21:03+00:00,PHI,5105637,Adem Bona,out,1.0,Back
+2026-11-12T22:21:03+00:00,PHI,3059318,Joel Embiid,day-to-day,0.4,Right Foot
+2026-11-12T22:21:03+00:00,PHI,4871141,Ariel Hukporti,out,1.0,Right Achilles
+2026-11-12T22:21:03+00:00,PHX,4701232,Mark Williams,out,1.0,Left Shoulder
+2026-11-12T22:21:03+00:00,POR,4706557,Chris Youngblood,day-to-day,0.4,Right Foot
+2026-11-12T22:21:03+00:00,POR,4578893,Vit Krejci,out,1.0,Left Ankle
+2026-11-12T22:21:03+00:00,POR,4279888,Ja Morant,out,1.0,Left Hamstring
+2026-11-12T22:21:03+00:00,POR,4914336,Shaedon Sharpe,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,SAC,4431679,Precious Achiuwa,day-to-day,0.4,Left Lower Leg
+2026-11-12T22:21:03+00:00,SAC,4898371,Maxime Raynaud,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,SAC,3907387,Ben Simmons,out,1.0,Right Achilles
+2026-11-12T22:21:03+00:00,SAS,4395630,Devin Vassell,day-to-day,0.4,Left Groin
+2026-11-12T22:21:03+00:00,SAS,6440,Tobias Harris,out,1.0,Left Calf
+2026-11-12T22:21:03+00:00,SAS,5101845,Jayden Quaintance,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,TOR,4431684,Trayce Jackson-Davis,out,1.0,Illness
+2026-11-12T22:21:03+00:00,TOR,4433134,Scottie Barnes,out,1.0,Left Groin
+2026-11-12T22:21:03+00:00,TOR,6450,Kawhi Leonard,out,1.0,Left Knee
+2026-11-12T22:21:03+00:00,TOR,4432586,Nate Bittle,out,1.0,Right Foot
+2026-11-12T22:21:03+00:00,UTA,4433268,Trey Alexander,out,1.0,Right Ankle
+2026-11-12T22:21:03+00:00,UTA,4066336,Lauri Markkanen,out,1.0,Right Hand
+2026-11-12T22:21:03+00:00,UTA,3102530,Jusuf Nurkic,out,1.0,Right Foot
+2026-11-12T22:21:03+00:00,UTA,4277961,Jaren Jackson Jr.,out,1.0,Right Knee
+2026-11-12T22:21:03+00:00,WAS,4997537,Tristan Vukcevic,out,1.0,Left Hip
+2026-11-12T22:21:03+00:00,WAS,4432187,Reece Beekman,out,1.0,Shoulder
+2026-11-12T22:21:03+00:00,WAS,4432907,Justin Champagnie,out,1.0,Right Foot
+2026-11-12T22:21:03+00:00,WAS,4606840,Jamir Watkins,out,1.0,Left Knee
