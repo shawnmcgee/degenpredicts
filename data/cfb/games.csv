@@ -29109,9 +29109,9 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401866458,2026,11,regular,2026-11-10,False,"Tue Nov 10, 7:00 PM",Akron,Western Michigan,14.0,42.0,56.0,-28.0,False,True,Mid-American,Mid-American,True,2026-11-10T19:00:00-05:00,Tue,fbs,fbs
 401866459,2026,11,regular,2026-11-10,False,"Tue Nov 10, 7:00 PM",Bowling Green,Kent State,33.0,28.0,61.0,5.0,False,True,Mid-American,Mid-American,True,2026-11-10T19:00:00-05:00,Tue,fbs,fbs
 401866460,2026,11,regular,2026-11-10,False,"Tue Nov 10, 8:00 PM",Miami (OH),Ohio,34.0,17.0,51.0,17.0,False,True,Mid-American,Mid-American,True,2026-11-10T20:00:00-05:00,Tue,fbs,fbs
-401866461,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Ball State,Buffalo,,,,,False,True,Mid-American,Mid-American,False,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
-401866462,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Central Michigan,Sacramento State,,,,,False,True,Mid-American,Mid-American,False,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
-401866463,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Toledo,Massachusetts,,,,,False,True,Mid-American,Mid-American,False,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
+401866461,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Ball State,Buffalo,7.0,28.0,35.0,-21.0,False,True,Mid-American,Mid-American,True,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
+401866462,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Central Michigan,Sacramento State,28.0,7.0,35.0,21.0,False,True,Mid-American,Mid-American,True,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
+401866463,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Toledo,Massachusetts,24.0,0.0,24.0,24.0,False,True,Mid-American,Mid-American,True,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
 401862824,2026,11,regular,2026-11-12,False,"Thu Nov 12, 8:00 PM",South Florida,Memphis,,,,,False,True,American Athletic,American Athletic,False,2026-11-12T20:00:00-05:00,Thu,fbs,fbs
 401869969,2026,11,regular,2026-11-12,False,"Thu Nov 12, 9:00 PM",UL Monroe,Louisiana,,,,,False,True,Sun Belt,Sun Belt,False,2026-11-12T21:00:00-05:00,Thu,fbs,fbs
 401856860,2026,11,regular,2026-11-13,False,"Fri Nov 13, 10:15 PM",Colorado,Houston,,,,,False,True,Big 12,Big 12,False,2026-11-13T22:15:00-05:00,Fri,fbs,fbs
@@ -29416,7 +29416,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401909140,2026,11,regular,2026-11-14,False,"Sat Nov 14, 1:00 PM",Kenyon,Ohio Wesleyan,,,,,False,True,North Coast,North Coast,False,2026-11-14T13:00:00-05:00,Sat,,
 401915931,2026,11,regular,2026-11-14,False,"Sat Nov 14, 1:00 PM",Chicago State,Virginia Lynchburg,,,,,False,False,FCS Independents,,False,2026-11-14T13:00:00-05:00,Sat,,
 401866464,2026,12,regular,2026-11-17,False,"Tue Nov 17, 7:00 PM",Ohio,Ball State,,,,,False,True,Mid-American,Mid-American,False,2026-11-17T19:00:00-05:00,Tue,fbs,fbs
-401866465,2026,12,regular,2026-11-17,False,"Tue Nov 17, 7:00 PM",Western Michigan,Eastern Michigan,,,,,False,True,Mid-American,Mid-American,False,2026-11-17T19:00:00-05:00,Tue,fbs,fbs
+401866465,2026,12,regular,2026-11-17,False,"Tue Nov 17, 6:00 PM",Western Michigan,Eastern Michigan,,,,,False,True,Mid-American,Mid-American,False,2026-11-17T18:00:00-05:00,Tue,fbs,fbs
 401866466,2026,12,regular,2026-11-17,False,"Tue Nov 17, 7:00 PM",Kent State,Miami (OH),,,,,False,True,Mid-American,Mid-American,False,2026-11-17T19:00:00-05:00,Tue,fbs,fbs
 401866467,2026,12,regular,2026-11-18,False,"Wed Nov 18, 7:00 PM",Massachusetts,Akron,,,,,False,True,Mid-American,Mid-American,False,2026-11-18T19:00:00-05:00,Wed,fbs,fbs
 401866469,2026,12,regular,2026-11-18,False,"Wed Nov 18, 7:30 PM",Buffalo,Central Michigan,,,,,False,True,Mid-American,Mid-American,False,2026-11-18T19:30:00-05:00,Wed,fbs,fbs
@@ -29556,9 +29556,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401856880,2026,13,regular,2026-11-27,False,"Fri Nov 27, 9:00 PM",Utah,West Virginia,,,,,False,True,Big 12,Big 12,False,2026-11-27T21:00:00-05:00,Fri,fbs,fbs
 401858536,2026,13,regular,2026-11-27,False,"Fri Nov 27, 12:00 PM",Iowa,Nebraska,,,,,False,True,Big Ten,Big Ten,False,2026-11-27T12:00:00-05:00,Fri,fbs,fbs
 401858544,2026,13,regular,2026-11-27,False,"Fri Nov 27, 7:30 PM",Wisconsin,Minnesota,,,,,False,True,Big Ten,Big Ten,False,2026-11-27T19:30:00-05:00,Fri,fbs,fbs
-401862837,2026,13,regular,2026-11-27,True,,East Carolina,Florida Atlantic,,,,,False,True,American Athletic,American Athletic,False,2026-11-27T00:00:00-05:00,Fri,fbs,fbs
 401862838,2026,13,regular,2026-11-27,True,,Memphis,Temple,,,,,False,True,American Athletic,American Athletic,False,2026-11-27T00:00:00-05:00,Fri,fbs,fbs
-401862839,2026,13,regular,2026-11-27,True,,South Florida,Tulane,,,,,False,True,American Athletic,American Athletic,False,2026-11-27T00:00:00-05:00,Fri,fbs,fbs
 401864549,2026,13,regular,2026-11-27,False,"Fri Nov 27, 3:30 PM",San José State,North Dakota State,,,,,False,True,Mountain West,Mountain West,False,2026-11-27T15:30:00-05:00,Fri,fbs,fbs
 401866472,2026,13,regular,2026-11-27,False,"Fri Nov 27, 12:00 PM",Akron,Buffalo,,,,,False,True,Mid-American,Mid-American,False,2026-11-27T12:00:00-05:00,Fri,fbs,fbs
 401866473,2026,13,regular,2026-11-27,False,"Fri Nov 27, 12:00 PM",Ohio,Toledo,,,,,False,True,Mid-American,Mid-American,False,2026-11-27T12:00:00-05:00,Fri,fbs,fbs
@@ -29591,6 +29589,8 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401858542,2026,13,regular,2026-11-28,True,,Rutgers,Michigan State,,,,,False,True,Big Ten,Big Ten,False,2026-11-28T00:00:00-05:00,Sat,fbs,fbs
 401858543,2026,13,regular,2026-11-28,True,,UCLA,USC,,,,,False,True,Big Ten,Big Ten,False,2026-11-28T00:00:00-05:00,Sat,fbs,fbs
 401861969,2026,13,regular,2026-11-28,True,,Wyoming,UConn,,,,,False,False,Mountain West,FBS Independents,False,2026-11-28T00:00:00-05:00,Sat,fbs,fbs
+401862837,2026,13,regular,2026-11-28,True,,East Carolina,Florida Atlantic,,,,,False,True,American Athletic,American Athletic,False,2026-11-28T00:00:00-05:00,Sat,fbs,fbs
+401862839,2026,13,regular,2026-11-28,True,,South Florida,Tulane,,,,,False,True,American Athletic,American Athletic,False,2026-11-28T00:00:00-05:00,Sat,fbs,fbs
 401862840,2026,13,regular,2026-11-28,True,,UTSA,Tulsa,,,,,False,True,American Athletic,American Athletic,False,2026-11-28T00:00:00-05:00,Sat,fbs,fbs
 401862841,2026,13,regular,2026-11-28,True,,Rice,Army,,,,,False,True,American Athletic,American Athletic,False,2026-11-28T00:00:00-05:00,Sat,fbs,fbs
 401862842,2026,13,regular,2026-11-28,True,,Charlotte,Navy,,,,,False,True,American Athletic,American Athletic,False,2026-11-28T00:00:00-05:00,Sat,fbs,fbs
