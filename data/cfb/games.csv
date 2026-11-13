@@ -29112,8 +29112,8 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401866461,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Ball State,Buffalo,7.0,28.0,35.0,-21.0,False,True,Mid-American,Mid-American,True,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
 401866462,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Central Michigan,Sacramento State,28.0,7.0,35.0,21.0,False,True,Mid-American,Mid-American,True,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
 401866463,2026,11,regular,2026-11-11,False,"Wed Nov 11, 7:30 PM",Toledo,Massachusetts,24.0,0.0,24.0,24.0,False,True,Mid-American,Mid-American,True,2026-11-11T19:30:00-05:00,Wed,fbs,fbs
-401862824,2026,11,regular,2026-11-12,False,"Thu Nov 12, 8:00 PM",South Florida,Memphis,,,,,False,True,American Athletic,American Athletic,False,2026-11-12T20:00:00-05:00,Thu,fbs,fbs
-401869969,2026,11,regular,2026-11-12,False,"Thu Nov 12, 9:00 PM",UL Monroe,Louisiana,,,,,False,True,Sun Belt,Sun Belt,False,2026-11-12T21:00:00-05:00,Thu,fbs,fbs
+401862824,2026,11,regular,2026-11-12,False,"Thu Nov 12, 8:00 PM",South Florida,Memphis,41.0,52.0,93.0,-11.0,False,True,American Athletic,American Athletic,True,2026-11-12T20:00:00-05:00,Thu,fbs,fbs
+401869969,2026,11,regular,2026-11-12,False,"Thu Nov 12, 9:00 PM",UL Monroe,Louisiana,21.0,42.0,63.0,-21.0,False,True,Sun Belt,Sun Belt,True,2026-11-12T21:00:00-05:00,Thu,fbs,fbs
 401856860,2026,11,regular,2026-11-13,False,"Fri Nov 13, 10:15 PM",Colorado,Houston,,,,,False,True,Big 12,Big 12,False,2026-11-13T22:15:00-05:00,Fri,fbs,fbs
 401858293,2026,11,regular,2026-11-13,False,"Fri Nov 13, 7:00 PM",Pittsburgh,Florida State,,,,,False,True,ACC,ACC,False,2026-11-13T19:00:00-05:00,Fri,fbs,fbs
 401858526,2026,11,regular,2026-11-13,False,"Fri Nov 13, 9:00 PM",UCLA,Illinois,,,,,False,True,Big Ten,Big Ten,False,2026-11-13T21:00:00-05:00,Fri,fbs,fbs
