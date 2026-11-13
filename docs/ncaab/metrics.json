@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-12",
+  "updated": "2026-11-13",
   "sport": "ncaab",
   "break_even": 52.38,
   "spreads": {
@@ -14,45 +14,45 @@
       "clv": null
     },
     "all_games": {
-      "n": 443,
-      "wins": 228,
-      "losses": 215,
+      "n": 467,
+      "wins": 241,
+      "losses": 226,
       "pushes": 0,
-      "win_pct": 51.5,
-      "clv": -0.21
+      "win_pct": 51.6,
+      "clv": -0.16
     },
     "last7": {
-      "n": 303,
-      "wins": 156,
-      "losses": 147,
+      "n": 284,
+      "wins": 143,
+      "losses": 141,
       "pushes": 0,
-      "win_pct": 51.5
+      "win_pct": 50.4
     },
-    "mae": 9.07,
+    "mae": 9.01,
     "by_gap": [
       {
         "gap": "0-1",
-        "n": 269,
-        "wins": 142,
-        "losses": 127,
+        "n": 287,
+        "wins": 151,
+        "losses": 136,
         "pushes": 0,
-        "win_pct": 52.8
+        "win_pct": 52.6
       },
       {
         "gap": "1-2",
-        "n": 135,
-        "wins": 62,
-        "losses": 73,
+        "n": 139,
+        "wins": 65,
+        "losses": 74,
         "pushes": 0,
-        "win_pct": 45.9
+        "win_pct": 46.8
       },
       {
         "gap": "2-3",
-        "n": 38,
-        "wins": 24,
-        "losses": 14,
+        "n": 40,
+        "wins": 25,
+        "losses": 15,
         "pushes": 0,
-        "win_pct": 63.2
+        "win_pct": 62.5
       },
       {
         "gap": "3+",
@@ -76,45 +76,45 @@
       "clv": null
     },
     "all_games": {
-      "n": 443,
-      "wins": 212,
-      "losses": 231,
+      "n": 467,
+      "wins": 227,
+      "losses": 240,
       "pushes": 0,
-      "win_pct": 47.9,
-      "clv": -0.22
+      "win_pct": 48.6,
+      "clv": -0.24
     },
     "last7": {
-      "n": 303,
-      "wins": 144,
-      "losses": 159,
+      "n": 284,
+      "wins": 132,
+      "losses": 152,
       "pushes": 0,
-      "win_pct": 47.5
+      "win_pct": 46.5
     },
-    "mae": 13.11,
+    "mae": 13.15,
     "by_gap": [
       {
         "gap": "0-0.5",
-        "n": 184,
-        "wins": 84,
-        "losses": 100,
+        "n": 203,
+        "wins": 97,
+        "losses": 106,
         "pushes": 0,
-        "win_pct": 45.7
+        "win_pct": 47.8
       },
       {
         "gap": "0.5-1",
-        "n": 174,
-        "wins": 82,
-        "losses": 92,
+        "n": 176,
+        "wins": 83,
+        "losses": 93,
         "pushes": 0,
-        "win_pct": 47.1
+        "win_pct": 47.2
       },
       {
         "gap": "1-2",
-        "n": 81,
-        "wins": 43,
-        "losses": 38,
+        "n": 84,
+        "wins": 44,
+        "losses": 40,
         "pushes": 0,
-        "win_pct": 53.1
+        "win_pct": 52.4
       },
       {
         "gap": "2+",
@@ -131,18 +131,18 @@
       "week": "2026-11-09",
       "label": "Nov 9 \u2013 Nov 15",
       "spread": {
-        "n": 133,
-        "wins": 65,
-        "losses": 68,
+        "n": 157,
+        "wins": 78,
+        "losses": 79,
         "pushes": 0,
-        "win_pct": 48.9
+        "win_pct": 49.7
       },
       "total": {
-        "n": 133,
-        "wins": 58,
-        "losses": 75,
+        "n": 157,
+        "wins": 73,
+        "losses": 84,
         "pushes": 0,
-        "win_pct": 43.6
+        "win_pct": 46.5
       }
     },
     {
