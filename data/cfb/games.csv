@@ -29414,7 +29414,7 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401909136,2026,11,regular,2026-11-14,False,"Sat Nov 14, 1:07 PM",DePauw,Wabash,,,,,True,True,North Coast,North Coast,False,2026-11-14T13:07:00-05:00,Sat,,
 401909140,2026,11,regular,2026-11-14,False,"Sat Nov 14, 1:00 PM",Kenyon,Ohio Wesleyan,,,,,False,True,North Coast,North Coast,False,2026-11-14T13:00:00-05:00,Sat,,
 401915931,2026,11,regular,2026-11-14,False,"Sat Nov 14, 1:00 PM",Chicago State,Virginia Lynchburg,,,,,False,False,FCS Independents,,False,2026-11-14T13:00:00-05:00,Sat,,
-401856887,2026,12,regular,2026-11-15,False,"Sun Nov 15, 1:00 PM",Oklahoma,Ole Miss,,,,,False,True,SEC,SEC,False,2026-11-15T13:00:00-05:00,Sun,fbs,fbs
+401856887,2026,11,regular,2026-11-15,False,"Sun Nov 15, 1:00 PM",Oklahoma,Ole Miss,,,,,False,True,SEC,SEC,False,2026-11-15T13:00:00-05:00,Sun,fbs,fbs
 401866464,2026,12,regular,2026-11-17,False,"Tue Nov 17, 7:00 PM",Ohio,Ball State,,,,,False,True,Mid-American,Mid-American,False,2026-11-17T19:00:00-05:00,Tue,fbs,fbs
 401866465,2026,12,regular,2026-11-17,False,"Tue Nov 17, 6:00 PM",Western Michigan,Eastern Michigan,,,,,False,True,Mid-American,Mid-American,False,2026-11-17T18:00:00-05:00,Tue,fbs,fbs
 401866466,2026,12,regular,2026-11-17,False,"Tue Nov 17, 7:00 PM",Kent State,Miami (OH),,,,,False,True,Mid-American,Mid-American,False,2026-11-17T19:00:00-05:00,Tue,fbs,fbs
