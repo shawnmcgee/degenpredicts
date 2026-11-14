@@ -126,6 +126,7 @@ MIL,3133628,Myles Turner,3,C
 MIL,5105623,Kel'el Ware,9,C
 MIN,4432816,LaMelo Ball,1,G
 MIN,5279133,Joan Beringer,19,F
+MIN,4433569,Johni Broome,22,F
 MIN,4432247,Jaylen Clark,7,G
 MIN,3934673,Donte DiVincenzo,0,G
 MIN,4397002,Ayo Dosunmu,13,G
@@ -168,7 +169,7 @@ NYK,5211983,Pacome Dadiet,4,F
 NYK,5289900,Mohamed Diawara,51,F
 NYK,6585,Andre Drummond,0,C
 NYK,3062679,Josh Hart,3,G
-NYK,4897943,Dalton Knecht,99,F
+NYK,4897943,Dalton Knecht,1,F
 NYK,4433225,Tyler Kolek,13,G
 NYK,4431823,Miles McBride,2,G
 NYK,4838721,Tyler Nickel,55,F
@@ -316,7 +317,7 @@ UTA,4433268,Trey Alexander,15,G
 UTA,4873138,Ace Bailey,19,G
 UTA,4277919,Mo Bamba,44,C
 UTA,4065673,Tony Bradley,13,C
-UTA,4683736,Kobe Bufkin,4,G
+UTA,4683736,Kobe Bufkin,0,G
 UTA,4683766,Isaiah Collier,8,G
 UTA,4684793,Kyle Filipowski,2,F
 UTA,4433627,Keyonte George,3,G
@@ -431,6 +432,7 @@ CHI,4395626,Tre Jones,30,G
 CHI,5044385,Leonard Miller,11,F
 CHI,4432822,Isaac Okoro,35,F
 CHI,2595516,Norman Powell,24,G
+CHI,4593049,Orlando Robinson,0,C
 CHI,4898010,Jaylin Sellers,22,G
 CHI,4397189,Jalen Smith,25,F
 CHI,4848625,Dailyn Swain,5,G
@@ -438,16 +440,18 @@ CHI,4431687,Patrick Williams,44,F
 CHI,5095151,Caleb Wilson,8,F
 CLE,4066328,Jarrett Allen,31,C
 CLE,3934723,Thomas Bryant,3,C
+CLE,4997530,Khalifa Diop,18,C
 CLE,3992,James Harden,1,G
 CLE,2995706,Mario Hezonja,33,F
 CLE,4066757,Sam Merrill,5,G
 CLE,5177362,Riley Minix,12,F
 CLE,3908809,Donovan Mitchell,45,G
 CLE,4432158,Evan Mobley,4,C
-CLE,4702134,Norchad Omier,15,C
+CLE,4702134,Norchad Omier,77,C
 CLE,4701233,Craig Porter Jr.,9,G
 CLE,5023693,Tyrese Proctor,24,G
 CLE,5041951,Meleek Thomas,15,G
+CLE,5106268,Nae'Qwan Tomlin,35,F
 CLE,4683747,Jaylon Tyson,20,G
 CLE,5106261,Ernest Udeh Jr.,88,C
 CLE,4576087,Peyton Watson,8,G
