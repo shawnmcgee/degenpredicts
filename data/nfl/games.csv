@@ -4774,7 +4774,7 @@ game_id,season,week,season_type,playoff_round,date,tip_et,kickoff_utc,start_time
 2026_10_LA_ARI,2026,10,REG,0,2026-11-15,"Sun Nov 15, 4:05 PM",2026-11-15T16:05:00-05:00,False,Sunday,ARI,LA,,,,,False,True,NFC West,NFC West,7.0,7.0,,grass,,,PHO00,Gardner Minshew,Matthew Stafford,False
 2026_10_MIA_IND,2026,10,REG,0,2026-11-15,"Sun Nov 15, 1:00 PM",2026-11-15T13:00:00-05:00,False,Sunday,IND,MIA,,,,,False,False,AFC South,AFC East,7.0,7.0,,fieldturf,,,IND00,Daniel Jones,Malik Willis,False
 2026_10_MIN_GB,2026,10,REG,0,2026-11-15,"Sun Nov 15, 1:00 PM",2026-11-15T13:00:00-05:00,False,Sunday,GB,MIN,,,,,False,True,NFC North,NFC North,7.0,6.0,outdoors,grass,,,GNB00,Jordan Love,Kirk Cousins,False
-2026_10_NE_DET,2026,10,REG,0,2026-11-15,"Sun Nov 15, 9:30 AM",2026-11-15T09:30:00-05:00,False,Sunday,DET,NE,,,,,True,False,NFC North,AFC East,7.0,7.0,dome,fieldturf,,,MUN01,Jared Goff,Drake Maye,False
+2026_10_NE_DET,2026,10,REG,0,2026-11-15,"Sun Nov 15, 9:30 AM",2026-11-15T09:30:00-05:00,False,Sunday,DET,NE,35.0,10.0,45.0,25.0,True,False,NFC North,AFC East,7.0,7.0,dome,fieldturf,,,MUN01,Jared Goff,Drake Maye,True
 2026_10_PIT_CIN,2026,10,REG,0,2026-11-15,"Sun Nov 15, 8:20 PM",2026-11-15T20:20:00-05:00,False,Sunday,CIN,PIT,,,,,False,True,AFC North,AFC North,7.0,14.0,outdoors,fieldturf,,,CIN00,Joe Burrow,Aaron Rodgers,False
 2026_10_SEA_LV,2026,10,REG,0,2026-11-15,"Sun Nov 15, 4:05 PM",2026-11-15T16:05:00-05:00,False,Sunday,LV,SEA,,,,,False,False,AFC West,NFC West,7.0,7.0,dome,grass,,,VEG00,Fernando Mendoza,Sam Darnold,False
 2026_10_SF_DAL,2026,10,REG,0,2026-11-15,"Sun Nov 15, 4:25 PM",2026-11-15T16:25:00-05:00,False,Sunday,DAL,SF,,,,,False,False,NFC East,NFC West,7.0,7.0,,matrixturf,,,DAL00,Dak Prescott,Brock Purdy,False
