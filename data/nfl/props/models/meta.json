@@ -1,5 +1,5 @@
 {
-  "trained_at": "2026-11-08T22:20:57+00:00",
+  "trained_at": "2026-11-15T23:04:05+00:00",
   "sklearn": "1.9.1",
   "features": [
     "pos_qb",
@@ -239,7 +239,7 @@
           "mae_baseline": 64.52
         }
       ],
-      "n_train": 6389
+      "n_train": 6418
     },
     "rush_yds": {
       "market": "rush_yds",
@@ -402,7 +402,7 @@
           "mae_baseline": 18.32
         }
       ],
-      "n_train": 23843
+      "n_train": 23951
     },
     "rec_yds": {
       "market": "rec_yds",
@@ -559,7 +559,7 @@
           "mae_baseline": 18.01
         }
       ],
-      "n_train": 54696
+      "n_train": 54946
     },
     "receptions": {
       "market": "receptions",
@@ -728,7 +728,7 @@
           "mae_baseline": 1.37
         }
       ],
-      "n_train": 54696
+      "n_train": 54946
     },
     "anytime_td": {
       "market": "anytime_td",
@@ -922,7 +922,7 @@
           "actual": 42.1
         }
       ],
-      "n_train": 57956
+      "n_train": 58212
     }
   }
 }

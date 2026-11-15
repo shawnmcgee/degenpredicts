@@ -4771,13 +4771,13 @@ game_id,season,week,date,home_team,away_team,provider,spread_home,spread_open,to
 2026_10_HOU_CLE,2026,10,2026-11-15,CLE,HOU,nflverse_close,4.5,,40.5,,164.0,-198.0,1
 2026_10_JAX_TEN,2026,10,2026-11-15,TEN,JAX,nflverse_close,10.5,,45.5,,470.0,-650.0,1
 2026_10_KC_ATL,2026,10,2026-11-15,ATL,KC,nflverse_close,3.0,,47.5,,145.0,-175.0,1
-2026_10_LA_ARI,2026,10,2026-11-15,ARI,LA,nflverse_close,9.5,,38.5,,370.0,-485.0,1
+2026_10_LA_ARI,2026,10,2026-11-15,ARI,LA,nflverse_close,10.0,,38.5,,410.0,-550.0,1
 2026_10_MIA_IND,2026,10,2026-11-15,IND,MIA,nflverse_close,-4.5,,37.5,,-225.0,185.0,1
 2026_10_MIN_GB,2026,10,2026-11-15,GB,MIN,nflverse_close,-2.5,,42.5,,-148.0,124.0,1
 2026_10_NE_DET,2026,10,2026-11-15,DET,NE,nflverse_close,-2.5,,50.5,,-148.0,124.0,1
 2026_10_PIT_CIN,2026,10,2026-11-15,CIN,PIT,nflverse_close,-3.5,,49.5,,-192.0,160.0,1
 2026_10_SEA_LV,2026,10,2026-11-15,LV,SEA,nflverse_close,6.5,,40.5,,240.0,-298.0,1
-2026_10_SF_DAL,2026,10,2026-11-15,DAL,SF,nflverse_close,4.5,,55.5,,180.0,-218.0,1
+2026_10_SF_DAL,2026,10,2026-11-15,DAL,SF,nflverse_close,3.5,,55.5,,170.0,-205.0,1
 2026_10_LAC_BAL,2026,10,2026-11-16,BAL,LAC,nflverse_close,-4.5,,38.5,,-225.0,185.0,1
 2026_11_IND_HOU,2026,11,2026-11-19,HOU,IND,nflverse_close,,,,,,,1
 2026_11_ARI_KC,2026,11,2026-11-22,KC,ARI,nflverse_close,,,,,,,1
