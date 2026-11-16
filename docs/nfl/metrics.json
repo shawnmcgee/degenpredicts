@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-15",
+  "updated": "2026-11-16",
   "sport": "nfl",
   "break_even": 51.75,
   "venue": "kalshi_taker",
@@ -15,14 +15,14 @@
       "clv": null
     },
     "all_games": {
-      "n": 138,
-      "wins": 67,
-      "losses": 71,
+      "n": 149,
+      "wins": 73,
+      "losses": 76,
       "pushes": 0,
-      "win_pct": 48.6,
+      "win_pct": 49.0,
       "units": 0.0,
       "roi": 0.0,
-      "clv": -0.14
+      "clv": -0.17
     },
     "last2weeks": {
       "n": 0,
@@ -34,51 +34,51 @@
       "roi": 0.0,
       "clv": null
     },
-    "mae": 10.58,
+    "mae": 10.48,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 41,
-        "wins": 19,
-        "losses": 22,
+        "n": 46,
+        "wins": 21,
+        "losses": 25,
         "pushes": 0,
-        "win_pct": 46.3,
+        "win_pct": 45.7,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.0
+        "clv": -0.09
       },
       {
         "bucket": "1-2",
-        "n": 45,
-        "wins": 21,
-        "losses": 24,
+        "n": 48,
+        "wins": 22,
+        "losses": 26,
         "pushes": 0,
-        "win_pct": 46.7,
+        "win_pct": 45.8,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.18
+        "clv": -0.1
       },
       {
         "bucket": "2-3",
-        "n": 30,
-        "wins": 18,
+        "n": 32,
+        "wins": 20,
         "losses": 12,
         "pushes": 0,
-        "win_pct": 60.0,
+        "win_pct": 62.5,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.17
+        "clv": -0.28
       },
       {
         "bucket": "3-5",
-        "n": 18,
-        "wins": 7,
+        "n": 19,
+        "wins": 8,
         "losses": 11,
         "pushes": 0,
-        "win_pct": 38.9,
+        "win_pct": 42.1,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.11
+        "clv": -0.16
       },
       {
         "bucket": "5-7",
@@ -105,14 +105,14 @@
       "clv": -0.75
     },
     "all_games": {
-      "n": 138,
-      "wins": 60,
-      "losses": 73,
+      "n": 149,
+      "wins": 65,
+      "losses": 79,
       "pushes": 5,
       "win_pct": 45.1,
       "units": -0.36,
       "roi": -100.0,
-      "clv": -0.38
+      "clv": -0.32
     },
     "last2weeks": {
       "n": 2,
@@ -124,51 +124,51 @@
       "roi": -100.0,
       "clv": -0.75
     },
-    "mae": 9.57,
+    "mae": 9.61,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 42,
-        "wins": 21,
-        "losses": 20,
+        "n": 47,
+        "wins": 22,
+        "losses": 24,
         "pushes": 1,
-        "win_pct": 51.2,
+        "win_pct": 47.8,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.31
+        "clv": -0.28
       },
       {
         "bucket": "1-2",
-        "n": 43,
-        "wins": 20,
-        "losses": 21,
+        "n": 46,
+        "wins": 22,
+        "losses": 22,
         "pushes": 2,
-        "win_pct": 48.8,
+        "win_pct": 50.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.07
+        "clv": -0.02
       },
       {
         "bucket": "2-3",
-        "n": 32,
-        "wins": 12,
-        "losses": 18,
+        "n": 34,
+        "wins": 13,
+        "losses": 19,
         "pushes": 2,
-        "win_pct": 40.0,
+        "win_pct": 40.6,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.52
+        "clv": -0.5
       },
       {
         "bucket": "3-5",
-        "n": 17,
-        "wins": 6,
+        "n": 18,
+        "wins": 7,
         "losses": 11,
         "pushes": 0,
-        "win_pct": 35.3,
+        "win_pct": 38.9,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -1.18
+        "clv": -0.92
       },
       {
         "bucket": "5-7",
@@ -267,7 +267,7 @@
     },
     {
       "week": 10,
-      "games": 2,
+      "games": 13,
       "total_units": 0.0,
       "spread_units": -0.36,
       "played": 1,
@@ -276,11 +276,11 @@
     }
   ],
   "teasers": {
-    "legs": 27,
-    "wins": 21,
+    "legs": 29,
+    "wins": 23,
     "losses": 6,
-    "win_pct": 77.8,
+    "win_pct": 79.3,
     "break_even": 73.9,
-    "two_team_ev": 10.9
+    "two_team_ev": 15.3
   }
 }
