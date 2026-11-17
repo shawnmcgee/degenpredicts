@@ -12240,7 +12240,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401858530,2026,12,2026-11-21,Minnesota,Northwestern,3.0,3.0,42.5,43.0,Bovada,2
 401858531,2026,12,2026-11-21,Nebraska,Ohio State,3.0,3.0,42.0,43.5,Bovada,2
 401858532,2026,12,2026-11-21,Penn State,Rutgers,-24.0,-24.0,51.0,51.0,Bovada,2
-401858533,2026,12,2026-11-21,Purdue,Wisconsin,6.0,5.5,46.0,44.5,Bovada,2
+401858533,2026,12,2026-11-21,Purdue,Wisconsin,6.0,5.5,46.5,44.5,Bovada,2
 401858534,2026,12,2026-11-21,USC,Maryland,-17.0,-17.0,57.5,57.5,Bovada,2
 401858535,2026,12,2026-11-21,Washington,Indiana,7.5,7.5,44.0,44.0,Bovada,2
 401858537,2026,13,2026-11-28,Northwestern,Illinois,3.5,3.5,52.5,52.5,DraftKings,1
@@ -12381,7 +12381,7 @@ game_id,season,week,date,home_team,away_team,spread_home,spread_open,total_line,
 401862830,2026,12,2026-11-19,Temple,Rice,-3.0,-3.5,50.5,48.5,Bovada,2
 401862831,2026,12,2026-11-21,Army,East Carolina,-5.5,-4.5,45.5,44.0,Bovada,2
 401862832,2026,12,2026-11-21,Tulsa,Charlotte,-23.0,-22.5,52.5,52.5,Bovada,2
-401862833,2026,12,2026-11-21,Florida Atlantic,South Florida,1.0,-1.0,64.5,66.0,Bovada,2
+401862833,2026,12,2026-11-21,Florida Atlantic,South Florida,1.0,-1.0,64.0,66.0,Bovada,2
 401862834,2026,12,2026-11-21,Navy,Memphis,3.0,3.0,67.0,66.5,Bovada,2
 401862835,2026,12,2026-11-21,Tulane,North Texas,6.5,7.0,56.0,57.0,Bovada,2
 401862836,2026,12,2026-11-21,UAB,UTSA,6.0,6.0,51.5,52.0,Bovada,2
