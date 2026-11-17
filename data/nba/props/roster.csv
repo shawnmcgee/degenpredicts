@@ -1,12 +1,12 @@
 team,athlete_id,name,jersey,pos
 ATL,4278039,Nickeil Alexander-Walker,7,G
+ATL,4684443,Rafael Castro,,F
 ATL,4869342,Dyson Daniels,5,G
 ATL,4431941,RayJ Dennis,10,G
 ATL,4397020,Luguentz Dort,0,G
 ATL,5106262,Zuby Ejiofor,20,F
 ATL,2578185,Dorian Finney-Smith,8,F
 ATL,5149077,Kingston Flemings,4,G
-ATL,4585618,Keshon Gilbert,0,G
 ATL,4712863,Mouhamed Gueye,18,F
 ATL,4701230,Jalen Johnson,1,F
 ATL,4280151,Corey Kispert,24,F
@@ -273,7 +273,7 @@ SAC,4066262,Malik Monk,0,G
 SAC,4594327,Keegan Murray,13,F
 SAC,4709131,Sean Pedulla,3,G
 SAC,4279318,Daeqwon Plowden,29,G
-SAC,2488653,Mason Plumlee,,C
+SAC,2488653,Mason Plumlee,24,C
 SAC,4898371,Maxime Raynaud,42,C
 SAC,3155942,Domantas Sabonis,11,F
 SAC,5106058,Emanuel Sharp,34,G
