@@ -114,7 +114,7 @@
           "mae_baseline": 4.969
         }
       ],
-      "n_train": 259340
+      "n_train": 260213
     },
     "rebounds": {
       "market": "rebounds",
@@ -224,7 +224,7 @@
           "mae_baseline": 1.982
         }
       ],
-      "n_train": 259340
+      "n_train": 260213
     },
     "assists": {
       "market": "assists",
@@ -340,7 +340,7 @@
           "mae_baseline": 1.469
         }
       ],
-      "n_train": 259340
+      "n_train": 260213
     },
     "threes": {
       "market": "threes",
@@ -450,10 +450,10 @@
           "mae_baseline": 1.079
         }
       ],
-      "n_train": 216581
+      "n_train": 217353
     }
   },
-  "trained_at": "2026-11-11T02:17:38+00:00",
+  "trained_at": "2026-11-18T03:53:42+00:00",
   "sklearn": "1.9.1",
   "features": [
     "pos_g",
