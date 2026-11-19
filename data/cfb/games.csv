@@ -29418,8 +29418,8 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401866464,2026,12,regular,2026-11-17,False,"Tue Nov 17, 7:00 PM",Ohio,Ball State,35.0,28.0,63.0,7.0,False,True,Mid-American,Mid-American,True,2026-11-17T19:00:00-05:00,Tue,fbs,fbs
 401866465,2026,12,regular,2026-11-17,False,"Tue Nov 17, 6:00 PM",Western Michigan,Eastern Michigan,34.0,27.0,61.0,7.0,False,True,Mid-American,Mid-American,True,2026-11-17T18:00:00-05:00,Tue,fbs,fbs
 401866466,2026,12,regular,2026-11-17,False,"Tue Nov 17, 7:00 PM",Kent State,Miami (OH),3.0,20.0,23.0,-17.0,False,True,Mid-American,Mid-American,True,2026-11-17T19:00:00-05:00,Tue,fbs,fbs
-401866467,2026,12,regular,2026-11-18,False,"Wed Nov 18, 7:00 PM",Massachusetts,Akron,,,,,False,True,Mid-American,Mid-American,False,2026-11-18T19:00:00-05:00,Wed,fbs,fbs
-401866469,2026,12,regular,2026-11-18,False,"Wed Nov 18, 7:30 PM",Buffalo,Central Michigan,,,,,False,True,Mid-American,Mid-American,False,2026-11-18T19:30:00-05:00,Wed,fbs,fbs
+401866467,2026,12,regular,2026-11-18,False,"Wed Nov 18, 7:00 PM",Massachusetts,Akron,33.0,34.0,67.0,-1.0,False,True,Mid-American,Mid-American,True,2026-11-18T19:00:00-05:00,Wed,fbs,fbs
+401866469,2026,12,regular,2026-11-18,False,"Wed Nov 18, 7:30 PM",Buffalo,Central Michigan,40.0,21.0,61.0,19.0,False,True,Mid-American,Mid-American,True,2026-11-18T19:30:00-05:00,Wed,fbs,fbs
 401862830,2026,12,regular,2026-11-19,False,"Thu Nov 19, 7:30 PM",Temple,Rice,,,,,False,True,American Athletic,American Athletic,False,2026-11-19T19:30:00-05:00,Thu,fbs,fbs
 401868314,2026,12,regular,2026-11-19,False,"Thu Nov 19, 7:00 PM",Stephen F. Austin,Northwestern State,,,,,False,True,Southland,Southland,False,2026-11-19T19:00:00-05:00,Thu,,
 401868323,2026,12,regular,2026-11-19,False,"Thu Nov 19, 7:00 PM",Nicholls,SE Louisiana,,,,,False,True,Southland,Southland,False,2026-11-19T19:00:00-05:00,Thu,,
