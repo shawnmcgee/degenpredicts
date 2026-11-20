@@ -2249,3 +2249,7 @@ pulled_at,date,game_id,side,team,goalie,goalie_id,status,matched_by
 2026-11-19T22:10:15+00:00,2026-11-19,2026020357,a,VAN,Leevi Merilainen,8482447,likely,name
 2026-11-19T22:10:15+00:00,2026-11-19,2026020358,h,VGK,Adin Hill,8478499,confirmed,name
 2026-11-19T22:10:15+00:00,2026-11-19,2026020358,a,DAL,Jake Oettinger,8479979,confirmed,name
+2026-11-20T02:36:12+00:00,2026-11-19,2026020357,h,SEA,Philipp Grubauer,8475831,confirmed,name
+2026-11-20T02:36:12+00:00,2026-11-19,2026020357,a,VAN,Leevi Merilainen,8482447,confirmed,name
+2026-11-20T02:36:12+00:00,2026-11-19,2026020358,h,VGK,Adin Hill,8478499,confirmed,name
+2026-11-20T02:36:12+00:00,2026-11-19,2026020358,a,DAL,Jake Oettinger,8479979,confirmed,name
