@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-19",
+  "updated": "2026-11-20",
   "sport": "nfl",
   "break_even": 51.75,
   "venue": "kalshi_taker",
@@ -15,11 +15,11 @@
       "clv": null
     },
     "all_games": {
-      "n": 150,
-      "wins": 73,
+      "n": 151,
+      "wins": 74,
       "losses": 77,
       "pushes": 0,
-      "win_pct": 48.7,
+      "win_pct": 49.0,
       "units": 0.0,
       "roi": 0.0,
       "clv": -0.17
@@ -34,7 +34,7 @@
       "roi": 0.0,
       "clv": null
     },
-    "mae": 10.44,
+    "mae": 10.47,
     "by_edge": [
       {
         "bucket": "0-1",
@@ -71,14 +71,14 @@
       },
       {
         "bucket": "3-5",
-        "n": 19,
-        "wins": 8,
+        "n": 20,
+        "wins": 9,
         "losses": 11,
         "pushes": 0,
-        "win_pct": 42.1,
+        "win_pct": 45.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.16
+        "clv": -0.15
       },
       {
         "bucket": "5-7",
@@ -105,14 +105,14 @@
       "clv": -0.75
     },
     "all_games": {
-      "n": 150,
-      "wins": 65,
+      "n": 151,
+      "wins": 66,
       "losses": 80,
       "pushes": 5,
-      "win_pct": 44.8,
+      "win_pct": 45.2,
       "units": -0.36,
       "roi": -100.0,
-      "clv": -0.33
+      "clv": -0.31
     },
     "last2weeks": {
       "n": 2,
@@ -124,7 +124,7 @@
       "roi": -100.0,
       "clv": -0.75
     },
-    "mae": 9.59,
+    "mae": 9.6,
     "by_edge": [
       {
         "bucket": "0-1",
@@ -139,14 +139,14 @@
       },
       {
         "bucket": "1-2",
-        "n": 47,
-        "wins": 22,
+        "n": 48,
+        "wins": 23,
         "losses": 23,
         "pushes": 2,
-        "win_pct": 48.9,
+        "win_pct": 50.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.04
+        "clv": 0.01
       },
       {
         "bucket": "2-3",
@@ -271,6 +271,15 @@
       "total_units": 0.0,
       "spread_units": -0.36,
       "played": 1,
+      "cum_total": 0.0,
+      "cum_spread": -0.36
+    },
+    {
+      "week": 11,
+      "games": 1,
+      "total_units": 0.0,
+      "spread_units": 0.0,
+      "played": 0,
       "cum_total": 0.0,
       "cum_spread": -0.36
     }
