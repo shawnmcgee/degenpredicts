@@ -111,7 +111,7 @@
   <div class="topbar">
     <div>
       <h1>DegenPredicts — NHL</h1>
-      <div class="sub">NHL puck lines and totals &middot; 0 games
+      <div class="sub">NHL puck lines and totals &middot; 14 games
         on the board &middot; updated 2026-11-20</div>
     </div>
     
@@ -201,14 +201,631 @@
 <section>
   <h2>The board</h2>
   
-  <div class="note">No games on the board yet. The pipeline posts each morning's slate and
-    refreshes it in the evening, once the books have prices up.</div>
+  <div class="controls">
+    <input type="search" id="q" placeholder="Search a team or goalie" aria-label="Search">
+  </div>
+  <div class="controls" role="group" aria-label="Day">
+    <button class="chip" aria-pressed="true" data-day="all">All days</button>
+    <button class="chip" aria-pressed="false" data-day="2026-11-21">Sat Nov 21</button>
+  </div>
+  <div class="controls" role="group" aria-label="Filters">
+    <button class="chip" aria-pressed="false" data-f="plays">Plays only</button>
+    <button class="chip" aria-pressed="false" data-f="b2b">Back-to-backs</button>
+    <button class="chip" aria-pressed="false" data-f="backup">Backup in net</button>
+    <button class="chip" aria-pressed="false" data-f="kick">Sort by puck drop</button>
+  </div>
+  <div id="count" class="sub" style="margin-bottom:10px"></div>
   
 
   <div id="list">
   
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="0"
+       data-search="van min leevi merilainen jesper wallstedt" data-kick="2026-11-22T03:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 10:00 PM</span>
+      <span>best EV -1.2%</span>
+    </div>
+    <div class="matchup">MIN<span class="at">at</span>VAN</div>
+    
+    <div class="goalies">In net:
+      MIN <b title="Jesper Wallstedt">Wallstedt</b>
+      <span class="gs projected">projected</span> &middot; VAN <b title="Leevi Merilainen">Merilainen</b>
+      <span class="gs projected">projected</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:21.4">VAN 21%</div>
+      <div class="pot" style="flex:19.7">OT 20%</div>
+      <div class="pa" style="flex:58.9">MIN 59%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>VAN 29.2%</b> &middot; market 29.0%</span>
+      <span>Goals <b>6.47</b> &middot; market 6.49 &middot; margin <b>-1.33</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">VAN +1.5<span class="px">-108</span></div>
+        <div class="d">ours <b>51.2%</b> &middot; market 48.9% &middot; EV -1.2%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 6.5<span class="px">-110</span></div>
+        <div class="d">ours <b>50.6%</b> &middot; market 50.4% &middot; EV -3.3%</div>
+        <div class="hit">Hit <b class="down">48.5%</b> (79-84) this season when we're under 0.03 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="0"
+       data-search="fla buf jacob markstrom ukko-pekka luukkonen" data-kick="2026-11-21T23:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 6:00 PM</span>
+      <span>best EV -1.9%</span>
+    </div>
+    <div class="matchup">BUF<span class="at">at</span>FLA</div>
+    <div class="ctx">FLA +2 days rest</div>
+    <div class="goalies">In net:
+      BUF <b title="Ukko-Pekka Luukkonen">Luukkonen</b>
+      <span class="gs projected">projected</span> &middot; FLA <b title="Jacob Markstrom">Markstrom</b>
+      <span class="gs projected">projected</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:45.1">FLA 45%</div>
+      <div class="pot" style="flex:22.1">OT 22%</div>
+      <div class="pa" style="flex:32.8">BUF 33%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>FLA 57.1%</b> &middot; market 57.7%</span>
+      <span>Goals <b>6.36</b> &middot; market 6.30 &middot; margin <b>+0.43</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">BUF +1.5<span class="px">-196</span></div>
+        <div class="d">ours <b>64.6%</b> &middot; market 63.3% &middot; EV -2.4%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 6.5<span class="px">+105</span></div>
+        <div class="d">ours <b>47.7%</b> &middot; market 46.8% &middot; EV -1.9%</div>
+        <div class="hit">Hit <b class="down">46.0%</b> (58-68) this season when we're 0.03–0.06 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="0"
+       data-search="cgy chi dustin wolf spencer knight" data-kick="2026-11-21T20:30:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 3:30 PM</span>
+      <span>best EV -2.1%</span>
+    </div>
+    <div class="matchup">CHI<span class="at">at</span>CGY</div>
+    
+    <div class="goalies">In net:
+      CHI <b title="Spencer Knight">Knight</b>
+      <span class="gs projected">projected</span> &middot; CGY <b title="Dustin Wolf">Wolf</b>
+      <span class="gs likely">likely</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:45.9">CGY 46%</div>
+      <div class="pot" style="flex:22.3">OT 22%</div>
+      <div class="pa" style="flex:31.8">CHI 32%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>CGY 58.2%</b> &middot; market 58.9%</span>
+      <span>Goals <b>6.13</b> &middot; market 6.13 &middot; margin <b>+0.48</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">CHI +1.5<span class="px">-189</span></div>
+        <div class="d">ours <b>64.0%</b> &middot; market 62.4% &middot; EV -2.1%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 6<span class="px">-105</span></div>
+        <div class="d">ours <b>49.2%</b> &middot; market 49.1% &middot; EV -3.5%</div>
+        <div class="hit">Hit <b class="down">48.5%</b> (79-84) this season when we're under 0.03 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="0"
+       data-search="stl njd joel hofer connor hellebuyck" data-kick="2026-11-22T00:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 7:00 PM</span>
+      <span>best EV -2.1%</span>
+    </div>
+    <div class="matchup">NJD<span class="at">at</span>STL</div>
+    
+    <div class="goalies">In net:
+      NJD <b title="Connor Hellebuyck">Hellebuyck</b>
+      <span class="gs projected">projected</span> &middot; STL <b title="Joel Hofer">Hofer</b>
+      <span class="gs projected">projected</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:35.2">STL 35%</div>
+      <div class="pot" style="flex:22.5">OT 22%</div>
+      <div class="pa" style="flex:42.2">NJD 42%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>STL 46.2%</b> &middot; market 45.8%</span>
+      <span>Goals <b>6.18</b> &middot; market 6.13 &middot; margin <b>-0.24</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">STL +1.5<span class="px">-233</span></div>
+        <div class="d">ours <b>67.3%</b> &middot; market 66.5% &middot; EV -3.7%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 6<span class="px">-105</span></div>
+        <div class="d">ours <b>50.1%</b> &middot; market 49.1% &middot; EV -2.1%</div>
+        <div class="hit">Hit <b class="down">46.0%</b> (58-68) this season when we're 0.03–0.06 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="0"
+       data-search="sjs sea yaroslav askarov philipp grubauer" data-kick="2026-11-22T03:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 10:00 PM</span>
+      <span>best EV -2.4%</span>
+    </div>
+    <div class="matchup">SEA<span class="at">at</span>SJS</div>
+    <div class="ctx">SJS +2 days rest</div>
+    <div class="goalies">In net:
+      SEA <b title="Philipp Grubauer">Grubauer</b>
+      <span class="gs projected">projected</span> &middot; SJS <b title="Yaroslav Askarov">Askarov</b>
+      <span class="gs projected">projected</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:39.6">SJS 40%</div>
+      <div class="pot" style="flex:22.2">OT 22%</div>
+      <div class="pa" style="flex:38.2">SEA 38%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>SJS 51.0%</b> &middot; market 51.1%</span>
+      <span>Goals <b>6.49</b> &middot; market 6.44 &middot; margin <b>+0.05</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">SEA +1.5<span class="px">-256</span></div>
+        <div class="d">ours <b>69.5%</b> &middot; market 69.0% &middot; EV -3.3%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 6.5<span class="px">-105</span></div>
+        <div class="d">ours <b>50.0%</b> &middot; market 49.2% &middot; EV -2.4%</div>
+        <div class="hit">Hit <b class="down">46.0%</b> (58-68) this season when we're 0.03–0.06 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="1"
+       data-search="ott lak samuel ersson darcy kuemper" data-kick="2026-11-22T00:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 7:00 PM</span>
+      <span>best EV -2.9%</span>
+    </div>
+    <div class="matchup">LAK<span class="at">at</span>OTT</div>
+    
+    <div class="goalies">In net:
+      LAK <b title="Darcy Kuemper">Kuemper</b>
+      <span class="gs projected">projected</span> &middot; OTT <b title="Samuel Ersson">Ersson</b>
+      <span class="gs projected">projected</span> <span class="gs backup">backup</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:47.8">OTT 48%</div>
+      <div class="pot" style="flex:22.2">OT 22%</div>
+      <div class="pa" style="flex:29.9">LAK 30%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>OTT 60.4%</b> &middot; market 61.1%</span>
+      <span>Goals <b>6.04</b> &middot; market 6.04 &middot; margin <b>+0.61</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">LAK +1.5<span class="px">-179</span></div>
+        <div class="d">ours <b>62.2%</b> &middot; market 60.9% &middot; EV -2.9%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 5.5<span class="px">+104</span></div>
+        <div class="d">ours <b>47.0%</b> &middot; market 46.9% &middot; EV -4.2%</div>
+        <div class="hit">Hit <b class="down">48.5%</b> (79-84) this season when we're under 0.03 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="0"
+       data-search="nsh pit juuse saros arturs silovs" data-kick="2026-11-21T23:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 6:00 PM</span>
+      <span>best EV -3.1%</span>
+    </div>
+    <div class="matchup">PIT<span class="at">at</span>NSH</div>
+    <div class="ctx">NSH +2 days rest</div>
+    <div class="goalies">In net:
+      PIT <b title="Arturs Silovs">Silovs</b>
+      <span class="gs projected">projected</span> &middot; NSH <b title="Juuse Saros">Saros</b>
+      <span class="gs projected">projected</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:43.8">NSH 44%</div>
+      <div class="pot" style="flex:22.1">OT 22%</div>
+      <div class="pa" style="flex:34.2">PIT 34%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>NSH 55.6%</b> &middot; market 55.8%</span>
+      <span>Goals <b>6.47</b> &middot; market 6.43 &middot; margin <b>+0.34</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">NSH -1.5<span class="px">+180</span></div>
+        <div class="d">ours <b>34.2%</b> &middot; market 34.4% &middot; EV -4.1%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 6.5<span class="px">-105</span></div>
+        <div class="d">ours <b>49.7%</b> &middot; market 48.9% &middot; EV -3.1%</div>
+        <div class="hit">Hit <b class="down">46.0%</b> (58-68) this season when we're 0.03–0.06 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="0"
+       data-search="uta ana karel vejmelka lukas dostal" data-kick="2026-11-22T02:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 9:00 PM</span>
+      <span>best EV -3.2%</span>
+    </div>
+    <div class="matchup">ANA<span class="at">at</span>UTA</div>
+    
+    <div class="goalies">In net:
+      ANA <b title="Lukas Dostal">Dostal</b>
+      <span class="gs projected">projected</span> &middot; UTA <b title="Karel Vejmelka">Vejmelka</b>
+      <span class="gs projected">projected</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:47.5">UTA 48%</div>
+      <div class="pot" style="flex:21.4">OT 21%</div>
+      <div class="pa" style="flex:31.1">ANA 31%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>UTA 59.4%</b> &middot; market 59.4%</span>
+      <span>Goals <b>6.79</b> &middot; market 6.79 &middot; margin <b>+0.59</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">ANA +1.5<span class="px">-179</span></div>
+        <div class="d">ours <b>62.1%</b> &middot; market 61.3% &middot; EV -3.2%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 6.5<span class="px">-135</span></div>
+        <div class="d">ours <b>54.8%</b> &middot; market 54.8% &middot; EV -4.6%</div>
+        <div class="hit">Hit <b class="down">48.5%</b> (79-84) this season when we're under 0.03 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="0"
+       data-search="wpg vgk stuart skinner carter hart" data-kick="2026-11-22T00:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 7:00 PM</span>
+      <span>best EV -3.2%</span>
+    </div>
+    <div class="matchup">VGK<span class="at">at</span>WPG</div>
+    <div class="ctx">VGK 2 time zones</div>
+    <div class="goalies">In net:
+      VGK <b title="Carter Hart">Hart</b>
+      <span class="gs projected">projected</span> &middot; WPG <b title="Stuart Skinner">Skinner</b>
+      <span class="gs projected">projected</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:34.3">WPG 34%</div>
+      <div class="pot" style="flex:22.2">OT 22%</div>
+      <div class="pa" style="flex:43.5">VGK 44%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>WPG 44.9%</b> &middot; market 44.8%</span>
+      <span>Goals <b>6.38</b> &middot; market 6.37 &middot; margin <b>-0.32</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">VGK -1.5<span class="px">+185</span></div>
+        <div class="d">ours <b>34.0%</b> &middot; market 34.2% &middot; EV -3.2%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 6.5<span class="px">+100</span></div>
+        <div class="d">ours <b>48.2%</b> &middot; market 48.0% &middot; EV -3.6%</div>
+        <div class="hit">Hit <b class="down">48.5%</b> (79-84) this season when we're under 0.03 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="0"
+       data-search="mtl phi jakub dobes dan vladar" data-kick="2026-11-22T00:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 7:00 PM</span>
+      <span>best EV -3.2%</span>
+    </div>
+    <div class="matchup">PHI<span class="at">at</span>MTL</div>
+    <div class="ctx">MTL 3rd game in 4 nights</div>
+    <div class="goalies">In net:
+      PHI <b title="Dan Vladar">Vladar</b>
+      <span class="gs projected">projected</span> &middot; MTL <b title="Jakub Dobes">Dobes</b>
+      <span class="gs projected">projected</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:47.1">MTL 47%</div>
+      <div class="pot" style="flex:22.3">OT 22%</div>
+      <div class="pa" style="flex:30.6">PHI 31%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>MTL 59.6%</b> &middot; market 60.0%</span>
+      <span>Goals <b>6.05</b> &middot; market 6.05 &middot; margin <b>+0.57</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">PHI +1.5<span class="px">-185</span></div>
+        <div class="d">ours <b>62.9%</b> &middot; market 62.0% &middot; EV -3.2%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 6<span class="px">+102</span></div>
+        <div class="d">ours <b>47.6%</b> &middot; market 47.6% &middot; EV -3.4%</div>
+        <div class="hit">Hit <b class="down">48.5%</b> (79-84) this season when we're under 0.03 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="0"
+       data-search="bos wsh jeremy swayman logan thompson" data-kick="2026-11-22T00:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 7:00 PM</span>
+      <span>best EV -3.2%</span>
+    </div>
+    <div class="matchup">WSH<span class="at">at</span>BOS</div>
+    
+    <div class="goalies">In net:
+      WSH <b title="Logan Thompson">Thompson</b>
+      <span class="gs projected">projected</span> &middot; BOS <b title="Jeremy Swayman">Swayman</b>
+      <span class="gs confirmed">confirmed</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:41.1">BOS 41%</div>
+      <div class="pot" style="flex:22.1">OT 22%</div>
+      <div class="pa" style="flex:36.8">WSH 37%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>BOS 52.6%</b> &middot; market 52.2%</span>
+      <span>Goals <b>6.52</b> &middot; market 6.51 &middot; margin <b>+0.16</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">WSH +1.5<span class="px">-238</span></div>
+        <div class="d">ours <b>68.2%</b> &middot; market 68.0% &middot; EV -3.2%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 6.5<span class="px">-110</span></div>
+        <div class="d">ours <b>50.5%</b> &middot; market 50.3% &middot; EV -3.6%</div>
+        <div class="hit">Hit <b class="down">48.5%</b> (79-84) this season when we're under 0.03 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="1"
+       data-search="tor cbj anthony stolarz cam talbot" data-kick="2026-11-22T00:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 7:00 PM</span>
+      <span>best EV -3.2%</span>
+    </div>
+    <div class="matchup">CBJ<span class="at">at</span>TOR</div>
+    
+    <div class="goalies">In net:
+      CBJ <b title="Cam Talbot">Talbot</b>
+      <span class="gs projected">projected</span> <span class="gs backup">backup</span> &middot; TOR <b title="Anthony Stolarz">Stolarz</b>
+      <span class="gs projected">projected</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:40.1">TOR 40%</div>
+      <div class="pot" style="flex:22.4">OT 22%</div>
+      <div class="pa" style="flex:37.5">CBJ 38%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>TOR 51.7%</b> &middot; market 51.7%</span>
+      <span>Goals <b>6.33</b> &middot; market 6.32 &middot; margin <b>+0.10</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">CBJ +1.5<span class="px">-250</span></div>
+        <div class="d">ours <b>69.1%</b> &middot; market 68.2% &middot; EV -3.2%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 6.5<span class="px">+104</span></div>
+        <div class="d">ours <b>47.3%</b> &middot; market 47.2% &middot; EV -3.4%</div>
+        <div class="hit">Hit <b class="down">48.5%</b> (79-84) this season when we're under 0.03 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="0"
+       data-search="det nyi john gibson ilya sorokin" data-kick="2026-11-22T00:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 7:00 PM</span>
+      <span>best EV -3.8%</span>
+    </div>
+    <div class="matchup">NYI<span class="at">at</span>DET</div>
+    
+    <div class="goalies">In net:
+      NYI <b title="Ilya Sorokin">Sorokin</b>
+      <span class="gs projected">projected</span> &middot; DET <b title="John Gibson">Gibson</b>
+      <span class="gs confirmed">confirmed</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:37.5">DET 38%</div>
+      <div class="pot" style="flex:22.8">OT 23%</div>
+      <div class="pa" style="flex:39.7">NYI 40%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>DET 49.0%</b> &middot; market 48.6%</span>
+      <span>Goals <b>6.06</b> &middot; market 6.05 &middot; margin <b>-0.07</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">DET +1.5<span class="px">-267</span></div>
+        <div class="d">ours <b>69.7%</b> &middot; market 69.7% &middot; EV -4.2%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Over 5.5<span class="px">-124</span></div>
+        <div class="d">ours <b>53.3%</b> &middot; market 53.1% &middot; EV -3.8%</div>
+        <div class="hit">Hit <b class="down">48.5%</b> (79-84) this season when we're under 0.03 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game "
+       data-day="2026-11-21" data-play="0" data-b2b="0"
+       data-backup="0"
+       data-search="car edm pyotr kochetkov devon levi" data-kick="2026-11-21T18:00:00+00:00">
+    <div class="ghead">
+      <span>Sat Nov 21, 1:00 PM</span>
+      <span>best EV -3.8%</span>
+    </div>
+    <div class="matchup">EDM<span class="at">at</span>CAR</div>
+    
+    <div class="goalies">In net:
+      EDM <b title="Devon Levi">Levi</b>
+      <span class="gs projected">projected</span> &middot; CAR <b title="Pyotr Kochetkov">Kochetkov</b>
+      <span class="gs projected">projected</span>
+    </div>
+    
+    <div class="probs" title="Our probability of each outcome after 60 minutes">
+      <div class="ph" style="flex:50.6">CAR 51%</div>
+      <div class="pot" style="flex:21.5">OT 22%</div>
+      <div class="pa" style="flex:27.8">EDM 28%</div>
+    </div>
+    <div class="scoreline">
+      <span>Win incl. OT <b>CAR 63.1%</b> &middot; market 61.6%</span>
+      <span>Goals <b>6.30</b> &middot; market 6.30 &middot; margin <b>+0.80</b></span>
+    </div>
+    
+    <div class="bets">
+      <div class="bet">
+        <div class="l">Puck line <span class="tag pass">no play</span></div>
+        <div class="p">EDM +1.5<span class="px">-161</span></div>
+        <div class="d">ours <b>59.4%</b> &middot; market 59.1% &middot; EV -3.8%</div>
+        <div class="hit">Hit <b class="up">57.0%</b> (188-142) this season at EV below 0%</div>
+      </div>
+      <div class="bet">
+        <div class="l">Total <span class="tag pass">no play</span></div>
+        <div class="p">Under 6.5<span class="px">-125</span></div>
+        <div class="d">ours <b>53.3%</b> &middot; market 53.3% &middot; EV -4.0%</div>
+        <div class="hit">Hit <b class="down">48.5%</b> (79-84) this season when we're under 0.03 goals off the market</div>
+      </div>
+    </div>
+  </div>
+  
   </div>
   <div class="empty" id="noresults" style="display:none">No games match those filters.</div>
+  
+  <p class="sub" style="margin-top:10px">The bar is our probability of each result after 60
+    minutes. <b>ours</b> is the chance the pick wins (a total's is net of a push on a whole-number
+    line), <b>market</b> is the same chance from the de-vigged price, and <b>EV</b> is the
+    expected return per unit at the posted price. <b>Goals</b> is our expected final total,
+    empty-netters and the shootout goal included, and <b>market</b> is the same number read from
+    the market's prices through the same model &mdash; compare those two, not our goals with the
+    posted line. A 5.5 or a 6.0 at even money already expects about 5.9 or 6.2 goals, so against
+    the line most games would look like an over. A pick is flagged
+    <span class="tag play">play</span> only at EV of 3.0% or more on
+    the puck line and 5.0% on the total, once both teams have played
+    enough games to rate &mdash; and only once both starting goalies are
+    <span class="gs confirmed">confirmed</span> or <span class="gs likely">likely</span>. Until
+    then a pick that clears the bar is marked <span class="tag wait">waiting on goalies</span>.
+    Starters come from the day's news; with none yet, the model uses its own guess from recent
+    starts and the back-to-back rule, and says how sure it is. Every goalie carries his own
+    rating, which follows him through trades.</p>
   
 </section>
 
