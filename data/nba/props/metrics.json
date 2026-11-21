@@ -1,13 +1,13 @@
 {
   "updated": "2026-11-21",
-  "n_rungs": 41041,
-  "brier_model": 0.1577,
+  "n_rungs": 42802,
+  "brier_model": 0.1578,
   "brier_published": 0.1558,
-  "brier_kalshi": 0.1572,
-  "clv_cents": 3.52,
+  "brier_kalshi": 0.1571,
+  "clv_cents": 3.42,
   "shrink": {
-    "best": 0.4,
-    "n": 41041,
+    "best": 0.35,
+    "n": 42802,
     "ready": true,
     "in_use": 0.25
   },
@@ -20,24 +20,24 @@
   },
   "by_market": {
     "assists": {
-      "n": 8467,
-      "brier_model": 0.1473,
-      "brier_kalshi": 0.146
+      "n": 8846,
+      "brier_model": 0.1478,
+      "brier_kalshi": 0.1462
     },
     "points": {
-      "n": 9862,
-      "brier_model": 0.1714,
-      "brier_kalshi": 0.1687
+      "n": 10288,
+      "brier_model": 0.1718,
+      "brier_kalshi": 0.169
     },
     "rebounds": {
-      "n": 11025,
-      "brier_model": 0.1605,
-      "brier_kalshi": 0.1611
+      "n": 11496,
+      "brier_model": 0.1603,
+      "brier_kalshi": 0.1605
     },
     "threes": {
-      "n": 11687,
+      "n": 12172,
       "brier_model": 0.151,
-      "brier_kalshi": 0.1521
+      "brier_kalshi": 0.1519
     }
   }
 }
