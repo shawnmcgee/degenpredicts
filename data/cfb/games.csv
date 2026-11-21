@@ -29423,11 +29423,11 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401862830,2026,12,regular,2026-11-19,False,"Thu Nov 19, 7:30 PM",Temple,Rice,27.0,31.0,58.0,-4.0,False,True,American Athletic,American Athletic,True,2026-11-19T19:30:00-05:00,Thu,fbs,fbs
 401868314,2026,12,regular,2026-11-19,False,"Thu Nov 19, 7:00 PM",Stephen F. Austin,Northwestern State,,,,,False,True,Southland,Southland,False,2026-11-19T19:00:00-05:00,Thu,,
 401868323,2026,12,regular,2026-11-19,False,"Thu Nov 19, 7:00 PM",Nicholls,SE Louisiana,,,,,False,True,Southland,Southland,False,2026-11-19T19:00:00-05:00,Thu,,
-401856869,2026,12,regular,2026-11-20,False,"Fri Nov 20, 6:00 PM",UCF,Iowa State,,,,,False,True,Big 12,Big 12,False,2026-11-20T18:00:00-05:00,Fri,fbs,fbs
-401858303,2026,12,regular,2026-11-20,False,"Fri Nov 20, 7:30 PM",Duke,Clemson,,,,,False,True,ACC,ACC,False,2026-11-20T19:30:00-05:00,Fri,fbs,fbs
-401858529,2026,12,regular,2026-11-20,False,"Fri Nov 20, 8:00 PM",Michigan State,Oregon,,,,,False,True,Big Ten,Big Ten,False,2026-11-20T20:00:00-05:00,Fri,fbs,fbs
-401864545,2026,12,regular,2026-11-20,False,"Fri Nov 20, 8:00 PM",Air Force,UTEP,,,,,False,True,Mountain West,Mountain West,False,2026-11-20T20:00:00-05:00,Fri,fbs,fbs
-401866468,2026,12,regular,2026-11-20,False,"Fri Nov 20, 7:30 PM",Toledo,Bowling Green,,,,,False,True,Mid-American,Mid-American,False,2026-11-20T19:30:00-05:00,Fri,fbs,fbs
+401856869,2026,12,regular,2026-11-20,False,"Fri Nov 20, 6:00 PM",UCF,Iowa State,48.0,17.0,65.0,31.0,False,True,Big 12,Big 12,True,2026-11-20T18:00:00-05:00,Fri,fbs,fbs
+401858303,2026,12,regular,2026-11-20,False,"Fri Nov 20, 7:30 PM",Duke,Clemson,10.0,20.0,30.0,-10.0,False,True,ACC,ACC,True,2026-11-20T19:30:00-05:00,Fri,fbs,fbs
+401858529,2026,12,regular,2026-11-20,False,"Fri Nov 20, 8:00 PM",Michigan State,Oregon,7.0,45.0,52.0,-38.0,False,True,Big Ten,Big Ten,True,2026-11-20T20:00:00-05:00,Fri,fbs,fbs
+401864545,2026,12,regular,2026-11-20,False,"Fri Nov 20, 8:00 PM",Air Force,UTEP,52.0,3.0,55.0,49.0,False,True,Mountain West,Mountain West,True,2026-11-20T20:00:00-05:00,Fri,fbs,fbs
+401866468,2026,12,regular,2026-11-20,False,"Fri Nov 20, 7:30 PM",Toledo,Bowling Green,19.0,0.0,19.0,19.0,False,True,Mid-American,Mid-American,True,2026-11-20T19:30:00-05:00,Fri,fbs,fbs
 401856746,2026,12,regular,2026-11-21,False,"Sat Nov 21, 2:00 PM",Alabama,Chattanooga,,,,,False,False,SEC,Southern,False,2026-11-21T14:00:00-05:00,Sat,fbs,fcs
 401856747,2026,12,regular,2026-11-21,False,"Sat Nov 21, 3:30 PM",Auburn,Samford,,,,,False,False,SEC,Southern,False,2026-11-21T15:30:00-05:00,Sat,fbs,fcs
 401856748,2026,12,regular,2026-11-21,False,"Sat Nov 21, 12:00 PM",Florida,Vanderbilt,,,,,False,True,SEC,SEC,False,2026-11-21T12:00:00-05:00,Sat,fbs,fbs
