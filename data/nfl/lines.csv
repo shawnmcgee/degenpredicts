@@ -4791,11 +4791,11 @@ game_id,season,week,date,home_team,away_team,provider,spread_home,spread_open,to
 2026_11_PIT_PHI,2026,11,2026-11-22,PHI,PIT,nflverse_close,3.5,,37.5,,164.0,-196.0,1
 2026_11_TB_DET,2026,11,2026-11-22,DET,TB,nflverse_close,-3.5,,48.5,,-221.0,184.0,1
 2026_11_TEN_DAL,2026,11,2026-11-22,DAL,TEN,nflverse_close,-7.5,,55.5,,-359.0,288.0,1
-2026_11_CIN_WAS,2026,11,2026-11-23,WAS,CIN,nflverse_close,6.0,,54.5,,248.0,-305.0,1
+2026_11_CIN_WAS,2026,11,2026-11-23,WAS,CIN,nflverse_close,6.0,,54.5,,238.0,-292.0,1
 2026_12_GB_LA,2026,12,2026-11-25,LA,GB,nflverse_close,-2.5,,44.5,,-139.0,117.0,1
 2026_12_CHI_DET,2026,12,2026-11-26,DET,CHI,nflverse_close,2.5,,55.5,,123.0,-146.0,1
 2026_12_KC_BUF,2026,12,2026-11-26,BUF,KC,nflverse_close,-3.0,,48.5,,-150.0,127.0,1
-2026_12_PHI_DAL,2026,12,2026-11-26,DAL,PHI,nflverse_close,-8.5,,48.5,,-488.0,375.0,1
+2026_12_PHI_DAL,2026,12,2026-11-26,DAL,PHI,nflverse_close,-8.5,,48.5,,-494.0,379.0,1
 2026_12_DEN_PIT,2026,12,2026-11-27,PIT,DEN,nflverse_close,3.0,,38.5,,131.0,-155.0,1
 2026_12_ATL_MIN,2026,12,2026-11-29,MIN,ATL,nflverse_close,-6.5,,42.5,,-345.0,276.0,1
 2026_12_BAL_HOU,2026,12,2026-11-29,HOU,BAL,nflverse_close,-6.5,,46.5,,-310.0,251.0,1
