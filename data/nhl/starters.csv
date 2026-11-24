@@ -2395,3 +2395,9 @@ pulled_at,date,game_id,side,team,goalie,goalie_id,status,matched_by
 2026-11-23T01:58:29+00:00,2026-11-23,2026020383,a,ANA,Ville Husso,8478024,projected,name
 2026-11-23T01:58:29+00:00,2026-11-23,2026020384,h,SJS,Alex Nedeljkovic,8477968,projected,name
 2026-11-23T01:58:29+00:00,2026-11-23,2026020384,a,MIN,Jesper Wallstedt,8482661,projected,name
+2026-11-24T01:40:48+00:00,2026-11-23,2026020383,h,SEA,Joey Daccord,8478916,likely,name
+2026-11-24T01:40:48+00:00,2026-11-23,2026020383,a,ANA,Lukas Dostal,8480843,projected,name
+2026-11-24T01:40:48+00:00,2026-11-23,2026020384,h,SJS,Yaroslav Askarov,8482137,confirmed,name
+2026-11-24T01:40:48+00:00,2026-11-23,2026020384,a,MIN,Filip Gustavsson,8479406,confirmed,name
+2026-11-24T01:40:48+00:00,2026-11-24,2026020385,h,EDM,Devon Levi,8482221,projected,name
+2026-11-24T01:40:48+00:00,2026-11-24,2026020385,a,VGK,Carter Hart,8479394,projected,name
