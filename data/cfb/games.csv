@@ -29545,8 +29545,8 @@ game_id,season,week,season_type,date,start_time_tbd,tip_et,home_team,away_team,h
 401872619,2026,12,regular,2026-11-21,False,"Sat Nov 21, 12:00 PM",Princeton,Pennsylvania,,,,,False,True,Ivy,Ivy,False,2026-11-21T12:00:00-05:00,Sat,,
 401872643,2026,12,regular,2026-11-21,False,"Sat Nov 21, 12:00 PM",Mercyhurst,New Haven,,,,,False,True,NEC,NEC,False,2026-11-21T12:00:00-05:00,Sat,,
 401891330,2026,12,regular,2026-11-21,False,"Sat Nov 21, 2:00 PM",Southern Utah,Chicago State,,,,,False,False,Big Sky,FCS Independents,False,2026-11-21T14:00:00-05:00,Sat,,
-401866470,2026,13,regular,2026-11-24,False,"Tue Nov 24, 7:00 PM",Eastern Michigan,Kent State,,,,,False,True,Mid-American,Mid-American,False,2026-11-24T19:00:00-05:00,Tue,fbs,fbs
-401866471,2026,13,regular,2026-11-24,False,"Tue Nov 24, 7:00 PM",Western Michigan,Miami (OH),,,,,False,True,Mid-American,Mid-American,False,2026-11-24T19:00:00-05:00,Tue,fbs,fbs
+401866470,2026,13,regular,2026-11-24,False,"Tue Nov 24, 7:00 PM",Eastern Michigan,Kent State,17.0,12.0,29.0,5.0,False,True,Mid-American,Mid-American,True,2026-11-24T19:00:00-05:00,Tue,fbs,fbs
+401866471,2026,13,regular,2026-11-24,False,"Tue Nov 24, 7:00 PM",Western Michigan,Miami (OH),24.0,28.0,52.0,-4.0,False,True,Mid-American,Mid-American,True,2026-11-24T19:00:00-05:00,Tue,fbs,fbs
 401908999,2026,13,regular,2026-11-24,False,"Tue Nov 24, 1:00 PM",Concord,Ferrum,,,,,False,False,Mountain East,Carolinas,False,2026-11-24T13:00:00-05:00,Tue,,
 401856879,2026,13,regular,2026-11-26,False,"Thu Nov 26, 8:00 PM",Texas Tech,TCU,,,,,False,True,Big 12,Big 12,False,2026-11-26T20:00:00-05:00,Thu,fbs,fbs
 401868354,2026,13,regular,2026-11-26,False,"Thu Nov 26, 3:00 PM",Alabama State,Tuskegee,,,,,False,False,SWAC,SIAC,False,2026-11-26T15:00:00-05:00,Thu,,
