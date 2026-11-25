@@ -1,38 +1,38 @@
 {
-  "updated": "2026-11-24",
+  "updated": "2026-11-25",
   "break_even": 51.75,
   "venue": "kalshi_taker",
   "totals": {
     "season": {
-      "n": 20,
+      "n": 21,
       "wins": 6,
-      "losses": 14,
+      "losses": 15,
       "pushes": 0,
-      "win_pct": 30.0,
-      "units": -7.9,
-      "roi": -54.1,
-      "clv": -1.15
+      "win_pct": 28.6,
+      "units": -8.03,
+      "roi": -54.5,
+      "clv": -1.07
     },
     "all_games": {
-      "n": 827,
+      "n": 829,
       "wins": 420,
-      "losses": 407,
+      "losses": 409,
       "pushes": 0,
-      "win_pct": 50.8,
-      "units": -7.9,
-      "roi": -54.1,
-      "clv": -0.05
+      "win_pct": 50.7,
+      "units": -8.03,
+      "roi": -54.5,
+      "clv": -0.04
     },
     "by_class": {
       "fbs": {
-        "n": 682,
+        "n": 684,
         "wins": 335,
-        "losses": 347,
+        "losses": 349,
         "pushes": 0,
-        "win_pct": 49.1,
-        "units": -5.75,
-        "roi": -56.6,
-        "clv": -0.15
+        "win_pct": 49.0,
+        "units": -5.88,
+        "roi": -57.2,
+        "clv": -0.14
       },
       "fcs": {
         "n": 145,
@@ -46,27 +46,27 @@
       }
     },
     "last2weeks": {
-      "n": 7,
-      "wins": 2,
-      "losses": 5,
+      "n": 3,
+      "wins": 0,
+      "losses": 3,
       "pushes": 0,
-      "win_pct": 28.6,
-      "units": -3.19,
-      "roi": -58.1,
-      "clv": -2.36
+      "win_pct": 0.0,
+      "units": -2.36,
+      "roi": -100.0,
+      "clv": -1.17
     },
     "mae": 12.29,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 255,
+        "n": 256,
         "wins": 127,
-        "losses": 128,
+        "losses": 129,
         "pushes": 0,
-        "win_pct": 49.8,
+        "win_pct": 49.6,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.07
+        "clv": -0.06
       },
       {
         "bucket": "1-2",
@@ -103,14 +103,14 @@
       },
       {
         "bucket": "5-7",
-        "n": 41,
+        "n": 42,
         "wins": 21,
-        "losses": 20,
+        "losses": 21,
         "pushes": 0,
-        "win_pct": 51.2,
-        "units": -4.74,
-        "roi": -41.4,
-        "clv": -0.38
+        "win_pct": 50.0,
+        "units": -4.87,
+        "roi": -42.0,
+        "clv": -0.35
       },
       {
         "bucket": "7-+",
@@ -137,9 +137,9 @@
       "clv": -0.72
     },
     "all_games": {
-      "n": 827,
-      "wins": 413,
-      "losses": 399,
+      "n": 829,
+      "wins": 414,
+      "losses": 400,
       "pushes": 15,
       "win_pct": 50.9,
       "units": -0.17,
@@ -148,14 +148,14 @@
     },
     "by_class": {
       "fbs": {
-        "n": 682,
-        "wins": 342,
-        "losses": 325,
+        "n": 684,
+        "wins": 343,
+        "losses": 326,
         "pushes": 15,
         "win_pct": 51.3,
         "units": 1.0,
         "roi": 15.2,
-        "clv": 0.02
+        "clv": 0.01
       },
       "fcs": {
         "n": 145,
@@ -178,29 +178,29 @@
       "roi": -68.6,
       "clv": 0.33
     },
-    "mae": 11.77,
+    "mae": 11.75,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 268,
-        "wins": 124,
+        "n": 269,
+        "wins": 125,
         "losses": 139,
         "pushes": 5,
-        "win_pct": 47.1,
+        "win_pct": 47.3,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.16
+        "clv": 0.15
       },
       {
         "bucket": "1-2",
-        "n": 216,
+        "n": 217,
         "wins": 113,
-        "losses": 97,
+        "losses": 98,
         "pushes": 6,
-        "win_pct": 53.8,
+        "win_pct": 53.6,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.46
+        "clv": 0.44
       },
       {
         "bucket": "2-3",
@@ -356,8 +356,17 @@
       "played": 2,
       "cum_total": -7.9,
       "cum_spread": -0.18
+    },
+    {
+      "week": 13,
+      "games": 2,
+      "total_units": -0.13,
+      "spread_units": 0.0,
+      "played": 1,
+      "cum_total": -8.03,
+      "cum_spread": -0.18
     }
   ],
-  "graded_games": 827,
+  "graded_games": 829,
   "fcs_games": 145
 }
