@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-25",
+  "updated": "2026-11-26",
   "sport": "nfl",
   "break_even": 51.75,
   "venue": "kalshi_taker",
@@ -15,14 +15,14 @@
       "clv": null
     },
     "all_games": {
-      "n": 163,
-      "wins": 81,
+      "n": 164,
+      "wins": 82,
       "losses": 82,
       "pushes": 0,
-      "win_pct": 49.7,
+      "win_pct": 50.0,
       "units": 0.0,
       "roi": 0.0,
-      "clv": -0.15
+      "clv": -0.14
     },
     "last2weeks": {
       "n": 0,
@@ -34,18 +34,18 @@
       "roi": 0.0,
       "clv": null
     },
-    "mae": 10.47,
+    "mae": 10.44,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 51,
-        "wins": 24,
+        "n": 52,
+        "wins": 25,
         "losses": 27,
         "pushes": 0,
-        "win_pct": 47.1,
+        "win_pct": 48.1,
         "units": 0.0,
         "roi": 0.0,
-        "clv": 0.02
+        "clv": 0.06
       },
       {
         "bucket": "1-2",
@@ -105,14 +105,14 @@
       "clv": -0.75
     },
     "all_games": {
-      "n": 163,
+      "n": 164,
       "wins": 74,
-      "losses": 84,
+      "losses": 85,
       "pushes": 5,
-      "win_pct": 46.8,
+      "win_pct": 46.5,
       "units": -0.36,
       "roi": -100.0,
-      "clv": -0.27
+      "clv": -0.26
     },
     "last2weeks": {
       "n": 2,
@@ -124,18 +124,18 @@
       "roi": -100.0,
       "clv": -0.75
     },
-    "mae": 9.45,
+    "mae": 9.46,
     "by_edge": [
       {
         "bucket": "0-1",
-        "n": 49,
+        "n": 50,
         "wins": 24,
-        "losses": 24,
+        "losses": 25,
         "pushes": 1,
-        "win_pct": 50.0,
+        "win_pct": 49.0,
         "units": 0.0,
         "roi": 0.0,
-        "clv": -0.28
+        "clv": -0.25
       },
       {
         "bucket": "1-2",
@@ -282,14 +282,23 @@
       "played": 0,
       "cum_total": 0.0,
       "cum_spread": -0.36
+    },
+    {
+      "week": 12,
+      "games": 1,
+      "total_units": 0.0,
+      "spread_units": 0.0,
+      "played": 0,
+      "cum_total": 0.0,
+      "cum_spread": -0.36
     }
   ],
   "teasers": {
-    "legs": 30,
+    "legs": 31,
     "wins": 24,
-    "losses": 6,
-    "win_pct": 80.0,
+    "losses": 7,
+    "win_pct": 77.4,
     "break_even": 73.9,
-    "two_team_ev": 17.3
+    "two_team_ev": 9.9
   }
 }
